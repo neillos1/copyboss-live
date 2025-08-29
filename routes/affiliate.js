@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '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');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const db = require('../database');
 
 // Authentication middleware
