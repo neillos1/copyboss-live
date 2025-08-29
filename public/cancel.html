@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Cancelled - CopyBoss</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cancel-animation {
+            animation: cancelShake 0.5s ease-in-out;
+        }
+        
+        @keyframes cancelShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="max-w-md mx-auto text-center p-8">
+        <!-- Cancel Icon -->
+        <div class="cancel-animation mb-8">
+            <div class="w-24 h-24 mx-auto bg-red-500 rounded-full flex items-center justify-center">
+                <i class="fas fa-times text-white text-3xl"></i>
+            </div>
+        </div>
+        
+        <!-- Cancel Message -->
+        <h1 class="text-3xl font-bold gradient-text mb-4">Payment Cancelled</h1>
+        <p class="text-gray-300 mb-8">Your payment was cancelled. No charges were made to your account.</p>
+        
+        <!-- Info Box -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4">What happened?</h3>
+            <ul class="text-left text-gray-300 space-y-2">
+                <li class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-400 mt-1 mr-2"></i>
+                    <span>Your payment was cancelled before completion</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-shield-alt text-green-400 mt-1 mr-2"></i>
+                    <span>No charges were made to your account</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-undo text-yellow-400 mt-1 mr-2"></i>
+                    <span>You can try again anytime</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="space-y-4">
+            <a href="/pricing.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                <i class="fas fa-credit-card mr-2"></i>
+                Try Again
+            </a>
+            <a href="/analyzer.html" class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                <i class="fas fa-chart-line mr-2"></i>
+                Continue with Free Plan
+            </a>
+            <a href="/index.html" class="block w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                <i class="fas fa-home mr-2"></i>
+                Back to Home
+            </a>
+        </div>
+        
+        <!-- Support info -->
+        <div class="mt-8 p-4 bg-gray-800 rounded-lg">
+            <p class="text-gray-400 text-sm mb-2">Need help with your payment?</p>
+            <a href="mailto:support@copy-boss.com" class="text-blue-400 hover:text-blue-300 text-sm">
+                <i class="fas fa-envelope mr-1"></i>
+                support@copy-boss.com
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect after 10 seconds
+        setTimeout(() => {
+            window.location.href = '/pricing.html';
+        }, 10000);
+    </script>
+</body>
+</html>

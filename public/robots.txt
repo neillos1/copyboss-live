@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block templates and test files
+Disallow: /pdf-template.html
+Disallow: /analyzer-report-template.html
+Disallow: /popup-test.html
+
+Sitemap: https://copy-boss.com/sitemap.xml

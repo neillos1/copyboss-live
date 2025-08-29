@@ -1,0 +1,393 @@
+<!-- FILE: pdf-template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="msvalidate.01" content="A38FE47EADB280B3037029B991B65523" />
+  <title>VideoBoss Analyzer Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    .page-container {
+      max-width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #ffffff;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Professional Header */
+    header {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+      padding: 24px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(50%, -50%);
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .logo-section img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .report-title {
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+      flex-grow: 1;
+      margin: 0 20px;
+      letter-spacing: -0.02em;
+    }
+    
+    .pro-badge {
+      font-size: 11px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      display: inline-block;
+      margin-left: 12px;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    
+    .timestamp {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+    }
+    
+    /* Main Content */
+    .main-content {
+      padding: 32px;
+      position: relative;
+    }
+    
+    .section {
+      margin-bottom: 32px;
+      position: relative;
+    }
+    
+    .section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1e40af;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .section h2::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      border-radius: 2px;
+    }
+    
+    /* Card Containers */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+    }
+    
+    /* Score Grid */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    
+    .score-block {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #64748b;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+    
+    .score-block:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .score-block.good { 
+      border-left-color: #10b981; 
+      background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    }
+    .score-block.warn { 
+      border-left-color: #f59e0b; 
+      background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+    }
+    .score-block.poor { 
+      border-left-color: #ef4444; 
+      background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+    }
+    
+    .score-block .label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      color: #1e293b;
+    }
+    
+    /* AI Feedback Grid */
+    .ai-feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    
+    .ai-feedback-block {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .ai-feedback-block strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e40af;
+    }
+    
+    /* Performance Tips Grid */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    
+    .tip-card {
+      background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 13px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tip-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    }
+    
+    .tip-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+    
+    .tip-card strong {
+      color: #0f172a;
+      font-weight: 600;
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding: 20px 32px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-top: 1px solid #e2e8f0;
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      font-weight: 400;
+    }
+    
+    /* Watermark */
+    .watermark {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 10px;
+      color: rgba(100, 116, 139, 0.3);
+      font-weight: 400;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    /* Responsive adjustments for PDF */
+    @media print {
+      body {
+        background: white;
+      }
+      .page-container {
+        box-shadow: none;
+        margin: 0;
+      }
+      .card:hover,
+      .score-block:hover,
+      .tip-card:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <!-- Professional Header -->
+    <header>
+      <div class="header-content">
+        <div class="logo-section">
+          <img src="assets/img/logo1.jpeg" alt="VideoBoss Logo" />
+          <div class="timestamp">Generated: <span id="current-date"></span></div>
+        </div>
+        <div class="report-title">
+          Video Analysis Report <span class="pro-badge">PRO</span>
+        </div>
+        <div></div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Executive AI Summary -->
+      <div class="section">
+        <h2>📊 Executive AI Summary</h2>
+        <div class="card">
+          <div class="score-block good">[summary-text]</div>
+        </div>
+      </div>
+
+      <!-- Quantitative Performance Metrics -->
+      <div class="section">
+        <h2>📈 Quantitative Performance Metrics</h2>
+        <div class="score-grid">[score-blocks]</div>
+      </div>
+
+      <!-- Qualitative Insights & Recommendations -->
+      <div class="section">
+        <h2>🧠 Qualitative Insights & Recommendations</h2>
+        <div class="ai-feedback-grid">[feedback-blocks]</div>
+      </div>
+
+      <!-- Actionable Optimization Guidelines -->
+      <div class="section">
+        <h2>🚀 Actionable Optimization Guidelines</h2>
+        <div class="tips-grid">
+          <div class="tip-card">
+            <strong>⏰ Optimal Posting Time</strong><br>
+            Post between 6 PM – 9 PM for maximum visibility and engagement potential.
+          </div>
+          <div class="tip-card">
+            <strong>🏷️ Hashtag Strategy</strong><br>
+            Use trending hashtags: #FYP #ViralVideo #TikTokTips #ContentCreator
+          </div>
+          <div class="tip-card">
+            <strong>🎵 Audio Selection</strong><br>
+            Choose trending upbeat audio with 80–120 BPM for optimal viewer retention.
+          </div>
+          <div class="tip-card">
+            <strong>🖼️ Thumbnail Optimization</strong><br>
+            Use freeze-frame of bold facial expression or product zoom-in for higher CTR.
+          </div>
+          <div class="tip-card">
+            <strong>📈 Boost Strategy</strong><br>
+            Pin a comment with CTA & share to IG Stories within 10 minutes of posting.
+          </div>
+          <div class="tip-card">
+            <strong>📈 Engagement Call-to-Action</strong><br>
+            Encourage viewers to like, comment, or share within the first 5 seconds to maximize algorithmic distribution.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Professional Footer -->
+    <div class="footer">
+      Report generated by VideoBoss Analyzer — AI-powered insights for content optimization
+    </div>
+    
+    <!-- Watermark -->
+    <div class="watermark">
+      VideoBoss AI Analysis
+    </div>
+  </div>
+
+  <script>
+    // Set current date
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  </script>
+</body>
+</html>

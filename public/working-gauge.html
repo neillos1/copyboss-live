@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gauge Fixed with Chart.js v2</title>
+  <style>
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+  </style>
+
+  <!-- ✅ Load Chart.js v2.9.4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+  <!-- ✅ Load Gauge Plugin for v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-gauge@0.3.0/dist/chartjs-gauge.min.js"></script>
+</head>
+<body>
+  <canvas id="gauge" width="300" height="300"></canvas>
+
+  <script>
+    var ctx = document.getElementById("gauge").getContext("2d");
+    var myGauge = new Chart(ctx, {
+      type: 'gauge',
+      data: {
+        datasets: [{
+          value: 75,
+          minValue: 0,
+          data: [30, 60, 100],
+          backgroundColor: ['#f44336', '#ff9800', '#4caf50'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        needle: {
+          radiusPercentage: 2,
+          widthPercentage: 3.2,
+          lengthPercentage: 80,
+          color: 'white'
+        },
+        valueLabel: {
+          display: true,
+          formatter: Math.round
+        }
+      }
+    });
+  </script>
+</body>
+</html>

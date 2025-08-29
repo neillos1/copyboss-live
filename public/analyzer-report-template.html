@@ -1,0 +1,200 @@
+<!-- FILE: pdf-template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="msvalidate.01" content="A38FE47EADB280B3037029B991B65523" />
+  <title>VideoBoss Analyzer Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fff;
+      color: #111;
+      margin: 40px;
+      padding: 0;
+      font-size: 15px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+    }
+    .report-title {
+      font-size: 24px;
+      font-weight: 800;
+      text-align: center;
+      flex-grow: 1;
+      margin: 0 20px;
+    }
+    .pro-badge {
+      font-size: 12px;
+      background: #222;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      display: inline-block;
+    }
+    .timestamp {
+      font-size: 13px;
+      color: #555;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .section h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .score-block {
+      background: #fefefe;
+      border: 1px solid #ddd;
+      border-left: 6px solid #555;
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .score-block.good { border-left-color: #28a745; }
+    .score-block.warn { border-left-color: #ffc107; }
+    .score-block.poor { border-left-color: #dc3545; }
+    .score-block .label {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .ai-feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+    .ai-feedback-block {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .ai-feedback-block strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .tip-card {
+      background: #fffefc;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .tip-card:hover {
+      transform: scale(1.01);
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+    .detailed-feedback-block {
+      background: #1f1f2e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+      transition: transform 0.2s ease;
+    }
+    .detailed-feedback-block:hover {
+      transform: scale(1.01);
+    }
+    .detailed-feedback-block h3 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #8fd4ff;
+    }
+    .detailed-feedback-block p {
+      font-size: 15px;
+      margin: 6px 0;
+      line-height: 1.5;
+    }
+      /* Watermark and footer print styles */
+    @media print {
+      #pdfWatermark { display: block !important; }
+      footer { display: block !important; }
+    }
+    @media screen {
+      #pdfWatermark { display: none !important; }
+      footer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+    <!-- Watermark (will be repeated on every page via CSS/JS) -->
+    <div id="pdfWatermark" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.08; font-size: 80px; color: #2248bc; z-index: 9999; pointer-events: none; user-select: none; width: 100vw; text-align: center;">
+      VideoBoss Analyzer
+    </div>
+  <header>
+    <div>
+      <img src="assets/img/logo1.jpeg" style="width: 100px; border-radius: 8px;" alt="Logo" />
+      <div class="timestamp" id="generatedTime">Created: [Will auto-fill]</div>
+    </div>
+    <div class="report-title">
+      Video Analysis Report <span class="pro-badge">PRO</span>
+    </div>
+    <div></div>
+  </header>
+
+  <div class="section">
+    <h2>🧠 AI Summary</h2>
+    <div class="score-block good" id="summaryBlock">{{summaryBlock}}</div>
+  </div>
+
+  <div class="section">
+    <h2>🔥 Score Breakdown</h2>
+    <div class="score-grid" id="scoreGrid">{{scoreGrid}}</div>
+  </div>
+
+  <div class="section">
+    <h2>🧠 Full AI Feedback</h2>
+    <div class="ai-feedback-grid" id="feedbackGrid">{{feedbackGrid}}</div>
+  </div>
+
+  <div class="section">
+    <h2>🚀 Performance Tips</h2>
+    <div class="tips-grid">
+      <div class="tip-card">🕒 <strong>Optimal Posting Time:</strong><br> Post between 6 PM – 9 PM for max visibility.</div>
+      <div class="tip-card">🔖 <strong>Hashtag Suggestions:</strong><br> #FYP #ViralVideo #TikTokTips #ContentCreator</div>
+      <div class="tip-card">🎶 <strong>Sound Track Ideas:</strong><br> Use trending upbeat audio with 80–120 BPM.</div>
+      <div class="tip-card">🖼️ <strong>Thumbnail Concept:</strong><br> Freeze-frame of bold facial expression or product zoom-in.</div>
+      <div class="tip-card">🚀 <strong>Boost Strategy:</strong><br> Pin a comment with CTA & share to IG Stories within 10 mins.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Report generated by VideoBoss Analyzer – All insights powered by AI.
+  </div>
+  <footer style="position: fixed; bottom: 0; left: 0; width: 100vw; text-align: center; color: #888; font-size: 13px; padding: 10px 0; background: rgba(255,255,255,0.85); border-top: 1px solid #eee; z-index: 9999;">
+    <span style="font-weight: 600; color: #2248bc;">VideoBoss Analyzer</span> &mdash; Report generated by AI. For personal use only. &copy; 2024 VideoBoss.
+  </footer>
+</body>
+</html>

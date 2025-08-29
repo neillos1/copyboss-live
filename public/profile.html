@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Profile - VideoBoss</title>
+  <link rel="stylesheet" href="styles.css"> <!-- or your CSS path -->
+  <style>
+    body {
+      background-color: #0f172a;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      padding: 40px;
+    }
+    .profile-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+    .profile-container h2 {
+      margin-bottom: 20px;
+    }
+    .upload-avatar-form input[type="file"] {
+      margin: 15px 0;
+      color: white;
+    }
+    .upload-avatar-form button {
+      padding: 10px 20px;
+      background-color: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .upload-avatar-form button:hover {
+      background-color: #60a5fa;
+    }
+ 
+
+
+ 
+ 
+ 
+ </style>
+</head>
+<body>
+
+  <div class="profile-container">
+    <h2>👤 Edit Your Profile</h2>
+
+    <form action="/upload-avatar" method="POST" enctype="multipart/form-data" class="upload-avatar-form">
+      <label for="avatar">Upload New Profile Picture:</label><br>
+      <input type="file" name="avatar" accept="image/*" required>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
+
+</body>
+</html>
