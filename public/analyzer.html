@@ -1893,35 +1893,119 @@ html, body {
                         </button>
                     </div>
                     
-                    <!-- Mobile menu button -->
-                    <div class="md:hidden">
-                        <button type="button" class="text-gray-300 hover:text-white" id="mobile-menu-btn">
-                            <i class="fas fa-bars text-xl"></i>
+                    <!-- Mobile Menu Button -->
+                    <div class="mobile-menu-btn md:hidden">
+                        <button id="mobileMenuBtn" class="hamburger-btn" aria-label="Toggle mobile menu">
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
                         </button>
                     </div>
                 </div>
                 
-                <!-- Mobile Navigation Menu -->
-                <div class="md:hidden" id="mobile-menu" style="display: none;">
-                    <div class="px-2 pt-2 pb-3 space-y-1 bg-gray-900/95 backdrop-blur-md rounded-lg mt-2">
-                        <a href="/index.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Home</a>
-                        <a href="/analyzer.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Analyzer</a>
-                        <a href="/generator.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Generator</a>
-                        <a href="/pricing.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Pricing</a>
-                        <a href="https://copy-boss.com/community/" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Community Hub</a>
-                        <a href="login.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Login</a>
-                        <a href="signup.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Sign Up</a>
-                        
-                        <!-- Mobile Upload and Analyze Buttons -->
-                        <div class="pt-2 border-t border-gray-700">
-                            <label for="file-upload" class="block px-3 py-2 text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 rounded-md transition-all duration-200 font-medium text-center">
-                                <i class="fa-sharp fa-solid fa-upload mr-2"></i>
-                                Upload Video
-                            </label>
-                            <button onclick="runAnalysis()" class="w-full mt-2 px-3 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-md transition-all duration-200 font-medium">
-                                <i class="fas fa-chart-line mr-2"></i>
-                                Analyze
+                <!-- Mobile Menu Overlay -->
+                <div id="mobileMenuOverlay" class="mobile-menu-overlay">
+                    <div class="mobile-menu-content">
+                        <div class="mobile-menu-header">
+                            <div class="mobile-brand">
+                                <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="mobile-brand-logo">
+                                <span class="mobile-brand-text">CopyBoss</span>
+                            </div>
+                            <button id="mobileMenuClose" class="mobile-close-btn" aria-label="Close mobile menu">
+                                <span class="close-line"></span>
+                                <span class="close-line"></span>
                             </button>
+                        </div>
+                        
+                        <nav class="mobile-nav">
+                            <a href="/index.html" class="mobile-nav-link">
+                                <i class="fas fa-home"></i>
+                                <span>Home</span>
+                            </a>
+                            <a href="/analyzer.html" class="mobile-nav-link">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Analyzer</span>
+                            </a>
+                            <a href="/generator.html" class="mobile-nav-link">
+                                <i class="fas fa-magic"></i>
+                                <span>Generator</span>
+                            </a>
+                            <a href="/pricing.html" class="mobile-nav-link">
+                                <i class="fas fa-tags"></i>
+                                <span>Pricing</span>
+                            </a>
+                            <a href="https://copy-boss.com/community/" class="mobile-nav-link">
+                                <i class="fas fa-users"></i>
+                                <span>Community Hub</span>
+                            </a>
+                            <a href="login.html" class="mobile-nav-link">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </a>
+                            <a href="signup.html" class="mobile-nav-link mobile-signup-btn">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Sign Up</span>
+                            </a>
+                            <a href="#" class="mobile-nav-link mobile-try-free-btn">
+                                <i class="fas fa-gift"></i>
+                                <span>Try Free Now</span>
+                            </a>
+                            
+                            <!-- Mobile Upload and Analyze Buttons -->
+                            <div class="mobile-upload-section">
+                                <label for="file-upload" class="mobile-nav-link mobile-upload-btn">
+                                    <i class="fa-sharp fa-solid fa-upload"></i>
+                                    <span>Upload Video</span>
+                                </label>
+                                <button onclick="runAnalysis()" class="mobile-nav-link mobile-analyze-btn">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Analyze</span>
+                                </button>
+                            </div>
+                        </nav>
+                        
+                        <!-- Profile Section -->
+                        <div class="mobile-profile-section">
+                            <div class="mobile-profile-header">
+                                <img src="assets/img/default-avatar.png" alt="Profile" class="mobile-avatar" id="mobileAvatar">
+                                <div class="mobile-profile-info">
+                                    <span class="mobile-username" id="mobileUsername">Guest User</span>
+                                    <span class="mobile-email" id="mobileEmail">guest@copyboss.com</span>
+                                </div>
+                            </div>
+                            <div class="mobile-profile-dropdown">
+                                <a href="/affiliate-dashboard.html" class="mobile-dropdown-item">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>Affiliate Dashboard</span>
+                                </a>
+                                <a href="#" class="mobile-dropdown-item" onclick="openAvatarUpload()">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Upload Avatar</span>
+                                </a>
+                                <a href="#" class="mobile-dropdown-item mobile-logout-btn" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Media Section -->
+                        <div class="mobile-social-section">
+                            <h3 class="mobile-social-title">Follow Us</h3>
+                            <div class="mobile-social-links">
+                                <a href="https://twitter.com/copyboss" class="mobile-social-link" target="_blank">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://tiktok.com/@copyboss" class="mobile-social-link" target="_blank">
+                                    <i class="fab fa-tiktok"></i>
+                                </a>
+                                <a href="https://youtube.com/@copyboss" class="mobile-social-link" target="_blank">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                                <a href="https://instagram.com/copyboss" class="mobile-social-link" target="_blank">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2268,22 +2352,19 @@ html, body {
      <button id="dropdownToggleBtn" style="background: #2e3b5e; border: none; border-radius: 8px; padding: 8px 12px; color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; min-width: 40px; height: 40px;">
         &#8942;
       </button>
-    <div id="dropdownMenu" style="display: none; position: absolute; right: 0; top: 44px; background: #2e3b5e; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); min-width: 180px; max-width: 200px; z-index: 1000;">
-  <a href="#" id="compareBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">Compare With Past Videos</a>
-  <a href="#" id="shareBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">
-    Share This Graph
-    <span class="pro-tag-dropdown" style="background: #8e7cff; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold; vertical-align: middle;">PRO</span>
-  </a>
-  <a href="#" id="exportBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">
-    Export as Image
-    <span class="pro-tag-dropdown" style="background: #8e7cff; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold; vertical-align: middle;">PRO</span>
-  </a>
-<a href="#" id="resetChartBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">🔁 Reset Chart</a>
-
-<a href="#" id="graphHelpBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">📘 Graph Help</a>
-
-
-</div>
+    <div id="dropdownMenu">
+      <a href="#" id="compareBtn">Compare With Past Videos</a>
+      <a href="#" id="shareBtn">
+        Share This Graph
+        <span class="pro-tag-dropdown">PRO</span>
+      </a>
+      <a href="#" id="exportBtn">
+        Export as Image
+        <span class="pro-tag-dropdown">PRO</span>
+      </a>
+      <a href="#" id="resetChartBtn">🔁 Reset Chart</a>
+      <a href="#" id="graphHelpBtn">📘 Graph Help</a>
+    </div>
 
 
     </div>
@@ -4109,26 +4190,28 @@ function displayGeminiResultsSafe() {
 }
 
 
-/* Dropdown Menu Styles */
+/* Dropdown Menu Styles - Matching Homepage */
 #dropdownMenu {
   display: none;
   position: absolute;
   right: 0;
-  top: 36px;
-  background: #2e3b5e;
-  border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  min-width: 180px;
-  max-width: 200px;
+  top: 44px;
+  background: linear-gradient(135deg, rgba(30, 30, 64, 0.95) 0%, rgba(20, 20, 40, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  max-width: 220px;
   z-index: 1000;
+  backdrop-filter: blur(10px);
 }
 
 /* Responsive dropdown positioning for smaller screens */
 @media (max-width: 1200px) {
   #dropdownMenu {
     right: 0;
-    min-width: 170px;
-    max-width: 190px;
+    min-width: 180px;
+    max-width: 200px;
   }
 }
 
@@ -4149,17 +4232,418 @@ function displayGeminiResultsSafe() {
 }
 
 #dropdownMenu a {
-  display: block;
-  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
   color: #ffffff;
   text-decoration: none;
   font-size: 14px;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#dropdownMenu a:last-child {
+  border-bottom: none;
 }
 
 #dropdownMenu a:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+/* PRO tag styling for dropdown */
+.pro-tag-dropdown {
+  background: #8e7cff;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
   border-radius: 4px;
+  margin-left: 8px;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+/* Avatar Dropdown Menu Styles - Matching Homepage */
+.avatar-dropdown-menu {
+  min-width: 200px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(30, 30, 64, 0.95) 0%, rgba(20, 20, 40, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.dropdown-item i {
+  width: 16px;
+  text-align: center;
+}
+
+/* Mobile Navigation Styles */
+.mobile-menu-btn {
+  display: none;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-line {
+  width: 24px;
+  height: 2px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+}
+
+.mobile-menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu-content {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Mobile Menu Header */
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-brand-logo {
+  height: 32px;
+  width: auto;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.mobile-brand-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobile-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-line {
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.close-line:nth-child(1) {
+  transform: rotate(45deg);
+}
+
+.close-line:nth-child(2) {
+  transform: rotate(-45deg);
+}
+
+/* Mobile Navigation Links */
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  color: #f1f5f9;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+.mobile-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(8px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.mobile-nav-link i {
+  width: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Mobile CTA Buttons */
+.mobile-signup-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  margin-top: 16px;
+}
+
+.mobile-signup-btn:hover {
+  transform: translateX(8px) translateY(-2px) !important;
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.6) !important;
+}
+
+.mobile-try-free-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.mobile-try-free-btn:hover {
+  transform: translateX(8px) translateY(-2px) !important;
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important;
+}
+
+/* Mobile Upload Section */
+.mobile-upload-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-upload-btn {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.mobile-upload-btn:hover {
+  transform: translateX(8px) translateY(-2px) !important;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.6) !important;
+}
+
+.mobile-analyze-btn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.mobile-analyze-btn:hover {
+  transform: translateX(8px) translateY(-2px) !important;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6) !important;
+}
+
+/* Mobile Profile Section */
+.mobile-profile-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.mobile-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.mobile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.mobile-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-username {
+  font-weight: 600;
+  color: #f1f5f9;
+  font-size: 1rem;
+}
+
+.mobile-email {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.mobile-profile-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #f1f5f9;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.mobile-dropdown-item i {
+  width: 16px;
+  text-align: center;
+}
+
+.mobile-logout-btn {
+  color: #ef4444 !important;
+}
+
+.mobile-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Mobile Social Section */
+.mobile-social-section {
+  margin-top: auto;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-social-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.mobile-social-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.mobile-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.mobile-social-link:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .navbar-nav {
+    display: none;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+  }
 }
 
 
@@ -9079,32 +9563,91 @@ async function saveAnalysisResult(score) {
     
     <!-- Mobile Menu JavaScript -->
     <script>
-        // Mobile menu toggle
+        // Mobile Menu Functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const reportIssueBtnMobile = document.getElementById('reportIssueBtnMobile');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
             
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', function() {
-                    if (mobileMenu.style.display === 'none' || mobileMenu.style.display === '') {
-                        mobileMenu.style.display = 'block';
-                    } else {
-                        mobileMenu.style.display = 'none';
-                    }
-                });
+            // Toggle mobile menu
+            function toggleMobileMenu() {
+                mobileMenuOverlay.classList.toggle('active');
+                mobileMenuBtn.classList.toggle('active');
+                document.body.style.overflow = mobileMenuOverlay.classList.contains('active') ? 'hidden' : '';
             }
             
-            // Handle mobile Report Issue button
-            if (reportIssueBtnMobile) {
-                reportIssueBtnMobile.addEventListener('click', function() {
-                    // Trigger the same action as the desktop Report Issue button
-                    const desktopReportBtn = document.getElementById('reportIssueBtn');
-                    if (desktopReportBtn) {
-                        desktopReportBtn.click();
+            // Open mobile menu
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu
+            mobileMenuClose.addEventListener('click', toggleMobileMenu);
+            
+            // Close menu when clicking on nav links
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    setTimeout(() => {
+                        toggleMobileMenu();
+                    }, 100);
+                });
+            });
+            
+            // Close menu when clicking outside
+            mobileMenuOverlay.addEventListener('click', function(event) {
+                if (event.target === mobileMenuOverlay) {
+                    toggleMobileMenu();
+                }
+            });
+            
+            // Close menu on escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileMenuOverlay.classList.contains('active')) {
+                    toggleMobileMenu();
+                }
+            });
+            
+            // Smooth scroll for mobile menu links
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href.startsWith('#')) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
                     }
                 });
+            });
+            
+            // Update mobile profile info
+            function updateMobileProfile() {
+                const user = JSON.parse(localStorage.getItem('videobossUser') || '{}');
+                const mobileUsername = document.getElementById('mobileUsername');
+                const mobileEmail = document.getElementById('mobileEmail');
+                const mobileAvatar = document.getElementById('mobileAvatar');
+                
+                if (user.username) {
+                    mobileUsername.textContent = user.username;
+                    mobileEmail.textContent = user.email || 'user@copyboss.com';
+                    if (user.avatar_url) {
+                        mobileAvatar.src = user.avatar_url;
+                    }
+                }
             }
+            
+            // Initialize mobile profile
+            updateMobileProfile();
+            
+            // Listen for auth changes
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'videobossUser') {
+                    updateMobileProfile();
+                }
+            });
 
             // Ensure navigation is always visible on desktop
             function ensureNavigationVisible() {

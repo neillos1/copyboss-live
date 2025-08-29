@@ -183,13 +183,14 @@
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(10px);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: none !important;
             outline: none !important;
+            position: relative;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3) !important;
         }
         
         .pricing-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 50px rgba(59, 130, 246, 0.6), 0 0 70px rgba(59, 130, 246, 0.4) !important;
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.2);
         }
@@ -252,12 +253,12 @@
         .pricing-card.featured {
             background: rgba(59, 130, 246, 0.1) !important;
             border: 2px solid rgba(59, 130, 246, 0.3) !important;
-            box-shadow: 0 20px 40px -12px rgba(59, 130, 246, 0.25) !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3) !important;
         }
         
         .pricing-card.featured:hover {
             transform: translateY(-8px);
-            box-shadow: 0 30px 60px -12px rgba(59, 130, 246, 0.35);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 50px rgba(59, 130, 246, 0.6), 0 0 70px rgba(59, 130, 246, 0.4) !important;
             background: rgba(59, 130, 246, 0.15);
         }
         
@@ -575,19 +576,20 @@
             opacity: 0.8;
         }
         
-        /* Affiliate Promotional Section */
+        /* Affiliate Promotional Section with Neon Glow */
         .affiliate-promo {
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 25%, rgba(5, 150, 105, 0.1) 50%, rgba(4, 120, 87, 0.1) 75%, rgba(6, 95, 70, 0.1) 100%);
             border: 2px solid rgba(34, 197, 94, 0.2);
             backdrop-filter: blur(15px);
             position: relative;
             transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), 0 0 40px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.3);
         }
 
         .affiliate-promo:hover {
             transform: translateY(-5px);
             border-color: rgba(34, 197, 94, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8), 0 0 50px rgba(34, 197, 94, 0.6), 0 0 70px rgba(34, 197, 94, 0.4);
         }
 
         .affiliate-bg-overlay {
@@ -907,6 +909,7 @@
                     </h1>
                 </div>
                 <nav class="navbar-nav hidden md:flex space-x-8">
+                    <a href="/index.html" class="text-gray-300 hover:text-white transition-colors duration-200">Home</a>
                     <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
                     <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
                     <a href="/pricing.html" class="text-white font-medium">Pricing</a>
@@ -915,11 +918,115 @@
                     <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
                 </nav>
                 
+                <!-- Mobile Menu Button -->
+                <div class="mobile-menu-btn md:hidden">
+                    <button id="mobileMenuBtn" class="hamburger-btn" aria-label="Toggle mobile menu">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </button>
+                </div>
+                
                 <!-- Report Issue Button -->
                 <div class="hidden md:flex">
                     <button id="reportIssueBtn" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium transform hover:scale-105 hover:shadow-lg hover:shadow-red-500/25">
                         Report Issue
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="mobile-menu-overlay">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-header">
+                <div class="mobile-brand">
+                    <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="mobile-brand-logo">
+                    <span class="mobile-brand-text">CopyBoss</span>
+                </div>
+                <button id="mobileMenuClose" class="mobile-close-btn" aria-label="Close mobile menu">
+                    <span class="close-line"></span>
+                    <span class="close-line"></span>
+                </button>
+            </div>
+            
+            <nav class="mobile-nav">
+                <a href="/index.html" class="mobile-nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/analyzer.html" class="mobile-nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analyzer</span>
+                </a>
+                <a href="/generator.html" class="mobile-nav-link">
+                    <i class="fas fa-magic"></i>
+                    <span>Generator</span>
+                </a>
+                <a href="/pricing.html" class="mobile-nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Pricing</span>
+                </a>
+                <a href="https://copy-boss.com/community/" class="mobile-nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Community Hub</span>
+                </a>
+                <a href="login.html" class="mobile-nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </a>
+                <a href="signup.html" class="mobile-nav-link mobile-signup-btn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a>
+                <a href="#" class="mobile-nav-link mobile-try-free-btn">
+                    <i class="fas fa-gift"></i>
+                    <span>Try Free Now</span>
+                </a>
+            </nav>
+            
+            <!-- Profile Section -->
+            <div class="mobile-profile-section">
+                <div class="mobile-profile-header">
+                    <img src="assets/img/default-avatar.png" alt="Profile" class="mobile-avatar" id="mobileAvatar">
+                    <div class="mobile-profile-info">
+                        <span class="mobile-username" id="mobileUsername">Guest User</span>
+                        <span class="mobile-email" id="mobileEmail">guest@copyboss.com</span>
+                    </div>
+                </div>
+                <div class="mobile-profile-dropdown">
+                    <a href="/affiliate-dashboard.html" class="mobile-dropdown-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Affiliate Dashboard</span>
+                    </a>
+                    <a href="#" class="mobile-dropdown-item" onclick="openAvatarUpload()">
+                        <i class="fas fa-camera"></i>
+                        <span>Upload Avatar</span>
+                    </a>
+                    <a href="#" class="mobile-dropdown-item mobile-logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Social Media Section -->
+            <div class="mobile-social-section">
+                <h3 class="mobile-social-title">Follow Us</h3>
+                <div class="mobile-social-links">
+                    <a href="https://twitter.com/copyboss" class="mobile-social-link" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://tiktok.com/@copyboss" class="mobile-social-link" target="_blank">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                    <a href="https://youtube.com/@copyboss" class="mobile-social-link" target="_blank">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://instagram.com/copyboss" class="mobile-social-link" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -1765,6 +1872,324 @@
       font-weight: 400;
       letter-spacing: 0.2px;
     }
+    
+    /* Mobile Navigation Styles */
+    .mobile-menu-btn {
+      display: none;
+    }
+    
+    .hamburger-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+    
+    .hamburger-line {
+      width: 24px;
+      height: 2px;
+      background: #f1f5f9;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+    
+    .hamburger-btn.active .hamburger-line:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+    
+    .hamburger-btn.active .hamburger-line:nth-child(2) {
+      opacity: 0;
+    }
+    
+    .hamburger-btn.active .hamburger-line:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+    
+    /* Mobile Menu Overlay */
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+      backdrop-filter: blur(20px);
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+    
+    .mobile-menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .mobile-menu-content {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    /* Mobile Menu Header */
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 30px;
+    }
+    
+    .mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .mobile-brand-logo {
+      height: 32px;
+      width: auto;
+      filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+    }
+    
+    .mobile-brand-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .mobile-close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .close-line {
+      position: absolute;
+      width: 20px;
+      height: 2px;
+      background: #f1f5f9;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    
+    .close-line:nth-child(1) {
+      transform: rotate(45deg);
+    }
+    
+    .close-line:nth-child(2) {
+      transform: rotate(-45deg);
+    }
+    
+    /* Mobile Navigation Links */
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      color: #f1f5f9;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-weight: 500;
+    }
+    
+    .mobile-nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(8px);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    
+    .mobile-nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    
+    /* Mobile CTA Buttons */
+    .mobile-signup-btn {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+      color: white !important;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+      margin-top: 16px;
+    }
+    
+    .mobile-signup-btn:hover {
+      transform: translateX(8px) translateY(-2px) !important;
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.6) !important;
+    }
+    
+    .mobile-try-free-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+      color: white !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    }
+    
+    .mobile-try-free-btn:hover {
+      transform: translateX(8px) translateY(-2px) !important;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important;
+    }
+    
+    /* Mobile Profile Section */
+    .mobile-profile-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .mobile-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .mobile-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(59, 130, 246, 0.5);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+    
+    .mobile-profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .mobile-username {
+      font-weight: 600;
+      color: #f1f5f9;
+      font-size: 1rem;
+    }
+    
+    .mobile-email {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    
+    .mobile-profile-dropdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .mobile-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: #f1f5f9;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .mobile-dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(4px);
+    }
+    
+    .mobile-dropdown-item i {
+      width: 16px;
+      text-align: center;
+    }
+    
+    .mobile-logout-btn {
+      color: #ef4444 !important;
+    }
+    
+    .mobile-logout-btn:hover {
+      background: rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    /* Mobile Social Section */
+    .mobile-social-section {
+      margin-top: auto;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .mobile-social-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .mobile-social-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .mobile-social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f1f5f9;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+    
+    .mobile-social-link:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .navbar-nav {
+        display: none;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
 
     /* Responsive Design */
     @media (max-width: 768px) {
@@ -1990,6 +2415,93 @@
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Error sending feedback. Please try again.');
+                }
+            });
+        });
+        
+        // Mobile Menu Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            // Toggle mobile menu
+            function toggleMobileMenu() {
+                mobileMenuOverlay.classList.toggle('active');
+                mobileMenuBtn.classList.toggle('active');
+                document.body.style.overflow = mobileMenuOverlay.classList.contains('active') ? 'hidden' : '';
+            }
+            
+            // Open mobile menu
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu
+            mobileMenuClose.addEventListener('click', toggleMobileMenu);
+            
+            // Close menu when clicking on nav links
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    setTimeout(() => {
+                        toggleMobileMenu();
+                    }, 100);
+                });
+            });
+            
+            // Close menu when clicking outside
+            mobileMenuOverlay.addEventListener('click', function(event) {
+                if (event.target === mobileMenuOverlay) {
+                    toggleMobileMenu();
+                }
+            });
+            
+            // Close menu on escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileMenuOverlay.classList.contains('active')) {
+                    toggleMobileMenu();
+                }
+            });
+            
+            // Smooth scroll for mobile menu links
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href.startsWith('#')) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Update mobile profile info
+            function updateMobileProfile() {
+                const user = JSON.parse(localStorage.getItem('videobossUser') || '{}');
+                const mobileUsername = document.getElementById('mobileUsername');
+                const mobileEmail = document.getElementById('mobileEmail');
+                const mobileAvatar = document.getElementById('mobileAvatar');
+                
+                if (user.username) {
+                    mobileUsername.textContent = user.username;
+                    mobileEmail.textContent = user.email || 'user@copyboss.com';
+                    if (user.avatar_url) {
+                        mobileAvatar.src = user.avatar_url;
+                    }
+                }
+            }
+            
+            // Initialize mobile profile
+            updateMobileProfile();
+            
+            // Listen for auth changes
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'videobossUser') {
+                    updateMobileProfile();
                 }
             });
         });
