@@ -1821,14 +1821,18 @@ html, body {
     /* Analyzer Page Responsive Design */
     /* Mobile: stack vertically */
     @media screen and (max-width: 768px) {
+      body, html {
+        overflow-x: hidden;   /* prevent horizontal scroll */
+      }
+
       .analyzer-container {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 0;
+        margin: 0 auto !important;
+        padding: 0 !important;
         width: 100%;
-        overflow-x: hidden;
       }
 
       .gauge-container {
@@ -1836,9 +1840,9 @@ html, body {
         flex-direction: column !important;
         grid-template-columns: none !important;
         max-width: 350px !important;
-        width: 100% !important;
+        width: 90% !important;
         margin: 10px auto !important;
-        padding: 0 10px !important;
+        padding: 0 !important;
         justify-content: center;
         align-items: center;
       }
@@ -1846,18 +1850,18 @@ html, body {
       .gauge-box,
       .pro-locked-results,
       .results-card {
-        width: 100% !important;
-        max-width: 350px !important;
-        margin: 10px auto !important;
+        width: 90% !important;   /* fill nicely but with breathing room */
+        max-width: 350px;
+        margin: 12px auto !important;
+        text-align: center;
         padding: 0 !important;
       }
 
       .results-card {
-        width: 100% !important;
-        max-width: 350px !important;
+        width: 90% !important;
         margin: 15px auto !important;
         text-align: center;
-        padding: 0 10px !important;
+        padding: 0 !important;
       }
 
       .results-card h2,
@@ -1868,7 +1872,7 @@ html, body {
 
       .overall-score {
         margin: 15px auto !important;
-        width: 100% !important;
+        width: 90% !important;
         max-width: 350px !important;
       }
 
@@ -1881,10 +1885,6 @@ html, body {
       }
 
       /* Ensure no horizontal scrollbars */
-      body {
-        overflow-x: hidden !important;
-      }
-
       .main-wrapper {
         overflow-x: hidden !important;
       }
