@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - CopyBoss</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .success-animation {
+            animation: successPulse 2s ease-in-out;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .checkmark {
+            animation: checkmarkDraw 1s ease-in-out forwards;
+        }
+        
+        @keyframes checkmarkDraw {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="max-w-md mx-auto text-center p-8">
+        <!-- Success Icon -->
+        <div class="success-animation mb-8">
+            <div class="w-24 h-24 mx-auto bg-green-500 rounded-full flex items-center justify-center">
+                <svg class="w-12 h-12 text-white checkmark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" stroke-dasharray="100" stroke-dashoffset="100"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Success Message -->
+        <h1 class="text-3xl font-bold gradient-text mb-4">Payment Successful!</h1>
+        <p class="text-gray-300 mb-8" id="successMessage">Your account has been upgraded successfully.</p>
+        
+        <!-- Account Status -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4">Your Account Status</h3>
+            <div id="accountStatus" class="text-left">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="space-y-4">
+            <a href="/analyzer.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                <i class="fas fa-chart-line mr-2"></i>
+                Go to Analyzer
+            </a>
+            <a href="/generator.html" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                <i class="fas fa-magic mr-2"></i>
+                Go to Generator
+            </a>
+            <a href="/index.html" class="block w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                <i class="fas fa-home mr-2"></i>
+                Back to Home
+            </a>
+        </div>
+        
+        <!-- Auto-redirect notice -->
+        <p class="text-gray-400 text-sm mt-6">
+            Redirecting to analyzer in <span id="countdown">5</span> seconds...
+        </p>
+    </div>
+
+    <script>
+        // Verify user status from backend
+        async function verifyUserStatusFromBackend(userId) {
+            try {
+                const response = await fetch(`/api/user/status/${userId}`);
+                if (!response.ok) throw new Error('Failed to fetch user status');
+                const status = await response.json();
+
+                // Update localStorage from backend
+                if (status.plan === 'pro' && new Date(status.subscription_expires) > new Date()) {
+                    localStorage.setItem('isPro', 'true');
+                } else {
+                    localStorage.removeItem('isPro');
+                }
+
+                if (status.report_credits && status.report_credits > 0) {
+                    localStorage.setItem('reportCredits', status.report_credits);
+                }
+            } catch (err) {
+                console.error('Backend verification failed, falling back to localStorage:', err);
+            }
+        }
+
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        // Update success message and localStorage based on session
+        const successMessage = document.getElementById('successMessage');
+        const accountStatus = document.getElementById('accountStatus');
+        
+        async function handlePaymentSuccess() {
+            if (sessionId) {
+                try {
+                    // Fetch session details from backend
+                    const response = await fetch('/api/session-details', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sessionId })
+                    });
+                    
+                    if (response.ok) {
+                        const session = await response.json();
+                        const userId = session.metadata?.userId;
+                        
+                        if (session.metadata?.plan === 'pro') {
+                            successMessage.textContent = 'Your Pro subscription has been activated!';
+                            accountStatus.innerHTML = `
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-gray-300">Plan:</span>
+                                    <span class="text-green-400 font-semibold">Pro</span>
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-gray-300">Status:</span>
+                                    <span class="text-green-400 font-semibold">Active</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-300">Expires:</span>
+                                    <span class="text-gray-300">30 days from now</span>
+                                </div>
+                            `;
+                            
+                            // Unlock Pro in localStorage
+                            localStorage.setItem('isPro', 'true');
+                            localStorage.removeItem('reportCredits');
+                            
+                            // Verify with backend
+                            if (userId) {
+                                await verifyUserStatusFromBackend(userId);
+                            }
+                            
+                        } else if (session.metadata?.credits) {
+                            const creditAmount = parseInt(session.metadata.credits);
+                            successMessage.textContent = `${creditAmount} report credits have been added to your account!`;
+                            accountStatus.innerHTML = `
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-gray-300">Plan:</span>
+                                    <span class="text-gray-300">Free</span>
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-gray-300">Report Credits:</span>
+                                    <span class="text-blue-400 font-semibold">${creditAmount}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-300">Status:</span>
+                                    <span class="text-blue-400 font-semibold">Credits Available</span>
+                                </div>
+                            `;
+                            
+                            // Add credits to localStorage
+                            const currentCredits = parseInt(localStorage.getItem('reportCredits') || '0');
+                            localStorage.setItem('reportCredits', (currentCredits + creditAmount).toString());
+                            
+                            // Verify with backend
+                            if (userId) {
+                                await verifyUserStatusFromBackend(userId);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching session details:', error);
+                    successMessage.textContent = 'Payment successful! Your account has been updated.';
+                }
+            } else {
+                // Fallback for direct URL access
+                successMessage.textContent = 'Payment successful! Your account has been updated.';
+            }
+        }
+        
+        // Handle payment success
+        handlePaymentSuccess();
+        
+        // Auto-redirect countdown
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const redirectInterval = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(redirectInterval);
+                window.location.href = '/analyzer.html';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

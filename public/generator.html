@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ✅ Primary SEO Meta -->
+    <title>CopyBoss Script Generator - AI Content Creation Tool</title>
+    <meta name="description" content="CopyBoss Script Generator helps you instantly create viral video scripts tailored to TikTok, YouTube, and Instagram. Choose tone, niche, and platform for perfect results.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="msvalidate.01" content="A38FE47EADB280B3037029B991B65523" />
+
+    <!-- ✅ Favicon -->
+    <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/img/favicon.png">
+
+    <!-- ✅ Open Graph (Facebook, LinkedIn) -->
+    <meta property="og:title" content="CopyBoss Script Generator - AI Content Creation Tool">
+    <meta property="og:description" content="Generate viral video scripts with AI. Customize tone, niche, and platform for TikTok, YouTube, or Instagram.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://copy-boss.com/generator.html">
+    <meta property="og:image" content="https://copy-boss.com/assets/img/og-generator.png">
+
+    <!-- ✅ Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CopyBoss Script Generator - AI Content Creation Tool">
+    <meta name="twitter:description" content="Instantly create scripts for TikTok, YouTube, and Instagram with AI.">
+    <meta name="twitter:image" content="https://copy-boss.com/assets/img/og-generator.png">
+    <meta name="twitter:site" content="@copybosshq">
+
+    <!-- ✅ Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "s3457vebta");
+    </script>
+
+    <!-- ✅ Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6WMZL614NV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6WMZL614NV');
+    </script>
+
+    <!-- ✅ Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ZERRA Group Ltd",
+      "url": "https://copy-boss.com",
+      "logo": "https://copy-boss.com/assets/img/mascot.png",
+      "sameAs": [
+        "https://twitter.com/copybosshq",
+        "https://facebook.com/copybosshq",
+        "https://instagram.com/copybosshq",
+        "https://www.tiktok.com/@copybosspro",
+        "https://youtube.com/copybosshq"
+      ],
+      "founder": "Neil Enright",
+      "brand": {
+        "@type": "Brand",
+        "name": "CopyBoss"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://copy-boss.com/",
+      "name": "CopyBoss",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://copy-boss.com/?s={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "CopyBoss",
+      "description": "AI-powered video analyzer and script generator built for content creators on TikTok, YouTube, and Instagram.",
+      "brand": {
+        "@type": "Brand",
+        "name": "CopyBoss"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://copy-boss.com/pricing.html",
+        "priceCurrency": "GBP",
+        "price": "4.99",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+
+    <!-- ✅ Robots + Sitemap -->
+    <meta name="robots" content="index, follow">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        dark: '#0d0d1a'
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Particle Animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(102, 126, 234, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        .generator-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .generator-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-field {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Avatar Dropdown Styles */
+        .avatar-dropdown {
+            position: relative;
+        }
+
+        .avatar-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-dropdown-menu {
+            min-width: 200px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #f1f5f9;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transform: translateX(4px);
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .avatar-dropdown-menu {
+                right: -50px;
+                min-width: 180px;
+            }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #374151 0%, #1F2937 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tone-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .tone-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #3B82F6;
+        }
+        
+        .tone-btn.active {
+            background: #3B82F6;
+            border-color: #3B82F6;
+            color: white;
+        }
+        
+        .duration-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .duration-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #10B981;
+        }
+        
+        .duration-btn.active {
+            background: #10B981;
+            border-color: #10B981;
+            color: white;
+        }
+        
+        .output-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-overlay {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+        
+        .footer-gradient {
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(55, 73, 238, 0.05) 10%, 
+                rgba(55, 73, 238, 0.15) 25%, 
+                rgba(21, 26, 195, 0.4) 60%, 
+                rgba(21, 26, 195, 0.9) 85%, 
+                #151ac3 100%
+            );
+        }
+        
+        .social-link {
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+        
+        /* Professional Stealth-Style Footer */
+        .new-footer {
+          width: 100%;
+          background: linear-gradient(to bottom, #071229, #0a1a3d, #102f5c);
+          padding: 60px 40px 40px;
+          color: #b8c5d6;
+          font-family: 'Poppins', sans-serif;
+          font-size: 14px;
+          letter-spacing: 0.3px;
+          margin: 0;
+          position: relative;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          flex-shrink: 0;
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 220px;
+          box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .footer-container {
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+          text-align: center;
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 20px;
+        }
+
+        /* Social Icons */
+        .social-icons {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+
+        .social-link {
+          color: #8fa3c7;
+          font-size: 20px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 10px;
+          border-radius: 50%;
+          text-decoration: none;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          width: 44px;
+          height: 44px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .social-link::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .social-link:hover {
+          color: #ffffff;
+          transform: translateY(-2px) scale(1.05);
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.3);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-link:hover::before {
+          left: 100%;
+        }
+
+        /* Footer Links */
+        .footer-links {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 15px;
+          flex-wrap: wrap;
+        }
+
+        .footer-link {
+          color: #8fa3c7;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          font-weight: 500;
+          font-size: 14px;
+          padding: 5px 8px;
+          border-radius: 4px;
+          position: relative;
+        }
+
+        .footer-link::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          width: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #4e54c8, #8f94fb);
+          transition: all 0.3s ease;
+          transform: translateX(-50%);
+        }
+
+        .footer-link:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-link:hover::after {
+          width: 100%;
+        }
+
+        .link-separator {
+          color: #4a5568;
+          font-weight: 300;
+          font-size: 12px;
+        }
+
+        /* Copyright */
+        .copyright {
+          color: #8fa3c7;
+          font-size: 13px;
+          line-height: 1.4;
+          max-width: 600px;
+          margin: 0;
+          font-weight: 400;
+          letter-spacing: 0.2px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .new-footer {
+            padding: 40px 20px;
+            min-height: 180px;
+          }
+          
+          .social-icons {
+            gap: 15px;
+            margin-bottom: 15px;
+          }
+          
+          .social-link {
+            font-size: 18px;
+            width: 40px;
+            height: 40px;
+            padding: 8px;
+          }
+          
+          .footer-links {
+            gap: 12px;
+            margin-bottom: 12px;
+          }
+          
+          .footer-link {
+            font-size: 13px;
+            padding: 4px 6px;
+          }
+          
+          .copyright {
+            font-size: 12px;
+          }
+        }
+        
+        .blur-overlay {
+            filter: blur(5px);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Modern SaaS-Style Title Animation */
+        .saas-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: saasGradientShift 6s ease-in-out infinite;
+            position: relative;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .saas-title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: saasShine 3s ease-in-out infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .saas-subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            background: linear-gradient(90deg, #e2e8f0, #cbd5e1, #94a3b8, #64748b, #475569);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: saasSubtitleFlow 5s ease-in-out infinite;
+            position: relative;
+            letter-spacing: 0.02em;
+            margin-top: 1rem;
+            opacity: 0.9;
+        }
+
+        .saas-subtitle::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+            animation: saasUnderlineExpand 3s ease-in-out infinite;
+            border-radius: 2px;
+        }
+
+        @keyframes saasGradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            25% {
+                background-position: 100% 50%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+        }
+
+        @keyframes saasShine {
+            0% {
+                transform: translateX(100%);
+            }
+            50% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        @keyframes saasSubtitleFlow {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes saasUnderlineExpand {
+            0%, 100% {
+                width: 0;
+                opacity: 0.7;
+            }
+            50% {
+                width: 40%;
+                opacity: 1;
+            }
+        }
+
+        /* Responsive title sizing */
+        @media (max-width: 768px) {
+            .saas-title {
+                font-size: 2.5rem;
+                letter-spacing: -0.02em;
+            }
+            
+            .saas-subtitle {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .saas-title {
+                font-size: 2rem;
+            }
+            
+            .saas-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: linear-gradient(135deg, rgba(30, 30, 64, 0.95) 0%, rgba(20, 20, 40, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 0;
+            max-width: 90%;
+            width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8fa3c7;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .modal-body {
+            padding: 32px;
+            max-height: calc(80vh - 120px);
+            overflow-y: auto;
+        }
+
+        .modal-summary {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .modal-summary p {
+            margin: 0;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .modal-content-text h3 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 24px 0 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .modal-content-text h4 {
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 20px 0 8px 0;
+        }
+
+        .modal-content-text p {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+
+        .modal-content-text ul {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+
+        .modal-content-text li {
+            margin: 6px 0;
+        }
+
+        /* Scrollbar styling for modal */
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 20px 24px;
+            }
+
+            .modal-body {
+                padding: 24px;
+                max-height: calc(90vh - 100px);
+            }
+
+            .modal-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Particle Animation -->
+    <div class="particles" id="particles"></div>
+    <!-- Header -->
+    <div class="bg-black/50 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-white flex items-center">
+                        <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="h-8 w-auto mr-2 md:h-8 max-h-6 md:max-h-8">
+                        CopyBoss
+                    </h1>
+                </div>
+                <nav class="navbar-nav hidden md:flex space-x-8">
+                    <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
+                    <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
+                    <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
+                    <a href="https://copy-boss.com/community/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
+                    <a href="login.html" class="text-gray-300 hover:text-white transition-colors duration-200">Login</a>
+                    <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
+                </nav>
+                
+                <!-- Report Issue Button -->
+                <div class="hidden md:flex">
+                    <button id="reportIssueBtn" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium transform hover:scale-105 hover:shadow-lg hover:shadow-red-500/25">
+                        Report Issue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 saas-title">
+                    CopyBoss – Smarter Content Starts Here
+                </h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto saas-subtitle">
+                    Create viral scripts for TikTok, Twitter, and more with AI-powered content generation.
+                </p>
+            </div>
+
+            <!-- Generator Card -->
+            <div class="generator-card rounded-2xl p-8 mb-8" id="generatorCard">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-2">Generate Your Script</h3>
+                    <p class="text-gray-400">Fill in the details below to create your viral content</p>
+                </div>
+
+                <!-- Instructions Toggle -->
+                <div class="text-center mb-6">
+                    <button id="toggleInstructions" class="text-primary hover:text-blue-400 transition-colors duration-200 text-sm">
+                        ℹ️ How does this work? ▼
+                    </button>
+                </div>
+
+                <!-- Instructions Box -->
+                <div id="instructionsBox" class="hidden bg-black/20 rounded-lg p-6 mb-8 border border-white/10">
+                    <h4 class="font-semibold text-white mb-3">How to use:</h4>
+                    <ol class="text-gray-300 space-y-2 text-sm">
+                        <li>1. Enter your <strong>niche</strong> (e.g., fitness, crypto, lifestyle)</li>
+                        <li>2. Define your <strong>target audience</strong> (e.g., women 25-35)</li>
+                        <li>3. Write a compelling <strong>hook</strong> to grab attention</li>
+                        <li>4. Choose your <strong>platform</strong> and <strong>tone</strong></li>
+                        <li>5. Set the <strong>duration</strong> for your content</li>
+                        <li>6. Click Generate to create your script</li>
+                    </ol>
+                </div>
+
+                <!-- Generator Form -->
+                <form id="generatorForm" class="space-y-6">
+                    <!-- Input Fields -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Your Niche</label>
+                            <input type="text" id="nicheInput" placeholder="e.g., fitness, crypto, lifestyle" 
+                                   class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Target Audience</label>
+                            <input type="text" id="audienceInput" placeholder="e.g., women 25-35" 
+                                   class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-400">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Hook</label>
+                        <input type="text" id="hookInput" placeholder="e.g., What if I told you..." 
+                               class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Platform</label>
+                        <select id="platformInput" class="input-field w-full px-4 py-3 rounded-lg text-white">
+                            <option value="">Select a platform</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Twitter">Twitter</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="YouTube Shorts">YouTube Shorts</option>
+                        </select>
+                    </div>
+
+                    <!-- Tone Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-3">Choose Tone</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button type="button" onclick="setTone('Casual')" class="tone-btn px-4 py-2 rounded-lg text-sm">🧢 Casual</button>
+                            <button type="button" onclick="setTone('Hype')" class="tone-btn px-4 py-2 rounded-lg text-sm">⚡ Hype</button>
+                            <button type="button" onclick="setTone('Savage')" class="tone-btn px-4 py-2 rounded-lg text-sm">🔥 Savage</button>
+                            <button type="button" onclick="setTone('Salesy')" class="tone-btn px-4 py-2 rounded-lg text-sm">💰 Salesy</button>
+                            <button type="button" onclick="setTone('Educational')" class="tone-btn px-4 py-2 rounded-lg text-sm">📚 Educational</button>
+                            <button type="button" onclick="setTone('Dark Humor')" class="tone-btn px-4 py-2 rounded-lg text-sm">🕶️ Dark Humor</button>
+                        </div>
+                    </div>
+
+                    <!-- Duration Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-3">Video Duration</label>
+                        <div class="flex flex-wrap gap-3">
+                            <button type="button" onclick="setDuration(5)" class="duration-btn px-4 py-2 rounded-lg text-sm">5s</button>
+                            <button type="button" onclick="setDuration(10)" class="duration-btn px-4 py-2 rounded-lg text-sm">10s</button>
+                            <button type="button" onclick="setDuration(15)" class="duration-btn px-4 py-2 rounded-lg text-sm">15s</button>
+                            <button type="button" onclick="setDuration(30)" class="duration-btn px-4 py-2 rounded-lg text-sm">30s</button>
+                            <button type="button" onclick="setDuration(60)" class="duration-btn px-4 py-2 rounded-lg text-sm">60s</button>
+                            <button type="button" onclick="increaseDuration()" class="duration-btn px-4 py-2 rounded-lg text-sm">+10s</button>
+                        </div>
+                        <div id="durationDisplay" class="text-sm text-gray-400 mt-2"></div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="text-center pt-6">
+                        <button type="submit" id="generateBtn" class="btn-primary px-8 py-3 rounded-lg font-semibold text-white">
+                            Generate Script
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Output Section -->
+                <div id="outputSection" class="mt-8 hidden">
+                    <div class="output-box rounded-lg p-6 relative">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-semibold text-white">Generated Script</h4>
+                            <button onclick="copyOutput()" class="text-primary hover:text-blue-400 transition-colors duration-200">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div id="output" class="text-gray-300 whitespace-pre-wrap leading-relaxed"></div>
+                    </div>
+
+                    <!-- Hashtag Section -->
+                    <div class="mt-6">
+                        <button onclick="generateHashtags()" class="btn-secondary px-6 py-2 rounded-lg text-white text-sm">
+                            🎯 Generate Hashtags
+                        </button>
+                        <div id="hashtagBox" class="output-box rounded-lg p-4 mt-4 hidden relative">
+                            <div class="flex justify-between items-start">
+                                <div id="hashtagsOutput" class="text-gray-300 text-sm"></div>
+                                <button onclick="copyHashtags()" class="text-primary hover:text-blue-400 transition-colors duration-200 ml-4">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div id="upgradeModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-overlay flex items-center justify-center p-4">
+            <div class="modal-content rounded-2xl p-8 max-w-md w-full mx-4">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🔒</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Free Trial Used</h3>
+                    <p class="text-gray-300 mb-6">
+                        You've used your free script generation. Upgrade to Pro for unlimited access to all features.
+                    </p>
+                    <div class="space-y-4">
+                        <button onclick="redirectToStripeCheckout('pro')" class="btn-primary w-full px-6 py-3 rounded-lg font-semibold text-white">
+                            Upgrade to Pro
+                        </button>
+                        <button onclick="closeUpgradeModal()" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            Maybe Later
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="new-footer">
+      <div class="footer-container">
+        <!-- Social Media Icons -->
+        <div class="social-icons">
+          <a href="https://twitter.com/copybosshq" target="_blank" class="social-link" aria-label="Twitter">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="https://facebook.com/copybosshq" target="_blank" class="social-link" aria-label="Facebook">
+            <i class="fab fa-facebook"></i>
+          </a>
+          <a href="https://instagram.com/copybosshq" target="_blank" class="social-link" aria-label="Instagram">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" class="social-link" aria-label="TikTok">
+            <i class="fab fa-tiktok"></i>
+          </a>
+          <a href="https://youtube.com/copybosshq" target="_blank" class="social-link" aria-label="YouTube">
+            <i class="fab fa-youtube"></i>
+          </a>
+        </div>
+
+        <!-- Footer Links -->
+        <div class="footer-links">
+          <a href="#" onclick="openModal('privacy-modal')" class="footer-link">Privacy</a>
+          <span class="link-separator">|</span>
+          <a href="#" onclick="openModal('terms-modal')" class="footer-link">Terms</a>
+          <span class="link-separator">|</span>
+          <a href="#" onclick="openModal('support-modal')" class="footer-link">Support</a>
+        </div>
+
+        <!-- Copyright -->
+        <div class="copyright">
+          © 2025 ZERRA Group Ltd. All rights reserved. CopyBoss™ is a product of ZERRA Group.
+        </div>
+      </div>
+    </footer>
+
+    <!-- Privacy Modal -->
+    <div id="privacy-modal" class="modal hidden">
+      <div class="modal-overlay" onclick="closeModal('privacy-modal')"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Privacy Policy</h2>
+          <button class="modal-close" onclick="closeModal('privacy-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-summary">
+            <p><strong>Plain English Summary:</strong> We collect minimal data to provide our services, never sell your information, and protect your privacy with industry-standard security measures.</p>
+          </div>
+          <div class="modal-content-text">
+            <h3>Information We Collect</h3>
+            <p>We collect information you provide directly to us, such as when you create an account, use our services, or contact us for support. This may include:</p>
+            <ul>
+              <li>Name, email address, and account credentials</li>
+              <li>Content you upload or generate using our services</li>
+              <li>Payment information (processed securely by Stripe)</li>
+              <li>Communications with our support team</li>
+            </ul>
+
+            <h3>How We Use Your Information</h3>
+            <p>We use the information we collect to:</p>
+            <ul>
+              <li>Provide, maintain, and improve our services</li>
+              <li>Process payments and manage your account</li>
+              <li>Send you important updates about our services</li>
+              <li>Respond to your questions and provide support</li>
+              <li>Ensure the security and integrity of our platform</li>
+            </ul>
+
+            <h3>Information Sharing</h3>
+            <p>We do not sell, trade, or otherwise transfer your personal information to third parties except:</p>
+            <ul>
+              <li>With your explicit consent</li>
+              <li>To comply with legal obligations</li>
+              <li>To protect our rights and safety</li>
+              <li>With service providers who assist in our operations (under strict confidentiality agreements)</li>
+            </ul>
+
+            <h3>Data Security</h3>
+            <p>We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+
+            <h3>Your Rights</h3>
+            <p>You have the right to:</p>
+            <ul>
+              <li>Access and update your personal information</li>
+              <li>Request deletion of your account and data</li>
+              <li>Opt out of marketing communications</li>
+              <li>Request a copy of your data</li>
+            </ul>
+
+            <h3>Contact Us</h3>
+            <p>If you have any questions about this Privacy Policy, please contact us at privacy@copy-boss.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="terms-modal" class="modal hidden">
+      <div class="modal-overlay" onclick="closeModal('terms-modal')"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Terms of Service</h2>
+          <button class="modal-close" onclick="closeModal('terms-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-summary">
+            <p><strong>Plain English Summary:</strong> By using CopyBoss, you agree to use our services responsibly, respect our intellectual property, and understand our service limitations and refund policies.</p>
+          </div>
+          <div class="modal-content-text">
+            <h3>Acceptance of Terms</h3>
+            <p>By accessing and using CopyBoss services, you accept and agree to be bound by the terms and provision of this agreement.</p>
+
+            <h3>Use License</h3>
+            <p>Permission is granted to temporarily use CopyBoss for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+            <ul>
+              <li>Modify or copy the materials</li>
+              <li>Use the materials for any commercial purpose or for any public display</li>
+              <li>Attempt to reverse engineer any software contained on CopyBoss</li>
+              <li>Remove any copyright or other proprietary notations from the materials</li>
+            </ul>
+
+            <h3>Service Description</h3>
+            <p>CopyBoss provides AI-powered content analysis and generation tools. We strive to provide accurate and useful results, but we cannot guarantee the accuracy, completeness, or usefulness of any generated content.</p>
+
+            <h3>User Responsibilities</h3>
+            <p>You are responsible for:</p>
+            <ul>
+              <li>Providing accurate and complete information</li>
+              <li>Maintaining the security of your account</li>
+              <li>Using our services in compliance with applicable laws</li>
+              <li>Not uploading content that violates intellectual property rights</li>
+              <li>Not using our services for spam, harassment, or illegal activities</li>
+            </ul>
+
+            <h3>Payment and Refunds</h3>
+            <p>All payments are processed securely through Stripe. Refunds are available within 30 days of purchase if you're not satisfied with our services. Contact support@copy-boss.com for refund requests.</p>
+
+            <h3>Intellectual Property</h3>
+            <p>The content generated using our tools belongs to you, but our platform, technology, and brand remain our intellectual property.</p>
+
+            <h3>Limitation of Liability</h3>
+            <p>CopyBoss shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of our services.</p>
+
+            <h3>Changes to Terms</h3>
+            <p>We reserve the right to modify these terms at any time. Continued use of our services after changes constitutes acceptance of the new terms.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="modal hidden">
+      <div class="modal-overlay" onclick="closeModal('support-modal')"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Support & Help</h2>
+          <button class="modal-close" onclick="closeModal('support-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-summary">
+            <p><strong>Plain English Summary:</strong> We're here to help! Contact us for technical support, billing questions, or general assistance with CopyBoss services.</p>
+          </div>
+          <div class="modal-content-text">
+            <h3>How to Get Help</h3>
+            <p>We offer multiple ways to get support:</p>
+            <ul>
+              <li><strong>Email Support:</strong> support@copy-boss.com</li>
+              <li><strong>Response Time:</strong> Within 24 hours during business days</li>
+              <li><strong>Community Hub:</strong> Visit our community for peer support</li>
+            </ul>
+
+            <h3>Common Issues & Solutions</h3>
+            <h4>Account Issues</h4>
+            <ul>
+              <li><strong>Can't log in:</strong> Try resetting your password or contact support</li>
+              <li><strong>Account locked:</strong> Contact support for account recovery</li>
+              <li><strong>Payment issues:</strong> Check your payment method or contact billing support</li>
+            </ul>
+
+            <h4>Technical Issues</h4>
+            <ul>
+              <li><strong>Page not loading:</strong> Clear your browser cache and try again</li>
+              <li><strong>Upload errors:</strong> Check file size and format requirements</li>
+              <li><strong>Generation fails:</strong> Ensure all required fields are filled</li>
+            </ul>
+
+            <h3>Billing Support</h3>
+            <p>For billing-related questions:</p>
+            <ul>
+              <li>Payment processing issues</li>
+              <li>Subscription management</li>
+              <li>Refund requests</li>
+              <li>Invoice requests</li>
+            </ul>
+
+            <h3>Feature Requests</h3>
+            <p>We welcome feedback and feature requests. Please email us with your suggestions, and we'll consider them for future updates.</p>
+
+            <h3>Business Hours</h3>
+            <p>Our support team is available Monday through Friday, 9 AM to 6 PM GMT. We aim to respond to all inquiries within 24 hours.</p>
+
+            <h3>Emergency Contact</h3>
+            <p>For urgent technical issues affecting your ability to use our services, please include "URGENT" in your email subject line.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedTone = '';
+        let videoDuration = 0;
+        let hasUsedFree = localStorage.getItem('videoBossUsed') === 'true';
+
+        // Stripe Checkout Function
+        async function redirectToStripeCheckout(plan) {
+            const userId = localStorage.getItem('videobossUserId');
+            if (!userId) {
+                alert("Please log in first.");
+                return;
+            }
+
+            try {
+                const res = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan, userId })
+                });
+                const data = await res.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert("Failed to start checkout.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error redirecting to Stripe Checkout.");
+            }
+        }
+
+        // Verify user status from backend
+        async function verifyUserStatusFromBackend(userId) {
+            try {
+                const response = await fetch(`/api/user/status/${userId}`);
+                if (!response.ok) throw new Error('Failed to fetch user status');
+                const status = await response.json();
+
+                // Update localStorage from backend
+                if (status.plan === 'pro' && new Date(status.subscription_expires) > new Date()) {
+                    localStorage.setItem('isPro', 'true');
+                } else {
+                    localStorage.removeItem('isPro');
+                }
+            } catch (err) {
+                console.error('Backend verification failed, falling back to localStorage:', err);
+                // fallback: keep using whatever localStorage has
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Get user ID and verify status from backend
+            const userId = localStorage.getItem('videobossUserId');
+            if (userId) {
+                await verifyUserStatusFromBackend(userId);
+            }
+            
+            checkUsageLimit();
+            setupEventListeners();
+        });
+
+        // Check usage limit
+        function checkUsageLimit() {
+            const isPro = localStorage.getItem('isPro') === 'true';
+            if (hasUsedFree && !isPro) {
+                showUpgradeModal();
+                document.getElementById('generatorCard').classList.add('blur-overlay');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Instructions toggle
+            document.getElementById('toggleInstructions').addEventListener('click', toggleInstructions);
+            
+            // Form submission
+            document.getElementById('generatorForm').addEventListener('submit', generateScript);
+        }
+
+        // Toggle instructions
+        function toggleInstructions() {
+            const box = document.getElementById('instructionsBox');
+            const button = document.getElementById('toggleInstructions');
+            
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                button.innerHTML = 'ℹ️ Hide Instructions ▲';
+            } else {
+                box.classList.add('hidden');
+                button.innerHTML = 'ℹ️ How does this work? ▼';
+            }
+        }
+
+        // Set tone
+        function setTone(tone) {
+            selectedTone = tone;
+            
+            // Remove active class from all tone buttons
+            document.querySelectorAll('.tone-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Set duration
+        function setDuration(seconds) {
+            videoDuration = seconds;
+            
+            // Remove active class from all duration buttons
+            document.querySelectorAll('.duration-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            updateDurationDisplay();
+        }
+
+        // Increase duration
+        function increaseDuration() {
+            videoDuration += 10;
+            updateDurationDisplay();
+        }
+
+        // Update duration display
+        function updateDurationDisplay() {
+            const display = document.getElementById('durationDisplay');
+            display.textContent = `Selected Duration: ${videoDuration}s`;
+        }
+
+        // Generate script
+        async function generateScript(e) {
+            e.preventDefault();
+
+            // Check if user has used free trial (unless Pro)
+            const isPro = localStorage.getItem('isPro') === 'true';
+            if (hasUsedFree && !isPro) {
+                showUpgradeModal();
+                return;
+            }
+
+            const niche = document.getElementById('nicheInput').value.trim();
+            const audience = document.getElementById('audienceInput').value.trim();
+            const hook = document.getElementById('hookInput').value.trim();
+            const platform = document.getElementById('platformInput').value;
+
+            // Validate inputs
+            if (!niche || !audience || !hook || !platform) {
+                showError('Please complete all fields before generating a script.');
+                return;
+            }
+
+            if (!selectedTone) {
+                showError('Please select a tone for your script.');
+                return;
+            }
+
+            if (videoDuration === 0) {
+                showError('Please select a video duration.');
+                return;
+            }
+
+            // Show loading state
+            const generateBtn = document.getElementById('generateBtn');
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = 'Generating...';
+            generateBtn.disabled = true;
+
+            try {
+                // Check if user is pro from localStorage
+                const isPro = localStorage.getItem('isPro') === 'true';
+                
+                const response = await fetch('http://localhost:3001/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        niche: niche,
+                        audience: audience,
+                        hook: hook,
+                        tone: selectedTone,
+                        platform: platform,
+                        duration: videoDuration,
+                        isPro: isPro
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.script) {
+                    displayOutput(data.script);
+                    
+                    // Mark as used if not pro
+                    if (!data.usage.isPro) {
+                        localStorage.setItem('videoBossUsed', 'true');
+                        hasUsedFree = true;
+                    }
+                } else if (data.error === 'Limit reached' && data.upgrade) {
+                    // User has used their free generation
+                    showUpgradeModal();
+                    document.getElementById('generatorCard').classList.add('blur-overlay');
+                    showError('You have used your free generation. Upgrade to Pro for unlimited access.');
+                } else {
+                    showError(data.message || 'Failed to generate script. Please try again.');
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                showError('Error connecting to server. Please try again.');
+            } finally {
+                // Reset button
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Display output
+        function displayOutput(script) {
+            const outputSection = document.getElementById('outputSection');
+            const output = document.getElementById('output');
+            
+            outputSection.classList.remove('hidden');
+            output.textContent = script;
+            
+            // Scroll to output
+            outputSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate hashtags
+        function generateHashtags() {
+            const niche = document.getElementById('nicheInput').value.trim().toLowerCase();
+            const platform = document.getElementById('platformInput').value;
+            
+            if (!niche || !platform) {
+                showError('Please enter a niche and select a platform first.');
+                return;
+            }
+
+            const hashtags = {
+                fitness: ['#GymMotivation', '#BodybuildingJourney', '#FitTok', '#MindMuscleConnection', '#NoExcuses', '#NaturalGains', '#WorkoutMindset', '#DailyGrind', '#ForYouPage', '#FitnessGoals'],
+                crypto: ['#CryptoNews', '#DeFi', '#BitcoinTalk', '#CryptoTips', '#AltcoinGems', '#CryptoCommunity', '#Web3Life', '#BlockchainBuzz', '#ForYouPage', '#SideHustle'],
+                ai: ['#AITools', '#FutureOfWork', '#AIAutomation', '#TechTok', '#BuildWithAI', '#ProductivityHacks', '#AIforBusiness', '#PromptEngineering', '#ForYou', '#SmartTools'],
+                selfhelp: ['#SelfImprovement', '#MotivationDaily', '#GrowthMindset', '#DisciplineOverMotivation', '#BetterEveryDay', '#NoExcuses', '#LevelUp', '#SuccessTips', '#FYP', '#DailyGrind']
+            };
+
+            const list = hashtags[niche] || ['#Tips', '#Motivation', '#DailyInspo', '#LifeHacks', '#SuccessMindset', '#TrendingNow', '#ForYouPage'];
+            const selected = list.slice(0, 10).join(' ');
+            
+            document.getElementById('hashtagsOutput').textContent = selected;
+            document.getElementById('hashtagBox').classList.remove('hidden');
+        }
+
+        // Copy functions
+        function copyOutput() {
+            const text = document.getElementById('output').textContent;
+            copyToClipboard(text, 'Script copied to clipboard!');
+        }
+
+        function copyHashtags() {
+            const text = document.getElementById('hashtagsOutput').textContent;
+            copyToClipboard(text, 'Hashtags copied to clipboard!');
+        }
+
+        function copyToClipboard(text, message) {
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess(message);
+            }).catch(() => {
+                showError('Failed to copy to clipboard.');
+            });
+        }
+
+        // Show upgrade modal
+        function showUpgradeModal() {
+            document.getElementById('upgradeModal').classList.remove('hidden');
+        }
+
+        // Close upgrade modal
+        function closeUpgradeModal() {
+            document.getElementById('upgradeModal').classList.add('hidden');
+        }
+
+        // Utility functions
+        function showError(message) {
+            // Simple alert for now - can be replaced with toast notification
+            alert('❌ ' + message);
+        }
+
+        function showSuccess(message) {
+            // Simple alert for now - can be replaced with toast notification
+            alert('✅ ' + message);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('upgradeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUpgradeModal();
+            }
+        });
+
+        // Modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const openModals = document.querySelectorAll('.modal.show');
+                openModals.forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                const modal = event.target.parentElement;
+                closeModal(modal.id);
+            }
+        });
+
+        // Create particles for background animation
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            if (!particles) return;
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // Initialize particles on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+        });
+
+        // Report Issue Modal Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const reportIssueBtn = document.getElementById('reportIssueBtn');
+            const modal = document.getElementById('reportIssueModal');
+            const modalContent = document.getElementById('modalContent');
+            const closeBtn = document.getElementById('closeModal');
+            const form = document.getElementById('reportIssueForm');
+            const formContainer = document.getElementById('formContainer');
+            const successMessage = document.getElementById('successMessage');
+
+            // Open modal with animation
+            reportIssueBtn.addEventListener('click', function() {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                
+                // Trigger animation after display
+                setTimeout(() => {
+                    modalContent.style.transform = 'scale(1)';
+                    modalContent.style.opacity = '1';
+                }, 10);
+            });
+
+            // Close modal with animation
+            function closeModal() {
+                modalContent.style.transform = 'scale(0.95)';
+                modalContent.style.opacity = '0';
+                
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    // Reset form
+                    form.reset();
+                    formContainer.style.display = 'block';
+                    successMessage.style.display = 'none';
+                }, 300);
+            }
+
+            // Close modal
+            closeBtn.addEventListener('click', closeModal);
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Handle form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    message: formData.get('message')
+                };
+
+                try {
+                    const response = await fetch('/api/report-issue', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Smooth transition to success message
+                        formContainer.style.opacity = '0';
+                        formContainer.style.transform = 'scale(0.95)';
+                        
+                        setTimeout(() => {
+                            formContainer.style.display = 'none';
+                            successMessage.style.display = 'block';
+                            successMessage.style.opacity = '0';
+                            successMessage.style.transform = 'scale(0.95)';
+                            
+                            setTimeout(() => {
+                                successMessage.style.opacity = '1';
+                                successMessage.style.transform = 'scale(1)';
+                            }, 10);
+                        }, 200);
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error sending feedback. Please try again.');
+                }
+            });
+        });
+    </script>
+
+    <!-- Auth System -->
+    <script src="auth.js"></script>
+
+    <!-- Report Issue Modal -->
+    <div id="reportIssueModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300" style="display: none;">
+        <div class="bg-gray-900/95 backdrop-blur-md border border-gray-700/50 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <!-- Header with gradient border -->
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gradient-to-r from-blue-500/30 to-purple-500/30">
+                <h2 class="text-2xl font-bold text-white">Report Issue</h2>
+                <button id="closeModal" class="text-gray-400 hover:text-red-400 transition-colors duration-200 text-2xl font-light hover:scale-110 transform">&times;</button>
+            </div>
+            
+            <div id="formContainer">
+                <form id="reportIssueForm" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-3">Name *</label>
+                        <input type="text" id="name" name="name" required 
+                               class="w-full px-4 py-3 bg-gray-800/80 border border-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200 backdrop-blur-sm">
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-3">Email *</label>
+                        <input type="email" id="email" name="email" required 
+                               class="w-full px-4 py-3 bg-gray-800/80 border border-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200 backdrop-blur-sm">
+                    </div>
+                    
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-300 mb-3">Message *</label>
+                        <textarea id="message" name="message" rows="4" required 
+                                  class="w-full px-4 py-3 bg-gray-800/80 border border-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200 backdrop-blur-sm resize-none"></textarea>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button type="submit" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
+                            Submit
+                        </button>
+                        <button type="button" id="closeModal" class="flex-1 bg-gray-700/80 hover:bg-gray-600/80 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 backdrop-blur-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="successMessage" class="text-center transition-all duration-300" style="display: none;">
+                <div class="text-green-400 text-6xl mb-6 animate-pulse">✓</div>
+                <h3 class="text-2xl font-bold text-white mb-3">Thank You!</h3>
+                <p class="text-gray-300 text-lg">Your feedback has been sent successfully.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+  

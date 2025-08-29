@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="msvalidate.01" content="A38FE47EADB280B3037029B991B65523" />
+  <title>Popup Test</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    ul {
+      padding: 30px;
+    }
+
+    .sidebar-link {
+      display: block;
+      margin-bottom: 12px;
+      color: #fff;
+      text-decoration: none;
+      background: #1e293b;
+      padding: 10px 16px;
+      border-radius: 8px;
+      width: fit-content;
+    }
+
+    .sidebar-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 440px;
+      background: #1e2b4a;
+      border-radius: 14px;
+      padding: 25px 30px;
+      color: #fff;
+      z-index: 9999;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .popup-content {
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 14px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #aaa;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <ul>
+    <li><a href="#" class="sidebar-link" data-target="insights-section">📊 Insights</a></li>
+    <li><a href="#" class="sidebar-link" data-target="ai-tips">🧠 AI Tips</a></li>
+    <li><a href="#" class="sidebar-link" data-target="refer-section">🎁 Refer & Earn</a></li>
+    <li><a href="#" class="sidebar-link" data-target="settings-section">⚙️ Settings</a></li>
+  </ul>
+
+  <!-- Popup -->
+  <div id="sidebar-popup" class="sidebar-popup hidden">
+    <div class="popup-content">
+      <span id="close-popup" class="close-btn">✖</span>
+      <div id="popup-body"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const popup = document.getElementById("sidebar-popup");
+      const popupBody = document.getElementById("popup-body");
+      const closeBtn = document.getElementById("close-popup");
+
+      document.querySelectorAll(".sidebar-link").forEach(link => {
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          const target = link.getAttribute("data-target");
+
+          switch (target) {
+            case "insights-section":
+              popupBody.innerHTML = `<h2>📊 Insights</h2><p>Trend breakdown coming soon.</p>`;
+              popup.classList.remove("hidden");
+              break;
+
+            case "ai-tips":
+              popupBody.innerHTML = `<h2>🧠 AI Tips</h2><p>Smart suggestions will go here.</p>`;
+              popup.classList.remove("hidden");
+              break;
+
+            case "refer-section":
+              popupBody.innerHTML = `<h2>🎁 Refer & Earn</h2><p>Earn when people join through your link.</p>`;
+              popup.classList.remove("hidden");
+              break;
+
+            case "settings-section":
+              popupBody.innerHTML = `<h2>⚙️ Settings</h2><p>Settings options will be available soon.</p>`;
+              popup.classList.remove("hidden");
+              break;
+          }
+        });
+      });
+
+      closeBtn.addEventListener("click", () => {
+        popup.classList.add("hidden");
+      });
+    });
+  </script>
+
+</body>
+</html>

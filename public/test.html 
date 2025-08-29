@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chart.js Time Test</title>
+  <style>
+    body { background: #111; color: #fff; }
+    #copyBossChart { max-width: 800px; height: 400px; }
+  </style>
+</head>
+<body>
+
+<canvas id="copyBossChart"></canvas>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Luxon -->
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+
+<!-- Luxon Adapter -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
+
+<script>
+  Chart.register(window['chartjs-adapter-luxon']);
+  Chart.defaults.adapters.date = window['chartjs-adapter-luxon'].default;
+
+  const ctx = document.getElementById("copyBossChart").getContext("2d");
+
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      datasets: [{
+        label: "Test Time Data",
+        data: [
+          { x: '2025-07-14T12:00:00', y: 60 },
+          { x: '2025-07-15T12:00:00', y: 80 },
+          { x: '2025-07-16T12:00:00', y: 70 }
+        ],
+        borderColor: "#1E88E5",
+        backgroundColor: "rgba(30,136,229,0.3)",
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            unit: 'day',
+            tooltipFormat: 'ccc HH:mm',
+            displayFormats: {
+              day: 'ccc'
+            }
+          },
+          ticks: { color: "#fff" },
+          grid: { color: "rgba(255,255,255,0.1)" }
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { color: "#fff" },
+          grid: { color: "rgba(255,255,255,0.1)" }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: "#fff" } }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

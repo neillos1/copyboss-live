@@ -1,0 +1,36 @@
+<script>
+document.getElementById('analyzeBtn').addEventListener('click', async () => {
+  const videoFile = document.getElementById('file-upload').files[0];
+  const caption = document.querySelector('input[type="text"]').value; // adjust if using a specific ID
+
+  if (!videoFile) {
+    alert('Please upload a video file.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('video', videoFile);
+  formData.append('caption', caption);
+
+  try {
+    const response = await fetch('/analyze', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log('✅ Gemini Analysis:', result.analysis);
+      document.getElementById('results').innerText = result.analysis;
+    } else {
+      console.error('❌ Error:', result.error);
+      alert(result.error || 'Something went wrong during analysis.');
+    }
+  } catch (err) {
+    console.error('❌ Fetch Error:', err);
+    alert('Could not reach the server.');
+  }
+});
+</script>
+<div id="results"></div>
