@@ -1824,8 +1824,11 @@ html, body {
       .analyzer-container {
         display: flex;
         flex-direction: column;
+        justify-content: center;
         align-items: center;
-        padding: 1rem;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
       }
 
       .gauge-container {
@@ -1835,21 +1838,26 @@ html, body {
         max-width: 350px !important;
         width: 100% !important;
         margin: 10px auto !important;
-        padding-inline: 10px !important;
+        padding: 0 10px !important;
+        justify-content: center;
+        align-items: center;
       }
 
       .gauge-box,
       .pro-locked-results,
       .results-card {
         width: 100% !important;
-        max-width: 350px;
-        margin: 10px auto;
+        max-width: 350px !important;
+        margin: 10px auto !important;
+        padding: 0 !important;
       }
 
       .results-card {
         width: 100% !important;
-        margin: 15px 0;
+        max-width: 350px !important;
+        margin: 15px auto !important;
         text-align: center;
+        padding: 0 10px !important;
       }
 
       .results-card h2,
@@ -1859,7 +1867,9 @@ html, body {
       }
 
       .overall-score {
-        margin: 15px auto;
+        margin: 15px auto !important;
+        width: 100% !important;
+        max-width: 350px !important;
       }
 
       .gauge-title {
@@ -1868,6 +1878,15 @@ html, body {
 
       .gauge-feedback {
         font-size: 0.85rem;
+      }
+
+      /* Ensure no horizontal scrollbars */
+      body {
+        overflow-x: hidden !important;
+      }
+
+      .main-wrapper {
+        overflow-x: hidden !important;
       }
     }
 
