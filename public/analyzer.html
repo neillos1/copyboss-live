@@ -1818,6 +1818,93 @@ html, body {
             }
         }
 
+    /* Analyzer Page Responsive Design */
+    /* Mobile: stack vertically */
+    @media screen and (max-width: 768px) {
+      .analyzer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+      }
+
+      .gauge-container {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        max-width: 350px !important;
+        width: 100% !important;
+        margin: 10px auto !important;
+        padding-inline: 10px !important;
+      }
+
+      .gauge-box,
+      .pro-locked-results,
+      .results-card {
+        width: 100% !important;
+        max-width: 350px;
+        margin: 10px auto;
+      }
+
+      .results-card {
+        width: 100% !important;
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .results-card h2,
+      .results-card p {
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .overall-score {
+        margin: 15px auto;
+      }
+
+      .gauge-title {
+        font-size: 0.9rem;
+      }
+
+      .gauge-feedback {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Tablet: 2 columns */
+    @media screen and (min-width: 769px) and (max-width: 1024px) {
+      .analyzer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+      }
+
+      .gauge-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-gap: 15px !important;
+        max-width: 800px !important;
+        width: 100% !important;
+        margin: 10px auto !important;
+        padding-inline: 15px !important;
+      }
+
+      .gauge-box,
+      .pro-locked-results {
+        width: 100% !important;
+        margin: 0 auto;
+      }
+
+      .results-card {
+        grid-column: span 2;
+        text-align: center;
+        margin-bottom: 20px;
+        width: 100% !important;
+        max-width: 800px !important;
+      }
+    }
+
   </style>
 
 
@@ -2643,7 +2730,7 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="content" style="margin-top: 30px;">
+<div class="analyzer-container">
   <div class="gauge-container" style="display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 28px; row-gap: 24px; max-width: 960px; margin: 30px auto 0; padding-inline: 20px;">
 
  <div class="gauge-box pro-locked">
@@ -5862,12 +5949,7 @@ a:hover {
 
 
 
-</div>
-
-
-
-
-
+</div> <!-- End of analyzer-container -->
 
   <!-- End of your main content wrapper -->
    <!-- Close analyzer-wrapper or wrapper etc. -->
