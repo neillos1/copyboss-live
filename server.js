@@ -10,6 +10,68 @@ const multer = require('multer');
 const fs = require('fs');
 const app = express();
 
+// Enable trust proxy for Render deployment
+app.enable('trust proxy');
+
+// --- Bypass for Stripe webhook (no redirects/auth) ---
+app.use((req, res, next) => {
+  if (req.path === '/stripe-webhook') return next();
+  next();
+});
+
+// ===== STRIPE WEBHOOK (must be first and use raw body) =====
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  try {
+    const event = stripe.webhooks.constructEvent(
+      req.body, // raw buffer from express.raw
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+
+    // Handle the events we listen to
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const userId = session.metadata?.userId;
+      const plan = session.metadata?.plan;
+      const credits = session.metadata?.credits ? parseInt(session.metadata.credits) : 0;
+
+      if (userId) {
+        if (plan === 'pro') {
+          const expiry = new Date();
+          expiry.setMonth(expiry.getMonth() + 1);
+          await db.updateUserPlan(userId, 'pro', expiry.toISOString());
+          console.log(`✅ Upgraded user ${userId} to PRO until ${expiry}`);
+        } else if (credits > 0) {
+          await db.addReportCredits(userId, credits);
+          console.log(`✅ Added ${credits} report credits to user ${userId}`);
+        }
+      }
+
+      // process affiliate commission if needed
+      await processAffiliateCommission(session);
+    }
+    
+    if (event.type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object;
+      const userId = invoice.metadata?.userId;
+      if (userId) {
+        const expiry = new Date();
+        expiry.setMonth(expiry.getMonth() + 1);
+        await db.updateUserPlan(userId, 'pro', expiry.toISOString());
+        console.log(`🔄 Renewed PRO for user ${userId} until ${expiry}`);
+      }
+      await processSubscriptionCommission(invoice);
+    }
+
+    return res.sendStatus(200); // MUST reply 2xx quickly
+  } catch (err) {
+    console.error('Webhook verify failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+// ===== END STRIPE WEBHOOK =====
+
 // Initialize database and affiliate system
 const db = require('./database');
 const affiliateRoutes = require('./routes/affiliate');
@@ -446,66 +508,6 @@ app.get('/pricing', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pricing.html'));
 });
 
-// Stripe Webhook
-app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error('❌ Webhook signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  try {
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        const userId = session.metadata?.userId;
-        const plan = session.metadata?.plan;
-        const credits = session.metadata?.credits ? parseInt(session.metadata.credits) : 0;
-
-        if (userId) {
-          if (plan === 'pro') {
-            const expiry = new Date();
-            expiry.setMonth(expiry.getMonth() + 1);
-            await db.updateUserPlan(userId, 'pro', expiry.toISOString());
-            console.log(`✅ Upgraded user ${userId} to PRO until ${expiry}`);
-          } else if (credits > 0) {
-            await db.addReportCredits(userId, credits);
-            console.log(`✅ Added ${credits} report credits to user ${userId}`);
-          }
-        }
-
-        // process affiliate commission if needed
-        await processAffiliateCommission(session);
-        break;
-      }
-
-      case 'invoice.payment_succeeded': {
-        const invoice = event.data.object;
-        const userId = invoice.metadata?.userId;
-        if (userId) {
-          const expiry = new Date();
-          expiry.setMonth(expiry.getMonth() + 1);
-          await db.updateUserPlan(userId, 'pro', expiry.toISOString());
-          console.log(`🔄 Renewed PRO for user ${userId} until ${expiry}`);
-        }
-        await processSubscriptionCommission(invoice);
-        break;
-      }
-
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    res.json({ received: true });
-  } catch (err) {
-    console.error('❌ Error handling webhook:', err);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 // Process affiliate commission for one-time purchases
 async function processAffiliateCommission(session) {
