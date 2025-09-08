@@ -9,8 +9,10 @@
     <meta name="msvalidate.01" content="A38FE47EADB280B3037029B991B65523" />
 
     <!-- ✅ Favicon -->
-    <link rel="icon" type="image/png" href="/assets/img/favicon.png">
-    <link rel="apple-touch-icon" href="/assets/img/favicon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon.png?v=3">
+    <link rel="shortcut icon" href="/assets/img/favicon.png?v=3">
 
     <!-- ✅ Open Graph (Facebook, LinkedIn) -->
     <meta property="og:title" content="CopyBoss - AI Video Analysis & Script Generation">
@@ -172,7 +174,7 @@
             }
         }
 
-        /* Enhanced Feature Cards */
+        /* Enhanced Feature Cards with Neon Glow Effects */
         .feature-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -183,6 +185,8 @@
             flex-direction: column;
             height: 100%;
             min-height: 400px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3);
         }
 
         .feature-card .content {
@@ -200,7 +204,7 @@
             transform: scale(1.05);
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 50px rgba(59, 130, 246, 0.6), 0 0 70px rgba(59, 130, 246, 0.4);
         }
 
         /* Feature card icon animations */
@@ -213,20 +217,32 @@
             50% { transform: scale(1.1); }
         }
 
-        /* Glow borders for feature cards */
+        /* Color-specific glow effects for feature cards */
+        .feature-card.blue-card {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3);
+        }
+
         .feature-card.blue-card:hover {
             border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 50px rgba(59, 130, 246, 0.6), 0 0 70px rgba(59, 130, 246, 0.4);
+        }
+
+        .feature-card.green-card {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), 0 0 40px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.3);
         }
 
         .feature-card.green-card:hover {
             border-color: rgba(34, 197, 94, 0.5);
-            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8), 0 0 50px rgba(34, 197, 94, 0.6), 0 0 70px rgba(34, 197, 94, 0.4);
+        }
+
+        .feature-card.purple-card {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.7), 0 0 40px rgba(168, 85, 247, 0.5), 0 0 60px rgba(168, 85, 247, 0.3);
         }
 
         .feature-card.purple-card:hover {
             border-color: rgba(168, 85, 247, 0.5);
-            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), 0 0 50px rgba(168, 85, 247, 0.6), 0 0 70px rgba(168, 85, 247, 0.4);
         }
 
         /* Enhanced button gradients */
@@ -274,19 +290,20 @@
             box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
         }
 
-        /* Community Hub Promotional Section */
+        /* Community Hub Promotional Section with Neon Glow */
         .community-hub-promo {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 25%, rgba(240, 147, 251, 0.1) 50%, rgba(245, 87, 108, 0.1) 75%, rgba(79, 172, 254, 0.1) 100%);
             border: 2px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             position: relative;
             transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.7), 0 0 40px rgba(102, 126, 234, 0.5), 0 0 60px rgba(102, 126, 234, 0.3);
         }
 
         .community-hub-promo:hover {
             transform: translateY(-5px);
             border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.8), 0 0 50px rgba(102, 126, 234, 0.6), 0 0 70px rgba(102, 126, 234, 0.4);
         }
 
         .community-bg-overlay {
@@ -329,19 +346,20 @@
             background-position: 100% 100%;
         }
 
-        /* Affiliate Promotional Section */
+        /* Affiliate Promotional Section with Neon Glow */
         .affiliate-promo {
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 25%, rgba(5, 150, 105, 0.1) 50%, rgba(4, 120, 87, 0.1) 75%, rgba(6, 95, 70, 0.1) 100%);
             border: 2px solid rgba(34, 197, 94, 0.2);
             backdrop-filter: blur(15px);
             position: relative;
             transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), 0 0 40px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.3);
         }
 
         .affiliate-promo:hover {
             transform: translateY(-5px);
             border-color: rgba(34, 197, 94, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8), 0 0 50px rgba(34, 197, 94, 0.6), 0 0 70px rgba(34, 197, 94, 0.4);
         }
 
         .affiliate-bg-overlay {
@@ -569,7 +587,7 @@
             transform: translateY(0);
         }
 
-        /* Demo Video Section */
+        /* Demo Video Section with Neon Glow */
         .demo-video {
             display: flex;
             flex-direction: column;
@@ -583,10 +601,17 @@
             width: 100%;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             border: 2px solid transparent;
             background: linear-gradient(135deg, #3B82F6, #9333EA) padding-box,
                         linear-gradient(135deg, #3B82F6, #9333EA) border-box;
+            position: relative;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .video-wrapper:hover {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 50px rgba(59, 130, 246, 0.6), 0 0 70px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
         }
 
         .video-wrapper iframe {
@@ -869,13 +894,27 @@
                     
                     <!-- Mobile menu button -->
                     <div class="md:hidden">
-                        <button type="button" class="text-gray-300 hover:text-white">
-                            <i class="fas fa-bars text-xl"></i>
+                        <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
+                            <span class="cb-burger-line"></span>
+                            <span class="cb-burger-line"></span>
+                            <span class="cb-burger-line"></span>
                         </button>
                     </div>
                 </div>
             </div>
         </header>
+
+        <!-- Mobile drawer -->
+        <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
+            <button id="cb-close" class="cb-close" aria-label="Close menu" type="button">×</button>
+            <nav class="cb-drawer-scroll">
+                <ul id="cb-drawer-list" class="cb-drawer-list"></ul>
+                <div id="cb-drawer-leaderboard" class="cb-drawer-leaderboard"></div>
+            </nav>
+        </aside>
+        
+        <!-- Backdrop for mobile drawer -->
+        <div id="cb-backdrop" class="cb-backdrop" hidden></div>
 
         <!-- Hero Section -->
         <section class="hero-gradient py-24 px-4">
@@ -1399,9 +1438,208 @@
       margin: 0;
       font-weight: 400;
       letter-spacing: 0.2px;
-    }
+        }
 
-    /* Responsive Design */
+        /* Mobile Navigation Styles - Analyzer Style */
+        /* Burger: stacked lines */
+        .cb-burger{
+          display:flex;
+          flex-direction:column;              /* stack vertically */
+          justify-content:space-between;      /* even spacing */
+          align-items:center;
+          width:40px;
+          height:32px;
+          padding:6px 8px;
+          border-radius:10px;
+          border:1px solid rgba(255,255,255,.15);
+          background:rgba(255,255,255,.06);
+          cursor:pointer;
+        }
+
+        .cb-burger-line{
+          width:100%;
+          height:2px;
+          background:#fff;
+          border-radius:2px;
+          transition:transform .2s ease, opacity .2s ease;
+        }
+
+        /* Morph to X when open */
+        .cb-burger.open .cb-burger-line:nth-child(1){
+          transform: translateY(7px) rotate(45deg);
+        }
+        .cb-burger.open .cb-burger-line:nth-child(2){
+          opacity:0;
+        }
+        .cb-burger.open .cb-burger-line:nth-child(3){
+          transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Optional: hover/active polish */
+        @media (hover:hover){
+          .cb-burger:hover{ border-color: rgba(255,255,255,.35); }
+        }
+        .cb-burger:active{ transform: scale(.98); }
+
+        /* Mobile Navigation Styles */
+        .cb-drawer { 
+          position: fixed; 
+          top: 0; 
+          right: 0; 
+          bottom: 0; 
+          width: 88%; 
+          max-width: 360px; 
+          transform: translateX(100%); 
+          transition: transform 0.25s ease; 
+          z-index: 1200; 
+          background: #0b0f1a;
+          border-left: 1px solid rgba(255,255,255,.1);
+          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        .cb-drawer.open { 
+          transform: translateX(0); 
+        }
+
+        .cb-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cb-drawer-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Red X close button (only visible when drawer is open) */
+        .cb-close{
+          position: fixed;         /* pin to viewport corner */
+          top: 10px;
+          right: 10px;
+          width: 36px;
+          height: 36px;
+          line-height: 34px;
+          text-align: center;
+          font-size: 24px;
+          font-weight: 800;
+          color: #fff;
+          background: rgba(239, 68, 68, 0.9);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          cursor: pointer;
+          display: none;
+          z-index: 1300;           /* above drawer */
+        }
+        .cb-close:active{ transform: scale(.96); }
+
+        /* Show only when drawer is open */
+        .cb-drawer.open + .cb-close, /* in case of different DOM ordering */
+        .cb-drawer.open .cb-close,
+        .cb-drawer.open ~ .cb-close{
+          display: block;
+        }
+
+        /* iOS safe-area padding for notches */
+        @supports (padding: max(0px)){
+          .cb-close{ top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
+        }
+
+        /* Optional: hide burger while open (cleaner UI) */
+        @media (max-width:768px){
+          .cb-burger.open{ visibility: hidden; } /* the red X is the closer */
+        }
+
+        .cb-drawer-list {
+            padding: 20px 0;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+        }
+
+        .cb-drawer-section {
+            margin-bottom: 30px;
+        }
+
+        .cb-drawer-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #8fa3c7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding: 0 20px;
+        }
+
+        .cb-section-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .cb-section-list li {
+            margin: 0;
+        }
+
+        .cb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.2s;
+            margin: 0 10px;
+        }
+
+        .cb-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .cb-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            outline: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .cb-ico {
+            width: 20px;
+            flex: 0 0 20px;
+            text-align: center;
+            opacity: 0.85;
+        }
+
+        .cb-label {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .pro-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        .cb-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 1199;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.25s ease;
+        }
+        .cb-backdrop.visible {
+          opacity: 1;
+          visibility: visible;
+        }
+
+     /* Responsive Design */
     @media (max-width: 768px) {
       .new-footer {
         padding: 40px 20px;
@@ -1454,13 +1692,14 @@
       }
       
       .footer-links {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
         gap: 8px;
         margin-bottom: 10px;
       }
       
       .link-separator {
-        display: none;
+        display: inline;
       }
       
       .footer-link {
@@ -1756,10 +1995,29 @@
 
     <!-- Auth System -->
     <script src="auth.js"></script>
+    
+    <!-- Mobile Navigation -->
+    <script src="js/mobile-nav.js"></script>
+    
+    <!-- Test mobile navigation -->
+    <script>
+        // Test mobile navigation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.matchMedia('(max-width: 768px)').matches) {
+                    console.log('Mobile detected - mobile navigation should be working');
+                    const burger = document.getElementById('cb-burger');
+                    const drawer = document.getElementById('cb-drawer');
+                    console.log('Burger button:', !!burger);
+                    console.log('Drawer:', !!drawer);
+                }
+            }, 1000);
+        });
+    </script>
 
     <!-- Report Issue Modal -->
     <div id="reportIssueModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300" style="display: none;">
-        <div class="bg-gray-900/95 backdrop-blur-md border border-gray-700/50 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+        <div class="bg-gray-900/95 backdrop-blur-md border border-gray-700/50 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent" style="box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3);">
             <!-- Header with gradient border -->
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gradient-to-r from-blue-500/30 to-purple-500/30">
                 <h2 class="text-2xl font-bold text-white">Report Issue</h2>

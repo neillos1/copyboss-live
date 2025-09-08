@@ -9,8 +9,10 @@
     <meta name="msvalidate.01" content="A38FE47EADB280B3037029B991B65523" />
 
     <!-- ✅ Favicon -->
-    <link rel="icon" type="image/png" href="/assets/img/favicon.png">
-    <link rel="apple-touch-icon" href="/assets/img/favicon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon.png?v=3">
+    <link rel="shortcut icon" href="/assets/img/favicon.png?v=3">
 
     <!-- ✅ Open Graph (Facebook, LinkedIn) -->
     <meta property="og:title" content="CopyBoss Pricing - Choose Your Plan">
@@ -837,6 +839,162 @@
             box-shadow: none !important;
             border: none !important;
         }
+
+        /* Mobile Navigation Styles - Analyzer Style */
+        /* Burger: stacked lines */
+        .cb-burger{
+          display:flex;
+          flex-direction:column;              /* stack vertically */
+          justify-content:space-between;      /* even spacing */
+          align-items:center;
+          width:40px;
+          height:32px;
+          padding:6px 8px;
+          border-radius:10px;
+          border:1px solid rgba(255,255,255,.15);
+          background:rgba(255,255,255,.06);
+          cursor:pointer;
+        }
+
+        .cb-burger-line{
+          width:100%;
+          height:2px;
+          background:#fff;
+          border-radius:2px;
+          transition:transform .2s ease, opacity .2s ease;
+        }
+
+        /* Morph to X when open */
+        .cb-burger.open .cb-burger-line:nth-child(1){
+          transform: translateY(7px) rotate(45deg);
+        }
+        .cb-burger.open .cb-burger-line:nth-child(2){
+          opacity:0;
+        }
+        .cb-burger.open .cb-burger-line:nth-child(3){
+          transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Optional: hover/active polish */
+        @media (hover:hover){
+          .cb-burger:hover{ border-color: rgba(255,255,255,.35); }
+        }
+        .cb-burger:active{ transform: scale(.98); }
+
+        .cb-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 1199;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.25s ease;
+        }
+        .cb-backdrop.visible {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .cb-drawer { 
+          position: fixed; 
+          top: 0; 
+          right: 0; 
+          bottom: 0; 
+          width: 88%; 
+          max-width: 360px; 
+          transform: translateX(100%); 
+          transition: transform 0.25s ease; 
+          z-index: 1200; 
+          background: #0b0f1a;
+          border-left: 1px solid rgba(255,255,255,.1);
+          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        .cb-drawer.open { 
+          transform: translateX(0); 
+        }
+        .cb-drawer-scroll { 
+          height: 100%; 
+          overflow: auto; 
+          padding: 16px; 
+          padding-top: 20px;
+        }
+        .cb-drawer-list { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+        .cb-drawer-list li a,
+        .cb-drawer-list li button { display:block; width:100%; text-align:left; padding:12px 14px; border-radius:12px; }
+
+        .cb-drawer-leaderboard { margin-top:16px; }
+
+        .cb-drawer-list li.cb-pro { position: relative; }
+        .cb-pro-pill { position:absolute; top:8px; right:10px; font-size:11px; font-weight:700; padding:2px 6px; border-radius:8px; background:#7c3aed; color:#fff; pointer-events:none; }
+
+        /* Red X close button (only visible when drawer is open) */
+        .cb-close{
+          position: fixed;         /* pin to viewport corner */
+          top: 10px;
+          right: 10px;
+          width: 36px;
+          height: 36px;
+          line-height: 34px;
+          text-align: center;
+          font-size: 24px;
+          font-weight: 800;
+          color: #fff;
+          background: rgba(239, 68, 68, 0.9);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          cursor: pointer;
+          display: none;
+          z-index: 1300;           /* above drawer */
+        }
+        .cb-close:active{ transform: scale(.96); }
+
+        /* Show only when drawer is open */
+        .cb-drawer.open + .cb-close, /* in case of different DOM ordering */
+        .cb-drawer.open .cb-close,
+        .cb-drawer.open ~ .cb-close{
+          display: block;
+        }
+
+        /* iOS safe-area padding for notches */
+        @supports (padding: max(0px)){
+          .cb-close{ top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
+        }
+
+        /* Optional: hide burger while open (cleaner UI) */
+        @media (max-width:768px){
+          .cb-burger.open{ visibility: hidden; } /* the red X is the closer */
+        }
+
+        /* Drawer sectioning + item visuals */
+        .cb-drawer-section{ margin:8px 0 14px; }
+        .cb-drawer-title{
+          font-size:12px; font-weight:700; letter-spacing:.08em;
+          text-transform:uppercase; opacity:.65; margin:6px 4px 8px;
+        }
+        .cb-section-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+
+        .cb-item{
+          display:flex !important; 
+          align-items:center !important; 
+          gap:10px !important;
+          padding:10px 20px !important; 
+          border-radius:12px; 
+          text-decoration:none;
+        }
+        .cb-item:hover{ background:rgba(255,255,255,.05); }
+        .cb-item.active{ background:rgba(99,102,241,.15); outline:1px solid rgba(99,102,241,.25); }
+        .cb-ico{ 
+          width:20px !important; 
+          flex:0 0 20px !important; 
+          text-align:center; 
+          opacity:.85;
+          margin-right: 0 !important;
+        }
+        .cb-label{ 
+          flex:1 !important; 
+          font-weight:500;
+          margin-left: 0 !important;
+        }
     </style>
 
     <!-- ✅ Product Schema for Pricing Plans -->
@@ -921,9 +1079,30 @@
                         Report Issue
                     </button>
                 </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
+                        <span class="cb-burger-line"></span>
+                        <span class="cb-burger-line"></span>
+                        <span class="cb-burger-line"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Mobile drawer -->
+    <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
+        <button id="cb-close" class="cb-close" aria-label="Close menu" type="button">×</button>
+        <nav class="cb-drawer-scroll">
+            <ul id="cb-drawer-list" class="cb-drawer-list"></ul>
+            <div id="cb-drawer-leaderboard" class="cb-drawer-leaderboard"></div>
+        </nav>
+    </aside>
+    
+    <!-- Backdrop for mobile drawer -->
+    <div id="cb-backdrop" class="cb-backdrop" hidden></div>
 
     <!-- Pricing Section -->
     <div class="py-16 px-4 sm:px-6 lg:px-8">
@@ -1819,13 +1998,14 @@
       }
       
       .footer-links {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
         gap: 8px;
         margin-bottom: 10px;
       }
       
       .link-separator {
-        display: none;
+        display: inline;
       }
       
       .footer-link {
@@ -2045,5 +2225,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Navigation Script -->
+    <script src="js/mobile-nav.js"></script>
 </body>
 </html>

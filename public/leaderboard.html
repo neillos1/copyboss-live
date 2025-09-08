@@ -78,9 +78,10 @@
     </script>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/img/favicon.png?v=2">
-    <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png?v=2">
-    <link rel="apple-touch-icon" href="assets/img/favicon.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon.png?v=3">
+    <link rel="shortcut icon" href="/assets/img/favicon.png?v=3">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -199,6 +200,187 @@
         
         .nav-link:hover {
             color: #f1f5f9;
+        }
+        
+        /* Mobile Navigation Styles */
+        .cb-navbar { 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            backdrop-filter: blur(8px); 
+            display: none; /* Hidden by default, shown on mobile */
+        }
+        
+        .cb-nav-inner { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px 16px; 
+        }
+        
+        .cb-brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            text-decoration: none; 
+        }
+        
+        .cb-brand-img { 
+            width: 28px; 
+            height: 28px; 
+            object-fit: contain; 
+        }
+        
+        .cb-brand-text { 
+            font-weight: 700; 
+            font-size: 18px; 
+            line-height: 1; 
+            white-space: nowrap;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cb-actions { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        
+        .cb-burger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            width: 40px;
+            height: 32px;
+            padding: 6px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+            background: rgba(255,255,255,.06);
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+        }
+        
+        .cb-burger-line {
+            width: 100%;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: transform .2s ease, opacity .2s ease;
+        }
+        
+        /* Morph to X when open */
+        .cb-burger.open .cb-burger-line:nth-child(1){
+            transform: translateY(7px) rotate(45deg);
+        }
+        .cb-burger.open .cb-burger-line:nth-child(2){
+            opacity: 0;
+        }
+        .cb-burger.open .cb-burger-line:nth-child(3){
+            transform: translateY(-7px) rotate(-45deg);
+        }
+        
+        .cb-drawer { 
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            bottom: 0; 
+            width: 88%; 
+            max-width: 360px; 
+            transform: translateX(100%); 
+            transition: transform 0.25s ease; 
+            z-index: 1200; 
+            background: #0b0f1a;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cb-drawer.open { 
+            transform: translateX(0); 
+        }
+        
+        .cb-drawer-scroll { 
+            height: 100%; 
+            overflow: auto; 
+            padding: 16px; 
+            padding-top: 20px;
+        }
+        
+        .cb-drawer-list { 
+            list-style: none; 
+            margin: 0; 
+            padding: 0; 
+            display: grid; 
+            gap: 10px; 
+        }
+        
+        .cb-drawer-list li a,
+        .cb-drawer-list li button { 
+            display: block; 
+            width: 100%; 
+            text-align: left; 
+            padding: 12px 14px; 
+            border-radius: 12px; 
+            color: #f1f5f9;
+            text-decoration: none;
+            background: rgba(255,255,255,.05);
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .cb-drawer-list li a:hover,
+        .cb-drawer-list li button:hover { 
+            background: rgba(255,255,255,.1); 
+        }
+        
+        .cb-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1199;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+        }
+        
+        .cb-backdrop.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .cb-close {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            line-height: 34px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            background: #e11d48;
+            border: 2px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(225,29,72,.35);
+            cursor: pointer;
+            z-index: 1300;
+        }
+        
+        /* Mobile-only display */
+        @media (max-width: 768px) {
+            .navbar { display: none !important; }
+            .cb-navbar { display: block !important; }
         }
         
         /* Main Content */
@@ -433,12 +615,7 @@
         }
         
         .countdown-timer::before {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
-            height: 100%; width: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-            animation: shine 4s infinite;
+            display: none;
         }
         
         .countdown-digit {
@@ -505,7 +682,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <a href="/index.html" class="brand-link">
+                <a href="/index.html" class="brand-link gradient-text">
                     <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="brand-logo">
                     CopyBoss
                 </a>
@@ -519,6 +696,35 @@
             </div>
         </div>
     </nav>
+
+    <!-- NEW MOBILE HEADER -->
+    <header id="cb-header" class="cb-navbar">
+        <div class="cb-nav-inner">
+            <a class="cb-brand" href="/">
+                <img src="/assets/img/mascot.png" alt="CopyBoss" class="cb-brand-img" />
+                <span class="cb-brand-text">CopyBoss</span>
+            </a>
+
+            <div class="cb-actions">
+                <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
+                    <span class="cb-burger-line"></span>
+                    <span class="cb-burger-line"></span>
+                    <span class="cb-burger-line"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile drawer -->
+    <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
+        <button id="cb-close" class="cb-close" aria-label="Close menu" type="button">×</button>
+        <nav class="cb-drawer-scroll">
+            <ul id="cb-drawer-list" class="cb-drawer-list"></ul>
+        </nav>
+    </aside>
+    
+    <!-- Backdrop for mobile drawer -->
+    <div id="cb-backdrop" class="cb-backdrop" hidden></div>
 
     <div class="container">
         <!-- Header -->
@@ -1249,13 +1455,14 @@
        }
        
        .footer-links {
-         flex-direction: column;
+         flex-direction: row;
+         flex-wrap: nowrap;
          gap: 8px;
          margin-bottom: 10px;
        }
        
        .link-separator {
-         display: none;
+         display: inline;
        }
        
        .footer-link {
@@ -1311,5 +1518,8 @@
 
      <!-- Auth System -->
      <script src="auth.js"></script>
+     
+     <!-- Mobile Navigation Script -->
+     <script src="js/mobile-nav.js"></script>
  </body>
  </html>
