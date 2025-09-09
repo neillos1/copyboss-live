@@ -209,11 +209,11 @@ db.initializeDatabase()
   });
 
 // Community redirects to WordPress subdomain
-app.get('/community/:rest(*)?', (req, res) => {
-  const rest = req.params.rest || '';
-  const destUrl = `https://community.copy-boss.com/${rest}`;
-  console.log('[community-redirect]', req.originalUrl, '→', destUrl);
-  return res.redirect(301, destUrl);
+app.get(/^\/community(?:\/(.*))?$/, (req, res) => {
+  const rest = (req.params[0] || '').replace(/^\/+/, '');
+  const dest = `https://community.copy-boss.com/${rest}`;
+  console.log('[community-redirect]', req.originalUrl, '→', dest);
+  return res.redirect(301, dest);
 });
 
 // Serve static files (like index.html, JS, CSS)
