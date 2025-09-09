@@ -21,7 +21,7 @@ router.get('/onboard', requireAuth, async (req, res) => {
     const accountLink = await stripe.accountLinks.create({
       account: await createStripeAccount(userId),
       refresh_url: `${process.env.BASE_URL || 'http://localhost:3000'}/affiliate/onboard/refresh`,
-      return_url: `${process.env.BASE_URL || 'http://localhost:3000'}/affiliate-dashboard.html`,
+      return_url: `${process.env.BASE_URL || 'http://localhost:3000'}/affiliate-dashboard.html?intent=affiliate`,
       type: 'account_onboarding',
     });
 

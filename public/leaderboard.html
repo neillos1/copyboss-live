@@ -692,7 +692,7 @@
                 <a href="/analyzer.html" class="nav-link">Analyzer</a>
                 <a href="/generator.html" class="nav-link">Generator</a>
                 <a href="/pricing.html" class="nav-link">Pricing</a>
-                <a href="https://copy-boss.com/community/" class="nav-link">Community Hub</a>
+                <a href="https://community.copy-boss.com/" class="nav-link">Community Hub</a>
             </div>
         </div>
     </nav>
@@ -766,7 +766,7 @@
         <div class="user-rank-sticky" id="user-rank-sticky">
             <div class="user-rank-content">
                 <div class="user-rank-info">
-                    <img src="/assets/img/default-avatar.png" alt="Your Avatar" class="user-rank-avatar" id="user-rank-avatar">
+                    <img src="/assets/img/default-avatar.svg?v=3" alt="Your Avatar" class="user-rank-avatar" id="user-rank-avatar" onerror="this.src='/assets/img/default-avatar.svg?v=3'">
                     <div class="user-rank-text">
                         Your Rank: <span class="user-rank-value" id="user-rank-value">#0</span>
                         | Score: <span class="user-rank-score" id="user-rank-score">0</span>
@@ -869,12 +869,12 @@
                     const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1).toString();
                     
                     // Get avatar URL
-                    const avatarUrl = item.avatar_url || '/assets/img/default-avatar.png';
+                    const avatarUrl = item.avatar_url || '/assets/img/default-avatar.svg?v=3';
                     
                     row.innerHTML = `
                         <div class="rank">${rankEmoji}</div>
                         <div class="user-info">
-                            <img src="${avatarUrl}" alt="${item.username}" class="user-avatar" onerror="this.src='/assets/img/default-avatar.png'">
+                            <img src="${avatarUrl}" alt="${item.username}" class="user-avatar" onerror="this.src='/assets/img/default-avatar.svg?v=3'">
                             <div class="username">@${item.username}</div>
                         </div>
                         <div class="score">${item.score}</div>
@@ -896,7 +896,7 @@
                 document.getElementById('user-rank-value').textContent = `#${data.userRank.rank}`;
                 document.getElementById('user-rank-score').textContent = data.userRank.score;
                 
-                const avatarUrl = data.userRank.avatar_url || '/assets/img/default-avatar.png';
+                const avatarUrl = data.userRank.avatar_url || '/assets/img/default-avatar.svg?v=3';
                 document.getElementById('user-rank-avatar').src = avatarUrl;
                 
                 userRankSticky.classList.add('show');
@@ -1521,5 +1521,15 @@
      
      <!-- Mobile Navigation Script -->
      <script src="js/mobile-nav.js"></script>
+     <script src="/js/avatar-helper.js?v=1"></script>
+     
+     <script>
+         // Ensure all avatar fallbacks are properly set
+         document.addEventListener('DOMContentLoaded', function() {
+             if (typeof ensureAvatarFallbacks === 'function') {
+                 ensureAvatarFallbacks();
+             }
+         });
+     </script>
  </body>
  </html>

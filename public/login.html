@@ -397,11 +397,11 @@
         <input type="checkbox" id="rememberMe"> Remember me
       </label>
       
-      <button type="submit" class="btn btn-primary">Sign In</button>
+      <button type="button" class="btn btn-primary" id="signInBtn" onclick="simpleLogin()">Sign In</button>
     </form>
     
     <div class="signup-link">
-      Don't have an account? <a href="signup.html">Sign up</a>
+      Don't have an account? <a href="signup.html" id="signupLink">Sign up</a>
     </div>
   </div>
 
@@ -409,63 +409,224 @@
   <script src="auth.js"></script>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+    // UNIFIED LOGIN FUNCTION
+    async function simpleLogin() {
+      console.log('=== LOGIN ATTEMPT STARTED ===');
+      console.log('Current hostname:', window.location.hostname);
+      console.log('Current URL:', window.location.href);
       
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       
-      // Clear previous alerts
-      document.getElementById('alertContainer').innerHTML = '';
+      console.log('Login payload:', { email, password: password ? '***' + password.slice(-2) : 'empty' });
       
-      // Show loading overlay
-      showOverlay();
+      if (!email || !password) {
+        console.log('VALIDATION FAILED: Missing email or password');
+        alert('Please fill in email and password');
+        return;
+      }
+      
+      const endpoint = '/api/login';
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
+      };
+      
+      console.log('Making request to:', endpoint);
+      console.log('Request options:', { 
+        method: requestOptions.method, 
+        credentials: requestOptions.credentials,
+        headers: requestOptions.headers,
+        bodyLength: requestOptions.body.length 
+      });
       
       try {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password
-          })
+        const response = await fetch(endpoint, requestOptions);
+        
+        console.log('Response received:');
+        console.log('- Status:', response.status);
+        console.log('- Status Text:', response.statusText);
+        console.log('- Headers:', Object.fromEntries(response.headers.entries()));
+        console.log('- URL:', response.url);
+        
+        let data;
+        try {
+          data = await response.json();
+          console.log('Response JSON:', data);
+        } catch (jsonError) {
+          console.log('Failed to parse JSON response:', jsonError);
+          const textResponse = await response.text();
+          console.log('Response text:', textResponse);
+          throw new Error(`Invalid JSON response: ${textResponse}`);
+        }
+        
+        // DEV vs PROD BEHAVIOR
+        const isDevEnvironment = window.location.hostname === 'localhost' || 
+                                window.location.hostname.startsWith('192.168.') ||
+                                window.location.hostname.startsWith('127.0.0.1');
+        
+        console.log('Environment detection:', { 
+          hostname: window.location.hostname, 
+          isDevEnvironment 
         });
         
-        const data = await response.json();
+        // SUCCESS CONDITION: Accept either 200 + ok JSON, or Set-Cookie success
+        const isSuccess = response.ok && (
+          (data && (data.user || data.token || data.ok)) ||  // JSON success indicators
+          response.headers.get('set-cookie')                 // Cookie-based success
+        );
         
-        if (response.ok) {
-          // Store user data in localStorage
-          localStorage.setItem('videobossUserId', data.user.id);
-          localStorage.setItem('videobossEmail', data.user.email);
-          localStorage.setItem('videobossUser', JSON.stringify(data.user));
-          localStorage.setItem('videobossToken', data.token);
+        console.log('Success evaluation:', {
+          responseOk: response.ok,
+          hasUserData: !!(data && data.user),
+          hasToken: !!(data && data.token),
+          hasOkFlag: !!(data && data.ok),
+          hasSetCookie: !!response.headers.get('set-cookie'),
+          isSuccess
+        });
+        
+        if (isSuccess) {
+          console.log('LOGIN SUCCESS CONFIRMED!');
+          
+          // Store user data in localStorage for consistency
+          if (data.user) {
+            localStorage.setItem('videobossUserId', data.user.id);
+            localStorage.setItem('videobossEmail', data.user.email);
+            localStorage.setItem('videobossUser', JSON.stringify(data.user));
+          }
+          if (data.token) {
+            localStorage.setItem('videobossToken', data.token);
+          }
+          
+          // DEV ENVIRONMENT: Set in-memory auth state if no cookie
+          if (isDevEnvironment && !response.headers.get('set-cookie')) {
+            console.log('DEV MODE: Setting localStorage auth state (no cookie detected)');
+            localStorage.setItem('videobossAuthState', 'authenticated');
+            localStorage.setItem('videobossAuthTimestamp', Date.now().toString());
+          }
+          
+          // Update mobile navbar if function exists
+          if (typeof window.updateMobileNavbar === 'function') {
+            console.log('Updating mobile navbar...');
+            window.updateMobileNavbar();
+          }
           
           // Handle Remember Me functionality
           if (document.getElementById('rememberMe').checked) {
-            localStorage.setItem('rememberedEmail', document.getElementById('email').value);
+            localStorage.setItem('rememberedEmail', email);
           } else {
             localStorage.removeItem('rememberedEmail');
           }
           
-          // Hide loading overlay
-          hideOverlay();
+          // Determine redirect destination
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectTo = urlParams.get('redirect');
+          const intent = urlParams.get('intent');
           
-          // Redirect to analyzer (dashboard)
-          window.location.href = 'analyzer.html';
+          console.log('Redirect params:', { redirectTo, intent });
+          
+          let redirectUrl = 'analyzer.html'; // Default fallback
+          
+          if (redirectTo && redirectTo.startsWith('/') && !redirectTo.includes('..')) {
+            redirectUrl = redirectTo;
+            console.log('Using redirectTo:', redirectUrl);
+          } else if (intent === 'affiliate') {
+            redirectUrl = 'affiliate-dashboard.html';
+            console.log('Using affiliate intent:', redirectUrl);
+          } else {
+            console.log('Using default fallback:', redirectUrl);
+          }
+          
+          console.log('Final redirect URL:', redirectUrl);
+          
+          // Execute redirect with enhanced QA hooks
+          setTimeout(() => {
+            console.log('Executing redirect to:', redirectUrl);
+            
+            // QA HOOKS: Comprehensive debugging
+            const currentPath = window.location.pathname;
+            const hasCookie = document.cookie.includes('connect.sid') || document.cookie.includes('session');
+            const hasToken = !!localStorage.getItem('videobossToken');
+            const hasAuthState = !!localStorage.getItem('videobossAuthState');
+            
+            console.log('QA DEBUG INFO:', {
+              currentPath,
+              redirectTarget: redirectUrl,
+              hasCookie,
+              hasToken,
+              hasAuthState,
+              isDevEnvironment,
+              cookieDomain: document.cookie
+            });
+            
+            if (currentPath.includes('login.html')) {
+              console.warn('QA WARNING: Login successful but still on login page!', {
+                redirectTarget: redirectUrl,
+                hasCookie,
+                hasToken,
+                hasAuthState,
+                isDevEnvironment
+              });
+            }
+            
+            window.location.href = redirectUrl;
+          }, 100);
+          
         } else {
-          // Hide loading overlay
-          hideOverlay();
-          showAlert(data.error || 'Invalid email or password', 'danger');
+          console.log('LOGIN FAILED - Server Response:', {
+            status: response.status,
+            statusText: response.statusText,
+            data: data,
+            headers: Object.fromEntries(response.headers.entries())
+          });
+          
+          let errorMessage = 'Login failed';
+          if (data && data.error) {
+            errorMessage += ': ' + data.error;
+          } else if (response.status === 401) {
+            errorMessage += ': Invalid email or password';
+          } else if (response.status === 403) {
+            errorMessage += ': Access forbidden';
+          } else if (response.status >= 500) {
+            errorMessage += ': Server error';
+          } else {
+            errorMessage += `: HTTP ${response.status}`;
+          }
+          
+          alert(errorMessage);
         }
       } catch (error) {
-        console.error('Login error:', error);
-        // Hide loading overlay
-        hideOverlay();
-        showAlert('Network error. Please try again.', 'danger');
+        console.error('LOGIN ERROR - Exception caught:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+        alert('Network error: ' + error.message);
+      }
+    }
+    
+    // Set up button click handler (backup for form submission)
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, setting up login handler');
+      const signInBtn = document.getElementById('signInBtn');
+      if (signInBtn) {
+        console.log('Sign In button found:', signInBtn);
+        
+        // Add form submission handler as backup
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          simpleLogin();
+        });
+        
+        console.log('Login handlers attached');
+      } else {
+        console.log('ERROR: Sign In button not found!');
       }
     });
+    
+    // REMOVED: Old handleLogin function - using simpleLogin instead
     
     function showAlert(message, type) {
       const alertContainer = document.getElementById('alertContainer');
@@ -475,6 +636,29 @@
       alertContainer.appendChild(alertDiv);
     }
     
+    // Preserve affiliate intent when clicking signup link
+    document.addEventListener('DOMContentLoaded', function() {
+      const signupLink = document.getElementById('signupLink');
+      if (signupLink) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const intent = urlParams.get('intent');
+        const redirect = urlParams.get('redirect');
+        
+        if (intent === 'affiliate' || redirect) {
+          let signupUrl = 'signup.html?';
+          if (redirect) {
+            signupUrl += 'redirect=' + encodeURIComponent(redirect);
+          }
+          if (intent === 'affiliate') {
+            if (redirect) signupUrl += '&';
+            signupUrl += 'intent=affiliate';
+          }
+          signupLink.href = signupUrl;
+          console.log('Updated signup link to:', signupUrl);
+        }
+      }
+    });
+
     // Particle Animation and Remember Me functionality
     document.addEventListener('DOMContentLoaded', function() {
       // Handle Remember Me functionality

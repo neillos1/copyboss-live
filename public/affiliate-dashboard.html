@@ -231,6 +231,29 @@
             color: #10b981;
         }
         
+        /* Affiliate Status Styles */
+        .affiliate-status-success {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        .affiliate-status-pending {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            color: #f59e0b;
+            font-weight: 500;
+        }
+        
+        .affiliate-status-success i,
+        .affiliate-status-pending i {
+            font-size: 1.2em;
+        }
+        
         .loading {
             text-align: center;
             padding: 40px;
@@ -544,8 +567,248 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
+        /* Mobile Navigation Styles */
+        .cb-navbar {
+            display: none;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .cb-nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cb-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f1f5f9;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .cb-brand-img {
+            height: 32px;
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .cb-brand-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cb-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Burger: stacked lines */
+        .cb-burger{
+          display:flex;
+          flex-direction:column;
+          justify-content:space-between;
+          align-items:center;
+          width:40px;
+          height:32px;
+          padding:6px 8px;
+          border-radius:10px;
+          border:1px solid rgba(255,255,255,.15);
+          background:rgba(255,255,255,.06);
+          cursor:pointer;
+        }
+
+        .cb-burger-line{
+          width:100%;
+          height:2px;
+          background:#fff;
+          border-radius:2px;
+          transition:transform .2s ease, opacity .2s ease;
+        }
+
+        /* Morph to X when open */
+        .cb-burger.open .cb-burger-line:nth-child(1){
+          transform: translateY(7px) rotate(45deg);
+        }
+        .cb-burger.open .cb-burger-line:nth-child(2){
+          opacity:0;
+        }
+        .cb-burger.open .cb-burger-line:nth-child(3){
+          transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Optional: hover/active polish */
+        @media (hover:hover){
+          .cb-burger:hover{ border-color: rgba(255,255,255,.35); }
+        }
+        .cb-burger:active{ transform: scale(.98); }
+
+        /* Mobile Navigation Styles */
+        .cb-drawer { 
+          position: fixed; 
+          top: 0; 
+          right: 0; 
+          bottom: 0; 
+          width: 88%; 
+          max-width: 360px; 
+          transform: translateX(100%); 
+          transition: transform 0.25s ease; 
+          z-index: 1200; 
+          background: #0b0f1a;
+          border-left: 1px solid rgba(255,255,255,.1);
+          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        .cb-drawer.open { 
+          transform: translateX(0); 
+        }
+
+        /* Red X close button (only visible when drawer is open) */
+        .cb-close{
+          position: fixed;
+          top: 10px;
+          right: 10px;
+          width: 36px;
+          height: 36px;
+          line-height: 34px;
+          text-align: center;
+          font-size: 24px;
+          color: #fff;
+          background: rgba(239, 68, 68, 0.9);
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          display: none;
+          z-index: 1300;
+        }
+        .cb-close:active{ transform: scale(.96); }
+
+        /* Show only when drawer is open */
+        .cb-drawer.open + .cb-close,
+        .cb-drawer.open .cb-close,
+        .cb-drawer.open ~ .cb-close{
+          display: block;
+        }
+
+        /* iOS safe-area padding for notches */
+        @supports (padding: max(0px)){
+          .cb-close{ top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
+        }
+
+        /* Optional: hide burger while open (cleaner UI) */
+        @media (max-width:768px){
+          .cb-burger.open{ visibility: hidden; }
+        }
+
+        .cb-drawer-list {
+            padding: 20px 0;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+        }
+
+        .cb-drawer-section {
+            margin-bottom: 30px;
+        }
+
+        .cb-drawer-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #8fa3c7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding: 0 20px;
+        }
+
+        .cb-section-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .cb-section-list li a,
+        .cb-section-list li button { 
+            display: block; 
+            width: 100%; 
+            text-align: left; 
+            padding: 12px 14px; 
+            border-radius: 12px; 
+            color: #f1f5f9;
+            text-decoration: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cb-section-list li a:hover,
+        .cb-section-list li button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .cb-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .cb-ico {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .cb-label {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cb-drawer-leaderboard { 
+            margin-top: 16px; 
+        }
+
+        .cb-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .cb-backdrop.visible {
+            opacity: 1;
+        }
+
         /* Responsive modal */
         @media (max-width: 768px) {
+            .navbar {
+                display: none;
+            }
+            
+            .cb-navbar {
+                display: block;
+            }
+            
             .modal-content {
                 width: 95%;
                 max-height: 90vh;
@@ -570,7 +833,7 @@
     <!-- Particle Animation -->
     <div class="particles" id="particles"></div>
 
-    <!-- Navigation -->
+    <!-- Desktop Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
@@ -584,10 +847,40 @@
                 <a href="/analyzer.html" class="nav-link">Analyzer</a>
                 <a href="/generator.html" class="nav-link">Generator</a>
                 <a href="/pricing.html" class="nav-link">Pricing</a>
-                <a href="https://copy-boss.com/community/" class="nav-link">Community Hub</a>
+                <a href="https://community.copy-boss.com/" class="nav-link">Community Hub</a>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Header -->
+    <header id="cb-header" class="cb-navbar">
+        <div class="cb-nav-inner">
+            <a class="cb-brand" href="/index.html">
+                <img src="/assets/img/mascot.png" alt="CopyBoss" class="cb-brand-img" />
+                <span class="cb-brand-text">CopyBoss</span>
+            </a>
+
+            <div class="cb-actions">
+                <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
+                    <span class="cb-burger-line"></span>
+                    <span class="cb-burger-line"></span>
+                    <span class="cb-burger-line"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile drawer -->
+    <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
+        <button id="cb-close" class="cb-close" aria-label="Close menu" type="button">×</button>
+        <nav class="cb-drawer-scroll">
+            <ul id="cb-drawer-list" class="cb-drawer-list"></ul>
+            <div id="cb-drawer-leaderboard" class="cb-drawer-leaderboard"></div>
+        </nav>
+    </aside>
+    
+    <!-- Backdrop for mobile drawer -->
+    <div id="cb-backdrop" class="cb-backdrop" hidden></div>
 
     <div class="container">
         <div class="header">
@@ -621,7 +914,16 @@
             </div>
             
             <!-- Referral Link Section -->
-            <div class="section">
+            <!-- Affiliate Status -->
+            <div class="section" id="affiliateStatus">
+                <h2>Affiliate Status</h2>
+                <div id="affiliateStatusContent">
+                    <p>Loading affiliate status...</p>
+                </div>
+            </div>
+            
+            <!-- Your Referral Link -->
+            <div class="section" id="referralSection" style="display: none;">
                 <h2>Your Referral Link</h2>
                 <div class="referral-link">
                     <input type="text" id="referralLink" readonly>
@@ -656,18 +958,54 @@
     </div>
 
     <script>
-        // Get user ID from URL parameter (for testing)
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userId') || 1; // Default to user 1 for testing
-        
         async function loadDashboard() {
             try {
-                const response = await fetch(`/affiliate/dashboard?userId=${userId}`);
+                // Check if user is logged in first
+                const isLoggedIn = await window.auth?.isLoggedIn();
+                if (!isLoggedIn) {
+                    // Check for affiliate intent
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const intent = urlParams.get('intent');
+                    
+                    console.log('Affiliate Dashboard: User not logged in, intent:', intent);
+                    console.log('Current URL:', window.location.href);
+                    
+                    // Redirect to login page with proper parameters
+                    let redirectUrl = '/login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+                    // Don't add intent parameter if it's already in the redirect URL
+                    if (intent === 'affiliate' && !window.location.search.includes('intent=affiliate')) {
+                        redirectUrl += '&intent=affiliate';
+                    }
+                    
+                    console.log('Redirecting to:', redirectUrl);
+                    window.location.href = redirectUrl;
+                    return;
+                }
+
+                // Get current user to verify they have access
+                const currentUser = await window.auth?.getCurrentUser();
+                if (!currentUser) {
+                    throw new Error('Unable to get user information');
+                }
+
+                const response = await fetch('/affiliate/dashboard', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
                 const data = await response.json();
                 
                 if (response.ok) {
                     displayDashboard(data);
                 } else {
+                    if (response.status === 401) {
+                        // User not authenticated, redirect to login
+                        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                        return;
+                    }
                     throw new Error(data.error || 'Failed to load dashboard');
                 }
             } catch (error) {
@@ -684,14 +1022,42 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             
+            // Check affiliate status
+            console.log('Affiliate Dashboard: User data:', data.user);
+            console.log('Affiliate Dashboard: stripeAccountId:', data.user.stripeAccountId);
+            console.log('Affiliate Dashboard: Current URL:', window.location.href);
+            
+            if (data.user.stripeAccountId) {
+                // User is already an affiliate
+                console.log('User is already an affiliate');
+                document.getElementById('affiliateStatusContent').innerHTML = `
+                    <div class="affiliate-status-success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>You're an active affiliate!</span>
+                    </div>
+                `;
+                document.getElementById('referralSection').style.display = 'block';
+                document.getElementById('referralLink').value = data.user.referralLink;
+            } else {
+                // User needs to become an affiliate
+                console.log('User needs to become an affiliate');
+                document.getElementById('affiliateStatusContent').innerHTML = `
+                    <div class="affiliate-status-pending">
+                        <i class="fas fa-clock"></i>
+                        <span>You're not an affiliate yet. Complete onboarding to start earning!</span>
+                        <button class="btn btn-primary" onclick="startOnboarding()" style="margin-top: 10px;">
+                            Become an Affiliate
+                        </button>
+                    </div>
+                `;
+                document.getElementById('referralSection').style.display = 'none';
+            }
+            
             // Update stats
             document.getElementById('totalReferrals').textContent = data.stats.totalReferrals;
             document.getElementById('pendingCommissions').textContent = `£${data.stats.pendingCommissions.toFixed(2)}`;
             document.getElementById('paidCommissions').textContent = `£${data.stats.paidCommissions.toFixed(2)}`;
             document.getElementById('nextPayout').textContent = data.stats.nextPayoutDate;
-            
-            // Update referral link
-            document.getElementById('referralLink').value = data.user.referralLink;
             
             // Update pending commissions
             const pendingList = document.getElementById('pendingCommissionsList');
@@ -742,6 +1108,11 @@
                     </div>
                 `).join('');
             }
+        }
+        
+        function startOnboarding() {
+            // Redirect to affiliate onboarding with intent parameter
+            window.location.href = '/affiliate/onboard?intent=affiliate';
         }
         
         function copyReferralLink() {
@@ -1031,5 +1402,18 @@
 
     <!-- Auth System -->
     <script src="auth.js"></script>
+    
+    <!-- Mobile Navigation -->
+    <script src="js/mobile-nav.js"></script>
+    <script src="/js/avatar-helper.js?v=1"></script>
+    
+    <script>
+        // Ensure all avatar fallbacks are properly set
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ensureAvatarFallbacks === 'function') {
+                ensureAvatarFallbacks();
+            }
+        });
+    </script>
 </body>
 </html>

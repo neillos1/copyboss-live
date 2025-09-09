@@ -512,6 +512,12 @@
     // Check for referral parameter
     const urlParams = new URLSearchParams(window.location.search);
     const refParam = urlParams.get('ref');
+    const redirectParam = urlParams.get('redirect');
+    const intentParam = urlParams.get('intent');
+    
+    console.log('Signup page URL params:', { refParam, redirectParam, intentParam });
+    console.log('Signup page current URL:', window.location.href);
+    
     if (refParam) {
       document.getElementById('referrerId').value = refParam;
     }
@@ -519,11 +525,15 @@
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
+      console.log('Signup form submitted!');
+      
       const email = document.getElementById('email').value.trim();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
       const referrerId = document.getElementById('referrerId').value;
+      
+      console.log('Signup form data:', { email, username, password: '***', referrerId });
       
       // Clear previous alerts
       document.getElementById('alertContainer').innerHTML = '';
@@ -548,6 +558,7 @@
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({
             email,
             username,
@@ -570,9 +581,34 @@
           // Hide loading overlay
           hideOverlay();
           
+          // Check for redirect parameter or affiliate intent
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectTo = urlParams.get('redirect');
+          const intent = urlParams.get('intent');
+          
+          console.log('Signup Success: redirectTo:', redirectTo);
+          console.log('Signup Success: intent:', intent);
+          console.log('Signup Success: Current URL:', window.location.href);
+          
+          // Determine redirect destination
+          let redirectUrl = 'analyzer.html'; // Default fallback
+          
+          if (redirectTo && redirectTo.startsWith('/') && !redirectTo.includes('..')) {
+            // Valid same-origin redirect - use it directly
+            redirectUrl = redirectTo;
+            console.log('Using redirectTo:', redirectUrl);
+          } else if (intent === 'affiliate') {
+            // Affiliate intent flow (fallback if no redirect)
+            redirectUrl = 'affiliate-dashboard.html';
+            console.log('Using intent fallback:', redirectUrl);
+          } else {
+            console.log('Using default fallback:', redirectUrl);
+          }
+          
+          console.log('Final redirect URL:', redirectUrl);
           // Auto-login after successful signup
           setTimeout(() => {
-            window.location.href = 'analyzer.html';
+            window.location.href = redirectUrl;
           }, 1500);
         } else {
           // Hide loading overlay

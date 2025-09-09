@@ -19,6 +19,31 @@ app.use((req, res, next) => {
   next();
 });
 
+// ===== HTTPS ENFORCEMENT & CANONICAL HOST =====
+app.use((req, res, next) => {
+  // Skip redirects for Stripe webhook
+  if (req.path === '/stripe-webhook') return next();
+  
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.get('host');
+  const url = req.originalUrl;
+  
+  // Force HTTPS
+  if (protocol !== 'https') {
+    return res.redirect(301, `https://${host}${url}`);
+  }
+  
+  // Canonicalize to www.copy-boss.com (except for community subdomain)
+  if (host === 'copy-boss.com') {
+    return res.redirect(301, `https://www.copy-boss.com${url}`);
+  }
+  
+  // Set HSTS headers for all HTTPS requests
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  
+  next();
+});
+
 // ===== STRIPE WEBHOOK (must be first and use raw body) =====
 app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -87,7 +112,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    domain: process.env.NODE_ENV === 'production' ? '.copy-boss.com' : undefined,
+    sameSite: 'lax'
   }
 }));
 
@@ -124,9 +151,21 @@ const avatarUpload = multer({
 // Serve avatar files
 app.get('/api/avatar/:userId', (req, res) => {
   const userId = req.params.userId;
-  const avatarPath = path.join(__dirname, 'uploads', 'avatars', `${userId}.png`);
+  const avatarDir = path.join(__dirname, 'uploads', 'avatars');
   
-  if (fs.existsSync(avatarPath)) {
+  // Try to find the avatar file with any extension
+  const possibleExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+  let avatarPath = null;
+  
+  for (const ext of possibleExtensions) {
+    const testPath = path.join(avatarDir, `${userId}${ext}`);
+    if (fs.existsSync(testPath)) {
+      avatarPath = testPath;
+      break;
+    }
+  }
+  
+  if (avatarPath) {
     res.sendFile(avatarPath);
   } else {
     // Return default avatar
@@ -168,6 +207,16 @@ db.initializeDatabase()
   .catch(err => {
     console.error('❌ Database initialization failed:', err);
   });
+
+// Community redirects to WordPress subdomain
+app.get('/community', (req, res) => {
+  res.redirect(301, 'https://community.copy-boss.com/');
+});
+
+app.get('/community/*', (req, res) => {
+  const path = req.params[0] || '';
+  res.redirect(301, `https://community.copy-boss.com/${path}`);
+});
 
 // Serve static files (like index.html, JS, CSS)
 app.use(express.static(path.join(__dirname, 'public')));

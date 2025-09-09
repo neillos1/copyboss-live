@@ -93,6 +93,16 @@ html, body { overflow-x: hidden; }
 }
 
 .cb-actions { display:flex; align-items:center; gap:10px; }
+.cb-avatar-holder { 
+  flex: 0 0 auto; 
+  display: flex; 
+  align-items: center; 
+  margin-right: 0; 
+}
+.cb-avatar-img { 
+  flex: 0 0 auto; 
+  margin-right: 0 !important; 
+}
 .cb-btn { padding:8px 12px; border-radius:10px; cursor:pointer; }
 .cb-btn-primary { font-weight:600; }
 .cb-btn-secondary { font-weight:600; }
@@ -294,13 +304,14 @@ html, body { overflow-x: hidden; }
 
   /* Upload: balanced width to fit navbar without cutting off title */
   #cb-upload-btn{
-    flex: 0 1 auto;       /* don't stretch, allow shrink */
+    flex: 0 0 auto;       /* don't stretch, don't shrink */
     min-width: 120px;     /* fixed minimum width */
     max-width: 140px;     /* fixed maximum width */
     height: 38px;         /* shorter button */
     padding: 0 16px;      /* slim vertical padding */
     border-radius: 12px;
     font-size: 15px;
+    white-space: nowrap;  /* prevent text wrapping */
     font-weight: 700;
   }
 
@@ -314,14 +325,55 @@ html, body { overflow-x: hidden; }
   .cb-brand-text{ font-size: 16px; }
 }
 
+/* Small devices (≤390px) */
+@media (max-width: 390px){
+  .cb-avatar-img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  #cb-upload-btn{
+    min-width: 84px;   /* smaller for small devices */
+    max-width: 96px;   /* keep it contained */
+    font-size: 14px;
+    padding: 0 12px;   /* reduce horizontal padding */
+  }
+}
+
 /* Tiny phones (e.g., iPhone 12/13 mini) */
 @media (max-width: 375px){
   #cb-upload-btn{
-    min-width: 100px;   /* slightly smaller for tiny phones */
-    max-width: 120px;   /* keep it contained */
-    font-size: 14px;
+    min-width: 70px;   /* slightly smaller for tiny phones */
+    max-width: 90px;   /* keep it contained */
+    font-size: 13px;
+    padding: 0 10px;   /* further reduce padding */
   }
   .cb-brand-text{ font-size: 15px; }
+}
+
+/* Ultra-narrow devices (≤340px) - icon-only fallback */
+@media (max-width: 340px){
+  #cb-upload-btn{
+    min-width: 44px;   /* icon-only width */
+    max-width: 44px;   /* icon-only width */
+    padding: 0 8px;    /* minimal padding */
+    font-size: 0;      /* hide text */
+    position: relative;
+  }
+  
+  #cb-upload-btn::before {
+    content: "📁";     /* upload icon */
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .cb-avatar-img {
+    width: 24px !important;
+    height: 24px !important;
+  }
 }
 
 /* Drawer sectioning + item visuals */

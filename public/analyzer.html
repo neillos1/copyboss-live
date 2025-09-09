@@ -171,9 +171,12 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 100%);
       min-height: 100vh;
+      min-height: 100dvh; /* Dynamic viewport height for iOS */
+      min-height: calc(var(--vh, 1vh) * 100); /* Fallback for iOS */
       overflow-x: hidden;
       color: white;
       margin: 0;
+      padding-bottom: 80px; /* Ensure footer clears sticky header */
     }
 
     /* Particle Animation */
@@ -2003,7 +2006,7 @@ html, body {
                         <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
                         <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
                         <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
-                        <a href="https://copy-boss.com/community/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
+                        <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
                         <a href="login.html" class="text-gray-300 hover:text-white transition-colors duration-200">Login</a>
                         <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
                     </nav>
@@ -2047,7 +2050,7 @@ html, body {
                         <a href="/analyzer.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Analyzer</a>
                         <a href="/generator.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Generator</a>
                         <a href="/pricing.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Pricing</a>
-                        <a href="https://copy-boss.com/community/" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Community Hub</a>
+                        <a href="https://community.copy-boss.com/" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Community Hub</a>
                         <a href="login.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Login</a>
                         <a href="signup.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Sign Up</a>
                         
@@ -2173,18 +2176,18 @@ html, body {
       </div>
     </div>
   </a></li>
-  <li><a href="#" class="sidebar-btn" onclick="redirectToStripeCheckout('2reports')">
+  <li><a href="#" class="sidebar-btn" onclick="redirectToStripeCheckout('2reports')" aria-label="Buy 2 Reports for £1.99" role="button" tabindex="0">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-shopping-cart"></i>
+        <i class="fa-solid fa-shopping-cart" aria-hidden="true"></i>
         <span>Buy 2 Reports</span>
       </div>
     </div>
   </a></li>
-  <li><a href="#" class="sidebar-btn" onclick="redirectToStripeCheckout('15reports')">
+  <li><a href="#" class="sidebar-btn" onclick="redirectToStripeCheckout('15reports')" aria-label="Buy 15 Reports for £9.99" role="button" tabindex="0">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-shopping-cart"></i>
+        <i class="fa-solid fa-shopping-cart" aria-hidden="true"></i>
         <span>Buy 15 Reports</span>
       </div>
     </div>
@@ -2265,6 +2268,12 @@ html, body {
         usernameElement.textContent = displayName;
         usernameElement.title = displayName; // Update tooltip with full username
         
+        // Update avatar if user has one
+        const avatarImg = document.getElementById('profile-avatar');
+        if (avatarImg && data.user.avatar_url) {
+          avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
+        }
+        
         // Show user profile section
         document.querySelector('.user-profile').style.display = 'flex';
   } else {
@@ -2275,14 +2284,14 @@ html, body {
     } catch (error) {
       console.error('User status check error:', error);
       // Fallback to localStorage check for legacy support
-      const name = localStorage.getItem('videobossUser');
+  const name = localStorage.getItem('videobossUser');
       if (name) {
         const usernameElement = document.getElementById('loggedInName');
         const displayName = '@' + name;
         usernameElement.textContent = displayName;
         usernameElement.title = displayName;
         document.querySelector('.user-profile').style.display = 'flex';
-      } else {
+  } else {
         document.querySelector('.user-profile').style.display = 'none';
       }
     }
@@ -4299,6 +4308,82 @@ function displayGeminiResultsSafe() {
   z-index: 1000;
 }
 
+/* Avatar Dropdown Styles */
+.avatar-dropdown {
+    position: relative;
+}
+
+.avatar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.avatar-btn:hover {
+    transform: scale(1.05);
+}
+
+.avatar-dropdown-menu {
+    min-width: 200px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #f1f5f9;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+#avatarDropdown .dropdown-item i {
+    width: 16px !important;
+    text-align: center !important;
+    margin-right: 12px !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+/* Force avatar dropdown icon alignment - highest priority */
+#avatarDropdown .dropdown-item i.fas {
+    width: 16px !important;
+    text-align: center !important;
+    margin-right: 12px !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+/* Logout item styling to match other pages */
+.dropdown-item.text-red-400 {
+    color: #f87171;
+}
+
+.dropdown-item.text-red-400:hover {
+    color: #fca5a5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .avatar-dropdown-menu {
+        right: -50px;
+        min-width: 180px;
+    }
+}
+
 /* Responsive dropdown positioning for smaller screens */
 @media (max-width: 1200px) {
   #dropdownMenu {
@@ -5590,6 +5675,18 @@ a:hover {
 
     .main-wrapper {
       flex: 1;
+      padding-bottom: 100px; /* Extra padding for mobile footer visibility */
+    }
+    
+    /* Mobile-specific footer clearance - Analyzer page only */
+    @media (max-width: 768px) {
+      body.page-analyzer {
+        padding-bottom: 120px; /* More padding on mobile for sticky header */
+      }
+      
+      .page-analyzer .main-wrapper {
+        padding-bottom: 120px; /* Extra mobile padding */
+      }
     }
 
 
@@ -5824,6 +5921,8 @@ a:hover {
   flex-shrink: 0;
   box-sizing: border-box;
   display: flex;
+  z-index: 100; /* Ensure footer is above other content */
+  margin-top: auto; /* Push footer to bottom */
   align-items: center;
   justify-content: center;
   min-height: 220px;
@@ -6422,7 +6521,7 @@ a:hover {
     function updateProfileDisplay(name) {
       const profileHTML = `
         <div class="user-profile">
-          <img src="/uploads/avatars/default.png" class="avatar-thumb" alt="Profile Picture">
+          <img src="/assets/img/default-avatar.svg?v=3" class="avatar-thumb" alt="Profile Picture" id="profile-avatar" onerror="this.src='/assets/img/default-avatar.svg?v=3'">
           <div class="user-info">
             <div class="username">@${name}</div>
             <a href="#" class="edit-profile-link" onclick="logout()">Logout</a>
@@ -8529,6 +8628,7 @@ async function redirectToStripeCheckout(plan) {
   
   const url = stripeUrls[plan];
   if (url) {
+    // Open in same tab to maintain session context
     window.location.href = url;
   } else {
     alert("Invalid plan selected.");
@@ -8798,7 +8898,7 @@ function showUpgradeModal() {
           💎 Upgrade to Pro - £4.99/month
         </button>
         
-        <button onclick="redirectToStripeCheckout('2reports')" style="
+        <button onclick="redirectToStripeCheckout('2reports')" aria-label="Buy 2 Reports for £1.99" style="
           background: linear-gradient(135deg, #4CAF50, #45a049);
           color: white;
           border: none;
@@ -8813,7 +8913,7 @@ function showUpgradeModal() {
           📊 Buy 2 Reports - £1.99
         </button>
         
-        <button onclick="redirectToStripeCheckout('15reports')" style="
+        <button onclick="redirectToStripeCheckout('15reports')" aria-label="Buy 15 Reports for £9.99" style="
           background: linear-gradient(135deg, #FF9800, #F57C00);
           color: white;
           border: none;
@@ -9090,12 +9190,12 @@ function displayLeaderboard(data, period) {
       const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1).toString();
       
       // Get avatar URL
-      const avatarUrl = item.avatar_url || '/assets/img/default-avatar.png';
+      const avatarUrl = item.avatar_url || '/assets/img/default-avatar.svg?v=3';
       
       li.innerHTML = `
         <span class="rank">${rankEmoji}</span>
         <div class="user-info">
-          <img src="${avatarUrl}" alt="${item.username}" class="user-avatar" onerror="this.src='/assets/img/default-avatar.png'">
+          <img src="${avatarUrl}" alt="${item.username}" class="user-avatar" onerror="this.src='/assets/img/default-avatar.svg?v=3'">
           <span class="username" title="${item.username}">@${item.username}</span>
         </div>
         <span class="score">${item.score}</span>
@@ -9265,11 +9365,26 @@ async function saveAnalysisResult(score) {
 
 <script src="/js/mobile-gap-guard.js" defer></script>
 <script src="/js/mobile-nav.js"></script>
+<script src="/js/avatar-helper.js?v=1"></script>
 
 <!-- Test Analyzer History functionality -->
 <script>
     // Test Analyzer History button on page load
     document.addEventListener('DOMContentLoaded', function() {
+        // Ensure all avatar fallbacks are properly set
+        if (typeof ensureAvatarFallbacks === 'function') {
+            ensureAvatarFallbacks();
+        }
+        
+        // iOS viewport height fix
+        function setViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setViewportHeight();
+        window.addEventListener('resize', setViewportHeight);
+        window.addEventListener('orientationchange', setViewportHeight);
         setTimeout(() => {
             const historyBtn = document.querySelector('[data-target="analyzer-history"]');
             if (historyBtn) {

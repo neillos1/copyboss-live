@@ -1,6 +1,65 @@
 (function(){
   const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 
+  // Check authentication state (reuse auth.js logic)
+  async function checkAuthState() {
+    try {
+      const token = localStorage.getItem('videobossToken');
+      if (!token) return false;
+
+      const response = await fetch('/api/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      return response.ok;
+    } catch (error) {
+      console.error('Auth check error:', error);
+      const user = localStorage.getItem('videobossUser');
+      const token = localStorage.getItem('videobossToken');
+      return !!(user && token);
+    }
+  }
+
+  // Get current user data
+  async function getCurrentUser() {
+    try {
+      const token = localStorage.getItem('videobossToken');
+      if (!token) return null;
+
+      const response = await fetch('/api/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('videobossUser', JSON.stringify(data.user));
+        return data.user;
+      }
+      
+      const userData = localStorage.getItem('videobossUser');
+      if (userData) {
+        return JSON.parse(userData);
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Get user error:', error);
+      const userData = localStorage.getItem('videobossUser');
+      if (userData) {
+        return JSON.parse(userData);
+      }
+      return null;
+    }
+  }
+
   function selectFirst(selectors){
     for (const s of selectors){
       const el = document.querySelector(s);
@@ -99,17 +158,21 @@
     document.addEventListener('cb:analysis:end',   () => overlay.hide(), { passive:true });
   }
 
-  function buildDrawer(){
+  async function buildDrawer(){
     const container = document.getElementById('cb-drawer-list');
     if (!container) return;
 
+    // Check authentication state
+    const isUserLoggedIn = await checkAuthState();
+    
     // Check if we're on specific pages
     const isLeaderboardPage = location.pathname.includes('leaderboard') || 
                              document.title.toLowerCase().includes('leaderboard');
     const isHomePage = location.pathname === '/' || 
                       location.pathname.includes('index') || 
-                      (document.title.toLowerCase().includes('copyboss') && !location.pathname.includes('analyzer'));
+                      (document.title.toLowerCase().includes('copyboss') && !location.pathname.includes('analyzer') && !location.pathname.includes('affiliate'));
     const isAnalyzerPage = location.pathname.includes('analyzer');
+    const isAffiliatePage = location.pathname.includes('affiliate');
 
     // Map to desktop selectors (proxy targets) and/or routes
     let groups;
@@ -128,12 +191,16 @@
         {
           title: 'Community',
           items: [
-            { label:'Community Hub', icon:'👥', href:'/community', proxy:['.btn-community','a[href*="community"]'] }
+            { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/', proxy:['.btn-community','a[href*="community"]'] }
           ]
         },
         {
           title: 'Account',
-          items: [
+          items: isUserLoggedIn ? [
+            { label:'Pricing', icon:'💳', href:'/pricing', proxy:['.btn-pricing','a[href*="pricing"]'] },
+            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Logout', icon:'🚪', href:'#', action:'logout' }
+          ] : [
             { label:'Pricing', icon:'💳', href:'/pricing', proxy:['.btn-pricing','a[href*="pricing"]'] },
             { label:'Login / Sign Up', icon:'🔑', href:'/login', proxy:['.btn-auth','a[href*="login"]','a[href*="signup"]'] }
           ]
@@ -149,12 +216,15 @@
             { label:'Analyzer',  icon:'📊', href:'/analyzer' },
             { label:'Generator', icon:'⚡', href:'/generator' },
             { label:'Pricing',   icon:'💳', href:'/pricing' },
-            { label:'Community Hub', icon:'👥', href:'https://copy-boss.com/community/' }
+            { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/' }
           ]
         },
         {
           title: 'Account',
-          items: [
+          items: isUserLoggedIn ? [
+            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Logout', icon:'🚪', href:'#', action:'logout' }
+          ] : [
             { label:'Login', icon:'🔑', href:'login.html' },
             { label:'Sign Up', icon:'📝', href:'signup.html' }
           ]
@@ -163,7 +233,38 @@
           title: 'Support',
           items: [
             { label:'Report Issue', icon:'🐛', href:'#', proxy:['#reportIssueBtn'] },
-            { label:'Become Affiliate', icon:'💸', href:'/signup.html?ref=affiliate' }
+            { label:'Become Affiliate', icon:'💸', href:'/affiliate-dashboard.html?intent=affiliate' }
+          ]
+        }
+      ];
+    } else if (isAffiliatePage) {
+      // Simplified menu for affiliate page (same as homepage)
+      groups = [
+        {
+          title: 'Pages',
+          items: [
+            { label:'Home',      icon:'🏠', href:'/' },
+            { label:'Analyzer',  icon:'📊', href:'/analyzer' },
+            { label:'Generator', icon:'⚡', href:'/generator' },
+            { label:'Pricing',   icon:'💳', href:'/pricing' },
+            { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/' }
+          ]
+        },
+        {
+          title: 'Account',
+          items: isUserLoggedIn ? [
+            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Logout', icon:'🚪', href:'#', action:'logout' }
+          ] : [
+            { label:'Login', icon:'🔑', href:'login.html' },
+            { label:'Sign Up', icon:'📝', href:'signup.html' }
+          ]
+        },
+        {
+          title: 'Support',
+          items: [
+            { label:'Report Issue', icon:'🐛', href:'#', proxy:['#reportIssueBtn'] },
+            { label:'Become Affiliate', icon:'💸', href:'/affiliate-dashboard.html?intent=affiliate' }
           ]
         }
       ];
@@ -198,22 +299,25 @@
         {
           title: 'Community',
           items: [
-            { label:'Community Hub', icon:'👥', href:'https://copy-boss.com/community/', proxy:['.btn-community','a[href*="community"]'] },
+            { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/', proxy:['.btn-community','a[href*="community"]'] },
             { label:'Top 10 This Week', icon:'🏆', href:'/top-10', proxy:['.leaderboard-link','a[href*="top-10"]'] }
           ]
         },
         {
           title: 'Purchases',
           items: [
-            { label:'Upgrade to Pro', icon:'⭐', href:'/pricing', proxy:['.btn-upgrade','a[href*="upgrade"]'] },
-            { label:'Buy 2 Reports',  icon:'🛒', proxy:['.btn-buy-2','a[href*="buy-2"]'] },
-            { label:'Buy 15 Reports', icon:'🛍️', proxy:['.btn-buy-15','a[href*="buy-15"]'] },
+            { label:'Upgrade to Pro', icon:'⭐', href:'#', proxy:['a[onclick*="redirectToStripeCheckout(\'pro\')"]','button[onclick*="redirectToStripeCheckout(\'pro\')"]'] },
+            { label:'Buy 2 Reports',  icon:'🛒', href:'#', proxy:['a[onclick*="redirectToStripeCheckout(\'2reports\')"]','button[onclick*="redirectToStripeCheckout(\'2reports\')"]'] },
+            { label:'Buy 15 Reports', icon:'🛍️', href:'#', proxy:['a[onclick*="redirectToStripeCheckout(\'15reports\')"]','button[onclick*="redirectToStripeCheckout(\'15reports\')"]'] },
             { label:'Pricing',        icon:'💳', href:'/pricing', proxy:['.btn-pricing','a[href*="pricing"]'] }
           ]
         },
         {
           title: 'Account',
-          items: [
+          items: isUserLoggedIn ? [
+            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Logout', icon:'🚪', href:'#', action:'logout' }
+          ] : [
             { label:'Login / Sign Up', icon:'🔑', href:'/login', proxy:['.btn-auth','a[href*="login"]','a[href*="signup"]'] }
           ]
         }
@@ -238,6 +342,42 @@
       a.setAttribute('href', item.href || '#');
       // store proxy selectors for wiring later
       if (item.proxy) a.dataset.proxy = item.proxy.join('||');
+      
+      // Add direct onclick handlers for Stripe checkout buttons
+      if (item.label === 'Upgrade to Pro') {
+        a.setAttribute('aria-label', 'Upgrade to Pro for £4.99/month');
+        a.setAttribute('role', 'button');
+        a.onclick = function(e) {
+          e.preventDefault();
+          if (typeof redirectToStripeCheckout === 'function') {
+            redirectToStripeCheckout('pro');
+          }
+        };
+      } else if (item.label === 'Buy 2 Reports') {
+        a.setAttribute('aria-label', 'Buy 2 Reports for £1.99');
+        a.setAttribute('role', 'button');
+        a.onclick = function(e) {
+          e.preventDefault();
+          if (typeof redirectToStripeCheckout === 'function') {
+            redirectToStripeCheckout('2reports');
+          }
+        };
+      } else if (item.label === 'Buy 15 Reports') {
+        a.setAttribute('aria-label', 'Buy 15 Reports for £9.99');
+        a.setAttribute('role', 'button');
+        a.onclick = function(e) {
+          e.preventDefault();
+          if (typeof redirectToStripeCheckout === 'function') {
+            redirectToStripeCheckout('15reports');
+          }
+        };
+      }
+      
+      // Add tabindex for keyboard navigation on all Stripe buttons
+      if (item.label === 'Upgrade to Pro' || item.label === 'Buy 2 Reports' || item.label === 'Buy 15 Reports') {
+        a.setAttribute('tabindex', '0');
+      }
+      
       // icon + label
       const ico = document.createElement('span'); ico.className='cb-ico'; ico.textContent=item.icon || '•';
       const lab = document.createElement('span'); lab.className='cb-label'; lab.textContent=item.label;
@@ -456,6 +596,24 @@
         return;
       }
 
+      // Handle logout action
+      if (label.includes('logout')) {
+        e.preventDefault();
+        closeDrawerNow();
+        // Use auth.js logout function if available
+        if (typeof window.auth?.logout === 'function') {
+          window.auth.logout();
+        } else if (typeof logout === 'function') {
+          logout();
+        } else {
+          // Fallback logout
+          localStorage.removeItem('videobossUser');
+          localStorage.removeItem('videobossToken');
+          window.location.href = 'index.html';
+        }
+        return;
+      }
+
       // STRICT handling for these four: never navigate to routes
       if (label.includes('settings') || label.includes('insights') || label.includes('ai tips') || label === 'tips' || label.includes('analyzer history')){
         e.preventDefault();
@@ -581,9 +739,12 @@
       closeBtn.addEventListener('click', closeDrawer);
     }
 
-    // Expose drawer functions globally so other code can close the drawer
-    window.cbOpenDrawer  = openDrawer;
-    window.cbCloseDrawer = closeDrawer;
+  // Expose drawer functions globally so other code can close the drawer
+  window.cbOpenDrawer  = openDrawer;
+  window.cbCloseDrawer = closeDrawer;
+  
+  // Expose mobile navbar update function globally
+  window.updateMobileNavbar = updateMobileNavbar;
   }
 
   function hideDuplicateHeadersOnMobile(){
@@ -593,6 +754,105 @@
     candidates.forEach(el => { if (keep && el !== keep) el.style.display = 'none'; });
   }
 
+  // Update mobile navbar with avatar when logged in
+  async function updateMobileNavbar() {
+    if (!isMobile()) return;
+    
+    const isUserLoggedIn = await checkAuthState();
+    const mobileHeader = document.getElementById('cb-header');
+    if (!mobileHeader) return;
+    
+    const actionsDiv = mobileHeader.querySelector('.cb-actions');
+    if (!actionsDiv) return;
+    
+    if (isUserLoggedIn) {
+      // User is logged in - show avatar
+      const user = await getCurrentUser();
+      const avatarUrl = user?.avatar_url || '/assets/img/default-avatar.svg?v=3';
+      
+      // Remove existing auth buttons
+      const existingAuth = actionsDiv.querySelector('.cb-auth-buttons');
+      if (existingAuth) existingAuth.remove();
+      
+      // Add avatar holder
+      const avatarHolder = document.createElement('div');
+      avatarHolder.className = 'cb-avatar-holder';
+      avatarHolder.innerHTML = `
+        <img src="${avatarUrl}" alt="User Avatar" class="cb-avatar-img" style="
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+        " onerror="this.src='/assets/img/default-avatar.svg?v=3'">
+      `;
+      
+      // Insert avatar before burger button
+      const burger = actionsDiv.querySelector('.cb-burger');
+      if (burger) {
+        actionsDiv.insertBefore(avatarHolder, burger);
+      } else {
+        actionsDiv.appendChild(avatarHolder);
+      }
+    } else {
+      // User is not logged in - show auth buttons
+      const existingAvatar = actionsDiv.querySelector('.cb-avatar-holder');
+      if (existingAvatar) existingAvatar.remove();
+      
+      // Add auth buttons
+      const authButtons = document.createElement('div');
+      authButtons.className = 'cb-auth-buttons';
+      authButtons.innerHTML = `
+        <a href="login.html" class="cb-auth-link" style="
+          color: #d1d5db;
+          text-decoration: none;
+          font-size: 14px;
+          margin-right: 12px;
+          padding: 6px 12px;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+        ">Login</a>
+        <a href="signup.html" class="cb-auth-link" id="mobile-signup-link" style="
+          color: #d1d5db;
+          text-decoration: none;
+          font-size: 14px;
+          padding: 6px 12px;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+        ">Sign Up</a>
+      `;
+      
+      // Insert auth buttons before burger button
+      const burger = actionsDiv.querySelector('.cb-burger');
+      if (burger) {
+        actionsDiv.insertBefore(authButtons, burger);
+      } else {
+        actionsDiv.appendChild(authButtons);
+      }
+      
+      // Update signup link with affiliate intent if present
+      const mobileSignupLink = document.getElementById('mobile-signup-link');
+      if (mobileSignupLink) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const intent = urlParams.get('intent');
+        const redirect = urlParams.get('redirect');
+        
+        if (intent === 'affiliate' || redirect) {
+          let signupUrl = 'signup.html?';
+          if (redirect) {
+            signupUrl += 'redirect=' + encodeURIComponent(redirect);
+          }
+          if (intent === 'affiliate') {
+            if (redirect) signupUrl += '&';
+            signupUrl += 'intent=affiliate';
+          }
+          mobileSignupLink.href = signupUrl;
+          console.log('Updated mobile signup link to:', signupUrl);
+        }
+      }
+    }
+  }
+
   function init(){
     if (!isMobile()) return;
     hideDuplicateHeadersOnMobile(); // <— add this line
@@ -600,6 +860,7 @@
     wireDrawerActions();   // <— add this
     initBurger();
     initButtons();
+    updateMobileNavbar(); // Add mobile navbar update
   }
 
   let rid;

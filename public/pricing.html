@@ -136,6 +136,23 @@
             color: white;
         }
         
+        /* Ensure sticky positioning works on mobile */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            header#cb-header {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 50 !important;
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+            }
+        }
+        
         .gradient-text {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
@@ -841,6 +858,12 @@
         }
 
         /* Mobile Navigation Styles - Analyzer Style */
+        .cb-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         /* Burger: stacked lines */
         .cb-burger{
           display:flex;
@@ -1003,7 +1026,7 @@
       "@context": "https://schema.org",
       "@type": "Product",
       "name": "CopyBoss Pay-Per-Report",
-      "description": "One-off AI video analysis report for TikTok, YouTube, or Instagram content.",
+      "description": "One-off AI video analysis with 2 detailed reports for TikTok, YouTube, or Instagram content.",
       "brand": { "@type": "Brand", "name": "CopyBoss" },
       "offers": {
         "@type": "Offer",
@@ -1055,7 +1078,7 @@
     <div class="particles" id="particles"></div>
 
     <!-- Header -->
-    <div class="bg-gray-900/50 backdrop-blur-md border-b border-gray-800">
+    <header id="cb-header" class="bg-gray-900/50 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-6">
                 <div class="flex items-center">
@@ -1068,7 +1091,7 @@
                     <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
                     <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
                     <a href="/pricing.html" class="text-white font-medium">Pricing</a>
-                    <a href="https://copy-boss.com/community/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
+                    <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
                     <a href="login.html" class="text-gray-300 hover:text-white transition-colors duration-200">Login</a>
                     <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
                 </nav>
@@ -1080,8 +1103,8 @@
                     </button>
                 </div>
                 
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
+                <!-- Mobile actions container -->
+                <div class="cb-actions md:hidden">
                     <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
                         <span class="cb-burger-line"></span>
                         <span class="cb-burger-line"></span>
@@ -1090,7 +1113,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
     <!-- Mobile drawer -->
     <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
@@ -1134,7 +1157,7 @@
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                 </svg>
-                                <span class="text-gray-300">1 detailed report</span>
+                                <span class="text-gray-300">2 detailed reports</span>
                             </li>
                             <li class="flex items-start">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -1445,7 +1468,7 @@
                     <p class="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
                         Earn 40% commission for 3 months on every sale you refer.
                     </p>
-                    <a href="/signup.html?ref=affiliate" class="btn-gradient-affiliate text-white font-semibold py-4 px-8 rounded-lg inline-block text-lg">
+                    <a href="/affiliate-dashboard.html?intent=affiliate" class="btn-gradient-affiliate text-white font-semibold py-4 px-8 rounded-lg inline-block text-lg">
                         Join the Program
                     </a>
                 </div>
@@ -2228,5 +2251,15 @@
 
     <!-- Mobile Navigation Script -->
     <script src="js/mobile-nav.js"></script>
+    <script src="/js/avatar-helper.js?v=1"></script>
+    
+    <script>
+        // Ensure all avatar fallbacks are properly set
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ensureAvatarFallbacks === 'function') {
+                ensureAvatarFallbacks();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -203,7 +203,24 @@
             
             if (countdown <= 0) {
                 clearInterval(redirectInterval);
-                window.location.href = '/analyzer.html';
+                
+                // Check for affiliate intent or redirect parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectTo = urlParams.get('redirect');
+                const intent = urlParams.get('intent');
+                
+                // Determine redirect destination
+                let redirectUrl = '/analyzer.html'; // Default fallback
+                
+                if (redirectTo && redirectTo.startsWith('/') && !redirectTo.includes('..')) {
+                    // Valid same-origin redirect - use it directly
+                    redirectUrl = redirectTo;
+                } else if (intent === 'affiliate') {
+                    // Affiliate intent flow (fallback if no redirect)
+                    redirectUrl = '/affiliate-dashboard.html';
+                }
+                
+                window.location.href = redirectUrl;
             }
         }, 1000);
     </script>

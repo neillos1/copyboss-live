@@ -106,8 +106,13 @@ async function logout() {
   // Immediately update navbar to show Login/Sign Up
   await updateNavbar();
   
+  // Update mobile navbar if function exists
+  if (typeof window.updateMobileNavbar === 'function') {
+    await window.updateMobileNavbar();
+  }
+  
   // Redirect to homepage
-  window.location.href = 'index.html';
+    window.location.href = 'index.html';
 }
 
 // Update navbar based on authentication status
@@ -120,30 +125,30 @@ async function updateNavbar() {
   if (isUserLoggedIn) {
     // User is logged in - show avatar dropdown
     const user = await getCurrentUser();
-    const avatarUrl = user?.avatar_url || '/assets/img/default-avatar.png';
+    const avatarUrl = user?.avatar_url || '/assets/img/default-avatar.svg?v=3';
     
     navbar.innerHTML = `
       <a href="/index.html" class="text-gray-300 hover:text-white transition-colors duration-200">Home</a>
       <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
       <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
       <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
-      <a href="https://copy-boss.com/community/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
+      <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
       <div class="avatar-dropdown relative ml-auto">
         <button id="avatarBtn" class="avatar-btn flex items-center">
-          <img src="${avatarUrl}" alt="User Avatar" class="w-8 h-8 rounded-full object-cover border-2 border-gray-600 hover:border-blue-400 transition-colors duration-200">
+          <img src="${avatarUrl}" alt="User Avatar" class="w-8 h-8 rounded-full object-cover border-2 border-gray-600 hover:border-blue-400 transition-colors duration-200" onerror="this.src='/assets/img/default-avatar.svg?v=3'">
         </button>
         <div id="avatarDropdown" class="avatar-dropdown-menu hidden absolute right-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-md border border-gray-700/50 rounded-lg shadow-xl z-50">
           <div class="py-2">
             <a href="/affiliate-dashboard.html" class="dropdown-item">
-              <i class="fas fa-users mr-3"></i>Affiliate Program
+              <i class="fas fa-users" style="width: 16px; text-align: center; margin-right: 12px; display: inline-block;"></i>Affiliate Program
             </a>
             <label for="avatarUpload" class="dropdown-item cursor-pointer">
-              <i class="fas fa-camera mr-3"></i>Upload Avatar
+              <i class="fas fa-camera" style="width: 16px; text-align: center; margin-right: 12px; display: inline-block;"></i>Upload Avatar
             </label>
             <input type="file" id="avatarUpload" accept="image/*" class="hidden" onchange="uploadAvatar(this)">
             <hr class="border-gray-700 my-2">
             <a href="#" onclick="logout()" class="dropdown-item text-red-400 hover:text-red-300">
-              <i class="fas fa-sign-out-alt mr-3"></i>Logout
+              <i class="fas fa-sign-out-alt" style="width: 16px; text-align: center; margin-right: 12px; display: inline-block;"></i>Logout
             </a>
           </div>
         </div>
@@ -174,7 +179,7 @@ async function updateNavbar() {
       <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
       <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
       <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
-      <a href="https://copy-boss.com/community/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
+      <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
       <a href="/login.html" class="text-gray-300 hover:text-white transition-colors duration-200 ml-auto">Login</a>
       <a href="/signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
     `;
@@ -203,10 +208,24 @@ async function uploadAvatar(input) {
     const data = await response.json();
     
     if (response.ok) {
+      const cacheBustUrl = data.avatarUrl + '?t=' + Date.now();
+      
       // Update avatar image in navbar
       const avatarImg = document.querySelector('.avatar-btn img');
       if (avatarImg) {
-        avatarImg.src = data.avatarUrl + '?t=' + Date.now(); // Cache bust
+        avatarImg.src = cacheBustUrl;
+      }
+      
+      // Update avatar in analyzer page profile
+      const profileAvatar = document.getElementById('profile-avatar');
+      if (profileAvatar) {
+        profileAvatar.src = cacheBustUrl;
+      }
+      
+      // Update avatar in leaderboard user rank
+      const userRankAvatar = document.getElementById('user-rank-avatar');
+      if (userRankAvatar) {
+        userRankAvatar.src = cacheBustUrl;
       }
       
       // Update user data in localStorage
@@ -271,6 +290,11 @@ async function requireAuth() {
 document.addEventListener('DOMContentLoaded', function() {
   // Update navbar
   updateNavbar();
+  
+  // Update mobile navbar if function exists
+  if (typeof window.updateMobileNavbar === 'function') {
+    window.updateMobileNavbar();
+  }
   
   // Check if we're on a protected page (analyzer.html is now always accessible)
   const protectedPages = ['affiliate-dashboard.html'];
