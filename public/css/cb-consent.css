@@ -466,6 +466,39 @@
   }
 }
 
+/* Desktop-only grid layout to prevent button overflow */
+@media (min-width: 768px) {
+  .cb-consent-banner {
+    max-width: 420px;   /* a bit wider on desktop for breathing room */
+  }
+  
+  .cb-consent-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "accept accept"
+      "reject prefs";
+    column-gap: 12px;
+    row-gap: 10px;
+    margin-top: 12px;
+  }
+  
+  .cb-consent-btn {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;      /* allow wrapping instead of overflow */
+    word-break: break-word;   /* keep long labels contained */
+    line-height: 1.2;
+  }
+  
+  .cb-consent-btn-primary { grid-area: accept; }
+  .cb-consent-btn-secondary { grid-area: reject; }
+  .cb-consent-btn-ghost { grid-area: prefs; }
+}
+
 /* Utility Classes */
 .cb-consent-hidden {
   display: none !important;
