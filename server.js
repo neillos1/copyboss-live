@@ -249,6 +249,18 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Safe redirect helper to prevent open-redirects
+function safeRedirect(url) {
+  if (!url) return null;
+  
+  // Only allow relative URLs that start with /
+  if (typeof url === 'string' && url.startsWith('/') && !url.includes('..')) {
+    return url;
+  }
+  
+  return null;
+}
+
 // Authentication endpoints
 app.post('/api/signup', async (req, res) => {
   try {
@@ -289,6 +301,14 @@ app.post('/api/signup', async (req, res) => {
       });
     }
     
+    // Check for redirect parameter first
+    const redirectUrl = safeRedirect(req.body.redirect || req.query.redirect);
+    
+    if (redirectUrl) {
+      // Redirect to the specified URL
+      return res.redirect(302, redirectUrl);
+    }
+    
     // Check if this is an affiliate signup (has referrerId or affiliate intent)
     const isAffiliateSignup = referrerId || req.query.intent === 'affiliate';
     
@@ -317,7 +337,7 @@ app.post('/api/signup', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, redirect } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
@@ -331,6 +351,14 @@ app.post('/api/login', async (req, res) => {
 
     // Create session
     req.session.userId = user.id;
+    
+    // Check for redirect parameter
+    const redirectUrl = safeRedirect(redirect);
+    
+    if (redirectUrl) {
+      // Redirect to the specified URL
+      return res.redirect(302, redirectUrl);
+    }
     
     res.json({ 
       success: true, 

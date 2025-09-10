@@ -426,12 +426,20 @@
         return;
       }
       
+      // Get redirect parameter from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectTo = urlParams.get('redirect');
+      
       const endpoint = '/api/login';
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ 
+          email, 
+          password,
+          redirect: redirectTo 
+        })
       };
       
       console.log('Making request to:', endpoint);

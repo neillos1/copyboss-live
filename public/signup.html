@@ -552,6 +552,10 @@
         return;
       }
       
+      // Get redirect parameter from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectTo = urlParams.get('redirect');
+      
       try {
         const response = await fetch('/api/signup', {
           method: 'POST',
@@ -563,7 +567,8 @@
             email,
             username,
             password,
-            referrerId: referrerId || null
+            referrerId: referrerId || null,
+            redirect: redirectTo
           })
         });
         

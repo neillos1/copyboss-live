@@ -233,7 +233,7 @@
           title: 'Support',
           items: [
             { label:'Report Issue', icon:'🐛', href:'#', proxy:['#reportIssueBtn'] },
-            { label:'Become Affiliate', icon:'💸', href:'/affiliate-dashboard.html?intent=affiliate' }
+            { label:'Become Affiliate', icon:'💸', href:'/login.html?redirect=/affiliate' }
           ]
         }
       ];
@@ -264,7 +264,7 @@
           title: 'Support',
           items: [
             { label:'Report Issue', icon:'🐛', href:'#', proxy:['#reportIssueBtn'] },
-            { label:'Become Affiliate', icon:'💸', href:'/affiliate-dashboard.html?intent=affiliate' }
+            { label:'Become Affiliate', icon:'💸', href:'/login.html?redirect=/affiliate' }
           ]
         }
       ];
