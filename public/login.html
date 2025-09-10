@@ -369,6 +369,10 @@
 
   <!-- FastBots Chatbot -->
   <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmbpi4m6c0001oelvjcf5pe6s"></script>
+
+  <!-- Trust Footer -->
+  <link rel="stylesheet" href="/css/cb-trust.css">
+  <script defer src="/js/cb-trust.js"></script>
 </head>
 <body>
   <!-- Loading Overlay -->
@@ -785,5 +789,36 @@
   <!-- Cookie Consent System -->
   <link rel="stylesheet" href="/css/cb-consent.css">
   <script defer src="/js/cb-consent.js"></script>
+
+  <!-- ICO Modal -->
+  <div class="cb-ico-modal" id="cb-ico-modal" role="dialog" aria-modal="true" aria-labelledby="cb-ico-modal-title" aria-hidden="true">
+    <div class="cb-ico-modal-content">
+      <div class="cb-ico-modal-header">
+        <h2 class="cb-ico-modal-title" id="cb-ico-modal-title">ICO Registered – GDPR Compliant</h2>
+        <button class="cb-ico-modal-close" id="cb-ico-modal-close" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="cb-ico-modal-body">
+        <div class="cb-ico-modal-line">
+          <span class="cb-ico-modal-label">Registered To:</span>
+          <span>Zerra Group Ltd</span>
+        </div>
+        <div class="cb-ico-modal-line">
+          <span class="cb-ico-modal-label">ICO No:</span>
+          <span>ZB950374</span>
+        </div>
+        <div class="cb-ico-modal-description">
+          Fully registered with the ICO, ensuring client data is handled confidentially under GDPR law.
+        </div>
+      </div>
+      <div class="cb-ico-modal-actions">
+        <button class="cb-ico-modal-btn cb-ico-modal-btn--secondary" onclick="openModal('privacy-modal')">Privacy Policy</button>
+        <button class="cb-ico-modal-btn cb-ico-modal-btn--primary" id="cb-ico-modal-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
