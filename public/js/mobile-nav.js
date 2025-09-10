@@ -855,7 +855,15 @@
 
   function init(){
     if (!isMobile()) return;
-    hideDuplicateHeadersOnMobile(); // <— add this line
+    
+    // Guard: Do NOT hide #cb-header on mobile for analyzer page
+    if (document.body.dataset.page === 'analyzer') {
+      // Do NOT hide #cb-header on mobile for analyzer
+      console.log('Analyzer page detected - skipping hideDuplicateHeadersOnMobile');
+    } else {
+      hideDuplicateHeadersOnMobile?.();
+    }
+    
     buildDrawer();
     wireDrawerActions();   // <— add this
     initBurger();
