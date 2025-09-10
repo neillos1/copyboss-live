@@ -459,6 +459,17 @@
         console.log('- Headers:', Object.fromEntries(response.headers.entries()));
         console.log('- URL:', response.url);
         
+        // Check if this is a redirect response (302) BEFORE trying to parse JSON
+        if (response.status === 302) {
+          console.log('LOGIN SUCCESS: Server redirect detected');
+          const redirectUrl = response.headers.get('location');
+          if (redirectUrl) {
+            console.log('Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+            return;
+          }
+        }
+        
         let data;
         try {
           data = await response.json();
@@ -479,17 +490,6 @@
           hostname: window.location.hostname, 
           isDevEnvironment 
         });
-        
-        // Check if this is a redirect response (302)
-        if (response.status === 302) {
-          console.log('LOGIN SUCCESS: Server redirect detected');
-          const redirectUrl = response.headers.get('location');
-          if (redirectUrl) {
-            console.log('Redirecting to:', redirectUrl);
-            window.location.href = redirectUrl;
-            return;
-          }
-        }
         
         // SUCCESS CONDITION: Accept either 200 + ok JSON, or Set-Cookie success
         const isSuccess = response.ok && (
