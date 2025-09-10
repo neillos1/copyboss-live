@@ -134,7 +134,7 @@
     <link rel="stylesheet" href="/css/mobile-auto-patch.css?v=fix1" media="(max-width: 768px)">
     <script defer src="/js/mobile-header.js?v=1"></script>
 
-<body class="page-analyzer analyzer-page" data-page="analyzer" style="margin: 0; display: flex; flex-direction: column;">
+<body class="page-analyzer" style="margin: 0; display: flex; flex-direction: column;">
 
 
     <!-- Particle Animation -->
@@ -2007,10 +2007,8 @@ html, body {
                         <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
                         <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
                         <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
-                        <div class="auth-inline">
-                            <a href="login.html" class="text-gray-300 hover:text-white transition-colors duration-200">Login</a>
-                            <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
-                        </div>
+                        <a href="login.html" class="text-gray-300 hover:text-white transition-colors duration-200">Login</a>
+                        <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
                     </nav>
                     
                     <!-- Upload and Analyze Buttons -->
@@ -2053,10 +2051,8 @@ html, body {
                         <a href="/generator.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Generator</a>
                         <a href="/pricing.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Pricing</a>
                         <a href="https://community.copy-boss.com/" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Community Hub</a>
-                        <div class="auth-inline">
-                            <a href="login.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Login</a>
-                            <a href="signup.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Sign Up</a>
-                        </div>
+                        <a href="login.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Login</a>
+                        <a href="signup.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Sign Up</a>
                         
                         <!-- Mobile Upload and Analyze Buttons -->
                         <div class="pt-2 border-t border-gray-700">
@@ -2086,7 +2082,6 @@ html, body {
 
                 <div class="cb-actions">
       <button id="cb-upload-btn" class="cb-btn cb-btn-primary">Upload</button>
-      <a id="authCtaMobile" class="auth-cta-mobile hidden" href="/login.html?redirect=%2Faffiliate-dashboard.html">Login / Sign up</a>
       <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
         <span class="cb-burger-line"></span>
         <span class="cb-burger-line"></span>
@@ -9458,90 +9453,129 @@ async function saveAnalysisResult(score) {
 })();
 </script>
 
-<!-- Analyzer mobile auth button fix -->
+<!-- Analyzer Mobile Auth Button Fix - Page Scoped -->
 <style>
-/* Add hidden class if it doesn't exist */
-.hidden { display: none !important; }
-
-/* Analyzer page mobile auth styling */
-@media (max-width: 768px) {
-  .analyzer-page .auth-inline {
-    display: none !important;
+/* Mobile navbar auth button fix for analyzer.html only */
+@media (max-width: 480px) {
+  .cb-navbar .cb-nav-inner {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
   }
   
-  .analyzer-page #authCtaMobile {
+  .cb-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+  
+  #cb-upload-btn {
+    min-width: 88px !important;
+    max-width: 120px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .cb-auth-compact {
+    min-width: 110px !important;
+    max-width: 140px !important;
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
     display: inline-flex !important;
-    align-items: center;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    white-space: nowrap;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
   }
   
-  .analyzer-page #authCtaMobile:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  .cb-auth-compact:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
   }
   
-  .analyzer-page .cb-actions {
-    gap: 0.5rem;
-  }
-}
-
-@media (min-width: 769px) {
-  .analyzer-page #authCtaMobile {
-    display: none !important;
+  .cb-auth-compact:active {
+    transform: translateY(0) !important;
   }
   
-  .analyzer-page .auth-inline {
-    display: inline-flex;
+  #cb-burger {
+    flex-shrink: 0 !important;
+    margin-left: 4px !important;
   }
 }
 </style>
 
 <script>
-// Analyzer mobile auth state management
-document.addEventListener('DOMContentLoaded', function() {
-  // Only run on analyzer page
-  if (!document.body.classList.contains('analyzer-page')) return;
+// Analyzer mobile auth button fix - page scoped
+document.addEventListener('DOMContentLoaded', async function() {
+  // Only run on analyzer page and mobile
+  if (!window.location.pathname.includes('analyzer') || window.innerWidth > 480) return;
   
-  function updateAuthDisplay() {
-    const isLoggedIn = localStorage.getItem('videobossToken');
-    const authInline = document.querySelector('.auth-inline');
-    const authCtaMobile = document.getElementById('authCtaMobile');
-    
-    if (isLoggedIn) {
-      // Logged in: hide both auth elements (avatar will show)
-      if (authInline) authInline.style.display = 'none';
-      if (authCtaMobile) authCtaMobile.style.display = 'none';
-    } else {
-      // Logged out: show appropriate auth element based on screen size
-      if (authInline) {
-        authInline.style.display = window.innerWidth > 768 ? 'inline-flex' : 'none';
-      }
-      if (authCtaMobile) {
-        authCtaMobile.style.display = window.innerWidth <= 768 ? 'inline-flex' : 'none';
-      }
+  // Check auth state using same logic as mobile-nav.js
+  async function checkAuthState() {
+    try {
+      const token = localStorage.getItem('videobossToken');
+      if (!token) return false;
+      
+      const response = await fetch('/api/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      return response.ok;
+    } catch (error) {
+      console.error('Auth check error:', error);
+      const user = localStorage.getItem('videobossUser');
+      const token = localStorage.getItem('videobossToken');
+      return !!(user && token);
     }
   }
   
-  // Initial check
-  updateAuthDisplay();
+  const isUserLoggedIn = await checkAuthState();
+  const mobileHeader = document.getElementById('cb-header');
+  if (!mobileHeader) return;
   
-  // Update on resize
-  window.addEventListener('resize', updateAuthDisplay);
+  const actionsDiv = mobileHeader.querySelector('.cb-actions');
+  if (!actionsDiv) return;
   
-  // Update when auth state changes
-  window.addEventListener('storage', function(e) {
-    if (e.key === 'videobossToken') {
-      updateAuthDisplay();
+  if (!isUserLoggedIn) {
+    // User is logged out - add compact auth button
+    const existingAuth = actionsDiv.querySelector('.cb-auth-compact');
+    if (existingAuth) existingAuth.remove();
+    
+    const authButton = document.createElement('button');
+    authButton.className = 'cb-auth-compact';
+    authButton.textContent = 'Login / Sign up';
+    authButton.onclick = function(e) {
+      e.preventDefault();
+      window.location.href = '/login.html?redirect=%2Fanalyzer.html';
+    };
+    
+    // Insert before burger button
+    const burgerBtn = actionsDiv.querySelector('#cb-burger');
+    if (burgerBtn) {
+      actionsDiv.insertBefore(authButton, burgerBtn);
+    } else {
+      actionsDiv.appendChild(authButton);
     }
-  });
+  } else {
+    // User is logged in - remove any compact auth button
+    const existingAuth = actionsDiv.querySelector('.cb-auth-compact');
+    if (existingAuth) existingAuth.remove();
+  }
 });
 </script>
 
