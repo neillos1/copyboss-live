@@ -758,6 +758,11 @@
   async function updateMobileNavbar() {
     if (!isMobile()) return;
     
+    // Skip mobile navbar updates for analyzer page - it has its own clean layout
+    if (document.body.dataset.page === 'analyzer') {
+      return;
+    }
+    
     const isUserLoggedIn = await checkAuthState();
     const mobileHeader = document.getElementById('cb-header');
     if (!mobileHeader) return;
