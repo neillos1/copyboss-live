@@ -225,7 +225,14 @@ app.get('/affiliate', (req, res) => {
     // User is logged in, redirect to affiliate dashboard
     res.redirect('/affiliate-dashboard.html');
   } else {
-    // User is not logged in, redirect to login with redirect parameter
+    // User is not logged in, set intended cookie and redirect to login
+    res.cookie('intended', '/affiliate', {
+      path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.copy-boss.com' : undefined,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 10 * 60 * 1000 // 10 minutes TTL
+    });
     res.redirect('/login.html?redirect=/affiliate');
   }
 });
@@ -295,6 +302,7 @@ app.post('/api/signup', async (req, res) => {
     if (referrerId) {
       res.cookie('affiliate_id', referrerId, { 
         path: '/', 
+        domain: process.env.NODE_ENV === 'production' ? '.copy-boss.com' : undefined,
         sameSite: 'lax', 
         secure: process.env.NODE_ENV === 'production',
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
@@ -305,8 +313,31 @@ app.post('/api/signup', async (req, res) => {
     const redirectUrl = safeRedirect(req.body.redirect || req.query.redirect);
     
     if (redirectUrl) {
+      // Special handling for /affiliate redirect to avoid loops
+      if (redirectUrl === '/affiliate') {
+        return res.redirect(302, '/affiliate-dashboard.html');
+      }
       // Redirect to the specified URL
       return res.redirect(302, redirectUrl);
+    }
+    
+    // Check for intended cookie as fallback
+    const intendedPath = req.cookies.intended;
+    if (intendedPath && safeRedirect(intendedPath)) {
+      // Clear the intended cookie
+      res.clearCookie('intended', { 
+        path: '/', 
+        domain: process.env.NODE_ENV === 'production' ? '.copy-boss.com' : undefined,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+      });
+      
+      // Special handling for /affiliate redirect to avoid loops
+      if (intendedPath === '/affiliate') {
+        return res.redirect(302, '/affiliate-dashboard.html');
+      }
+      // Redirect to the intended URL
+      return res.redirect(302, intendedPath);
     }
     
     // Check if this is an affiliate signup (has referrerId or affiliate intent)
@@ -362,6 +393,25 @@ app.post('/api/login', async (req, res) => {
       }
       // Redirect to the specified URL
       return res.redirect(302, redirectUrl);
+    }
+    
+    // Check for intended cookie as fallback
+    const intendedPath = req.cookies.intended;
+    if (intendedPath && safeRedirect(intendedPath)) {
+      // Clear the intended cookie
+      res.clearCookie('intended', { 
+        path: '/', 
+        domain: process.env.NODE_ENV === 'production' ? '.copy-boss.com' : undefined,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+      });
+      
+      // Special handling for /affiliate redirect to avoid loops
+      if (intendedPath === '/affiliate') {
+        return res.redirect(302, '/affiliate-dashboard.html');
+      }
+      // Redirect to the intended URL
+      return res.redirect(302, intendedPath);
     }
     
     // No redirect - send JSON response
