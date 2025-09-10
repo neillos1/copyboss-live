@@ -232,6 +232,17 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Affiliate route guard - redirect to login if no session
+app.get('/affiliate', (req, res) => {
+  if (req.session.userId) {
+    // User is logged in, redirect to affiliate dashboard
+    res.redirect('/affiliate-dashboard.html');
+  } else {
+    // User is not logged in, redirect to login with redirect parameter
+    res.redirect('/login.html?redirect=/affiliate');
+  }
+});
+
 // Affiliate routes
 app.use('/affiliate', affiliateRoutes);
 
@@ -261,9 +272,27 @@ app.post('/api/signup', async (req, res) => {
     // Create user
     const userId = await db.createUser(email, username, password, referrerId);
     
-    // Auto-login after signup
+    // Auto-login after signup - create session
     const user = await db.getUserById(userId);
     req.session.userId = userId;
+    
+    // Set affiliate cookie if referrerId is provided
+    if (referrerId) {
+      res.cookie('affiliate_id', referrerId, { 
+        path: '/', 
+        sameSite: 'lax', 
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+    }
+    
+    // Check if this is an affiliate signup (has referrerId or affiliate intent)
+    const isAffiliateSignup = referrerId || req.query.intent === 'affiliate';
+    
+    if (isAffiliateSignup) {
+      // For affiliate signups, redirect to affiliate dashboard
+      return res.redirect(302, '/affiliate-dashboard.html');
+    }
     
     res.json({ 
       success: true, 
@@ -431,42 +460,6 @@ app.post('/api/save-analysis', requireAuth, async (req, res) => {
   }
 });
 
-// Referral signup endpoint
-app.post('/api/signup', async (req, res) => {
-  try {
-    const { email, username, referrerId } = req.body;
-    
-    if (!email || !username) {
-      return res.status(400).json({ error: 'Email and username required' });
-    }
-
-    // Check if user already exists
-    const existingUser = await db.getUserByEmail(email);
-    if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-
-    // Validate referrer if provided
-    if (referrerId) {
-      const referrer = await db.getUserById(referrerId);
-      if (!referrer) {
-        return res.status(400).json({ error: 'Invalid referrer' });
-      }
-    }
-
-    // Create user
-    const userId = await db.createUser(email, username, referrerId);
-    
-    res.json({ 
-      success: true, 
-      userId,
-      message: referrerId ? 'User created with referral' : 'User created successfully'
-    });
-  } catch (error) {
-    console.error('Signup error:', error);
-    res.status(500).json({ error: 'Failed to create user' });
-  }
-});
 
 // User status API endpoint
 app.get('/api/user/status/:id', async (req, res) => {
@@ -495,6 +488,29 @@ app.post("/create-checkout-session", async (req, res) => {
 
     console.log("➡️ Using priceId:", priceId);
 
+    // Get user data to include affiliate information
+    let affiliateId = null;
+    if (userId) {
+      try {
+        const user = await db.getUserById(userId);
+        if (user && user.referrer_id) {
+          affiliateId = user.referrer_id;
+        }
+      } catch (error) {
+        console.error("Error fetching user for affiliate data:", error);
+      }
+    }
+
+    // Prepare metadata
+    const metadata = {
+      userId: userId || 'anonymous',
+      plan: plan
+    };
+    
+    if (affiliateId) {
+      metadata.affiliate_id = affiliateId;
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: plan === "pro" ? "subscription" : "payment",
@@ -506,10 +522,10 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
       success_url: `${process.env.DOMAIN}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.DOMAIN}/cancel.html`,
-      metadata: { userId, plan },
+      metadata: metadata,
     });
 
-    console.log("✅ Checkout session created:", session.id);
+    console.log("✅ Checkout session created:", session.id, "with metadata:", metadata);
     res.json({ url: session.url });
 
   } catch (err) {
@@ -561,14 +577,25 @@ async function processAffiliateCommission(session) {
   try {
     // Extract user ID from session metadata or customer
     const userId = session.metadata?.userId || session.customer;
+    const affiliateId = session.metadata?.affiliate_id;
     
     if (!userId) {
       console.log('No user ID found in session');
       return;
     }
 
+    let referrerId = null;
+    
+    // First try to get referrer from user record
     const user = await db.getUserById(userId);
-    if (!user || !user.referrer_id) {
+    if (user && user.referrer_id) {
+      referrerId = user.referrer_id;
+    } else if (affiliateId) {
+      // Fallback to affiliate_id from metadata
+      referrerId = affiliateId;
+    }
+    
+    if (!referrerId) {
       console.log('No referral found for user:', userId);
       return;
     }
@@ -579,14 +606,14 @@ async function processAffiliateCommission(session) {
     
     // Create commission record
     await db.createCommission(
-      user.referrer_id,
+      referrerId,
       userId,
       purchaseAmount,
       commissionAmount,
       session.payment_intent
     );
 
-    console.log(`✅ Commission recorded: £${commissionAmount} for user ${userId}`);
+    console.log(`✅ Commission recorded: £${commissionAmount} for user ${userId} (affiliate: ${referrerId})`);
   } catch (error) {
     console.error('❌ Failed to process affiliate commission:', error);
   }
@@ -596,14 +623,25 @@ async function processAffiliateCommission(session) {
 async function processSubscriptionCommission(invoice) {
   try {
     const userId = invoice.metadata?.userId || invoice.customer;
+    const affiliateId = invoice.metadata?.affiliate_id;
     
     if (!userId) {
       console.log('No user ID found in invoice');
       return;
     }
 
+    let referrerId = null;
+    
+    // First try to get referrer from user record
     const user = await db.getUserById(userId);
-    if (!user || !user.referrer_id) {
+    if (user && user.referrer_id) {
+      referrerId = user.referrer_id;
+    } else if (affiliateId) {
+      // Fallback to affiliate_id from metadata
+      referrerId = affiliateId;
+    }
+    
+    if (!referrerId) {
       console.log('No referral found for user:', userId);
       return;
     }
@@ -625,14 +663,14 @@ async function processSubscriptionCommission(invoice) {
     
     // Create commission record
     await db.createCommission(
-      user.referrer_id,
+      referrerId,
       userId,
       purchaseAmount,
       commissionAmount,
       invoice.payment_intent
     );
 
-    console.log(`✅ Subscription commission recorded: £${commissionAmount} for user ${userId}`);
+    console.log(`✅ Subscription commission recorded: £${commissionAmount} for user ${userId} (affiliate: ${referrerId})`);
   } catch (error) {
     console.error('❌ Failed to process subscription commission:', error);
   }
