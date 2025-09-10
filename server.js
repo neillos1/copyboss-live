@@ -28,6 +28,9 @@ app.use((req, res, next) => {
   const host = req.get('host');
   const url = req.originalUrl;
   
+  // Skip HTTPS enforcement for localhost (development)
+  if (host === 'localhost:3000') return next();
+  
   // Force HTTPS
   if (protocol !== 'https') {
     return res.redirect(301, `https://${host}${url}`);
@@ -216,6 +219,20 @@ app.get(/^\/community(?:\/(.*))?$/, (req, res) => {
   return res.redirect(301, dest);
 });
 
+// Affiliate route guard - redirect to login if no session
+app.get('/affiliate', (req, res) => {
+  if (req.session.userId) {
+    // User is logged in, redirect to affiliate dashboard
+    res.redirect('/affiliate-dashboard.html');
+  } else {
+    // User is not logged in, redirect to login with redirect parameter
+    res.redirect('/login.html?redirect=/affiliate');
+  }
+});
+
+// Affiliate routes
+app.use('/affiliate', affiliateRoutes);
+
 // Serve static files (like index.html, JS, CSS)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -231,20 +248,6 @@ function requireAuth(req, res, next) {
     res.status(401).json({ error: 'Authentication required' });
   }
 }
-
-// Affiliate route guard - redirect to login if no session
-app.get('/affiliate', (req, res) => {
-  if (req.session.userId) {
-    // User is logged in, redirect to affiliate dashboard
-    res.redirect('/affiliate-dashboard.html');
-  } else {
-    // User is not logged in, redirect to login with redirect parameter
-    res.redirect('/login.html?redirect=/affiliate');
-  }
-});
-
-// Affiliate routes
-app.use('/affiliate', affiliateRoutes);
 
 // Authentication endpoints
 app.post('/api/signup', async (req, res) => {
