@@ -121,7 +121,7 @@
     <!-- CSS Files -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
     <link href="assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
-    <link href="assets/css/demo.css?v=navfix1" rel="stylesheet" />
+    <link href="assets/css/demo.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- JavaScript Libraries -->
@@ -129,7 +129,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://js.stripe.com/v3"></script>
     <script src="js/countdown.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=navfix1" />
+    <link rel="stylesheet" href="/css/style.css?v=gapreset1" />
     <link rel="stylesheet" href="/css/mobile-reset-analyzer.css?v=1" media="(max-width: 768px)">
     <link rel="stylesheet" href="/css/mobile-auto-patch.css?v=fix1" media="(max-width: 768px)">
     <script defer src="/js/mobile-header.js?v=1"></script>
@@ -9369,7 +9369,7 @@ async function saveAnalysisResult(score) {
 
 
 <script src="/js/mobile-gap-guard.js" defer></script>
-<script src="/js/mobile-nav.js?v=navfix1"></script>
+<script src="/js/mobile-nav.js"></script>
 <script src="/js/avatar-helper.js?v=1"></script>
 
 <!-- Test Analyzer History functionality -->
@@ -9565,23 +9565,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
-<style>
-  /* Emergency: Analyzer mobile navbar must always show */
-  @media (max-width: 768px) {
-    #cb-header {
-      display: flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 9999 !important;
-    }
-    /* Avoid duplicate auth links on Analyzer mobile */
-    .analyzer-page .auth-inline { display: none !important; }
-    .analyzer-page #authCtaMobile { display: inline-flex !important; }
-  }
-</style>
 
 </body>
 </html>
