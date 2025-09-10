@@ -360,6 +360,7 @@ app.post('/api/login', async (req, res) => {
       return res.redirect(302, redirectUrl);
     }
     
+    // No redirect - send JSON response
     res.json({ 
       success: true, 
       user: {

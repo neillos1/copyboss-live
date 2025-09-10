@@ -480,6 +480,17 @@
           isDevEnvironment 
         });
         
+        // Check if this is a redirect response (302)
+        if (response.status === 302) {
+          console.log('LOGIN SUCCESS: Server redirect detected');
+          const redirectUrl = response.headers.get('location');
+          if (redirectUrl) {
+            console.log('Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+            return;
+          }
+        }
+        
         // SUCCESS CONDITION: Accept either 200 + ok JSON, or Set-Cookie success
         const isSuccess = response.ok && (
           (data && (data.user || data.token || data.ok)) ||  // JSON success indicators
