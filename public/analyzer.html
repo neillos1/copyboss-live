@@ -2007,10 +2007,6 @@ html, body {
                         <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
                         <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
                         <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
-                        <div class="auth-inline">
-                            <a href="login.html" class="text-gray-300 hover:text-white transition-colors duration-200">Login</a>
-                            <a href="signup.html" class="text-gray-300 hover:text-white transition-colors duration-200">Sign Up</a>
-                        </div>
                     </nav>
                     
                     <!-- Upload and Analyze Buttons -->
@@ -2053,10 +2049,6 @@ html, body {
                         <a href="/generator.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Generator</a>
                         <a href="/pricing.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Pricing</a>
                         <a href="https://community.copy-boss.com/" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Community Hub</a>
-                        <div class="auth-inline">
-                            <a href="login.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Login</a>
-                            <a href="signup.html" class="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors duration-200">Sign Up</a>
-                        </div>
                         
                         <!-- Mobile Upload and Analyze Buttons -->
                         <div class="pt-2 border-t border-gray-700">
@@ -2080,13 +2072,15 @@ html, body {
         <header id="cb-header" class="cb-navbar">
           <div class="cb-nav-inner">
             <a class="cb-brand" href="/">
-              <img class="cb-logo" src="/assets/img/mascot.png" alt="CopyBoss" />
+              <img src="/assets/img/mascot.png" alt="CopyBoss" class="cb-brand-img" />
               <span class="cb-brand-text">CopyBoss</span>
             </a>
             <div class="cb-actions">
-              <a id="uploadBtnMobile" class="btn btn-primary cb-upload-btn" href="/upload.html">Upload</a>
-              <a id="authCtaMobile" class="btn btn-secondary auth-cta" href="/login.html">Login / Sign up</a>
-              <button id="cb-burger" class="cb-burger" aria-label="Menu">
+              <button id="cb-upload-btn" class="cb-btn cb-btn-primary">Upload</button>
+              <div id="profile-avatar" class="cb-avatar-holder">
+                <img id="avatar-img" src="/assets/img/default-avatar.png?v=2" alt="Profile" class="cb-avatar-img" onerror="this.src='/assets/img/default-avatar.png?v=2'" />
+              </div>
+              <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
                 <span class="cb-burger-line"></span>
                 <span class="cb-burger-line"></span>
                 <span class="cb-burger-line"></span>
@@ -9457,173 +9451,53 @@ async function saveAnalysisResult(score) {
 })();
 </script>
 
-<!-- Analyzer mobile auth button fix -->
 <style>
-/* Add hidden class if it doesn't exist */
-.hidden { display: none !important; }
-
-/* Analyzer page mobile auth styling */
+/* Analyzer mobile navbar layout only */
 @media (max-width: 768px) {
-  /* Force mobile navbar to be visible */
   .analyzer-page #cb-header {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
   }
-  
-  .analyzer-page .auth-inline {
-    display: none !important;
-  }
-  
-  .analyzer-page #authCtaMobile {
-    display: inline-flex !important;
+  .analyzer-page .cb-nav-inner {
+    display: flex;
     align-items: center;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    text-decoration: none;
-    transition: all 0.2s ease;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .analyzer-page .cb-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1 1 auto;              /* allow logo area to take available space */
+  }
+  .analyzer-page .cb-brand-text {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;      /* prevent overlap under tight widths */
   }
-  
-  .analyzer-page #authCtaMobile:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  }
-  
   .analyzer-page .cb-actions {
-    gap: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;               /* actions don't collapse over the logo */
   }
-}
-
-@media (min-width: 769px) {
-  .analyzer-page #authCtaMobile {
+  /* Ensure Upload uses our blue gradient button used elsewhere */
+  .analyzer-page .cb-actions .btn-primary {
+    /* rely on existing global gradient; no orange variant here */
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  /* Hard-disable the auth pill on analyzer mobile if it exists */
+  .analyzer-page .auth-pill,
+  .analyzer-page .cb-auth-pill,
+  .analyzer-page [data-role="auth-pill"] {
     display: none !important;
   }
-  
-  .analyzer-page .auth-inline {
-    display: inline-flex;
-  }
 }
-</style>
-
-<script>
-// Analyzer mobile auth state management
-document.addEventListener('DOMContentLoaded', function() {
-  // Only run on analyzer page
-  if (document.body.dataset.page !== 'analyzer') return;
-  
-  // Verification logs
-  setTimeout(() => {
-    const cbHeader = document.getElementById('cb-header');
-    if (cbHeader) {
-      console.log('Analyzer header ready');
-      console.log('cb-header display:', window.getComputedStyle(cbHeader).display);
-      console.log('cb-header position:', window.getComputedStyle(cbHeader).position);
-      console.log('cb-header zIndex:', window.getComputedStyle(cbHeader).zIndex);
-      
-      const brand = cbHeader.querySelector('.cb-brand');
-      const actions = cbHeader.querySelector('.cb-actions');
-      if (brand) console.log('cb-brand width:', brand.offsetWidth);
-      if (actions) console.log('cb-actions width:', actions.offsetWidth);
-    }
-  }, 500);
-  
-  function updateAuthDisplay() {
-    const isLoggedIn = localStorage.getItem('videobossToken');
-    const authCtaMobile = document.getElementById('authCtaMobile');
-    
-    if (isLoggedIn) {
-      // Logged in: hide auth CTA (avatar will show elsewhere)
-      if (authCtaMobile) authCtaMobile.style.display = 'none';
-    } else {
-      // Logged out: show auth CTA
-      if (authCtaMobile) authCtaMobile.style.display = 'inline-flex';
-    }
-  }
-  
-  // Initial check
-  updateAuthDisplay();
-  
-  // Update when auth state changes
-  window.addEventListener('storage', function(e) {
-    if (e.key === 'videobossToken') {
-      updateAuthDisplay();
-    }
-  });
-});
-</script>
-
-<style>
-  /* Analyzer mobile header layout */
-  @media (max-width: 768px) {
-    .analyzer-page #cb-header {
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-    .analyzer-page .cb-nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 10px 14px;
-    }
-    .analyzer-page .cb-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 1 auto;                 /* allow shrink if necessary */
-      max-width: calc(100% - 200px);  /* reserve space for actions */
-      min-width: 120px;
-    }
-    .analyzer-page .cb-logo {
-      width: 22px; height: 22px; flex: 0 0 auto;
-    }
-    .analyzer-page .cb-brand-text {
-      font-size: 18px;
-      line-height: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-    .analyzer-page .cb-actions {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 0 auto;                 /* never let actions shrink over brand */
-    }
-    .analyzer-page .cb-upload-btn {
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-weight: 700;
-      line-height: 1;
-    }
-    .analyzer-page .auth-cta {
-      padding: 8px 12px;
-      border-radius: 12px;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    .analyzer-page .cb-burger {
-      width: 38px; height: 38px; border-radius: 12px;
-      display: inline-flex; align-items: center; justify-content: center;
-    }
-
-    /* Kill any inline duplicates on this page only */
-    .analyzer-page .auth-inline { display: none !important; }
-  }
-
-  /* On desktop, Analyzer keeps its regular desktop navbar; ensure mobile header is hidden */
-  @media (min-width: 769px) {
-    .analyzer-page #cb-header { display: none !important; }
-  }
 </style>
 
 </body>
