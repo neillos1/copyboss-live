@@ -5892,6 +5892,8 @@ a:hover {
       <a href="#" onclick="console.log('Terms clicked'); openLegalModal('terms-modal'); return false;" class="footer-link">Terms</a>
       <span class="link-separator">|</span>
       <a href="#" onclick="console.log('Support clicked'); openLegalModal('support-modal'); return false;" class="footer-link">Support</a>
+      <span class="link-separator">|</span>
+      <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
     </div>
 
     <!-- Copyright -->
@@ -9506,6 +9508,9 @@ async function saveAnalysisResult(score) {
 }
 </style>
 
+  <!-- Cookie Consent System -->
+  <link rel="stylesheet" href="/css/cb-consent.css">
+  <script defer src="/js/cb-consent.js"></script>
 </body>
 </html>
 
