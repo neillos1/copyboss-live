@@ -356,6 +356,10 @@ app.post('/api/login', async (req, res) => {
     const redirectUrl = safeRedirect(redirect);
     
     if (redirectUrl) {
+      // Special handling for /affiliate redirect to avoid loops
+      if (redirectUrl === '/affiliate') {
+        return res.redirect(302, '/affiliate-dashboard.html');
+      }
       // Redirect to the specified URL
       return res.redirect(302, redirectUrl);
     }

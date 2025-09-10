@@ -406,7 +406,7 @@
   </div>
 
   <!-- Auth System -->
-  <script src="auth.js"></script>
+  <script src="auth.js?v=fix-redirect"></script>
 
   <script>
     // UNIFIED LOGIN FUNCTION
@@ -414,6 +414,15 @@
       console.log('=== LOGIN ATTEMPT STARTED ===');
       console.log('Current hostname:', window.location.hostname);
       console.log('Current URL:', window.location.href);
+      
+      // Prevent double-clicks
+      const signInBtn = document.getElementById('signInBtn');
+      if (signInBtn.disabled) {
+        console.log('Login already in progress, ignoring click');
+        return;
+      }
+      signInBtn.disabled = true;
+      signInBtn.textContent = 'Signing In...';
       
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
@@ -615,6 +624,10 @@
           }
           
           alert(errorMessage);
+          
+          // Re-enable button on error
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign In';
         }
       } catch (error) {
         console.error('LOGIN ERROR - Exception caught:', {
@@ -623,6 +636,10 @@
           name: error.name
         });
         alert('Network error: ' + error.message);
+        
+        // Re-enable button on error
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign In';
       }
     }
     
