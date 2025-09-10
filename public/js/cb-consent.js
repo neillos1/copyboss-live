@@ -15,7 +15,8 @@
     cookieSameSite: 'Lax',
     cookieSecure: window.location.protocol === 'https:',
     animationDuration: 240,
-    modalAnimationDuration: 220
+    modalAnimationDuration: 220,
+    showDelayMs: 3000
   };
 
   // Consent state
@@ -31,6 +32,7 @@
   let banner = null;
   let modal = null;
   let isModalOpen = false;
+  let isBannerScheduled = false;
 
   /**
    * Safe cookie helper with correct attributes
@@ -171,14 +173,20 @@
   function createBannerHTML() {
     return `
       <div class="cb-consent-banner" id="cb-consent-banner" role="banner" aria-label="Cookie consent">
+        <button class="cb-consent-close" id="cb-consent-close" aria-label="Close cookie banner">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
         <div class="cb-consent-content">
           <div class="cb-consent-text">
             <h3>Cookies on CopyBoss</h3>
-            <p>We use necessary cookies to make our site work. We'd also like to use analytics and marketing cookies to improve your experience. You can accept all, reject non-essential, or manage preferences.</p>
-            <p>
-              <a href="/privacy" target="_blank">Privacy Policy</a> • 
+            <p>We use necessary cookies to make our site work. We'd also like to use analytics and marketing cookies to improve your experience.</p>
+            <div class="cb-consent-links">
+              <a href="/privacy" target="_blank">Privacy Policy</a>
+              <span>•</span>
               <a href="/cookies" target="_blank">Cookie Policy</a>
-            </p>
+            </div>
           </div>
           <div class="cb-consent-actions">
             <button class="cb-consent-btn cb-consent-btn-primary" id="cb-consent-accept-all">
@@ -187,7 +195,7 @@
             <button class="cb-consent-btn cb-consent-btn-secondary" id="cb-consent-reject">
               Reject non-essential
             </button>
-            <button class="cb-consent-btn cb-consent-btn-outline" id="cb-consent-customize">
+            <button class="cb-consent-btn cb-consent-btn-ghost" id="cb-consent-customize">
               Customize
             </button>
           </div>
@@ -260,22 +268,61 @@
   function showBanner() {
     if (banner) {
       banner.classList.add('show');
+      // Focus first actionable button for accessibility
+      const firstButton = banner.querySelector('.cb-consent-btn');
+      if (firstButton) {
+        setTimeout(() => firstButton.focus(), 100);
+      }
     }
   }
 
   /**
-   * Hide banner with animation
+   * Hide banner with slide-out animation
    */
   function hideBanner() {
     if (banner) {
-      banner.classList.add('hide');
-      setTimeout(() => {
+      banner.classList.add('cb-consent--closing');
+      banner.addEventListener('animationend', () => {
         if (banner && banner.parentNode) {
           banner.parentNode.removeChild(banner);
         }
         banner = null;
-      }, CONFIG.animationDuration);
+      }, { once: true });
     }
+  }
+
+  /**
+   * Schedule consent banner to show after mascot or timeout
+   */
+  function scheduleConsentBanner() {
+    if (isBannerScheduled) return;
+    isBannerScheduled = true;
+
+    function showConsentBannerNow() {
+      if (banner) return; // Already showing
+      
+      // Create and show banner
+      document.body.insertAdjacentHTML('beforeend', createBannerHTML());
+      document.body.insertAdjacentHTML('beforeend', createModalHTML());
+
+      banner = document.getElementById('cb-consent-banner');
+      modal = document.getElementById('cb-consent-modal');
+
+      initEventListeners();
+      showBanner();
+    }
+
+    // Check if mascot is already done
+    if (window.__cbMascotDone === true) {
+      showConsentBannerNow();
+      return;
+    }
+
+    // Listen for mascot finished event
+    window.addEventListener('mascot:finished', showConsentBannerNow, { once: true });
+    
+    // Fallback timeout
+    setTimeout(showConsentBannerNow, CONFIG.showDelayMs);
   }
 
   /**
@@ -381,6 +428,13 @@
   }
 
   /**
+   * Close banner (temporary hide)
+   */
+  function closeBanner() {
+    hideBanner();
+  }
+
+  /**
    * Open customize modal
    */
   function openCustomize() {
@@ -422,6 +476,7 @@
     const acceptAllBtn = document.getElementById('cb-consent-accept-all');
     const rejectBtn = document.getElementById('cb-consent-reject');
     const customizeBtn = document.getElementById('cb-consent-customize');
+    const closeBtn = document.getElementById('cb-consent-close');
 
     if (acceptAllBtn) {
       acceptAllBtn.addEventListener('click', acceptAll);
@@ -431,6 +486,9 @@
     }
     if (customizeBtn) {
       customizeBtn.addEventListener('click', openCustomize);
+    }
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeBanner);
     }
 
     // Modal buttons
@@ -487,17 +545,8 @@
       consentState.marketing = false;
     }
 
-    // Create and show banner
-    document.body.insertAdjacentHTML('beforeend', createBannerHTML());
-    document.body.insertAdjacentHTML('beforeend', createModalHTML());
-
-    banner = document.getElementById('cb-consent-banner');
-    modal = document.getElementById('cb-consent-modal');
-
-    initEventListeners();
-
-    // Show banner after a short delay to ensure DOM is ready
-    setTimeout(showBanner, 100);
+    // Schedule banner to show after mascot or timeout
+    scheduleConsentBanner();
   }
 
   /**

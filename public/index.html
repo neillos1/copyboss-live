@@ -497,6 +497,30 @@
             opacity: 0;
         }
 
+        .mascot-skip {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .mascot-skip:hover {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            transform: scale(1.1);
+        }
+
         .mascot-image {
             width: 200px;
             height: 200px;
@@ -852,6 +876,11 @@
 <body class="text-white">
     <!-- Mascot Intro Overlay -->
     <div class="mascot-intro" id="mascot-intro">
+        <button class="mascot-skip" id="mascot-skip" aria-label="Skip intro">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+        </button>
         <div class="mascot-container">
             <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="mascot-image" id="mascotImage">
         </div>
@@ -1732,6 +1761,7 @@
   document.addEventListener("DOMContentLoaded", () => {
             const mascotIntro = document.getElementById("mascot-intro");
             const mascotImage = document.getElementById("mascotImage");
+            const mascotSkip = document.getElementById("mascot-skip");
             const mainContent = document.getElementById("mainContent");
             const particles = document.getElementById("particles");
 
@@ -1744,6 +1774,24 @@
             // Show intro immediately
             mascotIntro.style.display = "flex";
             mainContent.style.opacity = 0;
+
+            // Skip button functionality
+            function skipMascot() {
+                mascotIntro.style.transition = "opacity 0.5s ease-in-out";
+                mascotIntro.style.opacity = "0";
+                
+                setTimeout(() => {
+                    mainContent.style.transition = "opacity 0.6s ease-in-out";
+                    mainContent.style.opacity = "1";
+                    mascotIntro.style.display = "none";
+                    
+                    // Signal mascot completion for cookie consent
+                    window.__cbMascotDone = true;
+                    window.dispatchEvent(new CustomEvent('mascot:finished'));
+                }, 500);
+            }
+
+            mascotSkip.addEventListener('click', skipMascot);
 
             // Create particles for background animation
             function createParticles() {
@@ -1818,6 +1866,10 @@
                         // Hide overlay completely after fade
                         setTimeout(() => {
                             mascotIntro.style.display = "none";
+                            
+                            // Signal mascot completion for cookie consent
+                            window.__cbMascotDone = true;
+                            window.dispatchEvent(new CustomEvent('mascot:finished'));
                         }, 800);
                     }, 200);
                 }, 2500);
