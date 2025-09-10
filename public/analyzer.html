@@ -9526,27 +9526,12 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('cb-header visibility:', window.getComputedStyle(cbHeader).visibility);
       console.log('cb-header position:', window.getComputedStyle(cbHeader).position);
       console.log('cb-header z-index:', window.getComputedStyle(cbHeader).zIndex);
-      
-      // Force mobile navbar to be visible regardless of other CSS
-      cbHeader.style.display = 'flex';
-      cbHeader.style.visibility = 'visible';
-      cbHeader.style.opacity = '1';
-      cbHeader.style.position = 'sticky';
-      cbHeader.style.top = '0';
-      cbHeader.style.zIndex = '9999';
-      console.log('Forced cb-header to be visible');
     } else {
       console.log('cb-header NOT found!');
     }
     
-    // Check if we're on mobile (use multiple detection methods)
-    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    console.log('Is mobile (width):', window.innerWidth <= 768);
-    console.log('Is mobile (user agent):', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-    console.log('Is mobile (combined):', isMobile);
-    
     // Aggressively hide any remaining desktop navigation elements
-    if (isMobile) {
+    if (window.innerWidth <= 768) {
       const desktopHeaders = document.querySelectorAll('header:not(#cb-header), .bg-gray-900\\/50, .navbar-nav, .site-header, .topnav, .main-header, nav:not(.cb-drawer-list), .navbar:not(#cb-header)');
       desktopHeaders.forEach(el => {
         el.style.display = 'none';
@@ -9620,44 +9605,6 @@ document.addEventListener('DOMContentLoaded', function() {
       position: sticky !important;
       top: 0 !important;
       z-index: 9999 !important;
-    }
-    
-    /* Fix navbar layout and spacing */
-    .analyzer-page .cb-nav-inner {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      padding: 12px 16px !important;
-      gap: 10px !important;
-    }
-    
-    .analyzer-page .cb-brand {
-      display: flex !important;
-      align-items: center !important;
-      gap: 10px !important;
-      flex-shrink: 0 !important;
-      min-width: 0 !important;
-    }
-    
-    .analyzer-page .cb-brand-text {
-      font-size: 16px !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-    }
-    
-    .analyzer-page .cb-actions {
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-      flex-shrink: 0 !important;
-    }
-    
-    .analyzer-page #cb-upload-btn {
-      padding: 8px 12px !important;
-      font-size: 14px !important;
-      white-space: nowrap !important;
-      flex-shrink: 0 !important;
     }
     
     /* Hide ALL desktop navigation elements on mobile */
