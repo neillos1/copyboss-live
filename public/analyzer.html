@@ -9465,13 +9465,6 @@ async function saveAnalysisResult(score) {
 
 /* Analyzer page mobile auth styling */
 @media (max-width: 768px) {
-  /* Force mobile navbar to be visible */
-  .analyzer-page #cb-header {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-  
   .analyzer-page .auth-inline {
     display: none !important;
   }
@@ -9516,20 +9509,6 @@ async function saveAnalysisResult(score) {
 document.addEventListener('DOMContentLoaded', function() {
   // Only run on analyzer page
   if (!document.body.classList.contains('analyzer-page')) return;
-  
-  // Debug navbar visibility
-  setTimeout(() => {
-    const cbHeader = document.getElementById('cb-header');
-    if (cbHeader) {
-      console.log('cb-header found:', cbHeader);
-      console.log('cb-header display:', window.getComputedStyle(cbHeader).display);
-      console.log('cb-header visibility:', window.getComputedStyle(cbHeader).visibility);
-      console.log('cb-header position:', window.getComputedStyle(cbHeader).position);
-      console.log('cb-header z-index:', window.getComputedStyle(cbHeader).zIndex);
-    } else {
-      console.log('cb-header NOT found!');
-    }
-  }, 1000);
   
   function updateAuthDisplay() {
     const isLoggedIn = localStorage.getItem('videobossToken');
