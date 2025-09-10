@@ -9542,20 +9542,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Hidden desktop element:', el);
       });
       
-      // Completely remove auth-inline elements from DOM
+      // Hide any auth-inline elements
       const authInlines = document.querySelectorAll('.auth-inline');
       authInlines.forEach(el => {
-        console.log('Removing auth-inline element:', el);
-        el.remove(); // Remove from DOM entirely
-      });
-      
-      // Also remove any individual Login/Sign Up links that might be loose
-      const loginLinks = document.querySelectorAll('a[href="login.html"], a[href="signup.html"]');
-      loginLinks.forEach(el => {
-        if (!el.closest('#cb-header')) { // Don't remove if inside mobile header
-          console.log('Removing loose login/signup link:', el);
-          el.remove();
-        }
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        console.log('Hidden auth-inline:', el);
       });
     }
   }, 1000);
@@ -9623,19 +9615,10 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden !important;
     }
     
-    /* Hide desktop auth links completely */
-    .analyzer-page .auth-inline,
-    .analyzer-page .auth-inline *,
-    .analyzer-page a[href="login.html"],
-    .analyzer-page a[href="signup.html"] { 
+    /* Hide desktop auth links */
+    .analyzer-page .auth-inline { 
       display: none !important; 
       visibility: hidden !important;
-      opacity: 0 !important;
-      height: 0 !important;
-      width: 0 !important;
-      overflow: hidden !important;
-      position: absolute !important;
-      left: -9999px !important;
     }
     
     /* Show mobile auth button */
