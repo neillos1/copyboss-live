@@ -129,7 +129,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://js.stripe.com/v3"></script>
     <script src="js/countdown.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=navfix2" />
+    <link rel="stylesheet" href="/css/style.css?v=navfix1" />
     <link rel="stylesheet" href="/css/mobile-reset-analyzer.css?v=1" media="(max-width: 768px)">
     <link rel="stylesheet" href="/css/mobile-auto-patch.css?v=fix1" media="(max-width: 768px)">
     <script defer src="/js/mobile-header.js?v=1"></script>
@@ -2080,18 +2080,19 @@ html, body {
         <header id="cb-header" class="cb-navbar">
           <div class="cb-nav-inner">
             <a class="cb-brand" href="/">
-              <img class="cb-logo" src="/assets/img/mascot.png" alt="CopyBoss" />
+              <img src="/assets/img/mascot.png" alt="CopyBoss" class="cb-brand-img" />
               <span class="cb-brand-text">CopyBoss</span>
             </a>
-            <div class="cb-actions">
-              <a id="uploadBtnMobile" class="btn btn-primary cb-upload-btn" href="/upload.html">Upload</a>
-              <a id="authCtaMobile" class="btn btn-secondary auth-cta" href="/login.html">Login / Sign up</a>
-              <button id="cb-burger" class="cb-burger" aria-label="Menu">
-                <span class="cb-burger-line"></span>
-                <span class="cb-burger-line"></span>
-                <span class="cb-burger-line"></span>
-              </button>
-            </div>
+
+                <div class="cb-actions">
+      <button id="cb-upload-btn" class="cb-btn cb-btn-primary">Upload</button>
+      <a id="authCtaMobile" class="auth-cta-mobile hidden" href="/login.html?redirect=%2Faffiliate-dashboard.html">Login / Sign up</a>
+      <button id="cb-burger" class="cb-burger" aria-label="Open menu" aria-expanded="false">
+        <span class="cb-burger-line"></span>
+        <span class="cb-burger-line"></span>
+        <span class="cb-burger-line"></span>
+      </button>
+    </div>
           </div>
         </header>
 
@@ -9368,7 +9369,7 @@ async function saveAnalysisResult(score) {
 
 
 <script src="/js/mobile-gap-guard.js" defer></script>
-<script src="/js/mobile-nav.js?v=navfix2"></script>
+<script src="/js/mobile-nav.js?v=navfix1"></script>
 <script src="/js/avatar-helper.js?v=1"></script>
 
 <!-- Test Analyzer History functionality -->
@@ -9514,39 +9515,91 @@ async function saveAnalysisResult(score) {
 // Analyzer mobile auth state management
 document.addEventListener('DOMContentLoaded', function() {
   // Only run on analyzer page
-  if (document.body.dataset.page !== 'analyzer') return;
+  if (!document.body.classList.contains('analyzer-page')) return;
   
-  // Verification logs
+  // Debug navbar visibility and hide duplicate elements
   setTimeout(() => {
     const cbHeader = document.getElementById('cb-header');
     if (cbHeader) {
-      console.log('Analyzer header ready');
+      console.log('cb-header found:', cbHeader);
       console.log('cb-header display:', window.getComputedStyle(cbHeader).display);
+      console.log('cb-header visibility:', window.getComputedStyle(cbHeader).visibility);
       console.log('cb-header position:', window.getComputedStyle(cbHeader).position);
-      console.log('cb-header zIndex:', window.getComputedStyle(cbHeader).zIndex);
+      console.log('cb-header z-index:', window.getComputedStyle(cbHeader).zIndex);
       
-      const brand = cbHeader.querySelector('.cb-brand');
-      const actions = cbHeader.querySelector('.cb-actions');
-      if (brand) console.log('cb-brand width:', brand.offsetWidth);
-      if (actions) console.log('cb-actions width:', actions.offsetWidth);
+      // Force mobile navbar to be visible regardless of other CSS
+      cbHeader.style.display = 'flex';
+      cbHeader.style.visibility = 'visible';
+      cbHeader.style.opacity = '1';
+      cbHeader.style.position = 'sticky';
+      cbHeader.style.top = '0';
+      cbHeader.style.zIndex = '9999';
+      console.log('Forced cb-header to be visible');
+    } else {
+      console.log('cb-header NOT found!');
     }
-  }, 500);
+    
+    // Check if we're on mobile (use multiple detection methods)
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    console.log('Is mobile (width):', window.innerWidth <= 768);
+    console.log('Is mobile (user agent):', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    console.log('Is mobile (combined):', isMobile);
+    
+    // Aggressively hide any remaining desktop navigation elements
+    if (isMobile) {
+      const desktopHeaders = document.querySelectorAll('header:not(#cb-header), .bg-gray-900\\/50, .navbar-nav, .site-header, .topnav, .main-header, nav:not(.cb-drawer-list), .navbar:not(#cb-header)');
+      desktopHeaders.forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+        el.style.height = '0';
+        el.style.overflow = 'hidden';
+        console.log('Hidden desktop element:', el);
+      });
+      
+      // Completely remove auth-inline elements from DOM
+      const authInlines = document.querySelectorAll('.auth-inline');
+      authInlines.forEach(el => {
+        console.log('Removing auth-inline element:', el);
+        el.remove(); // Remove from DOM entirely
+      });
+      
+      // Also remove any individual Login/Sign Up links that might be loose
+      const loginLinks = document.querySelectorAll('a[href="login.html"], a[href="signup.html"]');
+      loginLinks.forEach(el => {
+        if (!el.closest('#cb-header')) { // Don't remove if inside mobile header
+          console.log('Removing loose login/signup link:', el);
+          el.remove();
+        }
+      });
+    }
+  }, 1000);
   
   function updateAuthDisplay() {
     const isLoggedIn = localStorage.getItem('videobossToken');
+    const authInline = document.querySelector('.auth-inline');
     const authCtaMobile = document.getElementById('authCtaMobile');
     
     if (isLoggedIn) {
-      // Logged in: hide auth CTA (avatar will show elsewhere)
+      // Logged in: hide both auth elements (avatar will show)
+      if (authInline) authInline.style.display = 'none';
       if (authCtaMobile) authCtaMobile.style.display = 'none';
     } else {
-      // Logged out: show auth CTA
-      if (authCtaMobile) authCtaMobile.style.display = 'inline-flex';
+      // Logged out: show appropriate auth element based on screen size
+      if (authInline) {
+        authInline.style.display = window.innerWidth > 768 ? 'inline-flex' : 'none';
+      }
+      if (authCtaMobile) {
+        authCtaMobile.style.display = window.innerWidth <= 768 ? 'inline-flex' : 'none';
+      }
     }
   }
   
   // Initial check
   updateAuthDisplay();
+  
+  // Update on resize
+  window.addEventListener('resize', updateAuthDisplay);
   
   // Update when auth state changes
   window.addEventListener('storage', function(e) {
@@ -9558,71 +9611,90 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-  /* Analyzer mobile header layout */
+  /* Emergency: Analyzer mobile navbar must always show */
   @media (max-width: 768px) {
-    .analyzer-page #cb-header {
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+    #cb-header {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 9999 !important;
     }
+    
+    /* Fix navbar layout and spacing */
     .analyzer-page .cb-nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 10px 14px;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 12px 16px !important;
+      gap: 10px !important;
     }
+    
     .analyzer-page .cb-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 1 auto;                 /* allow shrink if necessary */
-      max-width: calc(100% - 200px);  /* reserve space for actions */
-      min-width: 120px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      flex-shrink: 0 !important;
+      min-width: 0 !important;
     }
-    .analyzer-page .cb-logo {
-      width: 22px; height: 22px; flex: 0 0 auto;
-    }
+    
     .analyzer-page .cb-brand-text {
-      font-size: 18px;
-      line-height: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
+      font-size: 16px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
+    
     .analyzer-page .cb-actions {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 0 auto;                 /* never let actions shrink over brand */
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex-shrink: 0 !important;
     }
-    .analyzer-page .cb-upload-btn {
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-weight: 700;
-      line-height: 1;
+    
+    .analyzer-page #cb-upload-btn {
+      padding: 8px 12px !important;
+      font-size: 14px !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
     }
-    .analyzer-page .auth-cta {
-      padding: 8px 12px;
-      border-radius: 12px;
-      line-height: 1;
-      white-space: nowrap;
+    
+    /* Hide ALL desktop navigation elements on mobile */
+    .analyzer-page header:not(#cb-header),
+    .analyzer-page .bg-gray-900\/50,
+    .analyzer-page .navbar-nav,
+    .analyzer-page .site-header,
+    .analyzer-page .topnav,
+    .analyzer-page .main-header,
+    .analyzer-page nav:not(.cb-drawer-list),
+    .analyzer-page .navbar:not(#cb-header) {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
     }
-    .analyzer-page .cb-burger {
-      width: 38px; height: 38px; border-radius: 12px;
-      display: inline-flex; align-items: center; justify-content: center;
+    
+    /* Hide desktop auth links completely */
+    .analyzer-page .auth-inline,
+    .analyzer-page .auth-inline *,
+    .analyzer-page a[href="login.html"],
+    .analyzer-page a[href="signup.html"] { 
+      display: none !important; 
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      width: 0 !important;
+      overflow: hidden !important;
+      position: absolute !important;
+      left: -9999px !important;
     }
-
-    /* Kill any inline duplicates on this page only */
-    .analyzer-page .auth-inline { display: none !important; }
-  }
-
-  /* On desktop, Analyzer keeps its regular desktop navbar; ensure mobile header is hidden */
-  @media (min-width: 769px) {
-    .analyzer-page #cb-header { display: none !important; }
+    
+    /* Show mobile auth button */
+    .analyzer-page #authCtaMobile { 
+      display: inline-flex !important; 
+    }
   }
 </style>
 
