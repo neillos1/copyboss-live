@@ -28,8 +28,8 @@ app.use((req, res, next) => {
   const host = req.get('host');
   const url = req.originalUrl;
   
-  // Skip HTTPS enforcement for localhost (development)
-  if (host === 'localhost:3000') return next();
+  // Skip HTTPS enforcement for localhost and local network (development)
+  if (host === 'localhost:3000' || host.startsWith('192.168.') || host.startsWith('10.') || host.startsWith('172.')) return next();
   
   // Force HTTPS
   if (protocol !== 'https') {
