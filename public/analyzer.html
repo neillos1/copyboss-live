@@ -9517,7 +9517,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Only run on analyzer page
   if (!document.body.classList.contains('analyzer-page')) return;
   
-  // Debug navbar visibility
+  // Debug navbar visibility and hide duplicate elements
   setTimeout(() => {
     const cbHeader = document.getElementById('cb-header');
     if (cbHeader) {
@@ -9528,6 +9528,27 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('cb-header z-index:', window.getComputedStyle(cbHeader).zIndex);
     } else {
       console.log('cb-header NOT found!');
+    }
+    
+    // Aggressively hide any remaining desktop navigation elements
+    if (window.innerWidth <= 768) {
+      const desktopHeaders = document.querySelectorAll('header:not(#cb-header), .bg-gray-900\\/50, .navbar-nav, .site-header, .topnav, .main-header, nav:not(.cb-drawer-list), .navbar:not(#cb-header)');
+      desktopHeaders.forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+        el.style.height = '0';
+        el.style.overflow = 'hidden';
+        console.log('Hidden desktop element:', el);
+      });
+      
+      // Hide any auth-inline elements
+      const authInlines = document.querySelectorAll('.auth-inline');
+      authInlines.forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        console.log('Hidden auth-inline:', el);
+      });
     }
   }, 1000);
   
@@ -9577,9 +9598,33 @@ document.addEventListener('DOMContentLoaded', function() {
       top: 0 !important;
       z-index: 9999 !important;
     }
-    /* Avoid duplicate auth links on Analyzer mobile */
-    .analyzer-page .auth-inline { display: none !important; }
-    .analyzer-page #authCtaMobile { display: inline-flex !important; }
+    
+    /* Hide ALL desktop navigation elements on mobile */
+    .analyzer-page header:not(#cb-header),
+    .analyzer-page .bg-gray-900\/50,
+    .analyzer-page .navbar-nav,
+    .analyzer-page .site-header,
+    .analyzer-page .topnav,
+    .analyzer-page .main-header,
+    .analyzer-page nav:not(.cb-drawer-list),
+    .analyzer-page .navbar:not(#cb-header) {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+    
+    /* Hide desktop auth links */
+    .analyzer-page .auth-inline { 
+      display: none !important; 
+      visibility: hidden !important;
+    }
+    
+    /* Show mobile auth button */
+    .analyzer-page #authCtaMobile { 
+      display: inline-flex !important; 
+    }
   }
 </style>
 
