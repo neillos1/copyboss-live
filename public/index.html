@@ -1397,13 +1397,13 @@
 
     <!-- Footer Links -->
     <div class="footer-links">
-              <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
+      <a href="#" onclick="openModal('privacy-modal')" class="footer-link">Privacy</a>
       <span class="link-separator">|</span>
-              <a href="javascript:void(0)" onclick="openModal('terms-modal'); return false;" class="footer-link">Terms</a>
+      <a href="#" onclick="openModal('terms-modal')" class="footer-link">Terms</a>
       <span class="link-separator">|</span>
-              <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="footer-link">Support</a>
-              <span class="link-separator">|</span>
-              <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
+      <a href="#" onclick="openModal('support-modal')" class="footer-link">Support</a>
+      <span class="link-separator">|</span>
+      <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
     </div>
 
     <!-- Copyright -->
@@ -2307,62 +2307,7 @@
             }
         });
 
-        // Simplified mobile touch events - just enhance existing onclick
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Setting up simplified mobile touch events...');
-            
-            // Function to handle modal opening with debouncing
-            let lastModalOpen = 0;
-            function handleModalOpen(modalId, source) {
-                const now = Date.now();
-                if (now - lastModalOpen < 300) {
-                    console.log(`Modal opening too fast, ignoring ${modalId}`);
-                    return;
-                }
-                lastModalOpen = now;
-                
-                console.log(`Opening modal: ${modalId} from ${source}`);
-                openModal(modalId);
-            }
-            
-            // Add touch events to footer links WITHOUT removing onclick
-            const footerLinks = document.querySelectorAll('.footer-link[onclick*="openModal"]');
-            console.log('Found footer links:', footerLinks.length);
-            
-            footerLinks.forEach((link, index) => {
-                console.log(`Setting up footer link ${index}:`, link.textContent);
-                
-                // Add touchstart event that calls the existing onclick
-                link.addEventListener('touchstart', function(e) {
-                    console.log(`Footer link touchstart: ${this.textContent}`);
-                    
-                    // Call the existing onclick function
-                    const onclick = this.getAttribute('onclick');
-                    if (onclick) {
-                        console.log(`Calling existing onclick: ${onclick}`);
-                        eval(onclick);
-                    }
-                }, { passive: true });
-            });
-
-            // Add touch events to trust footer links
-            const trustLinks = document.querySelectorAll('.cb-trust-chip[onclick*="openModal"]');
-            console.log('Found trust links:', trustLinks.length);
-            
-            trustLinks.forEach((link, index) => {
-                console.log(`Setting up trust link ${index}:`, link.textContent);
-                
-                link.addEventListener('touchstart', function(e) {
-                    console.log(`Trust link touchstart: ${this.textContent}`);
-                    
-                    const onclick = this.getAttribute('onclick');
-                    if (onclick) {
-                        console.log(`Calling existing onclick: ${onclick}`);
-                        eval(onclick);
-                    }
-                }, { passive: true });
-            });
-        });
+        // Simple approach - let the existing onclick handlers work naturally
 
         // Debug: Check if modals are properly initialized
         document.addEventListener('DOMContentLoaded', function() {
