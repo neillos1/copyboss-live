@@ -2195,6 +2195,13 @@
             }
             console.log('Modal classes before:', modal.className);
             modal.classList.remove('hidden');
+            
+            // Force modal styles directly via JavaScript
+            modal.style.opacity = '1';
+            modal.style.visibility = 'visible';
+            modal.style.display = 'flex';
+            modal.style.zIndex = '10000';
+            
             setTimeout(() => {
                 modal.classList.add('show');
                 console.log('Modal classes after:', modal.className);
@@ -2202,12 +2209,18 @@
                 console.log('Modal display:', window.getComputedStyle(modal).display);
                 console.log('Modal visibility:', window.getComputedStyle(modal).visibility);
                 console.log('Modal opacity:', window.getComputedStyle(modal).opacity);
+                console.log('Modal z-index:', window.getComputedStyle(modal).zIndex);
                 
                 // Check modal content
                 const modalContent = modal.querySelector('.modal-content');
                 if (modalContent) {
                     console.log('Modal content found:', modalContent);
                     console.log('Modal content computed style:', window.getComputedStyle(modalContent));
+                    
+                    // Force modal content styles
+                    modalContent.style.transform = 'translateY(0)';
+                    modalContent.style.opacity = '1';
+                    modalContent.style.visibility = 'visible';
                 } else {
                     console.error('Modal content not found!');
                 }
@@ -2218,6 +2231,21 @@
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.remove('show');
+            
+            // Reset inline styles
+            modal.style.opacity = '';
+            modal.style.visibility = '';
+            modal.style.display = '';
+            modal.style.zIndex = '';
+            
+            // Reset modal content styles
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.transform = '';
+                modalContent.style.opacity = '';
+                modalContent.style.visibility = '';
+            }
+            
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
