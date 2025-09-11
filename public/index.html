@@ -663,6 +663,151 @@
             }
         }
 
+        /* Hero CTA Buttons - Cookie Banner Aesthetic */
+        .cb-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 200ms ease;
+            white-space: nowrap;
+            text-decoration: none;
+            min-height: 52px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cb-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 200ms ease;
+        }
+
+        .cb-cta:hover::before {
+            opacity: 1;
+        }
+
+        .cb-cta:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.8);
+            outline-offset: 2px;
+        }
+
+        .cb-cta:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Color Variants */
+        .cb-cta--blue {
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .cb-cta--blue:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .cb-cta--blue:focus {
+            outline-color: rgba(59, 130, 246, 0.8);
+        }
+
+        .cb-cta--green {
+            background: linear-gradient(90deg, #22c55e, #10b981);
+            color: white;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+        }
+
+        .cb-cta--green:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+
+        .cb-cta--green:focus {
+            outline-color: rgba(34, 197, 94, 0.8);
+        }
+
+        .cb-cta--purple {
+            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            color: white;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .cb-cta--purple:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .cb-cta--purple:focus {
+            outline-color: rgba(139, 92, 246, 0.8);
+        }
+
+        .cb-cta--red {
+            background: linear-gradient(90deg, #ef4444, #f43f5e);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .cb-cta--red:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .cb-cta--red:focus {
+            outline-color: rgba(239, 68, 68, 0.8);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .cb-cta {
+                min-height: 56px;
+                font-size: 15px;
+                padding: 16px 20px;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cb-cta {
+                min-height: 60px;
+                font-size: 14px;
+                padding: 18px 20px;
+            }
+        }
+
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            .cb-cta {
+                transition: color 200ms ease, background-color 200ms ease;
+            }
+            
+            .cb-cta:hover {
+                transform: none;
+            }
+            
+            .cb-cta:active {
+                transform: none;
+            }
+            
+            .cb-cta::before {
+                transition: none;
+            }
+        }
+
         /* Base Modal Styles */
         .modal {
             position: fixed;
@@ -993,23 +1138,23 @@
                 
                 <!-- Call to Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-                    <a href="/analyzer.html" class="btn-gradient-blue text-white font-semibold py-4 px-8 rounded-lg">
-                        <i class="fas fa-chart-line mr-3"></i>
+                    <a href="/analyzer.html" class="cb-cta cb-cta--blue">
+                        <i class="fas fa-chart-line"></i>
                         Try Video Analyzer
                     </a>
-                    <a href="/generator.html" class="btn-gradient-green text-white font-semibold py-4 px-8 rounded-lg">
-                        <i class="fas fa-magic mr-3"></i>
+                    <a href="/generator.html" class="cb-cta cb-cta--green">
+                        <i class="fas fa-magic"></i>
                         Generate Scripts
                     </a>
-                    <a href="/pricing.html" class="btn-gradient-purple text-white font-semibold py-4 px-8 rounded-lg">
-                        <i class="fas fa-tags mr-3"></i>
+                    <a href="/pricing.html" class="cb-cta cb-cta--purple">
+                        <i class="fas fa-tags"></i>
                         See Pricing
                     </a>
-                    <a href="/analyzer.html" class="btn-gradient-red text-white font-semibold py-4 px-8 rounded-lg">
-                        <i class="fas fa-gift mr-3"></i>
+                    <a href="/analyzer.html" class="cb-cta cb-cta--red">
+                        <i class="fas fa-gift"></i>
                         Try Free Now
                     </a>
-</div>
+                </div>
 </div>
         </section>
 
