@@ -2194,79 +2194,45 @@
             console.log('=== OPENMODAL FUNCTION CALLED ===');
             console.log('Opening modal:', modalId);
             
-            // Simple test - just show alert first
-            alert('openModal called with: ' + modalId);
-            
-            // Try the simplest possible approach
             const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = 'block';
-                modal.style.position = 'fixed';
-                modal.style.top = '0';
-                modal.style.left = '0';
-                modal.style.width = '100%';
-                modal.style.height = '100%';
-                modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
-                modal.style.zIndex = '99999';
-                return;
-            }
             console.log('Modal element found:', modal);
+            
             if (!modal) {
                 console.error('Modal not found:', modalId);
                 return;
             }
-            console.log('Modal classes before:', modal.className);
             
             // Remove all classes first
-            modal.className = 'modal';
+            modal.className = '';
             
-            // Disable any CSS transitions temporarily
-            modal.style.setProperty('transition', 'none', 'important');
+            // Apply the simplest possible styles
+            modal.style.display = 'block';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            modal.style.zIndex = '99999';
+            modal.style.opacity = '1';
+            modal.style.visibility = 'visible';
             
-            // Force modal styles directly via JavaScript with !important
-            modal.style.setProperty('opacity', '1', 'important');
-            modal.style.setProperty('visibility', 'visible', 'important');
-            modal.style.setProperty('display', 'flex', 'important');
-            modal.style.setProperty('z-index', '10003', 'important');
-            modal.style.setProperty('position', 'fixed', 'important');
-            modal.style.setProperty('top', '0', 'important');
-            modal.style.setProperty('left', '0', 'important');
-            modal.style.setProperty('width', '100%', 'important');
-            modal.style.setProperty('height', '100%', 'important');
-            modal.style.setProperty('filter', 'none', 'important');
-            modal.style.setProperty('backdrop-filter', 'none', 'important');
-            
-            // Use requestAnimationFrame to ensure DOM updates
-            requestAnimationFrame(() => {
-                // Check modal content
-                const modalContent = modal.querySelector('.modal-content');
-                if (modalContent) {
-                    console.log('Modal content found:', modalContent);
-                    
-                    // Disable transitions on content too
-                    modalContent.style.setProperty('transition', 'none', 'important');
-                    
-                    // Force modal content styles with !important
-                    modalContent.style.setProperty('transform', 'translateY(0)', 'important');
-                    modalContent.style.setProperty('opacity', '1', 'important');
-                    modalContent.style.setProperty('visibility', 'visible', 'important');
-                    modalContent.style.setProperty('position', 'relative', 'important');
-                    modalContent.style.setProperty('z-index', '10004', 'important');
-                    modalContent.style.setProperty('filter', 'none', 'important');
-                    modalContent.style.setProperty('backdrop-filter', 'none', 'important');
-                    
-                    console.log('Modal content computed style:', window.getComputedStyle(modalContent));
-                } else {
-                    console.error('Modal content not found!');
-                }
-                
-                console.log('Modal classes after:', modal.className);
-                console.log('Modal computed style:', window.getComputedStyle(modal));
-                console.log('Modal display:', window.getComputedStyle(modal).display);
-                console.log('Modal visibility:', window.getComputedStyle(modal).visibility);
-                console.log('Modal opacity:', window.getComputedStyle(modal).opacity);
-                console.log('Modal z-index:', window.getComputedStyle(modal).zIndex);
-            });
+            // Make modal content visible
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.display = 'block';
+                modalContent.style.position = 'fixed';
+                modalContent.style.top = '50%';
+                modalContent.style.left = '50%';
+                modalContent.style.transform = 'translate(-50%, -50%)';
+                modalContent.style.backgroundColor = 'white';
+                modalContent.style.color = 'black';
+                modalContent.style.padding = '20px';
+                modalContent.style.borderRadius = '8px';
+                modalContent.style.zIndex = '100000';
+                modalContent.style.maxWidth = '500px';
+                modalContent.style.width = '90%';
+            }
             
             document.body.style.overflow = 'hidden';
         }
@@ -2274,41 +2240,22 @@
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             
-            // Hide modal immediately
-            modal.style.setProperty('opacity', '0', 'important');
-            modal.style.setProperty('visibility', 'hidden', 'important');
-            modal.style.setProperty('display', 'none', 'important');
+            // Hide modal
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            modal.style.opacity = '0';
             
             // Reset modal content styles
             const modalContent = modal.querySelector('.modal-content');
             if (modalContent) {
-                modalContent.style.removeProperty('transform');
-                modalContent.style.removeProperty('opacity');
-                modalContent.style.removeProperty('visibility');
-                modalContent.style.removeProperty('position');
-                modalContent.style.removeProperty('z-index');
-                modalContent.style.removeProperty('transition');
-                modalContent.style.removeProperty('filter');
-                modalContent.style.removeProperty('backdrop-filter');
+                modalContent.style.display = 'none';
             }
             
-            // Reset modal styles
-            modal.style.removeProperty('opacity');
-            modal.style.removeProperty('visibility');
-            modal.style.removeProperty('display');
-            modal.style.removeProperty('z-index');
-            modal.style.removeProperty('position');
-            modal.style.removeProperty('top');
-            modal.style.removeProperty('left');
-            modal.style.removeProperty('width');
-            modal.style.removeProperty('height');
-            modal.style.removeProperty('transition');
-            modal.style.removeProperty('filter');
-            modal.style.removeProperty('backdrop-filter');
+            // Reset body overflow
+            document.body.style.overflow = '';
             
             // Add hidden class
             modal.classList.add('hidden');
-            document.body.style.overflow = '';
         }
 
         // Close modal on ESC key
