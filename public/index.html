@@ -1301,7 +1301,7 @@
         </section>
 
         <!-- Trust Footer -->
-        <div class="cb-trust" style="display: none;">
+        <div class="cb-trust">
           <div class="cb-trust-container">
             <div class="cb-trust-grid">
               <!-- Payment Security -->
@@ -1339,7 +1339,7 @@
               <div class="cb-trust-section">
                 <h3 class="cb-trust-section-title">Compliance</h3>
                 <div class="cb-trust-chips">
-                  <a href="#" onclick="openModal('privacy-modal')" class="cb-trust-chip">Privacy Policy</a>
+                  <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="cb-trust-chip">Privacy Policy</a>
                   <a href="#" onclick="window.openCookieSettings()" class="cb-trust-chip">Cookie Policy</a>
                   <span class="cb-trust-chip cb-trust-chip--primary">GDPR Compliant</span>
                   <button onclick="window.openICOModal()" class="cb-trust-chip">ICO Registered</button>
@@ -1360,7 +1360,7 @@
               <div class="cb-trust-section">
                 <h3 class="cb-trust-section-title">Support</h3>
                 <div class="cb-trust-chips">
-                  <a href="#" onclick="openModal('support-modal')" class="cb-trust-chip">24/7 Email Support</a>
+                  <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="cb-trust-chip">24/7 Email Support</a>
                   <a href="#" class="cb-trust-chip">System Status</a>
                 </div>
               </div>
@@ -1397,11 +1397,11 @@
 
     <!-- Footer Links -->
     <div class="footer-links">
-      <a href="#" onclick="openModal('privacy-modal')" class="footer-link">Privacy</a>
+      <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
       <span class="link-separator">|</span>
-      <a href="#" onclick="openModal('terms-modal')" class="footer-link">Terms</a>
+      <a href="javascript:void(0)" onclick="openModal('terms-modal'); return false;" class="footer-link">Terms</a>
       <span class="link-separator">|</span>
-      <a href="#" onclick="openModal('support-modal')" class="footer-link">Support</a>
+      <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="footer-link">Support</a>
       <span class="link-separator">|</span>
       <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
     </div>
@@ -2307,67 +2307,7 @@
             }
         });
 
-        // Fix footer links to prevent navigation and open modals properly
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Setting up footer link fixes...');
-            
-            // Fix all footer and trust footer links
-            const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
-            console.log('Found footer links:', allFooterLinks.length);
-            
-            // Specifically check for legal terms
-            const legalTerms = document.querySelectorAll('.footer-link[onclick*="openModal"]');
-            console.log('Found legal terms links:', legalTerms.length);
-            legalTerms.forEach((link, index) => {
-                console.log(`Legal term ${index}:`, link.textContent, link.onclick);
-            });
-            
-            allFooterLinks.forEach((link, index) => {
-                console.log(`Setting up link ${index}:`, link.textContent, link);
-                
-                if (link.onclick) {
-                    // Prevent default navigation
-                    link.addEventListener('click', function(e) {
-                        console.log('Footer link clicked:', this.textContent);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Call the onclick function
-                        const onclick = this.getAttribute('onclick');
-                        if (onclick) {
-                            console.log('Calling onclick:', onclick);
-                            eval(onclick);
-                        }
-                    });
-                    
-                    // Add touchstart for mobile
-                    link.addEventListener('touchstart', function(e) {
-                        console.log('Footer link touchstart:', this.textContent);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        const onclick = this.getAttribute('onclick');
-                        if (onclick) {
-                            console.log('Calling onclick from touch:', onclick);
-                            eval(onclick);
-                        }
-                    }, { passive: false });
-                    
-                    // Also try touchend
-                    link.addEventListener('touchend', function(e) {
-                        console.log('Footer link touchend:', this.textContent);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        const onclick = this.getAttribute('onclick');
-                        if (onclick) {
-                            console.log('Calling onclick from touchend:', onclick);
-                            eval(onclick);
-                        }
-                    }, { passive: false });
-                }
-            });
-        });
+        // Simple footer - let natural onclick work
 
         // Debug: Check if modals are properly initialized
         document.addEventListener('DOMContentLoaded', function() {
