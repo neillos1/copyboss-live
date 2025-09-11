@@ -1079,8 +1079,15 @@
     <!-- Trust Footer -->
     <link rel="stylesheet" href="/css/cb-trust.css">
     <script defer src="/js/cb-trust.js"></script>
-</head>
-<body class="text-white">
+  </head>
+  <body class="text-white">
+    <!-- Robust Mascot Intro Overlay -->
+    <div id="cbMascotOverlay" class="cb-mascot--open">
+      <button id="cbMascotSkip" aria-label="Skip intro">Skip</button>
+      <div class="mascot-container">
+        <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="mascot-image" id="mascotImage">
+      </div>
+    </div>
     <!-- Particle Animation -->
     <div class="particles" id="particles"></div>
 
@@ -2381,6 +2388,105 @@
             
             /* Mobile Footer Touch Fix - Prevent decorative layers from blocking touches */
             <style>
+            /* Bulletproof Mascot Overlay - Triple Failsafe */
+            #cbMascotOverlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(10, 10, 26, 0.95);
+                z-index: 9997;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 1;
+                visibility: visible;
+                transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+                overflow: hidden;
+                /* CSS Autokill Failsafe - even if JS dies, overlay becomes inert after 3.2s */
+                animation: cb-mascot-autokill 3.2s step-end forwards;
+            }
+
+            #cbMascotOverlay.cb-mascot--closed {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none !important;
+                z-index: -1;
+            }
+
+            /* CSS Autokill Animation - Final Failsafe */
+            @keyframes cb-mascot-autokill {
+                0%, 99% {
+                    opacity: 1;
+                    visibility: visible;
+                    pointer-events: auto;
+                }
+                100% {
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none !important;
+                }
+            }
+
+            #cbMascotSkip {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                padding: 8px 16px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                background: rgba(0, 0, 0, 0.3);
+                color: rgba(255, 255, 255, 0.9);
+                cursor: pointer;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                z-index: 9998 !important;
+                min-width: 60px;
+                pointer-events: auto !important;
+                touch-action: manipulation;
+            }
+
+            #cbMascotSkip:hover,
+            #cbMascotSkip:focus-visible {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border-color: rgba(255, 255, 255, 0.6);
+                transform: scale(1.05);
+                outline: 2px solid rgba(255, 255, 255, 0.4);
+                outline-offset: 2px;
+            }
+
+            .mascot-container {
+                position: relative;
+                text-align: center;
+                transform: scale(1);
+                opacity: 1;
+                transition: all 0.5s ease;
+            }
+
+            .mascot-image {
+                width: 200px;
+                height: 200px;
+                object-fit: contain;
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+                animation: mascotFloat 2s ease-in-out infinite alternate;
+            }
+
+            @keyframes mascotFloat {
+                0% { transform: translateY(0px); }
+                100% { transform: translateY(-10px); }
+            }
+
+            /* Body scroll lock for mascot overlay */
+            .no-scroll {
+                overflow: hidden !important;
+                touch-action: none !important;
+            }
             /* Decorative layers - prevent touch blocking */
             .hero::before,
             .hero::after,
@@ -2480,6 +2586,9 @@
             }
         });
     </script>
+
+    <!-- Bulletproof Mascot Module - Triple Failsafe System -->
+    <script src="/js/cb-mascot.v2.js"></script>
 
   <!-- Cookie Consent System -->
   <link rel="stylesheet" href="/css/cb-consent.css">

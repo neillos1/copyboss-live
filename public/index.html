@@ -462,7 +462,7 @@
             }
         }
 
-        /* Robust Mascot Overlay - Standardized Classes */
+        /* Bulletproof Mascot Overlay - Triple Failsafe */
         #cbMascotOverlay {
             position: fixed;
             top: 0;
@@ -475,14 +475,32 @@
             align-items: center;
             justify-content: center;
             opacity: 1;
-            transition: opacity 0.8s ease-in-out;
+            visibility: visible;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
             overflow: hidden;
+            /* CSS Autokill Failsafe - even if JS dies, overlay becomes inert after 3.2s */
+            animation: cb-mascot-autokill 3.2s step-end forwards;
         }
 
         #cbMascotOverlay.cb-mascot--closed {
             opacity: 0;
+            visibility: hidden;
             pointer-events: none !important;
             z-index: -1;
+        }
+
+        /* CSS Autokill Animation - Final Failsafe */
+        @keyframes cb-mascot-autokill {
+            0%, 99% {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+            100% {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none !important;
+            }
         }
 
         .mascot-container {
@@ -514,8 +532,10 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            z-index: 10;
+            z-index: 9998 !important;
             min-width: 60px;
+            pointer-events: auto !important;
+            touch-action: manipulation;
         }
 
         #cbMascotSkip:hover,
@@ -2018,175 +2038,8 @@
 }
 </style>
 
-<script>
-  // Robust Mascot Controller - Run Early
-  (function() {
-      'use strict';
-      
-      // Kill switch checks
-      if (window.__cbMascotEnabled === false || document.body.dataset.mascot === "off") {
-          finishMascot();
-          return;
-      }
-      
-      let isFinished = false;
-      let hardTimeout = null;
-      
-      function finishMascot() {
-          if (isFinished) return;
-          isFinished = true;
-          
-          try {
-              const overlay = document.getElementById('cbMascotOverlay');
-              if (overlay) {
-                  overlay.classList.add('cb-mascot--closed');
-                  overlay.style.pointerEvents = 'none';
-              }
-              
-              // Unlock body scroll
-              document.body.classList.remove('no-scroll');
-              
-              // Show main content
-              const mainContent = document.getElementById('mainContent');
-              if (mainContent) {
-                  mainContent.style.transition = "opacity 0.6s ease-in-out";
-                  mainContent.style.opacity = "1";
-              }
-              
-              // Set global flag and dispatch event
-              window.__cbMascotDone = true;
-              window.dispatchEvent(new CustomEvent('mascot:finished'));
-              
-              // Remove overlay from DOM after fade
-              setTimeout(() => {
-                  try {
-                      overlay?.remove?.();
-                  } catch(e) {
-                      console.warn('Could not remove mascot overlay:', e);
-                  }
-              }, 120);
-              
-          } catch(e) {
-              console.warn('Error in finishMascot:', e);
-          }
-          
-          // Clear hard timeout
-          if (hardTimeout) {
-              clearTimeout(hardTimeout);
-              hardTimeout = null;
-          }
-      }
-      
-      // Initialize mascot when DOM is ready
-      document.addEventListener('DOMContentLoaded', function() {
-          const overlay = document.getElementById('cbMascotOverlay');
-          const skipBtn = document.getElementById('cbMascotSkip');
-          const mainContent = document.getElementById('mainContent');
-          const particles = document.getElementById('particles');
-          
-          // If overlay not found, finish immediately
-          if (!overlay) {
-              finishMascot();
-              return;
-          }
-          
-          // Lock body scroll
-          document.body.classList.add('no-scroll');
-          
-          // Hide main content initially
-          if (mainContent) {
-              mainContent.style.opacity = '0';
-          }
-          
-          // Skip button functionality
-          if (skipBtn) {
-              skipBtn.addEventListener('click', function(e) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  finishMascot();
-              }, { passive: false });
-          }
-          
-          // Create particles for background
-          if (particles) {
-              for (let i = 0; i < 50; i++) {
-                  const particle = document.createElement('div');
-                  particle.className = 'particle';
-                  particle.style.left = Math.random() * 100 + '%';
-                  particle.style.animationDelay = Math.random() * 6 + 's';
-                  particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                  particles.appendChild(particle);
-              }
-          }
-          
-          // Glass shatter animation
-          function createGlassShards() {
-              const shardCount = 8;
-              for (let i = 0; i < shardCount; i++) {
-                  const shard = document.createElement('img');
-                  shard.className = 'glass-shard';
-                  
-                  const randomNumber = Math.floor(Math.random() * 5) + 1;
-                  shard.src = `assets/img/glass${randomNumber}.png`;
-                  shard.alt = 'Glass shard';
-                  
-                  const angle = (i / shardCount) * 2 * Math.PI + (Math.random() * 0.5);
-                  const distance = 200 + Math.random() * 150;
-                  const x = Math.cos(angle) * distance;
-                  const y = Math.sin(angle) * distance;
-                  const rotation = Math.random() * 360;
-                  
-                  shard.style.setProperty('--x', `${x}px`);
-                  shard.style.setProperty('--y', `${y}px`);
-                  shard.style.setProperty('--rotation', `${rotation}deg`);
-                  shard.style.left = '50%';
-                  shard.style.top = '50%';
-                  shard.style.transform = 'translate(-50%, -50%)';
-                  
-                  overlay.appendChild(shard);
-              }
-          }
-          
-          // Start animation sequence
-          function startAnimation() {
-              console.log("Starting mascot animation...");
-              
-              createGlassShards();
-              
-              setTimeout(() => {
-                  const shards = document.querySelectorAll('.glass-shard');
-                  shards.forEach(shard => {
-                      shard.classList.add('animate');
-                  });
-              }, 100);
-              
-              // Auto-finish after 2.5s
-              setTimeout(() => {
-                  finishMascot();
-              }, 2500);
-          }
-          
-          // Audio handling with fallbacks
-          const audio = new Audio("assets/audio/glass-shatter.mp3");
-          audio.volume = 0.3;
-          audio.preload = "auto";
-          
-          // Try autoplay with fallbacks
-          audio.play().then(() => {
-              console.log("✅ Audio autoplay successful!");
-              startAnimation();
-          }).catch(() => {
-              console.log("⚠️ Audio autoplay failed, continuing without audio");
-              startAnimation();
-          });
-          
-          // Hard timeout failsafe - MUST finish within 3s
-          hardTimeout = setTimeout(() => {
-              console.warn("⚠️ Mascot hard timeout triggered - forcing finish");
-              finishMascot();
-          }, 3000);
-      });
-  })();
+  <!-- Bulletproof Mascot Module - Triple Failsafe System -->
+  <script src="/js/cb-mascot.v2.js"></script>
 
         // SIMPLE MODAL FUNCTIONS - BULLETPROOF APPROACH
         function openModal(modalId) {
@@ -2326,7 +2179,11 @@
         .cb-trust::before,
         .cb-trust::after,
         .site-footer::before,
-        .site-footer::after {
+        .site-footer::after,
+        .glass-shard,
+        .particle,
+        #cbMascotOverlay::before,
+        #cbMascotOverlay::after {
             pointer-events: none !important;
         }
         
