@@ -2307,105 +2307,60 @@
             }
         });
 
-        // Enhanced mobile touch events for footer links
+        // Simplified mobile touch events - just enhance existing onclick
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Setting up enhanced mobile touch events...');
+            console.log('Setting up simplified mobile touch events...');
             
-            // Function to handle modal opening with better error handling and debouncing
+            // Function to handle modal opening with debouncing
             let lastModalOpen = 0;
             function handleModalOpen(modalId, source) {
                 const now = Date.now();
-                if (now - lastModalOpen < 500) {
+                if (now - lastModalOpen < 300) {
                     console.log(`Modal opening too fast, ignoring ${modalId}`);
                     return;
                 }
                 lastModalOpen = now;
                 
-                console.log(`Attempting to open modal: ${modalId} from ${source}`);
-                try {
-                    openModal(modalId);
-                    console.log(`Successfully opened modal: ${modalId}`);
-                } catch (error) {
-                    console.error(`Error opening modal ${modalId}:`, error);
-                }
+                console.log(`Opening modal: ${modalId} from ${source}`);
+                openModal(modalId);
             }
             
-            // Add touch event support for footer links
+            // Add touch events to footer links WITHOUT removing onclick
             const footerLinks = document.querySelectorAll('.footer-link[onclick*="openModal"]');
             console.log('Found footer links:', footerLinks.length);
             
             footerLinks.forEach((link, index) => {
-                console.log(`Setting up footer link ${index}:`, link.textContent, link);
+                console.log(`Setting up footer link ${index}:`, link.textContent);
                 
-                // Clear any existing onclick to prevent conflicts
-                const originalOnclick = link.getAttribute('onclick');
-                console.log(`Original onclick for ${link.textContent}:`, originalOnclick);
-                
-                // Remove onclick attribute to prevent double execution
-                link.removeAttribute('onclick');
-                
-                // Add multiple event types for maximum compatibility
-                const events = ['touchstart', 'touchend', 'click'];
-                
-                events.forEach(eventType => {
-                    link.addEventListener(eventType, function(e) {
-                        console.log(`Footer link ${eventType} triggered for:`, this.textContent);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.stopImmediatePropagation();
-                        
-                        // Determine which modal to open based on link text
-                        const linkText = this.textContent.toLowerCase().trim();
-                        console.log(`Link text: "${linkText}"`);
-                        
-                        if (linkText.includes('privacy')) {
-                            handleModalOpen('privacy-modal', 'footer-link');
-                        } else if (linkText.includes('terms')) {
-                            handleModalOpen('terms-modal', 'footer-link');
-                        } else if (linkText.includes('support')) {
-                            handleModalOpen('support-modal', 'footer-link');
-                        } else {
-                            console.log('Unknown link text, checking onclick attribute');
-                            // Fallback to original onclick parsing
-                            if (originalOnclick) {
-                                if (originalOnclick.includes('privacy-modal')) {
-                                    handleModalOpen('privacy-modal', 'footer-link');
-                                } else if (originalOnclick.includes('terms-modal')) {
-                                    handleModalOpen('terms-modal', 'footer-link');
-                                } else if (originalOnclick.includes('support-modal')) {
-                                    handleModalOpen('support-modal', 'footer-link');
-                                }
-                            }
-                        }
-                    }, { passive: false, capture: false });
-                });
+                // Add touchstart event that calls the existing onclick
+                link.addEventListener('touchstart', function(e) {
+                    console.log(`Footer link touchstart: ${this.textContent}`);
+                    
+                    // Call the existing onclick function
+                    const onclick = this.getAttribute('onclick');
+                    if (onclick) {
+                        console.log(`Calling existing onclick: ${onclick}`);
+                        eval(onclick);
+                    }
+                }, { passive: true });
             });
 
-            // Also fix trust footer links
+            // Add touch events to trust footer links
             const trustLinks = document.querySelectorAll('.cb-trust-chip[onclick*="openModal"]');
             console.log('Found trust links:', trustLinks.length);
             
             trustLinks.forEach((link, index) => {
-                console.log(`Setting up trust link ${index}:`, link.textContent, link);
+                console.log(`Setting up trust link ${index}:`, link.textContent);
                 
-                const originalOnclick = link.getAttribute('onclick');
-                link.removeAttribute('onclick');
-                
-                const events = ['touchstart', 'touchend', 'click'];
-                
-                events.forEach(eventType => {
-                    link.addEventListener(eventType, function(e) {
-                        console.log(`Trust link ${eventType} triggered for:`, this.textContent);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.stopImmediatePropagation();
-                        
-                        const linkText = this.textContent.toLowerCase().trim();
-                        if (linkText.includes('privacy')) {
-                            handleModalOpen('privacy-modal', 'trust-link');
-                        }
-                    }, { passive: false, capture: false });
-                });
+                link.addEventListener('touchstart', function(e) {
+                    console.log(`Trust link touchstart: ${this.textContent}`);
+                    
+                    const onclick = this.getAttribute('onclick');
+                    if (onclick) {
+                        console.log(`Calling existing onclick: ${onclick}`);
+                        eval(onclick);
+                    }
+                }, { passive: true });
             });
         });
 
