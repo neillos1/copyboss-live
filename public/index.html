@@ -2315,6 +2315,13 @@
             const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
             console.log('Found footer links:', allFooterLinks.length);
             
+            // Specifically check for legal terms
+            const legalTerms = document.querySelectorAll('.footer-link[onclick*="openModal"]');
+            console.log('Found legal terms links:', legalTerms.length);
+            legalTerms.forEach((link, index) => {
+                console.log(`Legal term ${index}:`, link.textContent, link.onclick);
+            });
+            
             allFooterLinks.forEach((link, index) => {
                 console.log(`Setting up link ${index}:`, link.textContent, link);
                 
