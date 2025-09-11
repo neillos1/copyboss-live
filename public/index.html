@@ -2189,101 +2189,107 @@
             tryAutoplay();
         });
 
-        // Modal functions
+        // SIMPLE MODAL FUNCTIONS - BULLETPROOF APPROACH
         function openModal(modalId) {
-            console.log('=== OPENMODAL FUNCTION CALLED ===');
             console.log('Opening modal:', modalId);
             
-            const modal = document.getElementById(modalId);
-            console.log('Modal element found:', modal);
-            
-            if (!modal) {
-                console.error('Modal not found:', modalId);
-                return;
+            // Create a completely new modal overlay
+            const existingOverlay = document.getElementById('modal-overlay-' + modalId);
+            if (existingOverlay) {
+                existingOverlay.remove();
             }
             
-            // Remove all classes first
-            modal.className = '';
+            // Create new overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'modal-overlay-' + modalId;
+            overlay.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0,0,0,0.8) !important;
+                z-index: 999999 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            `;
             
-            // Apply styles to modal container
-            modal.style.display = 'block';
-            modal.style.position = 'fixed';
-            modal.style.top = '0';
-            modal.style.left = '0';
-            modal.style.width = '100%';
-            modal.style.height = '100%';
-            modal.style.zIndex = '99999';
-            modal.style.opacity = '1';
-            modal.style.visibility = 'visible';
+            // Create new modal content
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white !important;
+                color: black !important;
+                padding: 30px !important;
+                border-radius: 10px !important;
+                max-width: 500px !important;
+                width: 90% !important;
+                max-height: 80% !important;
+                overflow-y: auto !important;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+                position: relative !important;
+            `;
             
-            // Handle modal overlay (the dark background)
-            const modalOverlay = modal.querySelector('.modal-overlay');
-            if (modalOverlay) {
-                modalOverlay.style.display = 'block';
-                modalOverlay.style.position = 'absolute';
-                modalOverlay.style.top = '0';
-                modalOverlay.style.left = '0';
-                modalOverlay.style.width = '100%';
-                modalOverlay.style.height = '100%';
-                modalOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
-                modalOverlay.style.zIndex = '1';
+            // Get the original modal content
+            const originalModal = document.getElementById(modalId);
+            if (originalModal) {
+                const originalContent = originalModal.querySelector('.modal-content');
+                if (originalContent) {
+                    content.innerHTML = originalContent.innerHTML;
+                }
             }
             
-            // Make modal content visible and positioned above overlay
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.display = 'block';
-                modalContent.style.position = 'absolute';
-                modalContent.style.top = '50%';
-                modalContent.style.left = '50%';
-                modalContent.style.transform = 'translate(-50%, -50%)';
-                modalContent.style.backgroundColor = 'white';
-                modalContent.style.color = 'black';
-                modalContent.style.padding = '20px';
-                modalContent.style.borderRadius = '8px';
-                modalContent.style.zIndex = '2';
-                modalContent.style.maxWidth = '500px';
-                modalContent.style.width = '90%';
-                modalContent.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
-            }
+            // Add close button
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute !important;
+                top: 10px !important;
+                right: 15px !important;
+                background: none !important;
+                border: none !important;
+                font-size: 24px !important;
+                cursor: pointer !important;
+                color: #666 !important;
+                width: 30px !important;
+                height: 30px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            `;
+            closeBtn.onclick = () => closeModal(modalId);
+            
+            content.appendChild(closeBtn);
+            overlay.appendChild(content);
+            document.body.appendChild(overlay);
+            
+            // Close on overlay click
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    closeModal(modalId);
+                }
+            };
             
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            
-            // Hide modal
-            modal.style.display = 'none';
-            modal.style.visibility = 'hidden';
-            modal.style.opacity = '0';
-            
-            // Reset modal overlay
-            const modalOverlay = modal.querySelector('.modal-overlay');
-            if (modalOverlay) {
-                modalOverlay.style.display = 'none';
+            const overlay = document.getElementById('modal-overlay-' + modalId);
+            if (overlay) {
+                overlay.remove();
             }
-            
-            // Reset modal content styles
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.display = 'none';
-            }
-            
-            // Reset body overflow
             document.body.style.overflow = '';
-            
-            // Add hidden class
-            modal.classList.add('hidden');
         }
 
         // Close modal on ESC key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                const openModals = document.querySelectorAll('.modal.show');
-                openModals.forEach(modal => {
-                    closeModal(modal.id);
+                // Close any open modals by finding our custom overlays
+                const overlays = document.querySelectorAll('[id^="modal-overlay-"]');
+                overlays.forEach(overlay => {
+                    overlay.remove();
                 });
+                document.body.style.overflow = '';
             }
         });
 
