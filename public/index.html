@@ -673,7 +673,7 @@
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
-            border: none;
+            border: 2px solid transparent;
             cursor: pointer;
             transition: all 200ms ease;
             white-space: nowrap;
@@ -682,6 +682,8 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             position: relative;
             overflow: hidden;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
         }
 
         .cb-cta::before {
@@ -701,7 +703,7 @@
         }
 
         .cb-cta:focus {
-            outline: 2px solid rgba(255, 255, 255, 0.8);
+            outline: 2px solid currentColor;
             outline-offset: 2px;
         }
 
@@ -712,71 +714,87 @@
 
         /* Color Variants */
         .cb-cta--blue {
-            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            background: 
+                linear-gradient(90deg, #3b82f6, #06b6d4),
+                linear-gradient(90deg, #60a5fa, #22d3ee);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
         .cb-cta--blue:hover {
             transform: translateY(-1px);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: 
+                linear-gradient(90deg, #3b82f6, #06b6d4),
+                linear-gradient(90deg, #60a5fa, #22d3ee);
+            filter: brightness(1.05);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         .cb-cta--blue:focus {
-            outline-color: rgba(59, 130, 246, 0.8);
+            outline-color: #3b82f6;
         }
 
         .cb-cta--green {
-            background: linear-gradient(90deg, #22c55e, #10b981);
+            background: 
+                linear-gradient(90deg, #22c55e, #10b981),
+                linear-gradient(90deg, #4ade80, #34d399);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
         }
 
         .cb-cta--green:hover {
             transform: translateY(-1px);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: 
+                linear-gradient(90deg, #22c55e, #10b981),
+                linear-gradient(90deg, #4ade80, #34d399);
+            filter: brightness(1.05);
             box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
         }
 
         .cb-cta--green:focus {
-            outline-color: rgba(34, 197, 94, 0.8);
+            outline-color: #22c55e;
         }
 
         .cb-cta--purple {
-            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            background: 
+                linear-gradient(90deg, #8b5cf6, #a855f7),
+                linear-gradient(90deg, #a78bfa, #c084fc);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
         }
 
         .cb-cta--purple:hover {
             transform: translateY(-1px);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: 
+                linear-gradient(90deg, #8b5cf6, #a855f7),
+                linear-gradient(90deg, #a78bfa, #c084fc);
+            filter: brightness(1.05);
             box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
         }
 
         .cb-cta--purple:focus {
-            outline-color: rgba(139, 92, 246, 0.8);
+            outline-color: #8b5cf6;
         }
 
         .cb-cta--red {
-            background: linear-gradient(90deg, #ef4444, #f43f5e);
+            background: 
+                linear-gradient(90deg, #ef4444, #f43f5e),
+                linear-gradient(90deg, #f87171, #fb7185);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
         }
 
         .cb-cta--red:hover {
             transform: translateY(-1px);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: 
+                linear-gradient(90deg, #ef4444, #f43f5e),
+                linear-gradient(90deg, #f87171, #fb7185);
+            filter: brightness(1.05);
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
 
         .cb-cta--red:focus {
-            outline-color: rgba(239, 68, 68, 0.8);
+            outline-color: #ef4444;
         }
 
         /* Mobile Responsive */
