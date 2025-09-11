@@ -2307,16 +2307,34 @@
             }
         });
 
-        // Simple mobile touch fix
+        // Fix footer links to prevent navigation and open modals properly
         document.addEventListener('DOMContentLoaded', function() {
-            // Add touchstart events to all footer and trust footer links for mobile
+            // Fix all footer and trust footer links
             const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
             allFooterLinks.forEach(link => {
                 if (link.onclick) {
+                    // Prevent default navigation
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Call the onclick function
+                        const onclick = this.getAttribute('onclick');
+                        if (onclick) {
+                            eval(onclick);
+                        }
+                    });
+                    
+                    // Add touchstart for mobile
                     link.addEventListener('touchstart', function(e) {
-                        // Let the onclick handle it naturally
-                        this.click();
-                    }, { passive: true });
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const onclick = this.getAttribute('onclick');
+                        if (onclick) {
+                            eval(onclick);
+                        }
+                    }, { passive: false });
                 }
             });
         });

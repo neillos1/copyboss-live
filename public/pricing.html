@@ -2378,6 +2378,35 @@
             if (typeof ensureAvatarFallbacks === 'function') {
                 ensureAvatarFallbacks();
             }
+            
+            // Fix footer links to prevent navigation and open modals properly
+            const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
+            allFooterLinks.forEach(link => {
+                if (link.onclick) {
+                    // Prevent default navigation
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Call the onclick function
+                        const onclick = this.getAttribute('onclick');
+                        if (onclick) {
+                            eval(onclick);
+                        }
+                    });
+                    
+                    // Add touchstart for mobile
+                    link.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const onclick = this.getAttribute('onclick');
+                        if (onclick) {
+                            eval(onclick);
+                        }
+                    }, { passive: false });
+                }
+            });
         });
     </script>
 
