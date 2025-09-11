@@ -2380,28 +2380,50 @@
             }
             
             // Fix footer links to prevent navigation and open modals properly
+            console.log('Setting up footer link fixes for pricing page...');
             const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
-            allFooterLinks.forEach(link => {
+            console.log('Found footer links:', allFooterLinks.length);
+            
+            allFooterLinks.forEach((link, index) => {
+                console.log(`Setting up pricing link ${index}:`, link.textContent, link);
+                
                 if (link.onclick) {
                     // Prevent default navigation
                     link.addEventListener('click', function(e) {
+                        console.log('Pricing footer link clicked:', this.textContent);
                         e.preventDefault();
                         e.stopPropagation();
                         
                         // Call the onclick function
                         const onclick = this.getAttribute('onclick');
                         if (onclick) {
+                            console.log('Calling pricing onclick:', onclick);
                             eval(onclick);
                         }
                     });
                     
                     // Add touchstart for mobile
                     link.addEventListener('touchstart', function(e) {
+                        console.log('Pricing footer link touchstart:', this.textContent);
                         e.preventDefault();
                         e.stopPropagation();
                         
                         const onclick = this.getAttribute('onclick');
                         if (onclick) {
+                            console.log('Calling pricing onclick from touch:', onclick);
+                            eval(onclick);
+                        }
+                    }, { passive: false });
+                    
+                    // Also try touchend
+                    link.addEventListener('touchend', function(e) {
+                        console.log('Pricing footer link touchend:', this.textContent);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const onclick = this.getAttribute('onclick');
+                        if (onclick) {
+                            console.log('Calling pricing onclick from touchend:', onclick);
                             eval(onclick);
                         }
                     }, { passive: false });

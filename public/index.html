@@ -2309,29 +2309,52 @@
 
         // Fix footer links to prevent navigation and open modals properly
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Setting up footer link fixes...');
+            
             // Fix all footer and trust footer links
             const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
-            allFooterLinks.forEach(link => {
+            console.log('Found footer links:', allFooterLinks.length);
+            
+            allFooterLinks.forEach((link, index) => {
+                console.log(`Setting up link ${index}:`, link.textContent, link);
+                
                 if (link.onclick) {
                     // Prevent default navigation
                     link.addEventListener('click', function(e) {
+                        console.log('Footer link clicked:', this.textContent);
                         e.preventDefault();
                         e.stopPropagation();
                         
                         // Call the onclick function
                         const onclick = this.getAttribute('onclick');
                         if (onclick) {
+                            console.log('Calling onclick:', onclick);
                             eval(onclick);
                         }
                     });
                     
                     // Add touchstart for mobile
                     link.addEventListener('touchstart', function(e) {
+                        console.log('Footer link touchstart:', this.textContent);
                         e.preventDefault();
                         e.stopPropagation();
                         
                         const onclick = this.getAttribute('onclick');
                         if (onclick) {
+                            console.log('Calling onclick from touch:', onclick);
+                            eval(onclick);
+                        }
+                    }, { passive: false });
+                    
+                    // Also try touchend
+                    link.addEventListener('touchend', function(e) {
+                        console.log('Footer link touchend:', this.textContent);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const onclick = this.getAttribute('onclick');
+                        if (onclick) {
+                            console.log('Calling onclick from touchend:', onclick);
                             eval(onclick);
                         }
                     }, { passive: false });
