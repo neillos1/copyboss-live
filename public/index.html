@@ -2220,14 +2220,17 @@
             content.style.cssText = `
                 background: white !important;
                 color: black !important;
-                padding: 30px !important;
-                border-radius: 10px !important;
-                max-width: 500px !important;
-                width: 90% !important;
-                max-height: 80% !important;
+                padding: 40px !important;
+                border-radius: 12px !important;
+                max-width: 600px !important;
+                width: 95% !important;
+                max-height: 85% !important;
                 overflow-y: auto !important;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
                 position: relative !important;
+                font-size: 16px !important;
+                line-height: 1.6 !important;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             `;
             
             // Get the original modal content
@@ -2291,6 +2294,51 @@
                 });
                 document.body.style.overflow = '';
             }
+        });
+
+        // Fix mobile touch events for footer links
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add touch event support for footer links
+            const footerLinks = document.querySelectorAll('.footer-link[onclick*="openModal"]');
+            footerLinks.forEach(link => {
+                // Add touchstart event for better mobile responsiveness
+                link.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    const onclick = this.getAttribute('onclick');
+                    if (onclick && onclick.includes('openModal')) {
+                        eval(onclick);
+                    }
+                }, { passive: false });
+                
+                // Ensure click events work on mobile
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const onclick = this.getAttribute('onclick');
+                    if (onclick && onclick.includes('openModal')) {
+                        eval(onclick);
+                    }
+                });
+            });
+
+            // Also fix trust footer links
+            const trustLinks = document.querySelectorAll('.cb-trust-chip[onclick*="openModal"]');
+            trustLinks.forEach(link => {
+                link.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    const onclick = this.getAttribute('onclick');
+                    if (onclick && onclick.includes('openModal')) {
+                        eval(onclick);
+                    }
+                }, { passive: false });
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const onclick = this.getAttribute('onclick');
+                    if (onclick && onclick.includes('openModal')) {
+                        eval(onclick);
+                    }
+                });
+            });
         });
 
         // Debug: Check if modals are properly initialized
