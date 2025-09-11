@@ -902,6 +902,7 @@
             height: 100% !important;
             background: rgba(0, 0, 0, 0.7) !important;
             backdrop-filter: blur(5px) !important;
+            z-index: 10000 !important;
         }
 
         #privacy-modal .modal-content,
@@ -920,6 +921,8 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
             transform: translateY(20px) !important;
             transition: transform 0.3s ease !important;
+            z-index: 10001 !important;
+            margin: auto !important;
         }
 
         #privacy-modal.modal.show .modal-content,
@@ -2214,6 +2217,18 @@
                 modal.classList.add('show');
                 console.log('Modal classes after:', modal.className);
                 console.log('Modal computed style:', window.getComputedStyle(modal));
+                console.log('Modal display:', window.getComputedStyle(modal).display);
+                console.log('Modal visibility:', window.getComputedStyle(modal).visibility);
+                console.log('Modal opacity:', window.getComputedStyle(modal).opacity);
+                
+                // Check modal content
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    console.log('Modal content found:', modalContent);
+                    console.log('Modal content computed style:', window.getComputedStyle(modalContent));
+                } else {
+                    console.error('Modal content not found!');
+                }
             }, 10);
             document.body.style.overflow = 'hidden';
         }
@@ -2234,6 +2249,23 @@
                 openModals.forEach(modal => {
                     closeModal(modal.id);
                 });
+            }
+        });
+
+        // Debug: Check if modals are properly initialized
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, checking modals...');
+            const privacyModal = document.getElementById('privacy-modal');
+            const termsModal = document.getElementById('terms-modal');
+            const supportModal = document.getElementById('support-modal');
+            
+            console.log('Privacy modal:', privacyModal);
+            console.log('Terms modal:', termsModal);
+            console.log('Support modal:', supportModal);
+            
+            if (privacyModal) {
+                console.log('Privacy modal classes:', privacyModal.className);
+                console.log('Privacy modal computed style:', window.getComputedStyle(privacyModal));
             }
         });
 
