@@ -5,6 +5,10 @@
 
 (function() {
   'use strict';
+  
+  // Prevent multiple initializations
+  if (window.__cbConsentInit) return;
+  window.__cbConsentInit = true;
 
   // Configuration
   const CONFIG = {
