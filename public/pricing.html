@@ -1556,7 +1556,7 @@
           <div class="cb-trust-section">
             <h3 class="cb-trust-section-title">Compliance</h3>
             <div class="cb-trust-chips">
-              <a href="#" onclick="openModal('privacy-modal')" class="cb-trust-chip">Privacy Policy</a>
+              <a href="/privacy" data-modal="privacy" class="cb-trust-chip">Privacy Policy</a>
               <a href="#" onclick="window.openCookieSettings()" class="cb-trust-chip">Cookie Policy</a>
               <span class="cb-trust-chip cb-trust-chip--primary">GDPR Compliant</span>
               <button onclick="window.openICOModal()" class="cb-trust-chip">ICO Registered</button>
@@ -1577,7 +1577,7 @@
           <div class="cb-trust-section">
             <h3 class="cb-trust-section-title">Support</h3>
             <div class="cb-trust-chips">
-              <a href="#" onclick="openModal('support-modal')" class="cb-trust-chip">24/7 Email Support</a>
+              <a href="/support" data-modal="support" class="cb-trust-chip">24/7 Email Support</a>
               <a href="#" class="cb-trust-chip">System Status</a>
             </div>
           </div>
@@ -1608,13 +1608,13 @@
 
         <!-- Footer Links -->
         <div class="footer-links">
-          <a href="#" onclick="openModal('privacy-modal')" class="footer-link">Privacy</a>
+          <a href="/privacy" data-modal="privacy" class="footer-link">Privacy</a>
           <span class="link-separator">|</span>
-          <a href="#" onclick="openModal('terms-modal')" class="footer-link">Terms</a>
+          <a href="/terms" data-modal="terms" class="footer-link">Terms</a>
           <span class="link-separator">|</span>
-          <a href="#" onclick="openModal('support-modal')" class="footer-link">Support</a>
+          <a href="/support" data-modal="support" class="footer-link">Support</a>
           <span class="link-separator">|</span>
-          <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
+          <a href="/cookies" data-cookie-settings class="footer-link">Cookie settings</a>
         </div>
 
         <!-- Copyright -->
@@ -2379,7 +2379,105 @@
                 ensureAvatarFallbacks();
             }
             
-            // Simple footer - let natural onclick work
+            /* Mobile Footer Touch Fix - Prevent decorative layers from blocking touches */
+            <style>
+            /* Decorative layers - prevent touch blocking */
+            .hero::before,
+            .hero::after,
+            .features::before,
+            .features::after,
+            .pricing::before,
+            .pricing::after,
+            .testimonials::before,
+            .testimonials::after,
+            .cta::before,
+            .cta::after,
+            .starfield,
+            .glow,
+            .gradient-overlay,
+            .mascot-overlay,
+            .cb-trust::before,
+            .cb-trust::after,
+            .new-footer::before,
+            .new-footer::after {
+                pointer-events: none !important;
+            }
+            
+            /* Hidden overlays/modals */
+            .modal.hidden,
+            .modal[aria-hidden="true"],
+            .modal[style*="display: none"],
+            .modal[style*="visibility: hidden"],
+            .modal[style*="opacity: 0"] {
+                pointer-events: none !important;
+            }
+            
+            /* Footer touch optimization */
+            .new-footer {
+                touch-action: manipulation;
+            }
+            
+            /* Ensure proper z-index stacking */
+            .cookie-banner {
+                z-index: 9999 !important;
+            }
+            
+            .modal:not(.hidden) {
+                z-index: 9998 !important;
+            }
+            
+            .navbar {
+                z-index: 1000 !important;
+            }
+            
+            .footer-links,
+            .social-icons {
+                z-index: 10 !important;
+                position: relative;
+            }
+            
+            /* Decorative backgrounds */
+            .hero,
+            .features,
+            .pricing,
+            .testimonials,
+            .cta,
+            .cb-trust {
+                z-index: 0;
+            }
+            </style>
+            
+            // Delegated footer click handler - progressive enhancement
+            const newFooter = document.querySelector('.new-footer');
+            if (newFooter) {
+                newFooter.addEventListener('click', function(e) {
+                    const anchor = e.target.closest('a');
+                    if (!anchor) return;
+                    
+                    // Handle modal links
+                    const modalType = anchor.getAttribute('data-modal');
+                    if (modalType) {
+                        e.preventDefault();
+                        const modalId = modalType + '-modal';
+                        const modal = document.getElementById(modalId);
+                        if (modal && typeof openModal === 'function') {
+                            openModal(modalId);
+                        }
+                        return;
+                    }
+                    
+                    // Handle cookie settings
+                    if (anchor.getAttribute('data-cookie-settings')) {
+                        e.preventDefault();
+                        if (typeof window.openCookieSettings === 'function') {
+                            window.openCookieSettings();
+                        }
+                        return;
+                    }
+                    
+                    // Let other links navigate normally
+                });
+            }
         });
     </script>
 

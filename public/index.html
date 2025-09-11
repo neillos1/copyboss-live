@@ -1339,7 +1339,7 @@
               <div class="cb-trust-section">
                 <h3 class="cb-trust-section-title">Compliance</h3>
                 <div class="cb-trust-chips">
-                  <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="cb-trust-chip">Privacy Policy</a>
+                  <a href="/privacy" data-modal="privacy" class="cb-trust-chip">Privacy Policy</a>
                   <a href="#" onclick="window.openCookieSettings()" class="cb-trust-chip">Cookie Policy</a>
                   <span class="cb-trust-chip cb-trust-chip--primary">GDPR Compliant</span>
                   <button onclick="window.openICOModal()" class="cb-trust-chip">ICO Registered</button>
@@ -1360,7 +1360,7 @@
               <div class="cb-trust-section">
                 <h3 class="cb-trust-section-title">Support</h3>
                 <div class="cb-trust-chips">
-                  <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="cb-trust-chip">24/7 Email Support</a>
+                  <a href="/support" data-modal="support" class="cb-trust-chip">24/7 Email Support</a>
                   <a href="#" class="cb-trust-chip">System Status</a>
                 </div>
               </div>
@@ -1390,20 +1390,16 @@
       </a>
   </div>
 
-            <!-- DEBUG TEST BUTTON -->
-            <div style="position: fixed; top: 10px; right: 10px; z-index: 99999; background: red; color: white; padding: 10px;">
-                <button onclick="openModal('privacy-modal')" style="background: white; color: black; padding: 5px;">TEST MODAL</button>
-    </div>
 
     <!-- Footer Links -->
     <div class="footer-links">
-      <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
+      <a href="/privacy" data-modal="privacy" class="footer-link">Privacy</a>
       <span class="link-separator">|</span>
-      <a href="javascript:void(0)" onclick="openModal('terms-modal'); return false;" class="footer-link">Terms</a>
+      <a href="/terms" data-modal="terms" class="footer-link">Terms</a>
       <span class="link-separator">|</span>
-      <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="footer-link">Support</a>
+      <a href="/support" data-modal="support" class="footer-link">Support</a>
       <span class="link-separator">|</span>
-      <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
+      <a href="/cookies" data-cookie-settings class="footer-link">Cookie settings</a>
     </div>
 
     <!-- Copyright -->
@@ -2307,7 +2303,108 @@
             }
         });
 
-        // Simple footer - let natural onclick work
+        /* Mobile Footer Touch Fix - Prevent decorative layers from blocking touches */
+        <style>
+        /* Decorative layers - prevent touch blocking */
+        .hero::before,
+        .hero::after,
+        .features::before,
+        .features::after,
+        .pricing::before,
+        .pricing::after,
+        .testimonials::before,
+        .testimonials::after,
+        .cta::before,
+        .cta::after,
+        .starfield,
+        .glow,
+        .gradient-overlay,
+        .mascot-overlay,
+        .cb-trust::before,
+        .cb-trust::after,
+        .site-footer::before,
+        .site-footer::after {
+            pointer-events: none !important;
+        }
+        
+        /* Hidden overlays/modals */
+        .modal.hidden,
+        .modal[aria-hidden="true"],
+        .modal[style*="display: none"],
+        .modal[style*="visibility: hidden"],
+        .modal[style*="opacity: 0"] {
+            pointer-events: none !important;
+        }
+        
+        /* Footer touch optimization */
+        .site-footer {
+            touch-action: manipulation;
+        }
+        
+        /* Ensure proper z-index stacking */
+        .cookie-banner {
+            z-index: 9999 !important;
+        }
+        
+        .modal:not(.hidden) {
+            z-index: 9998 !important;
+        }
+        
+        .navbar {
+            z-index: 1000 !important;
+        }
+        
+        .footer-links,
+        .social-icons {
+            z-index: 10 !important;
+            position: relative;
+        }
+        
+        /* Decorative backgrounds */
+        .hero,
+        .features,
+        .pricing,
+        .testimonials,
+        .cta,
+        .cb-trust {
+            z-index: 0;
+        }
+        </style>
+
+        // Delegated footer click handler - progressive enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Single delegated listener for all footer interactions
+            const siteFooter = document.querySelector('.site-footer');
+            if (siteFooter) {
+                siteFooter.addEventListener('click', function(e) {
+                    const anchor = e.target.closest('a');
+                    if (!anchor) return;
+                    
+                    // Handle modal links
+                    const modalType = anchor.getAttribute('data-modal');
+                    if (modalType) {
+                        e.preventDefault();
+                        const modalId = modalType + '-modal';
+                        const modal = document.getElementById(modalId);
+                        if (modal && typeof openModal === 'function') {
+                            openModal(modalId);
+                        }
+                        return;
+                    }
+                    
+                    // Handle cookie settings
+                    if (anchor.getAttribute('data-cookie-settings')) {
+                        e.preventDefault();
+                        if (typeof window.openCookieSettings === 'function') {
+                            window.openCookieSettings();
+                        }
+                        return;
+                    }
+                    
+                    // Let other links navigate normally
+                });
+            }
+        });
 
         // Debug: Check if modals are properly initialized
         document.addEventListener('DOMContentLoaded', function() {
