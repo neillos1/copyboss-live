@@ -841,7 +841,7 @@
             left: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            z-index: 10000 !important;
+            z-index: 10003 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -884,7 +884,7 @@
             height: 100% !important;
             background: rgba(0, 0, 0, 0.7) !important;
             backdrop-filter: blur(5px) !important;
-            z-index: 10000 !important;
+            z-index: 10003 !important;
         }
 
         #privacy-modal .modal-content,
@@ -903,7 +903,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
             transform: translateY(20px) !important;
             transition: none !important;
-            z-index: 10001 !important;
+            z-index: 10004 !important;
             margin: auto !important;
         }
 
@@ -2205,12 +2205,14 @@
             modal.style.setProperty('opacity', '1', 'important');
             modal.style.setProperty('visibility', 'visible', 'important');
             modal.style.setProperty('display', 'flex', 'important');
-            modal.style.setProperty('z-index', '10000', 'important');
+            modal.style.setProperty('z-index', '10003', 'important');
             modal.style.setProperty('position', 'fixed', 'important');
             modal.style.setProperty('top', '0', 'important');
             modal.style.setProperty('left', '0', 'important');
             modal.style.setProperty('width', '100%', 'important');
             modal.style.setProperty('height', '100%', 'important');
+            modal.style.setProperty('filter', 'none', 'important');
+            modal.style.setProperty('backdrop-filter', 'none', 'important');
             
             // Use requestAnimationFrame to ensure DOM updates
             requestAnimationFrame(() => {
@@ -2227,7 +2229,9 @@
                     modalContent.style.setProperty('opacity', '1', 'important');
                     modalContent.style.setProperty('visibility', 'visible', 'important');
                     modalContent.style.setProperty('position', 'relative', 'important');
-                    modalContent.style.setProperty('z-index', '10001', 'important');
+                    modalContent.style.setProperty('z-index', '10004', 'important');
+                    modalContent.style.setProperty('filter', 'none', 'important');
+                    modalContent.style.setProperty('backdrop-filter', 'none', 'important');
                     
                     console.log('Modal content computed style:', window.getComputedStyle(modalContent));
                 } else {
@@ -2262,6 +2266,8 @@
                 modalContent.style.removeProperty('position');
                 modalContent.style.removeProperty('z-index');
                 modalContent.style.removeProperty('transition');
+                modalContent.style.removeProperty('filter');
+                modalContent.style.removeProperty('backdrop-filter');
             }
             
             // Reset modal styles
@@ -2275,6 +2281,8 @@
             modal.style.removeProperty('width');
             modal.style.removeProperty('height');
             modal.style.removeProperty('transition');
+            modal.style.removeProperty('filter');
+            modal.style.removeProperty('backdrop-filter');
             
             // Add hidden class
             modal.classList.add('hidden');
