@@ -2307,52 +2307,77 @@
             }
         });
 
-        // Fix mobile touch events for footer links
+        // Enhanced mobile touch events for footer links
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Setting up mobile touch events...');
+            console.log('Setting up enhanced mobile touch events...');
+            
+            // Function to handle modal opening with better error handling and debouncing
+            let lastModalOpen = 0;
+            function handleModalOpen(modalId, source) {
+                const now = Date.now();
+                if (now - lastModalOpen < 500) {
+                    console.log(`Modal opening too fast, ignoring ${modalId}`);
+                    return;
+                }
+                lastModalOpen = now;
+                
+                console.log(`Attempting to open modal: ${modalId} from ${source}`);
+                try {
+                    openModal(modalId);
+                    console.log(`Successfully opened modal: ${modalId}`);
+                } catch (error) {
+                    console.error(`Error opening modal ${modalId}:`, error);
+                }
+            }
             
             // Add touch event support for footer links
             const footerLinks = document.querySelectorAll('.footer-link[onclick*="openModal"]');
             console.log('Found footer links:', footerLinks.length);
             
             footerLinks.forEach((link, index) => {
-                console.log(`Setting up footer link ${index}:`, link);
+                console.log(`Setting up footer link ${index}:`, link.textContent, link);
                 
-                // Add touchstart event for better mobile responsiveness
-                link.addEventListener('touchstart', function(e) {
-                    console.log('Footer link touchstart triggered:', this);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Direct function call instead of eval
-                    const onclick = this.getAttribute('onclick');
-                    if (onclick && onclick.includes('openModal')) {
-                        if (onclick.includes('privacy-modal')) {
-                            openModal('privacy-modal');
-                        } else if (onclick.includes('terms-modal')) {
-                            openModal('terms-modal');
-                        } else if (onclick.includes('support-modal')) {
-                            openModal('support-modal');
-                        }
-                    }
-                }, { passive: false });
+                // Clear any existing onclick to prevent conflicts
+                const originalOnclick = link.getAttribute('onclick');
+                console.log(`Original onclick for ${link.textContent}:`, originalOnclick);
                 
-                // Ensure click events work on mobile
-                link.addEventListener('click', function(e) {
-                    console.log('Footer link click triggered:', this);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const onclick = this.getAttribute('onclick');
-                    if (onclick && onclick.includes('openModal')) {
-                        if (onclick.includes('privacy-modal')) {
-                            openModal('privacy-modal');
-                        } else if (onclick.includes('terms-modal')) {
-                            openModal('terms-modal');
-                        } else if (onclick.includes('support-modal')) {
-                            openModal('support-modal');
+                // Remove onclick attribute to prevent double execution
+                link.removeAttribute('onclick');
+                
+                // Add multiple event types for maximum compatibility
+                const events = ['touchstart', 'touchend', 'click'];
+                
+                events.forEach(eventType => {
+                    link.addEventListener(eventType, function(e) {
+                        console.log(`Footer link ${eventType} triggered for:`, this.textContent);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        // Determine which modal to open based on link text
+                        const linkText = this.textContent.toLowerCase().trim();
+                        console.log(`Link text: "${linkText}"`);
+                        
+                        if (linkText.includes('privacy')) {
+                            handleModalOpen('privacy-modal', 'footer-link');
+                        } else if (linkText.includes('terms')) {
+                            handleModalOpen('terms-modal', 'footer-link');
+                        } else if (linkText.includes('support')) {
+                            handleModalOpen('support-modal', 'footer-link');
+                        } else {
+                            console.log('Unknown link text, checking onclick attribute');
+                            // Fallback to original onclick parsing
+                            if (originalOnclick) {
+                                if (originalOnclick.includes('privacy-modal')) {
+                                    handleModalOpen('privacy-modal', 'footer-link');
+                                } else if (originalOnclick.includes('terms-modal')) {
+                                    handleModalOpen('terms-modal', 'footer-link');
+                                } else if (originalOnclick.includes('support-modal')) {
+                                    handleModalOpen('support-modal', 'footer-link');
+                                }
+                            }
                         }
-                    }
+                    }, { passive: false, capture: false });
                 });
             });
 
@@ -2361,32 +2386,25 @@
             console.log('Found trust links:', trustLinks.length);
             
             trustLinks.forEach((link, index) => {
-                console.log(`Setting up trust link ${index}:`, link);
+                console.log(`Setting up trust link ${index}:`, link.textContent, link);
                 
-                link.addEventListener('touchstart', function(e) {
-                    console.log('Trust link touchstart triggered:', this);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const onclick = this.getAttribute('onclick');
-                    if (onclick && onclick.includes('openModal')) {
-                        if (onclick.includes('privacy-modal')) {
-                            openModal('privacy-modal');
-                        }
-                    }
-                }, { passive: false });
+                const originalOnclick = link.getAttribute('onclick');
+                link.removeAttribute('onclick');
                 
-                link.addEventListener('click', function(e) {
-                    console.log('Trust link click triggered:', this);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const onclick = this.getAttribute('onclick');
-                    if (onclick && onclick.includes('openModal')) {
-                        if (onclick.includes('privacy-modal')) {
-                            openModal('privacy-modal');
+                const events = ['touchstart', 'touchend', 'click'];
+                
+                events.forEach(eventType => {
+                    link.addEventListener(eventType, function(e) {
+                        console.log(`Trust link ${eventType} triggered for:`, this.textContent);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        const linkText = this.textContent.toLowerCase().trim();
+                        if (linkText.includes('privacy')) {
+                            handleModalOpen('privacy-modal', 'trust-link');
                         }
-                    }
+                    }, { passive: false, capture: false });
                 });
             });
         });
