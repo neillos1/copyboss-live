@@ -462,16 +462,16 @@
             }
         }
 
-        /* Full-Screen Mascot Intro Overlay - Always Visible Initially */
-        .mascot-intro {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+        /* Robust Mascot Overlay - Standardized Classes */
+        #cbMascotOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(10, 10, 26, 0.95);
-    z-index: 9999;
-    display: flex;
+            z-index: 9997;
+            display: flex;
             align-items: center;
             justify-content: center;
             opacity: 1;
@@ -479,9 +479,10 @@
             overflow: hidden;
         }
 
-        .mascot-intro.fade-out {
+        #cbMascotOverlay.cb-mascot--closed {
             opacity: 0;
-            pointer-events: none;
+            pointer-events: none !important;
+            z-index: -1;
         }
 
         .mascot-container {
@@ -497,28 +498,34 @@
             opacity: 0;
         }
 
-        .mascot-skip {
+        #cbMascotSkip {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 40px;
-            height: 40px;
-            border: none;
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             background: rgba(0, 0, 0, 0.3);
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.9);
             cursor: pointer;
-            border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s ease;
             z-index: 10;
+            min-width: 60px;
         }
 
-        .mascot-skip:hover {
-            background: rgba(0, 0, 0, 0.5);
+        #cbMascotSkip:hover,
+        #cbMascotSkip:focus-visible {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-  transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+            outline: 2px solid rgba(255, 255, 255, 0.4);
+            outline-offset: 2px;
         }
 
         .mascot-image {
@@ -1063,13 +1070,9 @@
     <script defer src="/js/cb-trust.js"></script>
 </head>
 <body class="text-white">
-    <!-- Mascot Intro Overlay -->
-    <div class="mascot-intro" id="mascot-intro">
-        <button class="mascot-skip" id="mascot-skip" aria-label="Skip intro">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-        </button>
+    <!-- Robust Mascot Intro Overlay -->
+    <div id="cbMascotOverlay" class="cb-mascot--open">
+        <button id="cbMascotSkip" aria-label="Skip intro">Skip</button>
         <div class="mascot-container">
             <img src="assets/img/mascot.png" alt="CopyBoss Mascot" class="mascot-image" id="mascotImage">
         </div>
@@ -2016,174 +2019,174 @@
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-            const mascotIntro = document.getElementById("mascot-intro");
-            const mascotImage = document.getElementById("mascotImage");
-            const mascotSkip = document.getElementById("mascot-skip");
-            const mainContent = document.getElementById("mainContent");
-            const particles = document.getElementById("particles");
-
-            // Glass shatter audio
-            const audio = new Audio("assets/audio/glass-shatter.mp3");
-            audio.volume = 0.3;
-            audio.preload = "auto";
-            audio.muted = false;
-
-            // Show intro immediately
-            mascotIntro.style.display = "flex";
-            mainContent.style.opacity = 0;
-
-            // Skip button functionality
-            function skipMascot() {
-                mascotIntro.style.transition = "opacity 0.5s ease-in-out";
-                mascotIntro.style.opacity = "0";
-                
-                setTimeout(() => {
-                    mainContent.style.transition = "opacity 0.6s ease-in-out";
-                    mainContent.style.opacity = "1";
-                    mascotIntro.style.display = "none";
-                    
-                    // Signal mascot completion for cookie consent
-                    window.__cbMascotDone = true;
-                    window.dispatchEvent(new CustomEvent('mascot:finished'));
-                }, 500);
-            }
-
-            mascotSkip.addEventListener('click', skipMascot);
-
-            // Create particles for background animation
-            function createParticles() {
-                for (let i = 0; i < 50; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.animationDelay = Math.random() * 6 + 's';
-                    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                    particles.appendChild(particle);
-                }
-            }
-
-            // Create glass shards with actual images
-            function createGlassShards() {
-                const shardCount = 8;
-                
-                for (let i = 0; i < shardCount; i++) {
-                    const shard = document.createElement('img');
-                    shard.className = 'glass-shard';
-                    
-                    // Random glass image (1-5 only)
-                    const randomNumber = Math.floor(Math.random() * 5) + 1;
-                    shard.src = `assets/img/glass${randomNumber}.png`;
-                    shard.alt = 'Glass shard';
-                    
-                    // Random trajectory for each shard
-                    const angle = (i / shardCount) * 2 * Math.PI + (Math.random() * 0.5);
-                    const distance = 200 + Math.random() * 150;
-                    const x = Math.cos(angle) * distance;
-                    const y = Math.sin(angle) * distance;
-                    const rotation = Math.random() * 360;
-                    
-                    shard.style.setProperty('--x', `${x}px`);
-                    shard.style.setProperty('--y', `${y}px`);
-                    shard.style.setProperty('--rotation', `${rotation}deg`);
-                    
-                    // Position shards at mascot center
-                    shard.style.left = '50%';
-                    shard.style.top = '50%';
-                    shard.style.transform = 'translate(-50%, -50%)';
-                    
-                    mascotIntro.appendChild(shard);
-                }
-            }
-
-            // Function to start the full animation sequence
-            function startAnimation() {
-                console.log("Starting animation with audio...");
-                
-                // Create glass shards
-                createGlassShards();
-                
-                // Trigger glass shards animation after a small delay
-        setTimeout(() => {
-                    const shards = document.querySelectorAll('.glass-shard');
-                    shards.forEach(shard => {
-                        shard.classList.add('animate');
-                    });
-        }, 100);
-                
-                // After 2.5s total (mascot + shards), fade out overlay
-                setTimeout(() => {
-                    mascotIntro.style.transition = "opacity 0.8s ease-in-out";
-                    mascotIntro.style.opacity = "0";
-                    
-                    // Show landing page after overlay starts fading
-                    setTimeout(() => {
-                        mainContent.style.transition = "opacity 0.6s ease-in-out";
-                        mainContent.style.opacity = "1";
-                        
-                        // Hide overlay completely after fade
-                        setTimeout(() => {
-                            mascotIntro.style.display = "none";
-                            
-                            // Signal mascot completion for cookie consent
-                            window.__cbMascotDone = true;
-                            window.dispatchEvent(new CustomEvent('mascot:finished'));
-                        }, 800);
-                    }, 200);
-                }, 2500);
-            }
-
-            // Try multiple autoplay strategies
-            function tryAutoplay() {
-                console.log("Attempting autoplay...");
-                
-                // Strategy 1: Direct play
-                audio.play()
-            .then(() => {
-                        console.log("✅ Autoplay successful!");
-                        startAnimation();
-            })
-            .catch(err => {
-                        console.log("❌ Direct autoplay failed:", err.message);
-                        
-                        // Strategy 2: Try with muted first, then unmute
-                        audio.muted = true;
-                        audio.play()
-                            .then(() => {
-                                console.log("✅ Muted autoplay successful, unmuting...");
-                                audio.muted = false;
-                                startAnimation();
-                            })
-                            .catch(err2 => {
-                                console.log("❌ Muted autoplay also failed:", err2.message);
-                                
-                                // Strategy 3: Wait for any user interaction
-                                console.log("⏳ Waiting for user interaction...");
-                                document.addEventListener('click', function startOnClick() {
-                                    console.log("👆 User clicked - playing audio!");
-                                    document.removeEventListener('click', startOnClick);
-                                    audio.play().then(() => {
-                                        console.log("✅ Audio playing after click!");
-                                        startAnimation();
-                                    });
-                                }, { once: true });
-                                
-                                document.addEventListener('keydown', function startOnKey() {
-                                    console.log("⌨️ User pressed key - playing audio!");
-                                    document.removeEventListener('keydown', startOnKey);
-                                    audio.play().then(() => {
-                                        console.log("✅ Audio playing after key press!");
-                                        startAnimation();
-                                    });
-                                }, { once: true });
-                            });
-                    });
-            }
-
-            // Initialize particles and start autoplay
-            createParticles();
-            tryAutoplay();
-        });
+  // Robust Mascot Controller - Run Early
+  (function() {
+      'use strict';
+      
+      // Kill switch checks
+      if (window.__cbMascotEnabled === false || document.body.dataset.mascot === "off") {
+          finishMascot();
+          return;
+      }
+      
+      let isFinished = false;
+      let hardTimeout = null;
+      
+      function finishMascot() {
+          if (isFinished) return;
+          isFinished = true;
+          
+          try {
+              const overlay = document.getElementById('cbMascotOverlay');
+              if (overlay) {
+                  overlay.classList.add('cb-mascot--closed');
+                  overlay.style.pointerEvents = 'none';
+              }
+              
+              // Unlock body scroll
+              document.body.classList.remove('no-scroll');
+              
+              // Show main content
+              const mainContent = document.getElementById('mainContent');
+              if (mainContent) {
+                  mainContent.style.transition = "opacity 0.6s ease-in-out";
+                  mainContent.style.opacity = "1";
+              }
+              
+              // Set global flag and dispatch event
+              window.__cbMascotDone = true;
+              window.dispatchEvent(new CustomEvent('mascot:finished'));
+              
+              // Remove overlay from DOM after fade
+              setTimeout(() => {
+                  try {
+                      overlay?.remove?.();
+                  } catch(e) {
+                      console.warn('Could not remove mascot overlay:', e);
+                  }
+              }, 120);
+              
+          } catch(e) {
+              console.warn('Error in finishMascot:', e);
+          }
+          
+          // Clear hard timeout
+          if (hardTimeout) {
+              clearTimeout(hardTimeout);
+              hardTimeout = null;
+          }
+      }
+      
+      // Initialize mascot when DOM is ready
+      document.addEventListener('DOMContentLoaded', function() {
+          const overlay = document.getElementById('cbMascotOverlay');
+          const skipBtn = document.getElementById('cbMascotSkip');
+          const mainContent = document.getElementById('mainContent');
+          const particles = document.getElementById('particles');
+          
+          // If overlay not found, finish immediately
+          if (!overlay) {
+              finishMascot();
+              return;
+          }
+          
+          // Lock body scroll
+          document.body.classList.add('no-scroll');
+          
+          // Hide main content initially
+          if (mainContent) {
+              mainContent.style.opacity = '0';
+          }
+          
+          // Skip button functionality
+          if (skipBtn) {
+              skipBtn.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  finishMascot();
+              }, { passive: false });
+          }
+          
+          // Create particles for background
+          if (particles) {
+              for (let i = 0; i < 50; i++) {
+                  const particle = document.createElement('div');
+                  particle.className = 'particle';
+                  particle.style.left = Math.random() * 100 + '%';
+                  particle.style.animationDelay = Math.random() * 6 + 's';
+                  particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                  particles.appendChild(particle);
+              }
+          }
+          
+          // Glass shatter animation
+          function createGlassShards() {
+              const shardCount = 8;
+              for (let i = 0; i < shardCount; i++) {
+                  const shard = document.createElement('img');
+                  shard.className = 'glass-shard';
+                  
+                  const randomNumber = Math.floor(Math.random() * 5) + 1;
+                  shard.src = `assets/img/glass${randomNumber}.png`;
+                  shard.alt = 'Glass shard';
+                  
+                  const angle = (i / shardCount) * 2 * Math.PI + (Math.random() * 0.5);
+                  const distance = 200 + Math.random() * 150;
+                  const x = Math.cos(angle) * distance;
+                  const y = Math.sin(angle) * distance;
+                  const rotation = Math.random() * 360;
+                  
+                  shard.style.setProperty('--x', `${x}px`);
+                  shard.style.setProperty('--y', `${y}px`);
+                  shard.style.setProperty('--rotation', `${rotation}deg`);
+                  shard.style.left = '50%';
+                  shard.style.top = '50%';
+                  shard.style.transform = 'translate(-50%, -50%)';
+                  
+                  overlay.appendChild(shard);
+              }
+          }
+          
+          // Start animation sequence
+          function startAnimation() {
+              console.log("Starting mascot animation...");
+              
+              createGlassShards();
+              
+              setTimeout(() => {
+                  const shards = document.querySelectorAll('.glass-shard');
+                  shards.forEach(shard => {
+                      shard.classList.add('animate');
+                  });
+              }, 100);
+              
+              // Auto-finish after 2.5s
+              setTimeout(() => {
+                  finishMascot();
+              }, 2500);
+          }
+          
+          // Audio handling with fallbacks
+          const audio = new Audio("assets/audio/glass-shatter.mp3");
+          audio.volume = 0.3;
+          audio.preload = "auto";
+          
+          // Try autoplay with fallbacks
+          audio.play().then(() => {
+              console.log("✅ Audio autoplay successful!");
+              startAnimation();
+          }).catch(() => {
+              console.log("⚠️ Audio autoplay failed, continuing without audio");
+              startAnimation();
+          });
+          
+          // Hard timeout failsafe - MUST finish within 3s
+          hardTimeout = setTimeout(() => {
+              console.warn("⚠️ Mascot hard timeout triggered - forcing finish");
+              finishMascot();
+          }, 3000);
+      });
+  })();
 
         // SIMPLE MODAL FUNCTIONS - BULLETPROOF APPROACH
         function openModal(modalId) {
@@ -2341,13 +2344,17 @@
             touch-action: manipulation;
         }
         
-        /* Ensure proper z-index stacking */
+        /* Final Z-Index Policy */
         .cookie-banner {
             z-index: 9999 !important;
         }
         
         .modal:not(.hidden) {
             z-index: 9998 !important;
+        }
+        
+        #cbMascotOverlay.cb-mascot--open {
+            z-index: 9997 !important;
         }
         
         .navbar {
@@ -2360,7 +2367,7 @@
             position: relative;
         }
         
-        /* Decorative backgrounds */
+        /* Decorative backgrounds - prevent touch blocking */
         .hero,
         .features,
         .pricing,
@@ -2368,6 +2375,12 @@
         .cta,
         .cb-trust {
             z-index: 0;
+        }
+
+        /* Body scroll lock for mascot overlay */
+        .no-scroll {
+            overflow: hidden !important;
+            touch-action: none !important;
         }
         </style>
 
