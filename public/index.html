@@ -414,9 +414,9 @@
 
         .avatar-btn {
             background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
+  border: none;
+  cursor: pointer;
+  padding: 0;
             transition: all 0.2s ease;
         }
 
@@ -430,8 +430,8 @@
         }
 
         .dropdown-item {
-            display: flex;
-            align-items: center;
+  display: flex;
+  align-items: center;
             padding: 12px 16px;
             color: #f1f5f9;
             text-decoration: none;
@@ -464,14 +464,14 @@
 
         /* Full-Screen Mascot Intro Overlay - Always Visible Initially */
         .mascot-intro {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
             background: rgba(10, 10, 26, 0.95);
-            z-index: 9999;
-            display: flex;
+    z-index: 9999;
+    display: flex;
             align-items: center;
             justify-content: center;
             opacity: 1;
@@ -486,7 +486,7 @@
 
         .mascot-container {
             position: relative;
-            text-align: center;
+  text-align: center;
             transform: scale(1);
             opacity: 1;
             transition: all 0.8s ease-in-out;
@@ -508,9 +508,9 @@
             color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
             transition: all 0.3s ease;
             z-index: 10;
         }
@@ -518,7 +518,7 @@
         .mascot-skip:hover {
             background: rgba(0, 0, 0, 0.5);
             color: white;
-            transform: scale(1.1);
+  transform: scale(1.1);
         }
 
         .mascot-image {
@@ -532,7 +532,7 @@
 
         /* Glass Shards Animation */
         .glass-shard {
-            position: absolute;
+  position: absolute;
             width: 40px;
             height: 40px;
             pointer-events: none;
@@ -564,11 +564,11 @@
 
         /* Particle Animation */
         .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
             pointer-events: none;
             z-index: 1;
         }
@@ -592,8 +592,8 @@
             }
             90% {
                 opacity: 1;
-            }
-            100% {
+  }
+  100% {
                 transform: translateY(-100px) translateX(100px);
                 opacity: 0;
             }
@@ -615,20 +615,20 @@
         .demo-video {
   display: flex;
   flex-direction: column;
-            align-items: center;
+  align-items: center;
             margin: 60px auto;
             max-width: 900px;
             padding: 0 20px;
         }
 
         .video-wrapper {
-            width: 100%;
+  width: 100%;
             border-radius: 16px;
             overflow: hidden;
             border: 2px solid transparent;
             background: linear-gradient(135deg, #3B82F6, #9333EA) padding-box,
                         linear-gradient(135deg, #3B82F6, #9333EA) border-box;
-            position: relative;
+  position: relative;
             box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3);
             transition: all 0.3s ease;
         }
@@ -641,14 +641,14 @@
         .video-wrapper iframe {
             width: 100%;
             height: 450px;
-            border: none;
+  border: none;
         }
 
         .video-caption {
             margin-top: 15px;
             font-size: 1rem;
             color: #cbd5e1;
-            text-align: center;
+  text-align: center;
         }
 
         /* Responsive video scaling */
@@ -666,31 +666,31 @@
         /* Hero CTA Buttons - Cookie Banner Aesthetic */
         .cb-cta {
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
+  align-items: center;
+  justify-content: center;
             gap: 10px;
             padding: 14px 20px;
             border-radius: 12px;
             font-size: 16px;
-            font-weight: 600;
+  font-weight: 600;
             border: 2px solid transparent;
-            cursor: pointer;
+  cursor: pointer;
             transition: all 200ms ease;
             white-space: nowrap;
-            text-decoration: none;
+  text-decoration: none;
             min-height: 52px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
+    position: relative;
+    overflow: hidden;
             background-clip: padding-box, border-box;
             background-origin: padding-box, border-box;
-        }
+  }
 
         .cb-cta::before {
             content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
             right: 0;
             bottom: 0;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
@@ -801,7 +801,7 @@
         @media (max-width: 768px) {
             .cb-cta {
                 min-height: 56px;
-                font-size: 15px;
+  font-size: 15px;
                 padding: 16px 20px;
                 gap: 12px;
             }
@@ -810,7 +810,7 @@
         @media (max-width: 480px) {
             .cb-cta {
                 min-height: 60px;
-                font-size: 14px;
+  font-size: 14px;
                 padding: 18px 20px;
             }
         }
@@ -975,16 +975,16 @@
         }
 
         .modal-summary p {
-            margin: 0;
+      margin: 0;
             color: #e2e8f0;
             font-size: 0.95rem;
             line-height: 1.5;
         }
 
         .modal-content-text h3 {
-            color: white;
+  color: white;
             font-size: 1.25rem;
-            font-weight: 600;
+  font-weight: 600;
             margin: 24px 0 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 8px;
@@ -1052,8 +1052,8 @@
             .modal-title {
                 font-size: 1.25rem;
             }
-        }
-    </style>
+  }
+</style>
 
     <!-- FastBots Chatbot -->
     <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmbpi4m6c0001oelvjcf5pe6s"></script>
@@ -1369,49 +1369,49 @@
         </div>
 
         <!-- Footer -->
-        <footer class="new-footer">
-          <div class="footer-container">
-            <!-- Social Media Icons -->
-            <div class="social-icons">
-              <a href="https://twitter.com/copybosshq" target="_blank" class="social-link" aria-label="Twitter">
-                <i class="fab fa-twitter"></i>
-              </a>
-              <a href="https://facebook.com/copybosshq" target="_blank" class="social-link" aria-label="Facebook">
-                <i class="fab fa-facebook"></i>
-              </a>
-              <a href="https://instagram.com/copybosshq" target="_blank" class="social-link" aria-label="Instagram">
-                <i class="fab fa-instagram"></i>
-              </a>
+<footer class="new-footer">
+  <div class="footer-container">
+    <!-- Social Media Icons -->
+    <div class="social-icons">
+      <a href="https://twitter.com/copybosshq" target="_blank" class="social-link" aria-label="Twitter">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a href="https://facebook.com/copybosshq" target="_blank" class="social-link" aria-label="Facebook">
+        <i class="fab fa-facebook"></i>
+      </a>
+      <a href="https://instagram.com/copybosshq" target="_blank" class="social-link" aria-label="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
               <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" class="social-link" aria-label="TikTok">
                 <i class="fab fa-tiktok"></i>
               </a>
-              <a href="https://youtube.com/copybosshq" target="_blank" class="social-link" aria-label="YouTube">
-                <i class="fab fa-youtube"></i>
-              </a>
+      <a href="https://youtube.com/copybosshq" target="_blank" class="social-link" aria-label="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
   </div>
 
             <!-- DEBUG TEST BUTTON -->
             <div style="position: fixed; top: 10px; right: 10px; z-index: 99999; background: red; color: white; padding: 10px;">
                 <button onclick="openModal('privacy-modal')" style="background: white; color: black; padding: 5px;">TEST MODAL</button>
-            </div>
+    </div>
 
-            <!-- Footer Links -->
-            <div class="footer-links">
+    <!-- Footer Links -->
+    <div class="footer-links">
               <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
-              <span class="link-separator">|</span>
+      <span class="link-separator">|</span>
               <a href="javascript:void(0)" onclick="openModal('terms-modal'); return false;" class="footer-link">Terms</a>
-              <span class="link-separator">|</span>
+      <span class="link-separator">|</span>
               <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="footer-link">Support</a>
               <span class="link-separator">|</span>
               <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
     </div>
 
-            <!-- Copyright -->
-            <div class="copyright">
-              © 2025 ZERRA Group Ltd. All rights reserved. CopyBoss™ is a product of ZERRA Group.
+    <!-- Copyright -->
+    <div class="copyright">
+      © 2025 ZERRA Group Ltd. All rights reserved. CopyBoss™ is a product of ZERRA Group.
+    </div>
   </div>
-</div>
-        </footer>
+</footer>
 
         <!-- Privacy Modal -->
         <div id="privacy-modal" class="modal hidden">
@@ -1588,61 +1588,61 @@
 
 <style>
     /* Professional Stealth-Style Footer */
-    .new-footer {
-      width: 100%;
+.new-footer {
+  width: 100%;
       background: linear-gradient(to bottom, #071229, #0a1a3d, #102f5c);
       padding: 60px 40px 40px;
       color: #b8c5d6;
-      font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 14px;
-      letter-spacing: 0.3px;
+  letter-spacing: 0.3px;
       margin: 0;
-      position: relative;
-      bottom: 0;
-      left: 0;
+  position: relative;
+  bottom: 0;
+  left: 0;
   right: 0;
-      flex-shrink: 0;
-      box-sizing: border-box;
+  flex-shrink: 0;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
       min-height: 220px;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    }
+}
 
-    .footer-container {
+.footer-container {
   width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
-      position: relative;
-      z-index: 1;
+  position: relative;
+  z-index: 1;
   display: flex;
-      flex-direction: column;
+  flex-direction: column;
   align-items: center;
-      justify-content: center;
+  justify-content: center;
       gap: 20px;
-    }
+}
 
-    /* Social Icons */
-    .social-icons {
+/* Social Icons */
+.social-icons {
   display: flex;
-      justify-content: center;
+  justify-content: center;
   align-items: center;
       gap: 20px;
       margin-bottom: 20px;
-    }
+}
 
-    .social-link {
+.social-link {
       color: #8fa3c7;
       font-size: 20px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-      justify-content: center;
+  justify-content: center;
       padding: 10px;
-      border-radius: 50%;
-      text-decoration: none;
+  border-radius: 50%;
+  text-decoration: none;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       width: 44px;
@@ -1660,9 +1660,9 @@
   height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
       transition: left 0.5s;
-    }
+}
 
-    .social-link:hover {
+.social-link:hover {
       color: #ffffff;
       transform: translateY(-2px) scale(1.05);
       background: rgba(255, 255, 255, 0.1);
@@ -1672,23 +1672,23 @@
 
     .social-link:hover::before {
       left: 100%;
-    }
+}
 
-    /* Footer Links */
-    .footer-links {
+/* Footer Links */
+.footer-links {
   display: flex;
   justify-content: center;
   align-items: center;
       gap: 15px;
       margin-bottom: 15px;
-      flex-wrap: wrap;
-    }
+  flex-wrap: wrap;
+}
 
-    .footer-link {
+.footer-link {
       color: #8fa3c7;
   text-decoration: none;
   transition: all 0.3s ease;
-      font-weight: 500;
+  font-weight: 500;
   font-size: 14px;
       padding: 5px 8px;
       border-radius: 4px;
@@ -1705,30 +1705,30 @@
       background: linear-gradient(90deg, #4e54c8, #8f94fb);
       transition: all 0.3s ease;
       transform: translateX(-50%);
-    }
+}
 
-    .footer-link:hover {
+.footer-link:hover {
     color: #ffffff;
       background: rgba(255, 255, 255, 0.05);
     }
 
     .footer-link:hover::after {
   width: 100%;
-    }
+}
 
-    .link-separator {
+.link-separator {
       color: #4a5568;
-      font-weight: 300;
-      font-size: 12px;
-    }
+  font-weight: 300;
+  font-size: 12px;
+}
 
-    /* Copyright */
-    .copyright {
+/* Copyright */
+.copyright {
       color: #8fa3c7;
       font-size: 13px;
       line-height: 1.4;
-      max-width: 600px;
-      margin: 0;
+  max-width: 600px;
+  margin: 0;
       font-weight: 400;
       letter-spacing: 0.2px;
         }
@@ -1737,9 +1737,9 @@
         .cb-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
+    gap: 12px;
+  }
+  
         /* Hide burger button on desktop */
         @media (min-width: 768px) {
             .cb-actions {
@@ -1807,16 +1807,16 @@
         }
 
         .cb-drawer-header {
-  display: flex;
+    display: flex;
             justify-content: space-between;
-            align-items: center;
+    align-items: center;
             padding: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .cb-drawer-title {
             font-size: 1.5rem;
-  font-weight: 600;
+    font-weight: 600;
             color: white;
         }
 
@@ -1828,13 +1828,13 @@
           width: 36px;
           height: 36px;
           line-height: 34px;
-  text-align: center;
+    text-align: center;
           font-size: 24px;
           font-weight: 800;
   color: #fff;
           background: rgba(239, 68, 68, 0.9);
           border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+      border-radius: 50%;
           cursor: pointer;
           display: none;
           z-index: 1300;           /* above drawer */
@@ -1960,13 +1960,13 @@
   .social-link {
         font-size: 18px;
         width: 40px;
-        height: 40px;
+                height: 40px;
         padding: 8px;
   }
   
   .footer-links {
         gap: 12px;
-        margin-bottom: 12px;
+                margin-bottom: 12px;
   }
   
   .footer-link {
@@ -2205,23 +2205,35 @@
             // Remove all classes first
             modal.className = '';
             
-            // Apply the simplest possible styles
+            // Apply styles to modal container
             modal.style.display = 'block';
             modal.style.position = 'fixed';
             modal.style.top = '0';
             modal.style.left = '0';
             modal.style.width = '100%';
             modal.style.height = '100%';
-            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
             modal.style.zIndex = '99999';
             modal.style.opacity = '1';
             modal.style.visibility = 'visible';
             
-            // Make modal content visible
+            // Handle modal overlay (the dark background)
+            const modalOverlay = modal.querySelector('.modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.style.display = 'block';
+                modalOverlay.style.position = 'absolute';
+                modalOverlay.style.top = '0';
+                modalOverlay.style.left = '0';
+                modalOverlay.style.width = '100%';
+                modalOverlay.style.height = '100%';
+                modalOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
+                modalOverlay.style.zIndex = '1';
+            }
+            
+            // Make modal content visible and positioned above overlay
             const modalContent = modal.querySelector('.modal-content');
             if (modalContent) {
                 modalContent.style.display = 'block';
-                modalContent.style.position = 'fixed';
+                modalContent.style.position = 'absolute';
                 modalContent.style.top = '50%';
                 modalContent.style.left = '50%';
                 modalContent.style.transform = 'translate(-50%, -50%)';
@@ -2229,9 +2241,10 @@
                 modalContent.style.color = 'black';
                 modalContent.style.padding = '20px';
                 modalContent.style.borderRadius = '8px';
-                modalContent.style.zIndex = '100000';
+                modalContent.style.zIndex = '2';
                 modalContent.style.maxWidth = '500px';
                 modalContent.style.width = '90%';
+                modalContent.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
             }
             
             document.body.style.overflow = 'hidden';
@@ -2244,6 +2257,12 @@
             modal.style.display = 'none';
             modal.style.visibility = 'hidden';
             modal.style.opacity = '0';
+            
+            // Reset modal overlay
+            const modalOverlay = modal.querySelector('.modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
             
             // Reset modal content styles
             const modalContent = modal.querySelector('.modal-content');
@@ -2370,8 +2389,8 @@
                         // Smooth transition to success message
                         formContainer.style.opacity = '0';
                         formContainer.style.transform = 'scale(0.95)';
-                        
-                        setTimeout(() => {
+      
+      setTimeout(() => {
                             formContainer.style.display = 'none';
                             successMessage.style.display = 'block';
                             successMessage.style.opacity = '0';
@@ -2418,7 +2437,7 @@
                 }
             }, 1000);
         });
-    </script>
+</script>
 
     <!-- Report Issue Modal -->
     <div id="reportIssueModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300" style="display: none;">
