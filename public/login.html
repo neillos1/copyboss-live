@@ -195,6 +195,21 @@
 
 
 
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
     .modal.show {
         opacity: 1;
         visibility: visible;
@@ -857,6 +872,153 @@
   <!-- Cookie Consent System -->
   <link rel="stylesheet" href="/css/cb-consent.css">
   <script defer src="/js/cb-consent.js"></script>
+
+  <!-- Privacy Modal -->
+  <div id="privacy-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeModal('privacy-modal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Privacy Policy</h2>
+        <button class="modal-close" onclick="closeModal('privacy-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-summary">
+          <p><strong>Plain English Summary:</strong> We collect minimal data to provide our services, never sell your information, and protect your privacy with industry-standard security measures.</p>
+        </div>
+        <div class="modal-content-text">
+          <h3>Information We Collect</h3>
+          <p>We collect only the information necessary to provide our video analysis and content generation services:</p>
+          <ul>
+            <li>Account information (email, name) for service delivery</li>
+            <li>Video content you upload for analysis (processed securely)</li>
+            <li>Usage data to improve our services</li>
+            <li>Payment information (handled securely by Stripe)</li>
+          </ul>
+
+          <h3>How We Use Your Information</h3>
+          <p>Your data is used exclusively to:</p>
+          <ul>
+            <li>Provide video analysis and content generation services</li>
+            <li>Process payments and manage your account</li>
+            <li>Improve our AI models and service quality</li>
+            <li>Communicate important service updates</li>
+          </ul>
+
+          <h3>Data Protection</h3>
+          <p>We implement industry-standard security measures including encryption, secure data transmission, and regular security audits. Your video content is processed securely and not stored longer than necessary.</p>
+
+          <h3>Your Rights</h3>
+          <p>You have the right to access, update, or delete your personal information. Contact us at privacy@copy-boss.com for any data-related requests.</p>
+
+          <h3>Third-Party Services</h3>
+          <p>We use trusted third-party services (Stripe for payments, cloud providers for processing) that maintain their own privacy standards and data protection measures.</p>
+
+          <p><em>Last updated: December 2024</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms Modal -->
+  <div id="terms-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeModal('terms-modal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Terms of Service</h2>
+        <button class="modal-close" onclick="closeModal('terms-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-summary">
+          <p><strong>Plain English Summary:</strong> By using CopyBoss, you agree to use our services responsibly, respect our intellectual property, and understand our service limitations and refund policies.</p>
+        </div>
+        <div class="modal-content-text">
+          <h3>Service Description</h3>
+          <p>CopyBoss provides AI-powered video analysis and content generation services. We offer various subscription plans with different usage limits and features.</p>
+
+          <h3>User Responsibilities</h3>
+          <p>You agree to:</p>
+          <ul>
+            <li>Use our services only for lawful purposes</li>
+            <li>Not upload content that violates copyright or other rights</li>
+            <li>Maintain the security of your account credentials</li>
+            <li>Respect our usage limits and fair use policies</li>
+          </ul>
+
+          <h3>Intellectual Property</h3>
+          <p>You retain ownership of content you upload. We retain rights to our AI models, software, and service infrastructure. Generated content is provided for your use but may be subject to usage restrictions.</p>
+
+          <h3>Service Availability</h3>
+          <p>We strive for high service availability but cannot guarantee 100% uptime. We reserve the right to perform maintenance and updates that may temporarily affect service availability.</p>
+
+          <h3>Payment and Refunds</h3>
+          <p>Subscriptions are billed in advance. Refunds are available within 7 days of purchase for unused credits. No refunds for partially used services.</p>
+
+          <h3>Limitation of Liability</h3>
+          <p>Our liability is limited to the amount you paid for the service. We are not responsible for indirect damages or business losses.</p>
+
+          <h3>Termination</h3>
+          <p>Either party may terminate the service agreement. We may suspend accounts for violations of these terms.</p>
+
+          <p><em>Last updated: December 2024</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support Modal -->
+  <div id="support-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeModal('support-modal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Support & Help</h2>
+        <button class="modal-close" onclick="closeModal('support-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-summary">
+          <p><strong>Plain English Summary:</strong> We're here to help! Contact us for technical support, billing questions, or general assistance with CopyBoss services.</p>
+        </div>
+        <div class="modal-content-text">
+          <h3>24/7 Email Support</h3>
+          <p>Get help anytime by emailing our support team:</p>
+          <p><strong>Email:</strong> support@copy-boss.com</p>
+          <p>We typically respond within 2-4 hours during business hours and within 24 hours for all other inquiries.</p>
+
+          <h3>Common Issues & Solutions</h3>
+          <h4>Video Upload Problems</h4>
+          <ul>
+            <li>Ensure your video is under 100MB and in a supported format (MP4, MOV, AVI)</li>
+            <li>Check your internet connection for stable uploads</li>
+            <li>Try refreshing the page and uploading again</li>
+          </ul>
+
+          <h4>Analysis Not Working</h4>
+          <ul>
+            <li>Verify your video has clear audio for transcription</li>
+            <li>Ensure the video is at least 30 seconds long</li>
+            <li>Check that you have sufficient credits in your account</li>
+          </ul>
+
+          <h4>Billing Questions</h4>
+          <ul>
+            <li>View your billing history in your account dashboard</li>
+            <li>Update payment methods in your account settings</li>
+            <li>Contact us for refund requests within 7 days of purchase</li>
+          </ul>
+
+          <h3>Feature Requests</h3>
+          <p>Have an idea for improving CopyBoss? We'd love to hear it! Email us at feedback@copy-boss.com with your suggestions.</p>
+
+          <h3>System Status</h3>
+          <p>Check our system status page for real-time updates on service availability and any ongoing maintenance.</p>
+
+          <h3>Documentation</h3>
+          <p>Visit our help center for detailed guides, tutorials, and frequently asked questions about using CopyBoss effectively.</p>
+
+          <p><em>We're committed to providing excellent support and helping you get the most out of CopyBoss!</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ICO Modal -->
   <div class="cb-ico-modal" id="cb-ico-modal" role="dialog" aria-modal="true" aria-labelledby="cb-ico-modal-title" aria-hidden="true">
