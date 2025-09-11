@@ -851,13 +851,14 @@
         }
 
         .modal.show {
-            opacity: 1;
-            visibility: visible;
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
         }
 
         .modal.hidden {
-            opacity: 0;
-            visibility: hidden;
+            opacity: 0 !important;
+            visibility: hidden !important;
         }
 
         /* Legal Modal Styles - More Specific */
@@ -883,6 +884,7 @@
         #support-modal.modal.show {
             opacity: 1 !important;
             visibility: visible !important;
+            display: flex !important;
         }
 
         #privacy-modal.modal.hidden,
