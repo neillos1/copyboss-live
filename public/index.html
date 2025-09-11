@@ -1339,7 +1339,7 @@
               <div class="cb-trust-section">
                 <h3 class="cb-trust-section-title">Compliance</h3>
                 <div class="cb-trust-chips">
-                  <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="cb-trust-chip">Privacy Policy</a>
+                  <a href="#" onclick="openModal('privacy-modal')" class="cb-trust-chip">Privacy Policy</a>
                   <a href="#" onclick="window.openCookieSettings()" class="cb-trust-chip">Cookie Policy</a>
                   <span class="cb-trust-chip cb-trust-chip--primary">GDPR Compliant</span>
                   <button onclick="window.openICOModal()" class="cb-trust-chip">ICO Registered</button>
@@ -1360,7 +1360,7 @@
               <div class="cb-trust-section">
                 <h3 class="cb-trust-section-title">Support</h3>
                 <div class="cb-trust-chips">
-                  <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="cb-trust-chip">24/7 Email Support</a>
+                  <a href="#" onclick="openModal('support-modal')" class="cb-trust-chip">24/7 Email Support</a>
                   <a href="#" class="cb-trust-chip">System Status</a>
                 </div>
               </div>
@@ -2307,7 +2307,19 @@
             }
         });
 
-        // Simple approach - let the existing onclick handlers work naturally
+        // Simple mobile touch fix
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add touchstart events to all footer and trust footer links for mobile
+            const allFooterLinks = document.querySelectorAll('.footer-link, .cb-trust-chip');
+            allFooterLinks.forEach(link => {
+                if (link.onclick) {
+                    link.addEventListener('touchstart', function(e) {
+                        // Let the onclick handle it naturally
+                        this.click();
+                    }, { passive: true });
+                }
+            });
+        });
 
         // Debug: Check if modals are properly initialized
         document.addEventListener('DOMContentLoaded', function() {
