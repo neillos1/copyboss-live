@@ -5893,13 +5893,13 @@ a:hover {
 
     <!-- Footer Links -->
     <div class="footer-links">
-      <a href="#" onclick="console.log('Privacy clicked'); openLegalModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
+      <a href="/privacy.html" data-modal="privacy" class="footer-link">Privacy</a>
       <span class="link-separator">|</span>
-      <a href="#" onclick="console.log('Terms clicked'); openLegalModal('terms-modal'); return false;" class="footer-link">Terms</a>
+      <a href="/terms.html" data-modal="terms" class="footer-link">Terms</a>
       <span class="link-separator">|</span>
-      <a href="#" onclick="console.log('Support clicked'); openLegalModal('support-modal'); return false;" class="footer-link">Support</a>
+      <a href="/support.html" data-modal="support" class="footer-link">Support</a>
       <span class="link-separator">|</span>
-      <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
+      <a href="/cookies.html" data-cookie-settings class="footer-link">Cookie settings</a>
     </div>
 
     <!-- Copyright -->
@@ -8788,6 +8788,41 @@ async function verifyUserStatusFromBackend(userId) {
   }
 }
 
+// Progressive enhancement for footer links
+document.addEventListener('DOMContentLoaded', function() {
+  // Single delegated listener for all footer interactions
+  const siteFooter = document.querySelector('.site-footer');
+  if (siteFooter) {
+    siteFooter.addEventListener('click', function(e) {
+      const anchor = e.target.closest('a');
+      if (!anchor) return;
+      
+      // Handle modal links
+      const modalType = anchor.getAttribute('data-modal');
+      if (modalType) {
+        e.preventDefault();
+        const modalId = modalType + '-modal';
+        const modal = document.getElementById(modalId);
+        if (modal && typeof openLegalModal === 'function') {
+          openLegalModal(modalId);
+        }
+        return;
+      }
+      
+      // Handle cookie settings
+      if (anchor.getAttribute('data-cookie-settings')) {
+        e.preventDefault();
+        if (typeof window.openCookieSettings === 'function') {
+          window.openCookieSettings();
+        }
+        return;
+      }
+      
+      // Let other links navigate normally
+    });
+  }
+});
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async function() {
   // Get user ID and verify status from backend
@@ -9512,6 +9547,68 @@ async function saveAnalysisResult(score) {
     height: 32px !important;
   }
 }
+
+        /* Mobile Footer Touch Fix - Prevent decorative layers from blocking touches */
+        .hero::before,
+        .hero::after,
+        .features::before,
+        .features::after,
+        .pricing::before,
+        .pricing::after,
+        .testimonials::before,
+        .testimonials::after,
+        .cta::before,
+        .cta::after,
+        .starfield,
+        .glow,
+        .gradient-overlay,
+        .mascot-overlay,
+        .site-footer::before,
+        .site-footer::after {
+            pointer-events: none !important;
+        }
+        
+        /* Hidden overlays/modals */
+        .modal.hidden,
+        .modal[aria-hidden="true"],
+        .modal[style*="display: none"],
+        .modal[style*="visibility: hidden"],
+        .modal[style*="opacity: 0"] {
+            pointer-events: none !important;
+        }
+        
+        /* Footer touch optimization */
+        .site-footer {
+            touch-action: manipulation;
+        }
+        
+        /* Ensure proper z-index stacking */
+        .cookie-banner {
+            z-index: 9999 !important;
+        }
+        
+        .modal:not(.hidden) {
+            z-index: 9998 !important;
+        }
+        
+        .navbar {
+            z-index: 1000 !important;
+        }
+        
+        .footer-links,
+        .social-icons {
+            z-index: 10 !important;
+            position: relative;
+        }
+        
+        /* Decorative backgrounds */
+        .hero,
+        .features,
+        .pricing,
+        .testimonials,
+        .cta {
+            z-index: 0;
+        }
 </style>
 
   <!-- Cookie Consent System -->
