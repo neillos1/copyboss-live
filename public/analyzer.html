@@ -635,23 +635,49 @@
     }
 
   .gauge-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
   gap: 24px;
-  padding: 40px 20px;
+  max-width: 1280px;
+  margin: 30px auto 0;
+  padding-inline: 24px;
+}
+
+/* Desktop (≥1200px): 3 columns */
+@media screen and (min-width: 1200px) {
+  .gauge-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet (≥768px): 2 columns */
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+  .gauge-container {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* Mobile: 1 column */
+@media screen and (max-width: 767px) {
+  .gauge-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-inline: 16px;
+  }
 }
 
 .gauge-box {
   background-color: #124582;
   border-radius: 16px;
   padding: 20px;
-  width: 280px;
+  width: 100%;
+  max-width: none;
   position: relative;
   box-shadow: 0 0 20px rgba(18, 69, 130, 0.7), 0 0 40px rgba(18, 69, 130, 0.5), 0 0 60px rgba(18, 69, 130, 0.3);
   text-align: center;
   color: white;
   transition: transform 0.3s ease;
+  box-sizing: border-box;
 }
 
 .gauge-box:hover {
@@ -2744,7 +2770,7 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="content" style="margin-top: 30px;">
-  <div class="gauge-container" id="cb-gauges" style="display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 28px; row-gap: 24px; max-width: 960px; margin: 30px auto 0; padding-inline: 20px;">
+  <div class="gauge-container" id="cb-gauges" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1280px; margin: 30px auto 0; padding-inline: 24px;">
 
  <div class="gauge-box pro-locked">
   <div class="gauge-title">🔥 Viral Score</div>
@@ -8833,6 +8859,20 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   checkPaymentSuccess();
   updatePlanStatus();
+  
+  // Trigger chart resize after grid becomes visible
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+    if (typeof ApexCharts !== 'undefined') {
+      const gaugeIds = ['viralGauge', 'hookGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge'];
+      gaugeIds.forEach(id => {
+        const chart = ApexCharts.getChartByID(id);
+        if (chart) {
+          chart.resize();
+        }
+      });
+    }
+  }, 100);
   
   // Always ensure free gauges are unlocked first
   ensureFreeGaugesUnlocked();
