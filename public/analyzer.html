@@ -678,6 +678,11 @@
   color: white;
   transition: transform 0.3s ease;
   box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .gauge-box:hover {
@@ -689,12 +694,14 @@
   font-weight: 600;
   margin-bottom: 12px;
   color: #fff;
+  flex-shrink: 0;
 }
 
 .gauge-feedback {
   font-size: 14px;
   margin-top: 10px;
   color: #ccc;
+  flex-shrink: 0;
 }
 
 /* Responsive for small screens */
@@ -713,9 +720,19 @@
   }
 }
 
-.gauge-box canvas {
+.gauge-box canvas,
+.gauge-box #viralGauge,
+.gauge-box #hookGauge,
+.gauge-box #captionGauge,
+.gauge-box #soundGauge,
+.gauge-box #viewerGauge,
+.gauge-box #engagementGauge {
   margin: 0 auto;
   display: block;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
 }
 
 
@@ -2770,7 +2787,7 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="content" style="margin-top: 30px;">
-  <div class="gauge-container" id="cb-gauges" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1280px; margin: 30px auto 0; padding-inline: 24px;">
+  <div class="gauge-container" id="cb-gauges" style="display: grid; gap: 24px; max-width: 1280px; margin: 30px auto 0; padding-inline: 24px;">
 
  <div class="gauge-box pro-locked">
   <div class="gauge-title">🔥 Viral Score</div>
@@ -8862,16 +8879,18 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   // Trigger chart resize after grid becomes visible
   setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-    if (typeof ApexCharts !== 'undefined') {
-      const gaugeIds = ['viralGauge', 'hookGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge'];
-      gaugeIds.forEach(id => {
-        const chart = ApexCharts.getChartByID(id);
-        if (chart) {
-          chart.resize();
-        }
-      });
-    }
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'));
+      if (typeof ApexCharts !== 'undefined') {
+        const gaugeIds = ['viralGauge', 'hookGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge'];
+        gaugeIds.forEach(id => {
+          const chart = ApexCharts.getChartByID(id);
+          if (chart) {
+            chart.resize();
+          }
+        });
+      }
+    });
   }, 100);
   
   // Always ensure free gauges are unlocked first
