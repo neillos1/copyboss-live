@@ -14,19 +14,32 @@
     } catch(e){ return false; }
   }
 
+  function unlockPage(){
+    try{
+      // Remove common lock classes
+      ['no-scroll','prevent-scroll','modal-open','menu-open','is-locked','locked'].forEach(function(c){
+        document.documentElement.classList.remove(c);
+        document.body.classList.remove(c);
+      });
+      // Restore scroll/pointers
+      ['html','body'].forEach(function(tag){
+        var el = document.querySelector(tag);
+        if (!el) return;
+        el.style.overflow = '';
+        el.style.pointerEvents = '';
+        el.style.touchAction = '';
+      });
+      // Kill any leftover overlays
+      qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(function(n){
+        try{ n.style.pointerEvents = 'none'; n.style.opacity = '0'; n.remove(); }catch(_){}
+      });
+    }catch(_){}
+  }
+
   function finishMascot(reason){
     try {
-      // mark done
       document.documentElement.classList.add('mascot-done');
-      // unblock interactions & remove overlays
-      qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(function(n){
-        try {
-          n.style.pointerEvents = 'none';
-          n.style.opacity = '0';
-          n.remove();
-        } catch(_){}
-      });
-      // tell anything waiting (e.g., cookie banner)
+      unlockPage();
       try { window.dispatchEvent(new CustomEvent('mascot:finished', { detail:{ reason: reason||'failsafe' } })); } catch(_){}
     } catch(_) {}
   }
@@ -41,33 +54,41 @@
   }
 
   function armTimers(){
-    // if still present after 3.5s, finish; then sweep again at 7s
-    setTimeout(function(){
-      if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) finishMascot('timer-3500');
-    }, 3500);
-    setTimeout(function(){
-      if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) finishMascot('timer-7000');
-    }, 7000);
+    // Early sweep (2s), standard (3.5s), late (7s)
+    [2000, 3500, 7000].forEach(function(ms){
+      setTimeout(function(){
+        if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) finishMascot('timer-'+ms);
+      }, ms);
+    });
   }
 
   function observeSafety(){
     try{
       var mo = new MutationObserver(function(){
-        // If anything toggles the mascot back in, neutralize quickly
         if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) {
-          // short delay to allow any CSS class flips to land
-          setTimeout(function(){ finishMascot('observer'); }, 50);
+          setTimeout(function(){ finishMascot('observer'); }, 60);
         }
       });
       mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true});
     }catch(_){}
   }
 
+  function focusEvents(){
+    // If tab becomes visible and overlay still present, finish
+    document.addEventListener('visibilitychange', function(){
+      if (!document.hidden && (qs(OVERLAY_SEL) || qs(ROOT_SEL))) finishMascot('visibility');
+    });
+    // Any user gesture should also flush the overlay
+    ['pointerdown','keydown','touchstart'].forEach(function(evt){
+      window.addEventListener(evt, function(){
+        if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) finishMascot('gesture');
+      }, { once:false, capture:true });
+    });
+  }
+
   function init(){
     if (bypassRequested()) { finishMascot('bypass'); return; }
-    wireSkip();
-    armTimers();
-    observeSafety();
+    wireSkip(); armTimers(); observeSafety(); focusEvents();
   }
 
   if (document.readyState === 'loading') {
