@@ -156,3 +156,8 @@
     transform: none !important;
   }
 }
+
+/* Mascot failsafe: once done, block any overlay from intercepting taps */
+html.mascot-done #mascot,
+html.mascot-done .mascot-root,
+html.mascot-done .mascot-overlay { display:none !important; pointer-events:none !important; opacity:0 !important; }
