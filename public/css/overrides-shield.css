@@ -161,3 +161,25 @@
 html.mascot-done #mascot,
 html.mascot-done .mascot-root,
 html.mascot-done .mascot-overlay { display:none !important; pointer-events:none !important; opacity:0 !important; }
+
+/* Mascot kill for pseudo-element overlays */
+html.mascot-done::before,
+html.mascot-done::after,
+body.mascot-done::before,
+body.mascot-done::after,
+#mascot-overlay::before,
+#mascot-overlay::after,
+.mascot-overlay::before,
+.mascot-overlay::after {
+  content: none !important;
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Force page to be interactive once mascot is done */
+html.mascot-done, body.mascot-done {
+  overflow: auto !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
