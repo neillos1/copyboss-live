@@ -16,22 +16,17 @@
 
   function unlockPage(){
     try{
-      // Remove common lock classes
       ['no-scroll','prevent-scroll','modal-open','menu-open','is-locked','locked'].forEach(function(c){
         document.documentElement.classList.remove(c);
         document.body.classList.remove(c);
       });
-      // Restore scroll/pointers
       ['html','body'].forEach(function(tag){
         var el = document.querySelector(tag);
         if (!el) return;
         el.style.overflow = '';
         el.style.pointerEvents = '';
         el.style.touchAction = '';
-      });
-      // Kill any leftover overlays
-      qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(function(n){
-        try{ n.style.pointerEvents = 'none'; n.style.opacity = '0'; n.remove(); }catch(_){}
+        el.style.position = el.style.position === 'fixed' ? '' : el.style.position;
       });
     }catch(_){}
   }
@@ -40,60 +35,72 @@
     try {
       document.documentElement.classList.add('mascot-done');
       unlockPage();
+      // Remove known containers
+      qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(function(n){ try{ n.style.pointerEvents='none'; n.style.opacity='0'; n.remove(); }catch(_){} });
       try { window.dispatchEvent(new CustomEvent('mascot:finished', { detail:{ reason: reason||'failsafe' } })); } catch(_){}
     } catch(_) {}
   }
 
-  function wireSkip(){
-    document.addEventListener('click', function(e){
-      if (e.target.closest(SKIP_SEL)) {
-        e.preventDefault();
-        finishMascot('skip-click');
-      }
-    }, true);
-  }
-
-  function armTimers(){
-    // Early sweep (2s), standard (3.5s), late (7s)
-    [2000, 3500, 7000].forEach(function(ms){
-      setTimeout(function(){
-        if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) finishMascot('timer-'+ms);
-      }, ms);
-    });
-  }
-
-  function observeSafety(){
+  // --- Nuclear sweep: remove any full-screen overlay (fixed/absolute & big) ---
+  function looksLikeOverlay(el){
     try{
-      var mo = new MutationObserver(function(){
-        if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) {
-          setTimeout(function(){ finishMascot('observer'); }, 60);
+      var cs = getComputedStyle(el);
+      var pos = cs.position;
+      if (pos !== 'fixed' && pos !== 'absolute') return false;
+      var vw = Math.max(document.documentElement.clientWidth, window.innerWidth||0);
+      var vh = Math.max(document.documentElement.clientHeight, window.innerHeight||0);
+      var r = el.getBoundingClientRect();
+      var big = (r.width >= vw*0.9 && r.height >= vh*0.9);
+      var blocks = cs.pointerEvents !== 'none' || cs.zIndex && +cs.zIndex > 500;
+      return big && blocks;
+    }catch(_){ return false; }
+  }
+  function sweepOverlays(){
+    try{
+      var all = document.body ? document.body.getElementsByTagName('*') : [];
+      for (var i=all.length-1;i>=0;i--){
+        var el = all[i];
+        if (looksLikeOverlay(el)){
+          try { el.style.pointerEvents='none'; el.style.opacity='0'; el.remove(); }catch(_){}
         }
-      });
-      mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true});
+      }
+      // also remove known ones
+      qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(function(n){ try{ n.remove(); }catch(_){} });
+      unlockPage();
     }catch(_){}
   }
 
-  function focusEvents(){
-    // If tab becomes visible and overlay still present, finish
-    document.addEventListener('visibilitychange', function(){
-      if (!document.hidden && (qs(OVERLAY_SEL) || qs(ROOT_SEL))) finishMascot('visibility');
+  function wireSkip(){
+    document.addEventListener('click', function(e){
+      if (e.target.closest(SKIP_SEL)) { e.preventDefault(); finishMascot('skip-click'); }
+    }, true);
+  }
+  function armTimers(){
+    [1200, 2500, 4000, 7000].forEach(function(ms){
+      setTimeout(function(){ sweepOverlays(); finishMascot('timer-'+ms); }, ms);
     });
-    // Any user gesture should also flush the overlay
+    // repeated sweeps for 10s
+    var t0 = Date.now();
+    var iv = setInterval(function(){
+      sweepOverlays();
+      if (Date.now()-t0 > 10000) clearInterval(iv);
+    }, 900);
+  }
+  function observeSafety(){
+    try{
+      var mo = new MutationObserver(function(){ sweepOverlays(); });
+      mo.observe(document.documentElement, {subtree:true, childList:true, attributes:true});
+    }catch(_){}
+  }
+  function focusEvents(){
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) sweepOverlays(); });
     ['pointerdown','keydown','touchstart'].forEach(function(evt){
-      window.addEventListener(evt, function(){
-        if (qs(OVERLAY_SEL) || qs(ROOT_SEL)) finishMascot('gesture');
-      }, { once:false, capture:true });
+      window.addEventListener(evt, function(){ sweepOverlays(); }, { capture:true });
     });
   }
-
   function init(){
     if (bypassRequested()) { finishMascot('bypass'); return; }
     wireSkip(); armTimers(); observeSafety(); focusEvents();
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
