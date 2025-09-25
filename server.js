@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const sgMail = require('@sendgrid/mail');
 const session = require('express-session');
@@ -247,6 +248,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Parse cookies
+app.use(cookieParser());
+
 // Authentication middleware
 function requireAuth(req, res, next) {
   if (req.session.userId) {
@@ -322,7 +326,7 @@ app.post('/api/signup', async (req, res) => {
     }
     
     // Check for intended cookie as fallback
-    const intendedPath = req.cookies.intended;
+    const intendedPath = req.cookies && req.cookies.intended;
     if (intendedPath && safeRedirect(intendedPath)) {
       // Clear the intended cookie
       res.clearCookie('intended', { 
@@ -396,7 +400,7 @@ app.post('/api/login', async (req, res) => {
     }
     
     // Check for intended cookie as fallback
-    const intendedPath = req.cookies.intended;
+    const intendedPath = req.cookies && req.cookies.intended;
     if (intendedPath && safeRedirect(intendedPath)) {
       // Clear the intended cookie
       res.clearCookie('intended', { 

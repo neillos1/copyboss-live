@@ -1,0 +1,128 @@
+/* --- Mobile auto patch (scoped to analyzer) --- */
+@media (max-width: 768px) {
+  html, body, body.page-analyzer { overflow-x: hidden !important; }
+  :root { --gutter: 16px; }
+  body.page-analyzer {
+    padding-left: calc(var(--gutter) + env(safe-area-inset-left)) !important;
+    padding-right: calc(var(--gutter) + env(safe-area-inset-right)) !important;
+  }
+  /* sensible defaults for main wrappers so they center and don't hug edges */
+  body.page-analyzer .main-panel,
+  body.page-analyzer #main-wrapper,
+  body.page-analyzer .main-wrapper,
+  body.page-analyzer .wrapper,
+  body.page-analyzer main {
+    width: 100% !important;
+    max-width: 720px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    left: 0 !important;
+    float: none !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+  /* charts/cards must respect container width */
+  body.page-analyzer canvas,
+  body.page-analyzer .chart,
+  body.page-analyzer .report-card,
+  body.page-analyzer .cards-grid,
+  body.page-analyzer .card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* Targeted patches for common dashboard offenders */
+@media (max-width: 768px){
+  /* Common dashboard content containers that often have left offsets */
+  body.page-analyzer .content,
+  body.page-analyzer .page-content,
+  body.page-analyzer .dashboard-content,
+  body.page-analyzer .analyzer-wrapper,
+  body.page-analyzer .chart-card {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+}
+
+/* Hide common left rails */
+@media (max-width: 768px){
+  body.page-analyzer .bg-rail,
+  body.page-analyzer .left-rail,
+  body.page-analyzer [class*="rail"],
+  body.page-analyzer .rail,
+  body.page-analyzer .rail-left,
+  body.page-analyzer .sidebar-rail {
+    display: none !important;
+    content: none !important;
+  }
+  body.page-analyzer .bg-rail::before,
+  body.page-analyzer .bg-rail::after,
+  body.page-analyzer [class*="rail"]::before,
+  body.page-analyzer [class*="rail"]::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
+/* ===== Analyzer mobile header cleanup ===== */
+@media (max-width: 768px) {
+  html, body { overscroll-behavior: none; background:#0b1020; }
+  body.page-analyzer { -webkit-overflow-scrolling: touch; }
+
+  /* kill the white strip + spinner area if any */
+  .page-analyzer .top-loader,
+  .page-analyzer .pull-to-refresh,
+  .page-analyzer .spinner-top { display:none !important; height:0 !important; }
+
+  /* keep exactly ONE header; hide any duplicate brand row below */
+  .page-analyzer .brand-row { display:none !important; }
+
+  /* hide LIVE API badge on mobile */
+  #liveApiBadge { display:none !important; }
+
+  /* navbar becomes sticky and layered */
+  .navbar, header.site-header {
+    position: sticky; top: 0; z-index: 1000;
+    background: rgba(9,14,30,0.92); backdrop-filter: blur(8px);
+  }
+
+  /* logo sizing */
+  .brand-logo { height: 24px; width:auto; margin-right:8px; vertical-align:middle; }
+
+  /* keep the main content from hiding behind sticky header */
+  main, .main-panel, #main-wrapper, .wrapper {
+    scroll-margin-top: 64px;
+  }
+
+  /* Mobile drawer + backdrop */
+  .mobile-backdrop {
+    position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:999; 
+  }
+  .mobile-drawer {
+    position: fixed; top:0; right:-84%; height:100%; width:84%;
+    background: #0f162d; z-index:1001; box-shadow:-12px 0 24px rgba(0,0,0,.4);
+    transition: transform .22s ease; transform: translateX(0);
+  }
+  .mobile-drawer[aria-hidden="false"] { right:0; }
+  .mobile-drawer .drawer-scroll { overflow:auto; height:100%; padding:16px; }
+  .mobile-drawer a {
+    display:block; padding:14px 12px; border-radius:12px; margin-bottom:10px;
+    background:#121b36; color:#e7ecff; text-decoration:none; font-weight:600;
+  }
+
+  /* Buttons */
+  #uploadBtn, #analyzeBtn {
+    touch-action: manipulation;
+  }
+}

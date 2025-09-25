@@ -1058,9 +1058,16 @@
     <!-- FastBots Chatbot -->
     <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmbpi4m6c0001oelvjcf5pe6s"></script>
 
-    <!-- Trust Footer -->
-    <link rel="stylesheet" href="/css/cb-trust.css">
-    <script defer src="/js/cb-trust.js"></script>
+    <!-- Trust Footer - REMOVED -->
+    <!-- <link rel="stylesheet" href="/css/cb-trust.css"> -->
+    <!-- <script defer src="/js/cb-trust.js"></script> -->
+
+    <!-- Mobile-only safety overrides (home page only) -->
+    <link rel="stylesheet" href="/css/overrides-shield.css">
+    <!-- Footer mobile tap protection -->
+    <link rel="stylesheet" href="/css/footer-safe.mobile.css">
+    <!-- Footer Effects (shine animation) -->
+    <link rel="stylesheet" href="/css/footer-effects.css">
 </head>
 <body class="text-white">
     <!-- Mascot Intro Overlay -->
@@ -1148,7 +1155,7 @@
                 </p>
                 
                 <!-- Call to Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+                <div id="hero-ctas" class="hero-ctas flex flex-col sm:flex-row gap-6 justify-center mb-16">
                     <a href="/analyzer.html" class="cb-cta cb-cta--blue">
                         <i class="fas fa-chart-line"></i>
                         Try Video Analyzer
@@ -1300,110 +1307,36 @@
   </div>
         </section>
 
-        <!-- Trust Footer -->
-        <div class="cb-trust">
-          <div class="cb-trust-container">
-            <div class="cb-trust-grid">
-              <!-- Payment Security -->
-              <div class="cb-trust-section">
-                <h3 class="cb-trust-section-title">Payment Security</h3>
-                <div class="cb-trust-chips">
-                  <a href="https://stripe.com/security" target="_blank" rel="noopener" class="cb-trust-chip cb-trust-chip--stripe">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.274 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.573-2.354 1.573-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
-                    </svg>
-                    Powered by Stripe
-                  </a>
-                  <span class="cb-trust-chip">PCI DSS Level 1</span>
-                  <span class="cb-trust-chip">3D Secure / SCA</span>
-                  <span class="cb-trust-chip">SSL / 256-bit</span>
-                </div>
-                <div class="cb-trust-microcopy">Secure checkout by Stripe. We never store card numbers.</div>
-                <div class="cb-trust-icons">
-                  <svg class="cb-trust-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                  </svg>
-                  <svg class="cb-trust-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3.609 1.814L13.792 12 3.609 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.496 12l2.202-2.491zM5.864 2.658L16.802 8.99l-2.302 2.302-8.636-8.634z"/>
-                  </svg>
-                  <svg class="cb-trust-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11.5 4c-2.65 0-5.05.99-6.9 2.6L2 4v16h16l-2.05-2.05C19.45 16.99 17.15 18 14.5 18c-4.42 0-8-3.58-8-8s3.58-8 8-8c2.65 0 5.05.99 6.9 2.6L22 4v16h-2.05l-2.05-2.05C19.45 16.99 17.15 18 14.5 18c-4.42 0-8-3.58-8-8s3.58-8 8-8z"/>
-                  </svg>
-                  <svg class="cb-trust-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                </div>
-              </div>
 
-              <!-- Compliance -->
-              <div class="cb-trust-section">
-                <h3 class="cb-trust-section-title">Compliance</h3>
-                <div class="cb-trust-chips">
-                  <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="cb-trust-chip">Privacy Policy</a>
-                  <a href="#" onclick="window.openCookieSettings()" class="cb-trust-chip">Cookie Policy</a>
-                  <span class="cb-trust-chip cb-trust-chip--primary">GDPR Compliant</span>
-                  <button onclick="window.openICOModal()" class="cb-trust-chip">ICO Registered</button>
-                </div>
-              </div>
-
-              <!-- Social Proof -->
-              <div class="cb-trust-section">
-                <h3 class="cb-trust-section-title">Social Proof</h3>
-                <div class="cb-trust-chips">
-                  <span class="cb-trust-chip">Trusted by creators worldwide</span>
-                  <span class="cb-trust-chip">AI-Powered Analysis</span>
-                  <span class="cb-trust-chip">Affiliate Programme</span>
-                </div>
-              </div>
-
-              <!-- Support -->
-              <div class="cb-trust-section">
-                <h3 class="cb-trust-section-title">Support</h3>
-                <div class="cb-trust-chips">
-                  <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="cb-trust-chip">24/7 Email Support</a>
-                  <a href="#" class="cb-trust-chip">System Status</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Footer -->
+        <!-- Footer (canonical from analyzer.html) -->
 <footer class="new-footer">
   <div class="footer-container">
     <!-- Social Media Icons -->
     <div class="social-icons">
-      <a href="https://twitter.com/copybosshq" target="_blank" class="social-link" aria-label="Twitter">
+      <a href="https://twitter.com/copybosshq" target="_blank" rel="noopener noreferrer" data-network="twitter" class="social-link" aria-label="Twitter">
         <i class="fab fa-twitter"></i>
       </a>
-      <a href="https://facebook.com/copybosshq" target="_blank" class="social-link" aria-label="Facebook">
+      <a href="https://facebook.com/copybosshq" target="_blank" rel="noopener noreferrer" data-network="facebook" class="social-link" aria-label="Facebook">
         <i class="fab fa-facebook"></i>
       </a>
-      <a href="https://instagram.com/copybosshq" target="_blank" class="social-link" aria-label="Instagram">
+      <a href="https://instagram.com/copybosshq" target="_blank" rel="noopener noreferrer" data-network="instagram" class="social-link" aria-label="Instagram">
         <i class="fab fa-instagram"></i>
       </a>
-              <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" class="social-link" aria-label="TikTok">
-                <i class="fab fa-tiktok"></i>
-              </a>
-      <a href="https://youtube.com/copybosshq" target="_blank" class="social-link" aria-label="YouTube">
+      <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" rel="noopener noreferrer" data-network="tiktok" class="social-link" aria-label="TikTok">
+        <i class="fab fa-tiktok"></i>
+      </a>
+      <a href="https://youtube.com/copybosshq" target="_blank" rel="noopener noreferrer" data-network="youtube" class="social-link" aria-label="YouTube">
         <i class="fab fa-youtube"></i>
       </a>
-  </div>
-
-            <!-- DEBUG TEST BUTTON -->
-            <div style="position: fixed; top: 10px; right: 10px; z-index: 99999; background: red; color: white; padding: 10px;">
-                <button onclick="openModal('privacy-modal')" style="background: white; color: black; padding: 5px;">TEST MODAL</button>
     </div>
 
     <!-- Footer Links -->
     <div class="footer-links">
-              <a href="javascript:void(0)" onclick="openModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
+      <a href="/privacy.html" class="footer-link">Privacy</a>
       <span class="link-separator">|</span>
-              <a href="javascript:void(0)" onclick="openModal('terms-modal'); return false;" class="footer-link">Terms</a>
+      <a href="/terms.html" class="footer-link">Terms</a>
       <span class="link-separator">|</span>
-              <a href="javascript:void(0)" onclick="openModal('support-modal'); return false;" class="footer-link">Support</a>
-              <span class="link-separator">|</span>
-              <a href="#" onclick="window.openCookieSettings()" class="footer-link">Cookie settings</a>
+      <a href="/support.html" class="footer-link">Support</a>
     </div>
 
     <!-- Copyright -->
@@ -1413,7 +1346,7 @@
   </div>
 </footer>
 
-        <!-- Privacy Modal -->
+    <!-- Privacy Modal -->
         <div id="privacy-modal" class="modal hidden">
           <div class="modal-overlay" onclick="closeModal('privacy-modal')"></div>
           <div class="modal-content">
@@ -1852,11 +1785,13 @@
         @supports (padding: max(0px)){
           .cb-close{ top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
         }
+        
 
         /* Optional: hide burger while open (cleaner UI) */
         @media (max-width:768px){
           .cb-burger.open{ visibility: hidden; } /* the red X is the closer */
         }
+        
 
         .cb-drawer-list {
             padding: 20px 0;
@@ -2027,11 +1962,15 @@
             const mainContent = document.getElementById("mainContent");
             const particles = document.getElementById("particles");
 
-            // Glass shatter audio
+            // Glass shatter audio - enhanced for mobile
             const audio = new Audio("assets/audio/glass-shatter.mp3");
-            audio.volume = 0.3;
+            audio.volume = 0.5;
             audio.preload = "auto";
             audio.muted = false;
+            
+            // Mobile-specific audio setup
+            audio.crossOrigin = "anonymous";
+            audio.load();
 
             // Show intro immediately
             mascotIntro.style.display = "flex";
@@ -2137,17 +2076,17 @@
                 }, 2500);
             }
 
-            // Try multiple autoplay strategies
+            // Enhanced autoplay strategies for mobile
             function tryAutoplay() {
                 console.log("Attempting autoplay...");
                 
                 // Strategy 1: Direct play
                 audio.play()
-            .then(() => {
+                    .then(() => {
                         console.log("✅ Autoplay successful!");
                         startAnimation();
-            })
-            .catch(err => {
+                    })
+                    .catch(err => {
                         console.log("❌ Direct autoplay failed:", err.message);
                         
                         // Strategy 2: Try with muted first, then unmute
@@ -2161,25 +2100,50 @@
                             .catch(err2 => {
                                 console.log("❌ Muted autoplay also failed:", err2.message);
                                 
-                                // Strategy 3: Wait for any user interaction
+                                // Strategy 3: Enhanced mobile interaction detection
                                 console.log("⏳ Waiting for user interaction...");
-                                document.addEventListener('click', function startOnClick() {
-                                    console.log("👆 User clicked - playing audio!");
-                                    document.removeEventListener('click', startOnClick);
-                                    audio.play().then(() => {
-                                        console.log("✅ Audio playing after click!");
-                                        startAnimation();
-                                    });
-                                }, { once: true });
                                 
-                                document.addEventListener('keydown', function startOnKey() {
-                                    console.log("⌨️ User pressed key - playing audio!");
-                                    document.removeEventListener('keydown', startOnKey);
-                                    audio.play().then(() => {
-                                        console.log("✅ Audio playing after key press!");
-                                        startAnimation();
+                                // Multiple interaction types for better mobile support
+                                const interactionEvents = ['click', 'touchstart', 'touchend', 'keydown', 'scroll'];
+                                let interactionHandled = false;
+                                
+                                function handleInteraction(eventType) {
+                                    if (interactionHandled) return;
+                                    interactionHandled = true;
+                                    
+                                    console.log(`👆 User ${eventType} - playing audio!`);
+                                    
+                                    // Remove all listeners
+                                    interactionEvents.forEach(event => {
+                                        document.removeEventListener(event, handleInteraction);
                                     });
-                                }, { once: true });
+                                    
+                                    // Try to play audio
+                                    audio.muted = false;
+                                    audio.play()
+                                        .then(() => {
+                                            console.log("✅ Audio playing after interaction!");
+                                            startAnimation();
+                                        })
+                                        .catch(err3 => {
+                                            console.log("❌ Audio still failed after interaction:", err3.message);
+                                            // Start animation without audio
+                                            startAnimation();
+                                        });
+                                }
+                                
+                                // Add listeners for all interaction types
+                                interactionEvents.forEach(event => {
+                                    document.addEventListener(event, () => handleInteraction(event), { once: true, passive: true });
+                                });
+                                
+                                // Fallback: start animation after 3 seconds even without audio
+                                setTimeout(() => {
+                                    if (!interactionHandled) {
+                                        console.log("⏰ Fallback: starting animation without audio");
+                                        startAnimation();
+                                    }
+                                }, 3000);
                             });
                     });
             }
@@ -2494,6 +2458,28 @@
     
     <!-- Mobile Navigation -->
     <script src="js/mobile-nav.js"></script>
+    
+    <script>
+        // Debug mobile navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, checking mobile nav...');
+            
+            const burger = document.getElementById('cb-burger');
+            const drawer = document.getElementById('cb-drawer');
+            const closeBtn = document.getElementById('cb-close');
+            
+            console.log('Burger button:', !!burger);
+            console.log('Drawer:', !!drawer);
+            console.log('Close button:', !!closeBtn);
+            
+            if (burger) {
+                burger.addEventListener('click', function() {
+                    console.log('Burger clicked');
+                    console.log('Drawer classes:', drawer.className);
+                });
+            }
+        });
+    </script>
     <script src="/js/avatar-helper.js?v=1"></script>
     
     <!-- Test mobile navigation -->
@@ -2564,39 +2550,20 @@
       </div>
     </div>
 
-  <!-- Cookie Consent System -->
-  <link rel="stylesheet" href="/css/cb-consent.css">
-  <script defer src="/js/cb-consent.js"></script>
 
-  <!-- ICO Modal -->
-  <div class="cb-ico-modal" id="cb-ico-modal" role="dialog" aria-modal="true" aria-labelledby="cb-ico-modal-title" aria-hidden="true">
-    <div class="cb-ico-modal-content">
-      <div class="cb-ico-modal-header">
-        <h2 class="cb-ico-modal-title" id="cb-ico-modal-title">ICO Registered – GDPR Compliant</h2>
-        <button class="cb-ico-modal-close" id="cb-ico-modal-close" aria-label="Close modal">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-      <div class="cb-ico-modal-body">
-        <div class="cb-ico-modal-line">
-          <span class="cb-ico-modal-label">Registered To:</span>
-          <span>Zerra Group Ltd</span>
-        </div>
-        <div class="cb-ico-modal-line">
-          <span class="cb-ico-modal-label">ICO No:</span>
-          <span>ZB950374</span>
-        </div>
-        <div class="cb-ico-modal-description">
-          Fully registered with the ICO, ensuring client data is handled confidentially under GDPR law.
-        </div>
-      </div>
-      <div class="cb-ico-modal-actions">
-        <button class="cb-ico-modal-btn cb-ico-modal-btn--secondary" onclick="openModal('privacy-modal'); return false;">Privacy Policy</button>
-        <button class="cb-ico-modal-btn cb-ico-modal-btn--primary" id="cb-ico-modal-close-btn">Close</button>
-      </div>
-    </div>
-  </div>
+  <!-- Mobile-only CTA hardening (home page only) -->
+  <script src="/js/cta-hardening.mobile.js"></script>
+  <!-- Legal Modal System (canonical from analyzer.html) -->
+  <script src="/js/legal-modals.js"></script>
+  <!-- Mobile Footer Sanity Script (self-healing) -->
+  <script src="/js/footer-sanity.mobile.js"></script>
+  <!-- Footer External Link Guard (runs last, capture phase) -->
+  <script src="/js/footer-external-guard.js"></script>
+  <!-- Footer Bottom-Zone Router (FINAL script, capture phase) -->
+  <script src="/js/footer-bottomzone-router.mobile.js"></script>
+  <script src="/js/under-footer-cleaner.js"></script>
+  <script src="/js/nav-mobile-portal.patch.js"></script>
+  <script src="/js/nav-mobile-scrolltop.guard.js"></script>
+  
 </body>
 </html>

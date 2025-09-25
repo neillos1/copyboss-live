@@ -1,0 +1,264 @@
+<footer class="new-footer">
+  <div class="footer-container">
+    <!-- Social Media Icons -->
+    <div class="social-icons">
+      <a href="https://twitter.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Twitter">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a href="https://facebook.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
+        <i class="fab fa-facebook"></i>
+      </a>
+      <a href="https://instagram.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="TikTok">
+        <i class="fab fa-tiktok"></i>
+      </a>
+      <a href="https://youtube.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+
+    <!-- Footer Links -->
+    <div class="footer-links">
+      <a href="/privacy.html" onclick="console.log('Privacy clicked'); openLegalModal('privacy-modal'); return false;" class="footer-link">Privacy</a>
+      <span class="link-separator">|</span>
+      <a href="/terms.html" onclick="console.log('Terms clicked'); openLegalModal('terms-modal'); return false;" class="footer-link">Terms</a>
+      <span class="link-separator">|</span>
+      <a href="/support.html" onclick="console.log('Support clicked'); openLegalModal('support-modal'); return false;" class="footer-link">Support</a>
+      <span class="link-separator">|</span>
+      <a href="#cookies" data-cookie-settings class="footer-link">Cookie settings</a>
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+      © 2025 ZERRA Group Ltd. All rights reserved. CopyBoss™ is a product of ZERRA Group.
+    </div>
+  </div>
+</footer>
+
+<style>
+/* Professional Stealth-Style Footer */
+.new-footer {
+  width: 100%;
+  background: linear-gradient(to bottom, #071229, #0a1a3d, #102f5c);
+  padding: 60px 40px 40px;
+  color: #b8c5d6;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  margin: 0;
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: flex;
+  z-index: 100; /* Ensure footer is above other content */
+  margin-top: auto; /* Push footer to bottom */
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.footer-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Social Icons */
+.social-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.social-link {
+  color: #8fa3c7;
+  font-size: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 50%;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 44px;
+  height: 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.social-link:hover {
+  color: #ffffff;
+  transform: translateY(-2px) scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.social-link:hover::before {
+  left: 100%;
+}
+
+/* Footer Links */
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: #8fa3c7;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.footer-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.link-separator {
+  color: #4a5568;
+  font-weight: 300;
+  font-size: 12px;
+}
+
+/* Enhanced Copyright */
+.copyright {
+  color: #8fa3c7;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 600px;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .new-footer {
+    padding: 40px 20px;
+    min-height: 180px;
+  }
+  
+  .social-icons {
+    gap: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .social-link {
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+  }
+  
+  .footer-links {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .footer-link {
+    font-size: 13px;
+  }
+  
+  .copyright {
+    font-size: 12px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .new-footer {
+    padding: 30px 15px;
+    min-height: 160px;
+  }
+  
+  .social-icons {
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .social-link {
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+  
+  .footer-links {
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: nowrap;
+  }
+  
+  .link-separator {
+    display: inline;
+  }
+  
+  .footer-link {
+    font-size: 12px;
+  }
+  
+  .copyright {
+    font-size: 11px;
+    padding: 0 10px;
+  }
+}
+</style>
