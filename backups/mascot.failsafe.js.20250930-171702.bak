@@ -1,0 +1,168 @@
+// --- DEV-ONLY mascot bypass (local only) ---
+(function () {
+  try {
+    var host = location.hostname;
+    var url  = new URL(location.href);
+    var isLocal = host === 'localhost' || host.startsWith('127.');
+    var force  = url.searchParams.get('devNoMascot') === '1'; // manual override if ever needed
+
+    if (isLocal || force) {
+      document.documentElement.classList.add('DEV_LOCAL');
+
+      // remove common full-screen overlays
+      ['#mascot-overlay','.mascot-overlay','#overlay','.overlay','#mask','.mask','[data-overlay]','[data-mask]']
+      .forEach(function(sel){
+        document.querySelectorAll(sel).forEach(function(n){ try { n.remove(); } catch(_){} });
+      });
+
+      // reveal main content
+      var main = document.querySelector('main, #main, #mainContent, .main') || document.body;
+      if (main && main.style) {
+        main.style.opacity = '1';
+        main.style.pointerEvents = 'auto';
+        main.style.filter = 'none';
+      }
+      if (document.body && document.body.style) document.body.style.overflow = 'auto';
+
+      // signal any listeners waiting for mascot completion
+      try { window.dispatchEvent(new Event('mascot:finished')); } catch(_) {}
+    }
+  } catch (_) {}
+})();
+
+// ---- LOCAL / DEBUG OVERLAY KILL SWITCH ----
+(function () {
+  try {
+    var url = new URL(location.href);
+    var kill = url.searchParams.get('noOverlay') === '1' ||
+               location.hostname === 'localhost' ||
+               location.hostname.startsWith('127.0.0.1');
+    if (kill) {
+      // remove any full-screen masks/overlays
+      var killers = [
+        '#mascot-overlay', '.mascot-overlay', '#overlay', '.overlay',
+        '#mask', '.mask', '[data-overlay]', '[data-mask]'
+      ];
+      // nuke obvious elements
+      killers.forEach(function(sel){
+        document.querySelectorAll(sel).forEach(function(n){ try { n.remove(); } catch(_){} });
+      });
+      // also strip any element that is fixed + full viewport
+      requestAnimationFrame(function(){
+        document.querySelectorAll('body *').forEach(function(n){
+          if (!n) return;
+          var s = getComputedStyle(n);
+          if (s.position === 'fixed' && (parseInt(s.width) >= innerWidth*0.98) && (parseInt(s.height) >= innerHeight*0.98)) {
+            try { n.remove(); } catch(_){}
+          }
+        });
+      });
+      // disable pointer events on anything still covering
+      var css = document.createElement('style');
+      css.textContent = `
+        *[style*="position:fixed"], .overlay, #overlay, .mask, #mask { pointer-events:none !important; opacity:0 !important; }
+        html, body { overflow:auto !important; }
+      `;
+      document.head.appendChild(css);
+      // flag for other scripts
+      window.__NO_OVERLAY__ = true;
+    }
+  } catch(_) {}
+})();
+
+(function(){
+  var OVERLAY_SEL = '#mascot-overlay, .mascot-overlay, [data-mascot-overlay]';
+  var ROOT_SEL    = '#mascot, .mascot-root, [data-mascot-root]';
+  var SKIP_SEL    = '.mascot-skip, [data-mascot-skip], .cb-skip, [data-skip]';
+
+  function qs(s){ return document.querySelector(s); }
+  function qsa(s){ return Array.prototype.slice.call(document.querySelectorAll(s)||[]); }
+
+  // Safety wrapper for style operations
+  function safeStyle(el, fn) {
+    if (el && el.style) { fn(el.style); }
+  }
+
+  function unlockPage(){
+    try{
+      ['no-scroll','prevent-scroll','modal-open','menu-open','is-locked','locked']
+      .forEach(c=>{ document.documentElement.classList.remove(c); document.body.classList.remove(c); });
+      ['html','body'].forEach(tag=>{
+        var el = document.querySelector(tag); 
+        if(!el) return;
+        safeStyle(el, function(s) {
+          s.overflow=''; 
+          s.pointerEvents=''; 
+          s.touchAction='';
+        });
+        if (getComputedStyle(el).position === 'fixed') {
+          safeStyle(el, function(s) { s.position=''; });
+        }
+      });
+    }catch(_){}
+  }
+
+  function finishMascot(reason){
+    document.documentElement.classList.add('mascot-done');
+    document.body.classList.add('mascot-done');
+    unlockPage();
+    qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(n=>{ 
+      try{ 
+        safeStyle(n, function(s) {
+          s.pointerEvents='none'; 
+          s.opacity='0';
+        });
+        n.remove(); 
+      }catch(_){ } 
+    });
+    try{ window.dispatchEvent(new CustomEvent('mascot:finished',{detail:{reason:reason||'failsafe'}})); }catch(_){}
+  }
+
+  // Detect any full-screen overlay (fixed/absolute, covers most of viewport)
+  function looksLikeOverlay(el){
+    try{
+      var cs=getComputedStyle(el), pos=cs.position;
+      if(pos!=='fixed' && pos!=='absolute') return false;
+      var r=el.getBoundingClientRect(), vw=window.innerWidth, vh=window.innerHeight;
+      var big=(r.width>=vw*0.9 && r.height>=vh*0.9);
+      var blocks=(cs.pointerEvents!=='none') || (+cs.zIndex||0) > 500;
+      return big && blocks;
+    }catch(_){ return false; }
+  }
+  function sweepOverlays(){
+    try{
+      var nodes=(document.body?document.body.getElementsByTagName('*'):[]);
+      for(var i=nodes.length-1;i>=0;i--){ 
+        var el=nodes[i]; 
+        if(looksLikeOverlay(el)){ 
+          try{ 
+            safeStyle(el, function(s) {
+              s.pointerEvents='none'; 
+              s.opacity='0';
+            });
+            el.remove(); 
+          }catch(_){}
+        } 
+      }
+      // known containers too
+      qsa(OVERLAY_SEL+','+ROOT_SEL).forEach(n=>{ try{ n.remove(); }catch(_){ } });
+      finishMascot('sweep');
+    }catch(_){}
+  }
+
+  function wire(){
+    // Skip button
+    document.addEventListener('click', e=>{ if(e.target.closest(SKIP_SEL)){ e.preventDefault(); finishMascot('skip'); }}, true);
+    // Timers + interval sweeps (10s)
+    [800,1600,2800,5000,8000].forEach(ms=>setTimeout(()=>sweepOverlays(), ms));
+    var t0=Date.now(), iv=setInterval(()=>{ sweepOverlays(); if(Date.now()-t0>10000) clearInterval(iv); }, 700);
+    // React to DOM changes / visibility / gestures
+    try{ new MutationObserver(()=>sweepOverlays()).observe(document.documentElement,{subtree:true,childList:true,attributes:true}); }catch(_){}
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) sweepOverlays(); });
+    ['pointerdown','keydown','touchstart'].forEach(evt=>window.addEventListener(evt,()=>sweepOverlays(),{capture:true}));
+    // rAF loop (catch ::before/::after first paint)
+    var rafCount=0;(function loop(){ rafCount++; sweepOverlays(); if(rafCount<12) requestAnimationFrame(loop); })();
+  }
+
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', wire); } else { wire(); }
+})();

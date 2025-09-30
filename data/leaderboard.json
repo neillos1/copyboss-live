@@ -1,0 +1,26 @@
+[
+  {
+    "id": "user-test",
+    "username": "Tester",
+    "score": 987,
+    "period": "all",
+    "avatar": null,
+    "ts": 1759252284575
+  },
+  {
+    "id": "user-test",
+    "username": "Tester",
+    "score": 987,
+    "period": "all",
+    "avatar": null,
+    "ts": 1759252331918
+  },
+  {
+    "id": "user-test",
+    "username": "Tester",
+    "score": 987,
+    "period": "all",
+    "avatar": null,
+    "ts": 1759252349130
+  }
+]

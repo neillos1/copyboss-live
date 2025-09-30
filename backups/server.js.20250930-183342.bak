@@ -185,16 +185,122 @@ try {
 // === End leaderboard block ===
 
 
-// === Simple SPA fallback route ===
-// Specific routes for HTML pages
-app.get(["/analyzer", "/generator", "/pricing", "/leaderboard"], (req, res) => {
-  const fs = require("fs");
-  const path = require("path");
-  const publicDir = path.join(__dirname, "public");
-  const htmlFile = path.join(publicDir, req.path.substring(1) + ".html");
-  if (fs.existsSync(htmlFile)) {
-    return res.sendFile(htmlFile);
+// === Leaderboard API (file-backed) - added by automation ===
+// Dependencies: uses built-in fs, no external DB required (easy to replace with real DB later)
+try {
+  if (typeof app === 'undefined') {
+    console.warn('[LEADERBOARD] Express "app" not found. Ensure this file is appended after Express app creation.');
+  } else {
+    const fs = require('fs');
+    const path = require('path');
+    const LB_FILE = path.join(__dirname, 'data', 'leaderboard.json');
+
+    // helper: read and write store (synchronous for simplicity)
+    function readStore() {
+      try {
+        const raw = fs.readFileSync(LB_FILE, 'utf8') || '[]';
+        return JSON.parse(raw);
+      } catch (e) {
+        console.warn('[LEADERBOARD] readStore error, returning []', e);
+        return [];
+      }
+    }
+    function writeStore(data) {
+      try {
+        fs.writeFileSync(LB_FILE, JSON.stringify(data, null, 2), 'utf8');
+        return true;
+      } catch (e) {
+        console.error('[LEADERBOARD] writeStore error', e);
+        return false;
+      }
+    }
+
+    // Normalise incoming score object
+    function normalizeEntry(entry) {
+      return {
+        id: String(entry.id || entry.userId || entry.uid || 'anon-' + Date.now()),
+        username: String(entry.username || entry.user || 'Unknown'),
+        score: Number(entry.score || 0),
+        period: String(entry.period || 'all'),
+        avatar: entry.avatar || null,
+        ts: entry.ts || Date.now()
+      };
+    }
+
+    // GET /api/leaderboard?period=all&limit=50&includeUserRank=true&userId=xxx
+    app.get('/api/leaderboard', (req, res) => {
+      try {
+        const period = String(req.query.period || 'all');
+        const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || '100', 10)));
+        const includeUserRank = String(req.query.includeUserRank || '') === 'true';
+        const userId = req.query.userId || null;
+
+        const all = readStore();
+
+        // filter by period
+        const filtered = all.filter(it => it.period === period);
+
+        // roll up best score per user for this period
+        const map = new Map();
+        for (const it of filtered) {
+          const cur = map.get(it.id);
+          if (!cur || (it.score > cur.score)) {
+            map.set(it.id, it);
+          }
+        }
+        const items = Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, limit);
+
+        let userRank = null;
+        if (includeUserRank && userId) {
+          const sorted = Array.from(map.values()).sort((a, b) => b.score - a.score);
+          const idx = sorted.findIndex(x => x.id === String(userId));
+          if (idx >= 0) {
+            userRank = {
+              rank: idx + 1,
+              id: sorted[idx].id,
+              username: sorted[idx].username,
+              score: sorted[idx].score
+            };
+          } else {
+            userRank = null;
+          }
+        }
+
+        return res.json({ ok: true, period, limit, items, userRank });
+      } catch (err) {
+        console.error('[LEADERBOARD] GET error', err);
+        return res.status(500).json({ ok: false, error: 'server_error' });
+      }
+    });
+
+    // POST /api/score  { id, username, score, period, avatar? }
+    // Adds or updates a user's score for a period (keeps highest score)
+    app.post('/api/score', express.json(), (req, res) => {
+      try {
+        const body = req.body || {};
+        const entry = normalizeEntry(body);
+        // read
+        const all = readStore();
+
+        // push and then dedupe keeping highest per id+period
+        // we'll keep history entries but for rollup we'll select max score per id+period
+        all.push(Object.assign({}, entry, { ts: Date.now() }));
+
+        // write back
+        const ok = writeStore(all);
+        if (!ok) return res.status(500).json({ ok: false, error: 'write_failed' });
+
+        return res.json({ ok: true, saved: entry });
+      } catch (err) {
+        console.error('[LEADERBOARD] POST error', err);
+        return res.status(500).json({ ok: false, error: 'server_error' });
+      }
+    });
+
+    console.info('[LEADERBOARD] API routes /api/leaderboard and /api/score registered (file-backed store).');
   }
-  return res.status(404).send("Page not found");
-});// === End SPA fallback ===
+} catch (e) {
+  console.warn('[LEADERBOARD] append failed', e);
+}
+// === End leaderboard block ===
 

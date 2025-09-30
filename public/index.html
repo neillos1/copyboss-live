@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ✅ Safe Mode (HOME only) -->
+    <script>window.__CB_SAFE_MODE = true;</script>
+    <script src="/js/safe-mode.js?v=1"></script>
+    
+    <!-- ✅ Dev Crash Guard (local only) -->
+    <script src="/js/dev-crashguard.js?v=1"></script>
+    
     <!-- ✅ Primary SEO Meta -->
     <title>CopyBoss - AI Video Analysis & Script Generation</title>
     <meta name="description" content="CopyBoss is the ultimate AI video analyzer and script generator for creators. Boost engagement, improve video performance, and create viral scripts with one click.">
@@ -2564,9 +2571,25 @@
   <script src="/js/under-footer-cleaner.js"></script>
   <script src="/js/nav-mobile-portal.patch.js"></script>
   <script src="/js/nav-mobile-scrolltop.guard.js"></script>
-  <script src="/js/mascot.failsafe.js?v=4"></script>
-  <script src="/js/mascot.sound.js?v=4"></script>
-  <audio id="mascotSound" src="/assets/audio/mascot-smash.mp3" preload="auto" hidden></audio>
+  
+  <!-- Dev SW/cache nuke (affects localhost/LAN only) -->
+  <script>
+    // Dev SW/cache nuke (affects localhost/LAN only)
+    (function () {
+      var host = location.hostname;
+      if ('serviceWorker' in navigator && (host === 'localhost' || host.startsWith('192.168.'))) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) { regs.forEach(function (r) { r.unregister(); }); });
+        if (window.caches && caches.keys) { caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }); }
+      }
+    })();
+  </script>
+  
+  <script src="/js/mascot.failsafe.js?v=5"></script>
+  <script src="/js/dev-crashguard.js?v=1"></script>
+  <script src="/js/mascot.sound.js?v=5"></script>
+  <script src="/js/safe-mode.js?v=1"></script>
+  <script src="/js/app.js?v=1"></script>
+  <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
   
 </body>
 </html>
