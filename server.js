@@ -47,6 +47,54 @@ app.get(['/api.me', '/api/me'], (_req, res) => {
   res.json({ ok: true, user: null, env: process.env.NODE_ENV || 'development' });
 });
 
+// --- Additional API endpoints for analyzer functionality ---
+app.get('/api/user/status/:userId', (req, res) => {
+  // Stub for user status endpoint
+  res.json({ 
+    ok: true, 
+    user: { 
+      id: req.params.userId, 
+      status: 'active',
+      avatar_url: null 
+    } 
+  });
+});
+
+app.post('/api/save-analysis', express.json(), (req, res) => {
+  // Stub for saving analysis results
+  console.log('📊 Analysis data received:', req.body);
+  res.json({ 
+    ok: true, 
+    saved: true, 
+    id: Date.now() 
+  });
+});
+
+// --- Import API routes (with error handling) ---
+try {
+  const uploadRoute = require('./routes/upload');
+  app.use('/upload', uploadRoute);
+  console.log('✅ Upload route loaded');
+} catch (err) {
+  console.warn('⚠️  Upload route failed to load (missing API keys):', err.message);
+}
+
+try {
+  const analyzeRoute = require('./routes/analyze');
+  app.use('/api/analyze', analyzeRoute);
+  console.log('✅ Analyze route loaded');
+} catch (err) {
+  console.warn('⚠️  Analyze route failed to load (missing API keys):', err.message);
+}
+
+try {
+  const affiliateRoute = require('./routes/affiliate');
+  app.use('/api/affiliate', affiliateRoute);
+  console.log('✅ Affiliate route loaded');
+} catch (err) {
+  console.warn('⚠️  Affiliate route failed to load (missing API keys):', err.message);
+}
+
 // --- Root serves index.html ---
 app.get('/', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
