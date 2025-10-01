@@ -246,3 +246,29 @@ app.get(["/analyzer", "/generator", "/pricing", "/leaderboard"], (req, res) => {
   return res.status(404).send("Page not found");
 });// === End SPA fallback ===
 
+
+// TEMP HOTFIX STUB: /api/analyze
+// This fallback will be used only if the real analyze route failed to register.
+// Returns a queued job response so the frontend won't 404 during testing.
+// Remove this block once routes/analyze.js is fixed.
+try {
+  // Only add stub if app exists and no fatal error
+  if (typeof app !== 'undefined' && app && !app.__ANALYZE_STUB_ADDED) {
+    app.post('/api/analyze', (req, res) => {
+      try {
+        const jobId = `stub-job-${Date.now()}`;
+        console.log(`[HOTFIX STUB] /api/analyze called -> returning job ${jobId}`);
+        return res.json({ ok: true, jobId, status: 'queued', message: 'Analysis queued (temporary stub)' });
+      } catch (err) {
+        console.error('[HOTFIX STUB] analyze handler error', err && err.stack ? err.stack : err);
+        return res.status(500).json({ ok: false, error: 'analyze-stub-error' });
+      }
+    });
+    // mark stub added to avoid duplicate registration if code re-runs
+    app.__ANALYZE_STUB_ADDED = true;
+    console.log('HOTFIX: /api/analyze stub registered');
+  }
+} catch(e) {
+  console.warn('HOTFIX: failed to add /api/analyze stub', e && e.message ? e.message : e);
+}
+
