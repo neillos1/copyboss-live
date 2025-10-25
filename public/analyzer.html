@@ -159,11 +159,9 @@
             
             console.log('✅ removeAllLocks() completed');
             
-            // URGENT FIX: Force page visibility after unlock
-            console.log('🔓 Forcing page visibility after unlock...');
-            document.documentElement.style.display = 'block';
-            document.body.style.display = 'block';
-            console.log('✅ Page visibility restored - no more blank screen');
+            console.log("✅ Forcing full page display override…");
+            document.documentElement.setAttribute("style", "display: block !important;");
+            document.body.setAttribute("style", "display: block !important;");
           }
           
           // Wait for full page load before unlocking to avoid white screen
@@ -9068,6 +9066,10 @@ function unlockPro() {
   // Comprehensive lock removal
   removeAllLocks();
   
+  console.log("✅ Forcing full page display override…");
+  document.documentElement.setAttribute("style", "display: block !important;");
+  document.body.setAttribute("style", "display: block !important;");
+  
   console.log('✅ unlockPro() completed - all locks should be removed');
 }
 
@@ -9213,11 +9215,9 @@ function removeAllLocks() {
   
   console.log('✅ removeAllLocks() completed');
   
-  // URGENT FIX: Force page visibility after unlock
-  console.log('🔓 Forcing page visibility after unlock...');
-  document.documentElement.style.display = 'block';
-  document.body.style.display = 'block';
-  console.log('✅ Page visibility restored - no more blank screen');
+  console.log("✅ Forcing full page display override…");
+  document.documentElement.setAttribute("style", "display: block !important;");
+  document.body.setAttribute("style", "display: block !important;");
 }
 
 function applyLocks() {
