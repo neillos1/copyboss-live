@@ -158,6 +158,12 @@
             });
             
             console.log('✅ removeAllLocks() completed');
+            
+            // URGENT FIX: Force page visibility after unlock
+            console.log('🔓 Forcing page visibility after unlock...');
+            document.documentElement.style.display = 'block';
+            document.body.style.display = 'block';
+            console.log('✅ Page visibility restored - no more blank screen');
           }
           
           // Wait for full page load before unlocking to avoid white screen
@@ -9206,6 +9212,12 @@ function removeAllLocks() {
   });
   
   console.log('✅ removeAllLocks() completed');
+  
+  // URGENT FIX: Force page visibility after unlock
+  console.log('🔓 Forcing page visibility after unlock...');
+  document.documentElement.style.display = 'block';
+  document.body.style.display = 'block';
+  console.log('✅ Page visibility restored - no more blank screen');
 }
 
 function applyLocks() {
