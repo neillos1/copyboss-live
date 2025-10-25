@@ -1,12 +1,24 @@
+const express = require('express');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
-console.log("🧪 Transcript being sent to Gemini:", videoData.transcript?.slice(0, 200) || "❌ No transcript found");
-console.log("🧪 Caption being sent to Gemini:", videoData.caption || "❌ No caption found");
 
+const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function generateGeminiFeedback(videoData) {
   try {
+    // Validate videoData parameter
+    if (!videoData) {
+      throw new Error("videoData is required");
+    }
+
+    // Validate required fields
+    if (!videoData.transcript && !videoData.caption) {
+      throw new Error("Either transcript or caption is required");
+    }
+
+    console.log("🧪 Transcript being sent to Gemini:", videoData.transcript?.slice(0, 200) || "❌ No transcript found");
+    console.log("🧪 Caption being sent to Gemini:", videoData.caption || "❌ No caption found");
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
    const prompt = `
@@ -130,4 +142,59 @@ Caption:
   }
 }
 
-module.exports = generateGeminiFeedback;
+// Express route handler for /api/analyze
+router.post('/', async (req, res) => {
+  try {
+    console.log('🔍 /api/analyze endpoint called');
+    
+    // Validate request body
+    if (!req.body) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Request body is required' 
+      });
+    }
+
+    const { videoData } = req.body;
+    
+    // Validate videoData
+    if (!videoData) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'videoData is required in request body' 
+      });
+    }
+
+    // Validate required fields
+    if (!videoData.transcript && !videoData.caption) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Either transcript or caption is required in videoData' 
+      });
+    }
+
+    console.log('📊 Starting video analysis...');
+    
+    // Generate feedback using Gemini
+    const feedback = await generateGeminiFeedback(videoData);
+    
+    console.log('✅ Analysis completed successfully');
+    
+    res.json({
+      ok: true,
+      jobId: `analyze-${Date.now()}`,
+      status: 'completed',
+      feedback: feedback
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/analyze:', error.message);
+    res.status(500).json({
+      ok: false,
+      error: 'Analysis failed',
+      message: error.message
+    });
+  }
+});
+
+module.exports = router;
