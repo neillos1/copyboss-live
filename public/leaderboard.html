@@ -320,7 +320,32 @@
             margin: 0; 
             padding: 0; 
             display: grid; 
-            gap: 10px; 
+            gap: 16px; 
+        }
+        
+        /* Remove any bullet points and improve spacing */
+        .cb-drawer-list li {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .cb-drawer-list li::before {
+            display: none !important;
+        }
+        
+        .cb-drawer-list li::marker {
+            display: none !important;
+        }
+        
+        /* Improve section spacing */
+        .cb-drawer-section {
+            margin-bottom: 24px !important;
+        }
+        
+        .cb-drawer-title {
+            margin-bottom: 12px !important;
+            padding-bottom: 8px !important;
         }
         
         .cb-drawer-list li a,
@@ -328,7 +353,7 @@
             display: block; 
             width: 100%; 
             text-align: left; 
-            padding: 12px 14px; 
+            padding: 16px 18px; 
             border-radius: 12px; 
             color: #f1f5f9;
             text-decoration: none;
@@ -336,6 +361,7 @@
             border: none;
             cursor: pointer;
             transition: background 0.2s ease;
+            margin: 0;
         }
         
         .cb-drawer-list li a:hover,

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Unlock</title>
+</head>
+<body>
+    <h1>Test Unlock Page</h1>
+    <div class="pro-locked">This should be unlocked</div>
+    <div class="locked-overlay">This overlay should be hidden</div>
+    <div class="result-content" style="filter: blur(8px); opacity: 0.5;">This content should be unblurred</div>
+    <img src="/_prod/assets/img/padlock.png" alt="padlock" style="width: 50px;">This padlock should be hidden</img>
+    <img src="/_prod/assets/img/locked-overlay-chains.png" alt="chains" style="width: 50px;">These chains should be hidden</img>
+    <button class="btn-upgrade">Upgrade Now</button>
+    <div>Please upgrade to continue</div>
+    
+    <script>
+        // Test the unlock logic
+        function testUnlock() {
+            console.log('🧪 Testing unlock logic...');
+            
+            // Simulate Pro status
+            localStorage.setItem('isPro', 'true');
+            
+            // Call the unlock function
+            if (typeof window.forceUnlockPro === 'function') {
+                window.forceUnlockPro();
+            } else {
+                console.log('❌ forceUnlockPro not available');
+            }
+        }
+        
+        // Run test after page loads
+        document.addEventListener('DOMContentLoaded', testUnlock);
+    </script>
+</body>
+</html>

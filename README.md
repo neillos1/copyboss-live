@@ -1,3 +1,7 @@
+# CopyBoss Video Analysis Platform
+
+> **🔒 HTTPS Setup**: This project runs on HTTPS with self-signed certificates to support Stripe iframes. See [HTTPS_SETUP.md](HTTPS_SETUP.md) for browser setup instructions.
+
 # [Now UI Dashboard](https://demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/home?status=Now%20UI%20Dashboard%20by%20Creative%20Tim%20https%3A//demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html%20%40CreativeTim%20%23html%20%23dashboard%20%23nowuidesign%20%40creativetim)
 
 

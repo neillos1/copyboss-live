@@ -1,0 +1,185 @@
+/* CopyBoss – mobile-only safety overrides (Home only)
+   Load this AFTER your main styles. Keep tiny + scoped.
+*/
+@media (max-width: 768px) {
+  /* Make CTAs real, tappable links */
+  a.cta-btn, a[data-cta] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    touch-action: manipulation;
+  }
+
+  /* Kill accidental intercepts on decorative layers */
+  .stars, .particles, .glow, .bg-decor, .shine, .hero-overlay,
+  .gradient-veil, .fx-layer, .canvas-bg {
+    pointer-events: none !important;
+  }
+
+  /* Hidden/aria-hidden layers cannot catch taps */
+  .is-hidden, [aria-hidden="true"], .hidden, .sr-only {
+    pointer-events: none !important;
+  }
+
+  /* Cookie banner will be enabled later by JS when ready */
+  .cookie-banner:not(.is-ready) { display: none !important; }
+
+  /* TEMP: disable trust footer/ribbons on mobile to prevent split view */
+  .trust-footer, .trust-ribbon, .compliance-ribbon {
+    display: none !important;
+  }
+
+  /* Broader kill-switch for mobile trust/compliance ribbons site-wide */
+  #trust-footer, footer.trust, .trust-footer, .footer--trust,
+  .trust-ribbon, .compliance-ribbon, .compliance-footer,
+  .payment-security, .payment-security-section,
+  .compliance, .compliance-section,
+  .social-proof, .social-proof-section {
+    display: none !important;
+  }
+
+  /* Any fixed element sitting at the bottom should NOT intercept taps unless explicitly allowed */
+  [data-fixed-bottom], .fixed-bottom, .sticky-bottom, .cookie-banner,
+  [class*="footer"][class*="sticky"], [class*="ribbon"][class*="footer"] {
+    pointer-events: none !important;
+  }
+
+  /* But once cookie banner is "ready", it can be interactive */
+  .cookie-banner.is-ready {
+    pointer-events: auto !important;
+  }
+
+  /* Make sure auth/login panels sit above anything else if opened */
+  .auth-panel, .auth-modal, .modal, .drawer {
+    position: relative;
+    z-index: 50;
+  }
+
+  /* iOS scrolling/transform nudge */
+  html, body { overscroll-behavior-y: none; }
+  .page-wrap { transform: translateZ(0); }
+
+  /* Re-enable pointer events for real modals (don't block them) */
+  .modal, .modal * , .modal-overlay { pointer-events: auto !important; }
+  .modal-overlay { position: fixed; inset: 0; z-index: 9998; }
+  .modal { z-index: 9999; }
+}
+
+/* — Stripe badge (Font Awesome) — */
+.cb-stripe-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.06);
+  color:#d9def3;font-size:12.5px;line-height:1;
+  margin-top:14px;-webkit-font-smoothing:antialiased
+}
+.cb-stripe-badge strong{font-weight:700;color:#fff}
+.cb-stripe-badge .fa-stripe{font-size:16px;line-height:1}
+
+/* Tidy spacing in common card wrappers */
+.pricing-card .cb-stripe-badge,
+.plan-card .cb-stripe-badge{margin-top:14px}
+
+/* Nuke any leftover old rows on sight */
+.pricing-card :is(.stripe-note,.payment-note,.stripe-secure){display:none!important}
+
+/* If any accidental SVG left with this class, hide it */
+.pricing-card svg.cb-stripe-logo{display:none!important}
+
+@media (max-width:768px){
+  .cb-stripe-badge{font-size:12px;padding:7px 10px;justify-content:center;white-space:nowrap}
+  .cb-stripe-badge .fa-stripe{font-size:15px}
+}
+
+@media (max-width: 900px){
+  /* Cover viewport, independent of page scroll */
+  .mobile-menu, .menu-panel, .nav-drawer, .site-nav--mobile, [data-mobile-menu]{
+    position: fixed !important;
+    inset: 0 !important;           /* top:0 right:0 bottom:0 left:0 */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    z-index: 9999 !important;
+    transform: translate3d(0,0,0) !important; /* avoid off-screen transforms */
+    will-change: transform;
+    pointer-events: auto !important;
+  }
+  /* When closed, many sites toggle one of these; ensure visible states win */
+  .is-open .mobile-menu, .is-open .menu-panel, .is-open .nav-drawer,
+  .mobile-menu.is-open, .menu-panel.is-open, .nav-drawer.is-open,
+  [data-mobile-menu][aria-hidden="false"]{
+    visibility: visible !important; opacity: 1 !important;
+  }
+}
+
+@media (max-width: 900px){
+  /* When portaled, force the drawer to be a true viewport-fixed panel */
+  .cb-menu-portal {
+    position: fixed !important;
+    inset: 0 !important;                /* top/right/bottom/left: 0 */
+    width: 100vw !important;
+    height: 100dvh !important;          /* dynamic viewport on iOS */
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    z-index: 10050 !important;
+    transform: none !important;         /* ignore parent transforms */
+    pointer-events: auto !important;
+    background: inherit;                /* keep your theme */
+  }
+  .cb-menu-portal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10040 !important;
+    pointer-events: auto !important;
+  }
+  /* While open, lock the page beneath */
+  .cb-nav-open {
+    position: relative;
+  }
+  .cb-nav-open body {                   /* in case styles target body */
+    overflow: hidden !important;
+  }
+}
+
+/* Ensure transforms/perspective on backgrounds don't create a new containing block while open */
+@media (max-width: 900px){
+  .cb-nav-open .site-wrap,
+  .cb-nav-open .page,
+  .cb-nav-open .app,
+  .cb-nav-open .stars-bg,
+  .cb-nav-open .hero {
+    transform: none !important;
+  }
+}
+
+/* Mascot failsafe: once done, block any overlay from intercepting taps */
+html.mascot-done #mascot,
+html.mascot-done .mascot-root,
+html.mascot-done .mascot-overlay { display:none !important; pointer-events:none !important; opacity:0 !important; }
+
+/* Mascot kill for pseudo-element overlays */
+html.mascot-done::before,
+html.mascot-done::after,
+body.mascot-done::before,
+body.mascot-done::after,
+#mascot-overlay::before,
+#mascot-overlay::after,
+.mascot-overlay::before,
+.mascot-overlay::after {
+  content: none !important;
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Force page to be interactive once mascot is done */
+html.mascot-done, body.mascot-done {
+  overflow: auto !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}

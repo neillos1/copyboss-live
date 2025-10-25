@@ -1,0 +1,83 @@
+/* === Mobile Analyzer Reset (CSS-only, no JS) === */
+@media (max-width: 768px) {
+
+  html, body, body.page-analyzer { overflow-x: hidden !important; }
+
+  /* 0) Safe gutters so glows aren't clipped */
+  :root { --cb-gutter: 16px; }
+  body.page-analyzer {
+    padding-left: calc(var(--cb-gutter) + env(safe-area-inset-left)) !important;
+    padding-right: calc(var(--cb-gutter) + env(safe-area-inset-right)) !important;
+  }
+
+  /* 1) Hide any left "rail" / decorative strips that create the apparent gap */
+  body.page-analyzer .bg-rail,
+  body.page-analyzer .left-rail,
+  body.page-analyzer [class*="rail"],
+  body.page-analyzer .rail,
+  body.page-analyzer .rail-left {
+    display: none !important;
+  }
+  /* also kill pseudo rails if they're done with ::before/::after */
+  body.page-analyzer .bg-rail::before,
+  body.page-analyzer .bg-rail::after,
+  body.page-analyzer [class*="rail"]::before,
+  body.page-analyzer [class*="rail"]::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* 2) Collapse any reserved sidebar math from dashboard templates */
+  body.page-analyzer .main-panel,
+  body.page-analyzer #main-wrapper,
+  body.page-analyzer .main-wrapper,
+  body.page-analyzer .wrapper,
+  body.page-analyzer main {
+    width: 100% !important;       /* not calc(100% - 260px), not 100vw */
+    max-width: 720px;             /* readable cap; adjust if you want */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    float: none !important;
+    overflow: visible !important; /* let glows show */
+  }
+
+  /* 3) Ensure the top header/nav and footer use same gutters */
+  body.page-analyzer header,
+  body.page-analyzer .navbar,
+  body.page-analyzer footer,
+  body.page-analyzer .footer,
+  body.page-analyzer .site-footer {
+    padding-left: calc(var(--cb-gutter) + env(safe-area-inset-left)) !important;
+    padding-right: calc(var(--cb-gutter) + env(safe-area-inset-right)) !important;
+  }
+
+  /* 4) Chart/canvas & cards must respect container width */
+  body.page-analyzer canvas,
+  body.page-analyzer #copyBossChart,
+  body.page-analyzer .chart,
+  body.page-analyzer .report-card,
+  body.page-analyzer .cards-grid,
+  body.page-analyzer .card {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* 5) Kill any fixed/absolute skinny elements hugging the left edge (≤12px) */
+  body.page-analyzer * {
+    /* only touches mobile; prevents tiny rails forcing a visual gutter */
+    outline-offset: 0; /* keep harmless; this block is about left/width only */
+  }
+  body.page-analyzer * {
+    /* target skinny, tall, near-left elements */
+  }
+  body.page-analyzer *:where(:not(script)):where(:not(style)) {
+    /* nothing needed here; the rail selectors above do the heavy lift */
+  }
+}

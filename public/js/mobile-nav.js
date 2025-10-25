@@ -300,7 +300,7 @@
           title: 'Community',
           items: [
             { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/', proxy:['.btn-community','a[href*="community"]'] },
-            { label:'Top 10 This Week', icon:'🏆', href:'/top-10', proxy:['.leaderboard-link','a[href*="top-10"]'] }
+            { label:'Top 10 This Week', icon:'🏆', href: isAnalyzerPage ? '#' : '/top-10', proxy:['.leaderboard-link','a[href*="top-10"]'] }
           ]
         },
         {
@@ -1347,7 +1347,9 @@
       if (label.includes('top 10') || label.includes('top ten') || label.includes('leaderboard') || href.includes('top-10') || href.includes('leaderboard')){
         a.removeAttribute && a.removeAttribute('href'); // prevent 404 routes
         a.setAttribute && a.setAttribute('role','button');
+        a.setAttribute && a.setAttribute('data-action','leaderboard');
         a.style && (a.style.cursor='pointer');
+        a.style && (a.style.textDecoration='none');
       }
     });
   }
@@ -1363,15 +1365,20 @@
       const node = e.target.closest('#cb-drawer .cb-item, #cb-drawer a, #cb-drawer button, #cb-drawer [role="button"]');
       if (!node) return;
       const label=(node.querySelector('.cb-label')?.textContent || node.textContent || '').trim().toLowerCase();
-      const isLB = label.includes('top 10') || label.includes('top ten') || label.includes('leaderboard');
+      const isLB = label.includes('top 10') || label.includes('top ten') || label.includes('leaderboard') || node.getAttribute('data-action') === 'leaderboard';
       if (!isLB) return;
 
       e.preventDefault();
-      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
       e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
 
-      openLeaderboard();
-      closeDrawer();
+      // Try to open leaderboard
+      const success = openLeaderboard();
+      if (success) {
+        closeDrawer();
+      } else {
+        console.log('Leaderboard not found or failed to open');
+      }
     };
 
     if (!drawer.__cbLeaderboardV2Bound){

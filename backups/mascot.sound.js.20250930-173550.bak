@@ -1,0 +1,111 @@
+(function(){
+  var audioEl = document.getElementById('mascotSound');
+  if(!audioEl) return; // require explicit tag so path is correct
+  var played=false;
+
+  function play(){
+    if(played) return;
+    audioEl.play().then(()=>{ played=true; }).catch(()=>{ /* will fire on gesture */ });
+  }
+
+  // Play when mascot finishes
+  window.addEventListener('mascot:finished', function(){ play(); });
+
+  // If blocked, first user gesture will trigger it
+  ['pointerdown','click','keydown','touchstart'].forEach(evt=>{
+    window.addEventListener(evt, function once(){
+      if(!played) play();
+      window.removeEventListener(evt, once, true);
+    }, true);
+  });
+})();
+// === AUTOPLAY-SAFE RESOLVER (appended by Cursor) ===
+// Attempts to play mascot audio, shows unobtrusive play button if autoplay blocked,
+// and ALWAYS resolves window.mascotReadyPromise (or calls mascotReadyResolve) within a short timeout
+(function mascotAudioSafeInit(){
+  try {
+    if (window.__MASCOT_SAFE_RESOLVED) return;
+    window.__MASCOT_SAFE_RESOLVED = false;
+
+    const resolveMascot = (info={}) => {
+      if (window.__MASCOT_SAFE_RESOLVED) return;
+      window.__MASCOT_SAFE_RESOLVED = true;
+      try { if (typeof window.mascotReadyResolve === 'function') window.mascotReadyResolve(info); } catch(e){}
+      try { window.mascotReadyPromise = Promise.resolve(info); } catch(e){}
+      // Dispatch finished event just in case mascot code listens for it
+      try { window.dispatchEvent && window.dispatchEvent(new CustomEvent('mascot:finished', {detail: info})); } catch(e){}
+      console.info('[DEV] mascotAudioSafeInit resolved', info);
+    };
+
+    // find existing audio element or fallback
+    const audioSelectorCandidates = ['#mascot-audio','audio#mascot-audio','.mascot-audio','audio[data-mascot]'];
+    let audioEl = null;
+    for (const s of audioSelectorCandidates) {
+      const el = document.querySelector(s);
+      if (el && typeof el.play === 'function') { audioEl = el; break; }
+    }
+
+    // optional: if you have a known src, you can uncomment and set it:
+    // if (!audioEl) { audioEl = new Audio('/audio/mascot-intro.mp3'); audioEl.id='mascot-audio'; }
+
+    const finishTimeout = setTimeout(() => {
+      resolveMascot({ reason: 'timeout' });
+    }, 2500);
+
+    const tryPlay = () => {
+      if (!audioEl || typeof audioEl.play !== 'function') {
+        resolveMascot({ played: false, reason: 'no-audio-element' });
+        return;
+      }
+      const p = audioEl.play();
+      if (!p || typeof p.then !== 'function') {
+        // not a promise — assume played
+        setTimeout(() => resolveMascot({ played: true }), 300);
+        return;
+      }
+      p.then(() => {
+        clearTimeout(finishTimeout);
+        resolveMascot({ played: true });
+      }).catch(err => {
+        clearTimeout(finishTimeout);
+        console.warn('[DEV] mascot audio autoplay blocked or failed:', err);
+        try {
+          if (!document.getElementById('mascot-play-btn')) {
+            const btn = document.createElement('button');
+            btn.id = 'mascot-play-btn';
+            btn.innerText = 'Play mascot intro';
+            btn.setAttribute('aria-label','Play mascot intro');
+            Object.assign(btn.style, {
+              position: 'fixed',
+              right: '14px',
+              bottom: '14px',
+              zIndex: 2147483647,
+              padding: '8px 12px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              background: 'white'
+            });
+            btn.addEventListener('click', () => {
+              audioEl.play().catch(()=>{});
+              btn.remove();
+            });
+            document.body.appendChild(btn);
+          }
+        } catch(e){}
+        // resolve anyway so overlay doesn't hang
+        resolveMascot({ played: false, reason: 'autoplay-blocked' });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', tryPlay, { once: true });
+    } else {
+      tryPlay();
+    }
+  } catch (err) {
+    console.error('mascotAudioSafeInit error', err);
+    try { if (typeof window.mascotReadyResolve === 'function') window.mascotReadyResolve({ error: true }); } catch(e){}
+  }
+})();

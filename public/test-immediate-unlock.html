@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Immediate Unlock</title>
+</head>
+<body>
+    <h1>Test Immediate Unlock</h1>
+    
+    <!-- Test elements that should be unlocked -->
+    <div class="pro-locked" style="background: red; padding: 10px; margin: 10px;">This should be unlocked (red background should remain)</div>
+    <div class="locked-overlay" style="background: blue; padding: 10px; margin: 10px;">This overlay should be hidden</div>
+    <div class="result-content" style="filter: blur(8px); opacity: 0.5; background: yellow; padding: 10px; margin: 10px;">This content should be unblurred</div>
+    <img src="/_prod/assets/img/padlock.png" alt="padlock" style="width: 50px; border: 2px solid red;">This padlock should be hidden</img>
+    <img src="/_prod/assets/img/locked-overlay-chains.png" alt="chains" style="width: 50px; border: 2px solid blue;">These chains should be hidden</img>
+    <button class="btn-upgrade" style="background: green; padding: 10px; margin: 10px;">Upgrade Now - This should be hidden</button>
+    <div style="background: orange; padding: 10px; margin: 10px;">Please upgrade to continue - This should be hidden</div>
+    
+    <script>
+        console.log('🧪 Test page loaded');
+        console.log('Current URL:', window.location.href);
+        
+        // Simulate Pro parameters
+        const url = new URL(window.location.href);
+        url.searchParams.set('plan', 'pro');
+        url.searchParams.set('upgraded', 'true');
+        window.history.replaceState({}, '', url);
+        
+        console.log('Set URL parameters:', url.search);
+        
+        // Test the unlock function
+        setTimeout(() => {
+            if (typeof window.forceUnlockPro === 'function') {
+                console.log('🧪 Testing forceUnlockPro...');
+                window.forceUnlockPro();
+            } else {
+                console.log('❌ forceUnlockPro not available');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,901 @@
+html, body { overflow-x: hidden; }
+
+/* === Mobile analyzer hard-stop (minimal) === */
+@media (max-width: 768px){
+  /* kill left rail offsets on top-level shells only */
+  html, body { overflow-x: hidden !important; }
+  .wrapper, .page, .main, #main, .container, .analyzer-container {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  /* common grid shells: one column, no gaps */
+  .report-grid, .dashboard-grid, .content-grid, .layout-grid {
+    grid-template-columns: 1fr !important;
+    column-gap: 0 !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  /* children fill width safely */
+  .analyzer-container > *, .report-grid > *, .dashboard-grid > *, .content-grid > *, .layout-grid > * {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  /* do NOT touch positions of overlays/locks/chains here */
+}
+
+/* --- Analyzer mobile: neutralize sidebar math, nothing else --- */
+@media (max-width: 768px) {
+  /* main-panel in now-ui-dashboard sets width: calc(100% - 260px) and float:right. Kill both. */
+  body.page-analyzer .main-panel {
+    width: 100% !important;
+    float: none !important;
+  }
+
+  /* Some wrappers add left padding/margin/left/transform to make room for sidebar. Zero them. */
+  body.page-analyzer .wrapper,
+  body.page-analyzer #main-wrapper,
+  body.page-analyzer main {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* --- Analyzer mobile: trim inner padding/margins only --- */
+@media (max-width: 768px) {
+  /* now-ui-dashboard commonly uses .main-panel > .content { padding: 30px 15px } */
+  body.page-analyzer .main-panel > .content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Some templates wrap sections in .container / .container-fluid with extra padding */
+  body.page-analyzer .content .container,
+  body.page-analyzer .content .container-fluid,
+  body.page-analyzer .content .row {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* The top chart area (panel header) often has its own inset */
+  body.page-analyzer .panel-header,
+  body.page-analyzer .panel-header .header,
+  body.page-analyzer .panel-header .container,
+  body.page-analyzer .panel-header .container-fluid {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* === MOBILE NAVIGATION STYLES === */
+.cb-navbar { position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(8px); }
+.cb-nav-inner { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; }
+.cb-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.cb-brand-img { width:28px; height:28px; object-fit:contain; }
+.cb-brand-text { 
+  font-weight:700; 
+  font-size:18px; 
+  line-height:1; 
+  white-space:nowrap;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cb-actions { display:flex; align-items:center; gap:10px; }
+.cb-avatar-holder { 
+  flex: 0 0 auto; 
+  display: flex; 
+  align-items: center; 
+  margin-right: 0; 
+}
+.cb-avatar-img { 
+  flex: 0 0 auto; 
+  margin-right: 0 !important; 
+}
+.cb-btn { padding:8px 12px; border-radius:10px; cursor:pointer; }
+.cb-btn-primary { font-weight:600; }
+.cb-btn-secondary { font-weight:600; }
+
+/* Burger: stacked lines */
+.cb-burger{
+  display:flex;
+  flex-direction:column;              /* stack vertically */
+  justify-content:space-between;      /* even spacing */
+  align-items:center;
+  width:40px;
+  height:32px;
+  padding:6px 8px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06);
+  backdrop-filter: blur(8px);
+}
+
+.cb-burger-line{
+  width:100%;
+  height:2px;
+  background:#fff;
+  border-radius:2px;
+  transition:transform .2s ease, opacity .2s ease;
+}
+
+/* Morph to X when open */
+.cb-burger.open .cb-burger-line:nth-child(1){
+  transform: translateY(7px) rotate(45deg);
+}
+.cb-burger.open .cb-burger-line:nth-child(2){
+  opacity:0;
+}
+.cb-burger.open .cb-burger-line:nth-child(3){
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Optional: hover/active polish */
+@media (hover:hover){
+  .cb-burger:hover{ border-color: rgba(255,255,255,.35); }
+}
+.cb-burger:active{ transform: scale(.98); }
+
+.cb-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1199;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+.cb-backdrop[hidden] {
+  display: none;
+}
+.cb-backdrop.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cb-drawer { 
+  position: fixed; 
+  top: 0; 
+  right: 0; 
+  bottom: 0; 
+  width: 88%; 
+  max-width: 360px; 
+  transform: translateX(100%); 
+  transition: transform 0.25s ease; 
+  z-index: 1200; 
+  background: #0b0f1a;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+}
+.cb-drawer.open { 
+  transform: translateX(0); 
+}
+.cb-drawer-scroll { 
+  height: 100%; 
+  overflow: auto; 
+  padding: 16px; 
+  padding-top: 20px;
+}
+.cb-drawer-list { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.cb-drawer-list li a,
+.cb-drawer-list li button { display:block; width:100%; text-align:left; padding:12px 14px; border-radius:12px; }
+
+.cb-drawer-leaderboard { margin-top:16px; }
+
+.cb-drawer-list li.cb-pro { position: relative; }
+.cb-pro-pill { position:absolute; top:8px; right:10px; font-size:11px; font-weight:700; padding:2px 6px; border-radius:8px; background:#7c3aed; color:#fff; pointer-events:none; }
+
+@media (max-width: 768px) {
+  .cb-burger { display: flex !important; }
+  .sidebar { display:none !important; }
+  .cb-brand-text { font-size:16px; }
+  .cb-actions .cb-btn { padding:8px 10px; }
+  body { margin:0; }
+}
+
+/* Red X close button (only visible when drawer is open) */
+.cb-close{
+  position: fixed;         /* pin to viewport corner */
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  line-height: 34px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  background: #e11d48;     /* red */
+  border: 2px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(225,29,72,.35);
+  display: none;           /* hidden by default */
+  z-index: 1300;           /* above drawer */
+}
+.cb-close:active{ transform: scale(.96); }
+
+/* Show only when drawer is open */
+.cb-drawer.open + .cb-close, /* in case of different DOM ordering */
+.cb-drawer.open .cb-close,
+.cb-drawer.open ~ .cb-close{
+  display: block;
+}
+
+/* iOS safe-area padding for notches */
+@supports (padding: max(0px)){
+  .cb-close{ top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
+}
+
+/* Optional: hide burger while open (cleaner UI) */
+@media (max-width:768px){
+  .cb-burger.open{ visibility: hidden; } /* the red X is the closer */
+}
+
+:root{
+  --cb-blue: #3b82f6;        /* tweak if you use another brand blue */
+  --cb-blue-2: #2563eb;
+}
+
+.cb-btn.cb-btn-primary{
+  background: linear-gradient(180deg, var(--cb-blue), var(--cb-blue-2));
+  color:#fff;
+  border:none;
+  box-shadow: 0 8px 22px rgba(37,99,235,.35);
+}
+.cb-btn.cb-btn-primary:active{ transform: translateY(1px); }
+
+/* Fallback analyzing overlay (used only if desktop one not found) */
+.cb-analyzing-overlay{
+  position: fixed; inset: 0; z-index: 1400;
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+  background: rgba(2,6,23,.55);
+}
+.cb-analyzing-overlay.show{ display:flex; }
+.cb-analyzing-box{
+  min-width: 240px; padding: 18px 20px; border-radius: 14px;
+  background: #0b0f1a; color:#e5e7eb; text-align:center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+.cb-analyzing-box .cb-spinner{
+  width:28px; height:28px; border-radius:50%;
+  border:3px solid rgba(255,255,255,.18); border-top-color:#60a5fa;
+  margin:0 auto 10px; animation: cbspin 0.9s linear infinite;
+}
+@keyframes cbspin{ to{ transform: rotate(360deg);} }
+
+@media (max-width:768px){
+  .cb-actions{ gap:10px; }
+  /* hide any legacy headers on mobile to prevent double bars */
+  header:not(#cb-header), .site-header:not(#cb-header), .navbar:not(#cb-header){ display:none !important; }
+}
+
+/* Keep only cb-header on mobile */
+@media (max-width: 768px) {
+  /* Hide any other header/nav bars the theme might inject */
+  header:not(#cb-header),
+  .site-header:not(#cb-header),
+  .topnav:not(#cb-header),
+  .navbar:not(#cb-header),
+  .main-header:not(#cb-header) {
+    display: none !important;
+  }
+
+  /* Ensure our header always shows */
+  #cb-header { display: block !important; }
+}
+
+/* ---------- Mobile: wider & slimmer Upload button in navbar ---------- */
+@media (max-width: 768px){
+  /* Keep row tight and aligned */
+  .cb-nav-inner{ flex-wrap: nowrap; gap: 10px; }
+  .cb-actions{ display:flex; align-items:center; gap:10px; min-width:0; flex:1; justify-content:flex-end; }
+
+  /* Upload: balanced width to fit navbar without cutting off title */
+  #cb-upload-btn{
+    flex: 0 0 auto;       /* don't stretch, don't shrink */
+    min-width: 120px;     /* fixed minimum width */
+    max-width: 140px;     /* fixed maximum width */
+    height: 38px;         /* shorter button */
+    padding: 0 16px;      /* slim vertical padding */
+    border-radius: 12px;
+    font-size: 15px;
+    white-space: nowrap;  /* prevent text wrapping */
+    font-weight: 700;
+  }
+
+  /* Burger: match button height and stay compact */
+  .cb-burger{
+    flex: 0 0 40px;
+    height: 38px;
+  }
+
+  /* Slightly tighten brand text so everything fits neatly */
+  .cb-brand-text{ font-size: 16px; }
+}
+
+/* Small devices (≤390px) */
+@media (max-width: 390px){
+  .cb-avatar-img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  #cb-upload-btn{
+    min-width: 84px;   /* smaller for small devices */
+    max-width: 96px;   /* keep it contained */
+    font-size: 14px;
+    padding: 0 12px;   /* reduce horizontal padding */
+  }
+}
+
+/* Tiny phones (e.g., iPhone 12/13 mini) */
+@media (max-width: 375px){
+  #cb-upload-btn{
+    min-width: 70px;   /* slightly smaller for tiny phones */
+    max-width: 90px;   /* keep it contained */
+    font-size: 13px;
+    padding: 0 10px;   /* further reduce padding */
+  }
+  .cb-brand-text{ font-size: 15px; }
+}
+
+/* Ultra-narrow devices (≤340px) - icon-only fallback */
+@media (max-width: 340px){
+  #cb-upload-btn{
+    min-width: 44px;   /* icon-only width */
+    max-width: 44px;   /* icon-only width */
+    padding: 0 8px;    /* minimal padding */
+    font-size: 0;      /* hide text */
+    position: relative;
+  }
+  
+  #cb-upload-btn::before {
+    content: "📁";     /* upload icon */
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .cb-avatar-img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+/* Drawer sectioning + item visuals */
+.cb-drawer-section{ margin:8px 0 14px; }
+.cb-drawer-title{
+  font-size:12px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; opacity:.65; margin:6px 4px 8px;
+}
+.cb-section-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+
+.cb-item{
+  display:flex !important; 
+  align-items:center !important; 
+  gap:10px !important;
+  padding:10px 20px !important; 
+  border-radius:12px; 
+  text-decoration:none;
+}
+.cb-item:hover{ background:rgba(255,255,255,.05); }
+.cb-item.active{ background:rgba(99,102,241,.15); outline:1px solid rgba(99,102,241,.25); }
+
+.cb-ico{
+  width:20px !important; 
+  flex:0 0 20px !important; 
+  text-align:center; 
+  opacity:.85;
+  margin-right: 0 !important;
+}
+
+.cb-label{
+  flex:1 !important; 
+  font-weight:500;
+  margin-left: 0 !important;
+}
+
+/* PRO pill already exists; keep it aligned */
+.cb-section-list li.cb-pro{ position:relative; }
+.cb-section-list li .cb-pro-pill{
+  position:absolute; right:10px; top:8px; font-size:11px; font-weight:800;
+  padding:2px 6px; border-radius:8px; background:#7c3aed; color:#fff; pointer-events:none;
+}
+
+/* === EXTRA SMALL MOBILE OPTIMIZATION === */
+@media (max-width: 375px) {
+  .cb-nav-inner {
+    padding: 8px 10px !important;
+    gap: 6px !important;
+  }
+  
+  .cb-brand-img {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  
+  .cb-brand-text {
+    font-size: 15px !important;
+  }
+  
+  #cb-upload-btn {
+    min-width: 70px !important;
+    max-width: 90px !important;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+  }
+  
+  .cb-burger {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+}
+
+/* === ADDITIONAL MOBILE NAVIGATION SAFEGUARDS === */
+@media (max-width: 768px) {
+  /* Force hide any remaining desktop navigation elements */
+  header:not(#cb-header),
+  header:not(#cb-header) *,
+  .bg-gray-900\/50,
+  .bg-gray-900\/50 *,
+  .navbar-nav:not(.cb-drawer-list),
+  .navbar-nav:not(.cb-drawer-list) * {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+  }
+
+  /* Ensure mobile navigation takes full width */
+  #cb-header {
+    width: 100% !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* Prevent any flexbox stretching */
+  .cb-nav-inner > * {
+    flex-shrink: 0 !important;
+  }
+
+  /* Ensure logo container doesn't stretch */
+  .cb-brand {
+    max-width: calc(50% - 20px) !important;
+  }
+
+  /* Ensure actions container doesn't stretch */
+  .cb-actions {
+    max-width: calc(50% - 20px) !important;
+  }
+}
+
+/* ===== Mobile header polish: bigger brand + sleek burger ===== */
+@media (max-width: 768px){
+  /* Brand: slightly larger, but truncate if space is tight */
+  .cb-brand{ min-width: 0; gap: 10px; }
+  .cb-brand-img{ width: 30px; height: 30px; object-fit: contain; }
+  .cb-brand-text{
+    font-weight: 800;
+    font-size: clamp(16px, 4.5vw, 20px);   /* slightly smaller to fit better */
+    letter-spacing: .1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60vw;                       /* much more space for brand text */
+  }
+
+  /* Sleek burger container (premium glass look) */
+  .cb-burger{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 42px;
+    height: 42px;
+    padding: 9px;
+    border-radius: 14px;
+
+    background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border: 1px solid rgba(255,255,255,.2);
+    backdrop-filter: blur(16px);
+    box-shadow:
+      0 4px 16px rgba(0,0,0,.15),
+      0 2px 8px rgba(0,0,0,.1),
+      inset 0 1px 0 rgba(255,255,255,.1),
+      inset 0 -1px 0 rgba(0,0,0,.1);
+
+    transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .cb-burger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+    transition: left .6s ease;
+  }
+  
+  @media (hover:hover){
+    .cb-burger:hover{ 
+      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
+      border-color: rgba(255,255,255,.3);
+      transform: translateY(-1px);
+      box-shadow:
+        0 6px 20px rgba(0,0,0,.2),
+        0 3px 12px rgba(0,0,0,.15),
+        inset 0 1px 0 rgba(255,255,255,.15),
+        inset 0 -1px 0 rgba(0,0,0,.1);
+    }
+    .cb-burger:hover::before {
+      left: 100%;
+    }
+  }
+  .cb-burger:active{ 
+    transform: scale(.96) translateY(0);
+    transition: transform .1s ease;
+  }
+  .cb-burger:focus-visible{ 
+    outline: 2px solid #60a5fa; 
+    outline-offset: 2px;
+    box-shadow:
+      0 4px 16px rgba(0,0,0,.15),
+      0 2px 8px rgba(0,0,0,.1),
+      inset 0 1px 0 rgba(255,255,255,.1),
+      inset 0 -1px 0 rgba(0,0,0,.1),
+      0 0 0 2px #60a5fa;
+  }
+
+  /* Lines: refined thickness/spacing + animation to X */
+  .cb-burger-line{
+    width: 100%;
+    height: 2.5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #f8fafc, #e2e8f0);
+    transform-origin: center;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    position: relative;
+  }
+  .cb-burger-line:nth-child(2){ 
+    width: 85%; 
+    opacity: .9;
+    background: linear-gradient(90deg, #f1f5f9, #cbd5e1);
+  }
+  .cb-burger-line:nth-child(1),
+  .cb-burger-line:nth-child(3) {
+    background: linear-gradient(90deg, #ffffff, #f1f5f9);
+  }
+
+  /* Morph to X when open (your JS already toggles .open on the button) */
+  .cb-burger.open .cb-burger-line:nth-child(1){
+    transform: translateY(8px) rotate(45deg);
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+    box-shadow: 0 1px 3px rgba(239,68,68,.3);
+  }
+  .cb-burger.open .cb-burger-line:nth-child(2){
+    opacity: 0; 
+    transform: scaleX(.2) scaleY(.2);
+    transition: all .2s ease;
+  }
+  .cb-burger.open .cb-burger-line:nth-child(3){
+    transform: translateY(-8px) rotate(-45deg);
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+    box-shadow: 0 1px 3px rgba(239,68,68,.3);
+  }
+
+  /* Keep Upload matching height for a tidy row */
+  #cb-upload-btn{
+    height: 36px !important;
+    padding: 6px 10px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    min-width: 60px !important;
+    max-width: 75px !important;
+  }
+}
+
+/* iOS safe-area nudge so the header breathes under the notch */
+@supports (padding: max(0px)){
+  @media (max-width: 768px){
+    .cb-nav-inner{ padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  }
+}
+
+@media (max-width: 768px){
+  /* Make the 4 locked tiles positioning contexts */
+  #cb-gauges > *:nth-child(1),
+  #cb-gauges > *:nth-child(2),
+  #cb-gauges > *:nth-child(5),
+  #cb-gauges > *:nth-child(6){
+    position: relative;
+  }
+
+  /* Center the PADLOCK. We do NOT touch chain images at all. */
+  #cb-gauges > *:nth-child(1) img[src*="lock"],
+  #cb-gauges > *:nth-child(2) img[src*="lock"],
+  #cb-gauges > *:nth-child(5) img[src*="lock"],
+  #cb-gauges > *:nth-child(6) img[src*="lock"]{
+    position: absolute;
+    left: var(--lock-left, 50%);
+    top:  var(--lock-top,  50%);
+    transform: translate(-50%, -50%);
+    width: clamp(28px, 12vw, 44px);
+    height: auto;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Keep the CTA above the lock */
+  #cb-gauges > *:nth-child(1) .unlock-btn,
+  #cb-gauges > *:nth-child(2) .unlock-btn,
+  #cb-gauges > *:nth-child(5) .unlock-btn,
+  #cb-gauges > *:nth-child(6) .unlock-btn{
+    position: relative; z-index: 6;
+  }
+
+  /* ---------- STARTER values (EDIT THESE ONLY) ---------- */
+  /* 1 = top-left */
+  #cb-gauges > *:nth-child(1){ --lock-top: 25%; --lock-left: 27%; }
+  /* 2 = top-middle */
+  #cb-gauges > *:nth-child(2){ --lock-top: 25%; --lock-left: 27%; }
+  /* 5 = bottom-middle */
+  #cb-gauges > *:nth-child(5){ --lock-top: 25%; --lock-left: 27%; }
+  /* 6 = bottom-right */
+  #cb-gauges > *:nth-child(6){ --lock-top: 25%; --lock-left: 27%; }
+}
+
+@media (max-width: 768px){
+  /* Scale ONLY the chain overlay inside the 4 locked cards.
+     We don't change position — just size — so layout stays stable. */
+  #cb-gauges > *:nth-child(1) img[src*="chain"],
+  #cb-gauges > *:nth-child(2) img[src*="chain"],
+  #cb-gauges > *:nth-child(5) img[src*="chain"],
+  #cb-gauges > *:nth-child(6) img[src*="chain"]{
+    transform: scale(var(--chain-scale, 1.18));
+    transform-origin: 50% 50%;
+    will-change: transform;
+    pointer-events: none; /* avoids blocking taps */
+    z-index: 4;           /* stays below padlock */
+  }
+
+  /* ---- Per-card starting values (edit these numbers only) ---- */
+  /* 1 = top-left */
+  #cb-gauges > *:nth-child(1){ --chain-scale: 2.20; }
+  /* 2 = top-middle */
+  #cb-gauges > *:nth-child(2){ --chain-scale: 2.20; }
+  /* 5 = bottom-middle */
+  #cb-gauges > *:nth-child(5){ --chain-scale: 2.20; }
+  /* 6 = bottom-right */
+  #cb-gauges > *:nth-child(6){ --chain-scale: 2.20; }
+}
+
+/* Notes:
+   - Bigger chains → increase --chain-scale (e.g., 1.24, 1.28).
+   - Smaller chains → decrease (e.g., 1.14, 1.10).
+   - This does NOT move chains — only scales them — so your padlock alignment remains intact.
+*/
+
+/* ===== Mobile-only: padlock NUDGE ONLY (chains untouched) ===== */
+@media (max-width: 768px){
+  /* Make the 4 locked tiles positioning contexts (1,2,5,6).
+     If your six cards aren't direct children, replace > * with your card selector. */
+  #cb-gauges > *:nth-child(1),
+  #cb-gauges > *:nth-child(2),
+  #cb-gauges > *:nth-child(5),
+  #cb-gauges > *:nth-child(6){
+    position: relative;
+  }
+
+  /* Padlocks ONLY — absolutely position and allow pixel nudges.
+     NOTE: no scale here, so chains can never be affected. */
+  #cb-gauges img.padlock-ctrl{
+    position: absolute !important;
+    left: 50% !important;
+    top:  50% !important;
+    transform:
+      translate(-50%, -50%)
+      translate(var(--pdx, 0px), var(--pdy, 0px)) !important; /* nudge */
+    transform-origin: 50% 50% !important;
+    width: auto; height: auto; z-index: 5; pointer-events: none;
+  }
+
+  /* ---- Per-card nudges (EDIT THESE ONLY) ----
+     Positive --pdx moves RIGHT, negative moves LEFT.
+     Positive --pdy moves DOWN,  negative moves UP. */
+  /* 1 = top-left */
+  #cb-gauges > *:nth-child(1){ --pdx: -18px; --pdy: -100px; }
+  /* 2 = top-middle */
+  #cb-gauges > *:nth-child(2){ --pdx: -18px; --pdy: -100px; }
+  /* 5 = bottom-middle */
+  #cb-gauges > *:nth-child(5){ --pdx: -18px; --pdy: -98px; }
+  /* 6 = bottom-right */
+  #cb-gauges > *:nth-child(6){ --pdx: -18px; --pdy: -98px; }
+}
+/* ===== End padlock nudge-only ===== */
+
+/* ===== mobile-only apexcharts & title fix (no impact on locks/chains) ===== */
+@media (max-width: 768px){
+  /* Let ApexCharts SVG paint freely on iOS */
+  #cb-gauges .apexcharts-canvas,
+  #cb-gauges .apexcharts-svg{
+    overflow: visible !important;
+  }
+  #cb-gauges .apexcharts-svg{
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+
+  /* IMPORTANT: Reset any earlier broad text rules on the WHOLE card #4 */
+  #cb-gauges > *:nth-child(4){
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  /* Break the title into 4 lines: icon, Viewer, Under, Standing */
+  #cb-gauges > *:nth-child(4) .gauge-title{
+    text-align: center !important;
+    white-space: normal !important;
+    line-height: 1.1 !important;
+    font-size: clamp(11px, 2.5vw, 13px) !important;
+    max-width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Use CSS to replace the content with our 4-line version */
+  #cb-gauges > *:nth-child(4) .gauge-title{
+    color: transparent !important;
+  }
+
+  /* Create the 4 lines using pseudo-elements */
+  #cb-gauges > *:nth-child(4) .gauge-title::before{
+    content: "🧠\A\AViewer\AUnder\AStanding" !important;
+    white-space: pre-line !important;
+    color: #ffffff !important;
+    display: block !important;
+    text-align: center !important;
+    font-size: clamp(11px, 2.5vw, 13px) !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Make the brain icon bigger */
+  #cb-gauges > *:nth-child(4) .gauge-title::before{
+    font-size: clamp(13px, 3.2vw, 16px) !important;
+  }
+}
+/* ===== end ===== */
+
+/* ===== mobile-only: reports padlock nudge + upgrade width (no chain changes) ===== */
+@media (max-width: 768px){
+  /* Positioning context for each report card */
+  #cb-reports .report-card{
+    position: relative;
+  }
+
+  /* Target ONLY padlock icon container inside locked reports */
+  #cb-reports .locked-report .padlock-icon{
+    position: absolute !important;
+    left: calc(50% + var(--pdx, 0px)) !important;   /* move right with +px, left with -px */
+    top:  calc(50% + var(--pdy, 0px)) !important;   /* move down with +px, up with -px  */
+    transform: translate(-50%, -50%) !important;    /* keep centered while nudging */
+    z-index: 5 !important;
+    pointer-events: none !important;                /* padlock stays non-interactive */
+  }
+
+  /* Make the Upgrade CTA slimmer and centered, without changing its text */
+  #cb-reports .locked-report .btn-upgrade{
+    position: absolute !important;
+    bottom: 12px !important;
+    left: var(--btn-left, 50%) !important;    /* center or adjust left position */
+    transform: translateX(-50%) !important;   /* center horizontally */
+    width: var(--cta-w, 50%) !important;      /* slightly wider for better text fit */
+    max-width: 220px !important;              /* slightly larger safety cap */
+    height: 36px !important;                  /* slightly taller for text */
+    line-height: 32px !important;             /* center text vertically */
+    font-size: 11px !important;               /* smaller text to fit better */
+    text-align: center !important;
+    white-space: nowrap !important;           /* prevent text wrapping */
+    z-index: 10 !important;                   /* ensure button is above other elements */
+    pointer-events: auto !important;          /* ensure button can receive clicks */
+    cursor: pointer !important;               /* show pointer cursor */
+    padding: 2px 6px !important;              /* minimal padding */
+  }
+
+  /* Per-card manual nudges — adjust numbers as you like
+     Tip: +pdx moves lock to the RIGHT, -pdx to the LEFT; pdy moves it UP/DOWN
+  */
+
+  /* Card 1 (top-left) */
+  #cb-reports > .report-card:nth-child(1){
+    --pdx: 55px;   /* nudge right */
+    --pdy: 60px; /* move up to center on chain X */
+    --cta-w: 48%;
+    --btn-left: 50%;  /* move button left from center */
+  }
+
+  /* Card 2 (top-middle) */
+  #cb-reports > .report-card:nth-child(2){
+    --pdx: 55px;   /* nudge right */
+    --pdy: 60px; /* move up to center on chain X */
+    --cta-w: 48%;
+    --btn-left: 50%;  /* move button left from center */
+  }
+
+  /* Card 5 (bottom-middle) */
+  #cb-reports > .report-card:nth-child(5){
+    --pdx: 55px;   /* nudge right */
+    --pdy: 60px; /* move up to center on chain X */
+    --cta-w: 46%;
+    --btn-left: 50%;  /* move button left from center */
+  }
+
+  /* Card 6 (bottom-right) */
+  #cb-reports > .report-card:nth-child(6){
+    --pdx: 55px;   /* nudge right */
+    --pdy: 60px; /* move up to center on chain X */
+    --cta-w: 46%;
+    --btn-left: 50%;  /* move button left from center */
+  }
+}
+/* ===== end mobile-only reports tweaks ===== */
+
+/* ===== mobile-only tiny fixes (no layout reset) ===== */
+@media (max-width: 768px){
+  /* 1) Nudge ONLY the top row (cards 1,2,3) slightly taller.
+     Tweak the px value until top matches bottom. Start with 10–14px. */
+  #cb-gauges > *:nth-child(1),
+  #cb-gauges > *:nth-child(2),
+  #cb-gauges > *:nth-child(3){
+    padding-bottom: 60px; /* adjust: 10 / 12 / 14 px */
+  }
+
+  /* 2) Make "Viewer Understanding" wrap nicely in card 4.
+     We don't know the exact title class, so cover common headings & a generic .title. */
+  #cb-gauges > *:nth-child(4) h1,
+  #cb-gauges > *:nth-child(4) h2,
+  #cb-gauges > *:nth-child(4) h3,
+  #cb-gauges > *:nth-child(4) h4,
+  #cb-gauges > *:nth-child(4) .title,
+  #cb-gauges > *:nth-child(4) .card-title{
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    text-wrap: balance;
+    line-height: 1.15 !important;
+    font-size: clamp(15px, 3.5vw, 18px) !important; /* slight shrink on mobile */
+    max-width: 92% !important;
+    margin-bottom: 8px !important;
+  }
+}
+
+

@@ -67,7 +67,6 @@ function ensureAvatarFallbacks() {
   // Common avatar selectors
   const selectors = [
     '.avatar-btn',
-    '.cb-avatar-holder',
     '.avatar-dropdown',
     '.user-profile',
     '.user-rank-sticky',
@@ -78,6 +77,11 @@ function ensureAvatarFallbacks() {
   selectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     elements.forEach(element => {
+      // Skip mobile navbar avatar holder to avoid conflicts
+      if (element.classList.contains('cb-avatar-holder') || element.closest('.cb-actions')) {
+        return;
+      }
+      
       // Check if element contains "?" text
       if (element.textContent === '?' || element.innerText === '?') {
         console.log('Found "?" text in avatar element:', element);
