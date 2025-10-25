@@ -53,6 +53,177 @@
       gtag('config', 'G-6WMZL614NV');
     </script>
 
+    <!-- 🚀 IMMEDIATE PRO UNLOCK - RUNS FIRST (SPA COMPATIBLE) -->
+    <script>
+      console.log('🔥 INDEX.HTML SCRIPT LOADING - IMMEDIATE UNLOCK CHECK');
+      console.log('Current URL:', window.location.href);
+      console.log('Document ready state:', document.readyState);
+      
+      // Immediate Pro status check and unlock
+      (function immediateProUnlock() {
+        console.log('⚡ IMMEDIATE PRO UNLOCK CHECK STARTING');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan');
+        const upgraded = urlParams.get('upgraded');
+        
+        console.log('URL parameters - plan:', plan, 'upgraded:', upgraded);
+        console.log('Full URL search:', window.location.search);
+        
+        if (plan === 'pro' || upgraded === 'true') {
+          console.log('🎉 IMMEDIATE PRO STATUS DETECTED - UNLOCKING NOW!');
+          
+          // Set Pro status immediately
+          localStorage.setItem('isPro', 'true');
+          console.log('✅ localStorage isPro set to true');
+          
+          // Define comprehensive unlock function
+          function removeAllLocks() {
+            console.log('🔓 removeAllLocks() called - removing ALL lock elements');
+            console.log('Document body exists:', !!document.body);
+            console.log('Document ready state:', document.readyState);
+            
+            // 1. Remove all pro-locked classes
+            const proLockedElements = document.querySelectorAll('.pro-locked');
+            console.log('Found', proLockedElements.length, 'elements with pro-locked class');
+            proLockedElements.forEach((element, index) => {
+              element.classList.remove('pro-locked');
+              console.log(`[${index}] Removed pro-locked class from:`, element.tagName, element.className);
+            });
+            
+            // 2. Hide all locked overlays
+            const lockedOverlays = document.querySelectorAll('.locked-overlay');
+            console.log('Found', lockedOverlays.length, 'locked overlays');
+            lockedOverlays.forEach((overlay, index) => {
+              overlay.style.display = 'none';
+              console.log(`[${index}] Hidden locked overlay:`, overlay.tagName, overlay.className);
+            });
+            
+            // 3. Remove blur from all content
+            const resultContent = document.querySelectorAll('.result-content');
+            console.log('Found', resultContent.length, 'result content elements');
+            resultContent.forEach((content, index) => {
+              content.style.filter = 'none';
+              content.style.opacity = '1';
+              console.log(`[${index}] Removed blur from content:`, content.tagName, content.className);
+            });
+            
+            // 4. Hide all padlock images
+            const padlockImages = document.querySelectorAll('img[alt*="lock" i], img[src*="lock" i], img[alt*="padlock" i], img[src*="padlock" i]');
+            console.log('Found', padlockImages.length, 'padlock images');
+            padlockImages.forEach((img, index) => {
+              img.style.display = 'none';
+              console.log(`[${index}] Hidden padlock image:`, img.src, img.alt);
+            });
+            
+            // 5. Hide all chain images
+            const chainImages = document.querySelectorAll('img[alt*="chain" i], img[src*="chain" i]');
+            console.log('Found', chainImages.length, 'chain images');
+            chainImages.forEach((img, index) => {
+              img.style.display = 'none';
+              console.log(`[${index}] Hidden chain image:`, img.src, img.alt);
+            });
+            
+            // 6. Hide all upgrade buttons
+            const upgradeButtons = document.querySelectorAll('.btn-upgrade, .upgrade-btn, [class*="upgrade"]');
+            console.log('Found', upgradeButtons.length, 'upgrade buttons');
+            upgradeButtons.forEach((btn, index) => {
+              btn.style.display = 'none';
+              console.log(`[${index}] Hidden upgrade button:`, btn.tagName, btn.className, btn.textContent);
+            });
+            
+            // 7. Remove any "Please upgrade" messages
+            let upgradeMessages = 0;
+            document.querySelectorAll('*').forEach(element => {
+              if (element.textContent && element.textContent.includes('Please upgrade')) {
+                element.style.display = 'none';
+                upgradeMessages++;
+                console.log(`Hidden upgrade message:`, element.tagName, element.textContent.substring(0, 50));
+              }
+            });
+            console.log('Found and hidden', upgradeMessages, 'upgrade messages');
+            
+            // 8. Additional comprehensive cleanup (be careful not to break charts)
+            console.log('Performing additional cleanup...');
+            
+            // Remove any blur effects from all elements (but preserve chart containers)
+            document.querySelectorAll('*').forEach(element => {
+              if (element.style.filter && element.style.filter.includes('blur')) {
+                // Don't remove blur from chart containers or canvas elements
+                if (!element.classList.contains('chart-container') && 
+                    !element.classList.contains('canvas-container') &&
+                    element.tagName !== 'CANVAS' &&
+                    !element.id.includes('chart') &&
+                    !element.id.includes('canvas')) {
+                  element.style.filter = 'none';
+                  console.log('Removed blur from element:', element.tagName, element.className);
+                }
+              }
+            });
+            
+            // Remove any locked classes (but preserve chart containers)
+            document.querySelectorAll('[class*="lock"]').forEach(element => {
+              // Don't remove classes from chart containers
+              if (!element.classList.contains('chart-container') && 
+                  !element.classList.contains('canvas-container') &&
+                  element.tagName !== 'CANVAS' &&
+                  !element.id.includes('chart') &&
+                  !element.id.includes('canvas')) {
+                element.classList.remove('locked', 'pro-locked', 'lock');
+                console.log('Removed lock classes from:', element.tagName, element.className);
+              }
+            });
+            
+            console.log('✅ removeAllLocks() completed');
+          }
+          
+          // Wait for full page load before unlocking
+          console.log('🔓 Waiting for full page load before unlocking...');
+          
+          // Function to check if charts are ready
+          function checkChartsReady() {
+            const charts = document.querySelectorAll('canvas, [id*="chart"], [class*="chart"]');
+            console.log('Found', charts.length, 'chart elements');
+            return charts.length > 0 ? charts.length : true; // If no charts, proceed
+          }
+          
+          // Use window.onload to ensure all scripts and charts are loaded
+          if (document.readyState === 'complete') {
+            console.log('⚡ Page already loaded - checking charts and unlocking');
+            setTimeout(() => {
+              checkChartsReady();
+              removeAllLocks();
+            }, 200);
+          } else {
+            window.addEventListener('load', () => {
+              console.log('⚡ Window load event - checking charts and unlocking after full page load');
+              setTimeout(() => {
+                checkChartsReady();
+                removeAllLocks();
+              }, 200);
+            });
+          }
+          
+          // Additional retries with longer delays to ensure charts are rendered
+          setTimeout(() => {
+            console.log('🔄 Retry unlock after 1000ms...');
+            removeAllLocks();
+          }, 1000);
+          
+          setTimeout(() => {
+            console.log('🔄 Final retry unlock after 2000ms...');
+            removeAllLocks();
+          }, 2000);
+          
+          // Make unlock function globally available
+          window.forceUnlockPro = removeAllLocks;
+          console.log('✅ Global forceUnlockPro function available');
+        } else {
+          console.log('ℹ️ No Pro status detected in URL parameters');
+        }
+      })();
+    </script>
+
     <!-- ✅ Schema.org Structured Data -->
     <script type="application/ld+json">
     {

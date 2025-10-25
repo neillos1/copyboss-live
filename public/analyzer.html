@@ -50,6 +50,149 @@
       gtag('config', 'G-6WMZL614NV');
     </script>
 
+    <!-- 🚀 IMMEDIATE PRO UNLOCK - RUNS FIRST -->
+    <script>
+      console.log('🔥 ANALYZER SCRIPT LOADING - IMMEDIATE UNLOCK CHECK');
+      console.log('Current URL:', window.location.href);
+      console.log('Document ready state:', document.readyState);
+      
+      // Immediate Pro status check and unlock
+      (function immediateProUnlock() {
+        console.log('⚡ IMMEDIATE PRO UNLOCK CHECK STARTING');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan');
+        const upgraded = urlParams.get('upgraded');
+        
+        console.log('URL parameters - plan:', plan, 'upgraded:', upgraded);
+        console.log('Full URL search:', window.location.search);
+        
+        if (plan === 'pro' || upgraded === 'true') {
+          console.log('🎉 IMMEDIATE PRO STATUS DETECTED - UNLOCKING NOW!');
+          
+          // Set Pro status immediately
+          localStorage.setItem('isPro', 'true');
+          console.log('✅ localStorage isPro set to true');
+          
+          // Define comprehensive unlock function
+          function removeAllLocks() {
+            console.log('🔓 removeAllLocks() called - removing ALL lock elements');
+            console.log('Document body exists:', !!document.body);
+            console.log('Document ready state:', document.readyState);
+            
+            // 1. Remove all pro-locked classes
+            const proLockedElements = document.querySelectorAll('.pro-locked');
+            console.log('Found', proLockedElements.length, 'elements with pro-locked class');
+            proLockedElements.forEach((element, index) => {
+              element.classList.remove('pro-locked');
+              console.log(`[${index}] Removed pro-locked class from:`, element.tagName, element.className);
+            });
+            
+            // 2. Hide all locked overlays
+            const lockedOverlays = document.querySelectorAll('.locked-overlay');
+            console.log('Found', lockedOverlays.length, 'locked overlays');
+            lockedOverlays.forEach((overlay, index) => {
+              overlay.style.display = 'none';
+              console.log(`[${index}] Hidden locked overlay:`, overlay.tagName, overlay.className);
+            });
+            
+            // 3. Remove blur from all content
+            const resultContent = document.querySelectorAll('.result-content');
+            console.log('Found', resultContent.length, 'result content elements');
+            resultContent.forEach((content, index) => {
+              content.style.filter = 'none';
+              content.style.opacity = '1';
+              console.log(`[${index}] Removed blur from content:`, content.tagName, content.className);
+            });
+            
+            // 4. Hide all padlock images
+            const padlockImages = document.querySelectorAll('img[alt*="lock" i], img[src*="lock" i], img[alt*="padlock" i], img[src*="padlock" i]');
+            console.log('Found', padlockImages.length, 'padlock images');
+            padlockImages.forEach((img, index) => {
+              img.style.display = 'none';
+              console.log(`[${index}] Hidden padlock image:`, img.src, img.alt);
+            });
+            
+            // 5. Hide all chain images
+            const chainImages = document.querySelectorAll('img[alt*="chain" i], img[src*="chain" i]');
+            console.log('Found', chainImages.length, 'chain images');
+            chainImages.forEach((img, index) => {
+              img.style.display = 'none';
+              console.log(`[${index}] Hidden chain image:`, img.src, img.alt);
+            });
+            
+            // 6. Hide all upgrade buttons
+            const upgradeButtons = document.querySelectorAll('.btn-upgrade, .upgrade-btn, [class*="upgrade"]');
+            console.log('Found', upgradeButtons.length, 'upgrade buttons');
+            upgradeButtons.forEach((btn, index) => {
+              btn.style.display = 'none';
+              console.log(`[${index}] Hidden upgrade button:`, btn.tagName, btn.className, btn.textContent);
+            });
+            
+            // 7. Remove any "Please upgrade" messages
+            let upgradeMessages = 0;
+            document.querySelectorAll('*').forEach(element => {
+              if (element.textContent && element.textContent.includes('Please upgrade')) {
+                element.style.display = 'none';
+                upgradeMessages++;
+                console.log(`Hidden upgrade message:`, element.tagName, element.textContent.substring(0, 50));
+              }
+            });
+            console.log('Found and hidden', upgradeMessages, 'upgrade messages');
+            
+            // 8. Additional comprehensive cleanup
+            console.log('Performing additional cleanup...');
+            
+            // Remove any blur effects from all elements
+            document.querySelectorAll('*').forEach(element => {
+              if (element.style.filter && element.style.filter.includes('blur')) {
+                element.style.filter = 'none';
+                console.log('Removed blur from element:', element.tagName, element.className);
+              }
+            });
+            
+            // Remove any locked classes
+            document.querySelectorAll('[class*="lock"]').forEach(element => {
+              element.classList.remove('locked', 'pro-locked', 'lock');
+              console.log('Removed lock classes from:', element.tagName, element.className);
+            });
+            
+            console.log('✅ removeAllLocks() completed');
+          }
+          
+          // Wait for full page load before unlocking to avoid white screen
+          console.log('🔓 Waiting for full page load before unlocking...');
+          
+          // Use window.onload to ensure all resources are loaded
+          if (document.readyState === 'complete') {
+            console.log('⚡ Page already loaded - unlocking now');
+            setTimeout(() => {
+              removeAllLocks();
+            }, 200);
+          } else {
+            window.addEventListener('load', () => {
+              console.log('⚡ Window load event - unlocking after full page load');
+              setTimeout(() => {
+                removeAllLocks();
+              }, 200);
+            });
+          }
+          
+          // Additional retry for safety
+          setTimeout(() => {
+            console.log('🔄 Final retry unlock after 1000ms...');
+            removeAllLocks();
+          }, 1000);
+          
+          // Make unlock function globally available
+          window.forceUnlockPro = removeAllLocks;
+          console.log('✅ Global forceUnlockPro function available');
+        } else {
+          console.log('ℹ️ No Pro status detected in URL parameters');
+        }
+      })();
+    </script>
+
     <!-- ✅ Schema.org Structured Data -->
     <script type="application/ld+json">
     {
@@ -7630,8 +7773,8 @@ else if (modalContentMap[target]) {
         }
       }).then((result) => {
         if (result.isConfirmed) {
-          // Redirect to Stripe checkout page
-          window.open('https://buy.stripe.com/3cI00idzK9vD8oacqo5os02', '_blank');
+          // Use the proper Stripe checkout function with success URLs
+          redirectToStripeCheckout('pro');
         }
       });
     } else {
@@ -8139,8 +8282,8 @@ function showUpgradeModal() {
     }
   }).then((result) => {
     if (result.isConfirmed) {
-      // Redirect to Stripe checkout page
-      window.open('https://buy.stripe.com/3cI00idzK9vD8oacqo5os02', '_blank');
+      // Use the proper Stripe checkout function with success URLs
+      redirectToStripeCheckout('pro');
     }
   });
 }
@@ -8887,16 +9030,23 @@ const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
 
 // Stripe Checkout Functions
 async function redirectToStripeCheckout(plan) {
-  // Direct Stripe URLs (same as pricing page)
-  const stripeUrls = {
+  // Direct Stripe URLs with success/cancel redirects
+  const baseUrls = {
     'pro': 'https://buy.stripe.com/3cI00idzK9vD8oacqo5os02', // Creator+ Plan
     '2reports': 'https://buy.stripe.com/3cI6oG1R25fn5bY6205os01', // 2 Reports
     '15reports': 'https://buy.stripe.com/00w6oGany37f33Qbmk5os00' // 15 Reports
   };
   
-  const url = stripeUrls[plan];
-  if (url) {
-    // Open in same tab to maintain session context
+  const baseUrl = baseUrls[plan];
+  if (baseUrl) {
+    // Add success and cancel URLs to ensure proper redirect
+    const successUrl = encodeURIComponent(`${window.location.origin}/success.html?plan=${plan}&upgraded=true`);
+    const cancelUrl = encodeURIComponent(`${window.location.origin}/analyzer.html`);
+    
+    const url = `${baseUrl}?success_url=${successUrl}&cancel_url=${cancelUrl}`;
+    
+    console.log('🔄 Redirecting to Stripe:', url);
+    // Open in same tab to maintain session context and allow success redirect
     window.location.href = url;
   } else {
     alert("Invalid plan selected.");
@@ -8905,10 +9055,23 @@ async function redirectToStripeCheckout(plan) {
 
 // Unlock Logic Functions
 function unlockPro() {
+  console.log('🔓 unlockPro() called - setting Pro status');
   localStorage.setItem('isPro', 'true');
   localStorage.removeItem('reportCredits'); // Clear credits when Pro is active
-  removeLocks();
+  
+  // Comprehensive lock removal
+  removeAllLocks();
+  
+  console.log('✅ unlockPro() completed - all locks should be removed');
 }
+
+// Global unlock function that can be called from anywhere
+window.forceUnlockPro = function() {
+  console.log('🚀 forceUnlockPro() called - forcing Pro unlock');
+  localStorage.setItem('isPro', 'true');
+  removeAllLocks();
+  console.log('✅ forceUnlockPro() completed');
+};
 
 function addReportCredits(credits) {
   const currentCredits = parseInt(localStorage.getItem('reportCredits') || '0');
@@ -8959,6 +9122,92 @@ function removeLocks() {
   });
 }
 
+// Comprehensive lock removal function
+function removeAllLocks() {
+  console.log('🔓 removeAllLocks() called - removing ALL lock elements');
+  console.log('Document body exists:', !!document.body);
+  console.log('Document ready state:', document.readyState);
+  
+  // 1. Remove all pro-locked classes
+  const proLockedElements = document.querySelectorAll('.pro-locked');
+  console.log('Found', proLockedElements.length, 'elements with pro-locked class');
+  proLockedElements.forEach((element, index) => {
+    element.classList.remove('pro-locked');
+    console.log(`[${index}] Removed pro-locked class from:`, element.tagName, element.className);
+  });
+  
+  // 2. Hide all locked overlays
+  const lockedOverlays = document.querySelectorAll('.locked-overlay');
+  console.log('Found', lockedOverlays.length, 'locked overlays');
+  lockedOverlays.forEach((overlay, index) => {
+    overlay.style.display = 'none';
+    console.log(`[${index}] Hidden locked overlay:`, overlay.tagName, overlay.className);
+  });
+  
+  // 3. Remove blur from all content
+  const resultContent = document.querySelectorAll('.result-content');
+  console.log('Found', resultContent.length, 'result content elements');
+  resultContent.forEach((content, index) => {
+    content.style.filter = 'none';
+    content.style.opacity = '1';
+    console.log(`[${index}] Removed blur from content:`, content.tagName, content.className);
+  });
+  
+  // 4. Hide all padlock images
+  const padlockImages = document.querySelectorAll('img[alt*="lock" i], img[src*="lock" i], img[alt*="padlock" i], img[src*="padlock" i]');
+  console.log('Found', padlockImages.length, 'padlock images');
+  padlockImages.forEach((img, index) => {
+    img.style.display = 'none';
+    console.log(`[${index}] Hidden padlock image:`, img.src, img.alt);
+  });
+  
+  // 5. Hide all chain images
+  const chainImages = document.querySelectorAll('img[alt*="chain" i], img[src*="chain" i]');
+  console.log('Found', chainImages.length, 'chain images');
+  chainImages.forEach((img, index) => {
+    img.style.display = 'none';
+    console.log(`[${index}] Hidden chain image:`, img.src, img.alt);
+  });
+  
+  // 6. Hide all upgrade buttons
+  const upgradeButtons = document.querySelectorAll('.btn-upgrade, .upgrade-btn, [class*="upgrade"]');
+  console.log('Found', upgradeButtons.length, 'upgrade buttons');
+  upgradeButtons.forEach((btn, index) => {
+    btn.style.display = 'none';
+    console.log(`[${index}] Hidden upgrade button:`, btn.tagName, btn.className, btn.textContent);
+  });
+  
+  // 7. Remove any "Please upgrade" messages
+  let upgradeMessages = 0;
+  document.querySelectorAll('*').forEach(element => {
+    if (element.textContent && element.textContent.includes('Please upgrade')) {
+      element.style.display = 'none';
+      upgradeMessages++;
+      console.log(`Hidden upgrade message:`, element.tagName, element.textContent.substring(0, 50));
+    }
+  });
+  console.log('Found and hidden', upgradeMessages, 'upgrade messages');
+  
+  // 8. Additional comprehensive cleanup
+  console.log('Performing additional cleanup...');
+  
+  // Remove any blur effects from all elements
+  document.querySelectorAll('*').forEach(element => {
+    if (element.style.filter && element.style.filter.includes('blur')) {
+      element.style.filter = 'none';
+      console.log('Removed blur from element:', element.tagName, element.className);
+    }
+  });
+  
+  // Remove any locked classes
+  document.querySelectorAll('[class*="lock"]').forEach(element => {
+    element.classList.remove('locked', 'pro-locked', 'lock');
+    console.log('Removed lock classes from:', element.tagName, element.className);
+  });
+  
+  console.log('✅ removeAllLocks() completed');
+}
+
 function applyLocks() {
   if (shouldUnlock()) return; // Don't apply locks if user should be unlocked
   
@@ -8986,10 +9235,15 @@ function checkPaymentSuccess() {
   const urlParams = new URLSearchParams(window.location.search);
   const plan = urlParams.get('plan');
   const credits = urlParams.get('credits');
+  const upgraded = urlParams.get('upgraded');
   
-  if (plan === 'pro') {
+  if (plan === 'pro' || upgraded === 'true') {
     unlockPro();
     showSuccessMessage('Pro subscription activated! 🎉');
+    
+    // Clean up URL parameters after processing
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
   } else if (credits) {
     const creditAmount = parseInt(credits);
     addReportCredits(creditAmount);
@@ -9023,20 +9277,37 @@ function showSuccessMessage(message) {
 // Verify user status from backend
 async function verifyUserStatusFromBackend(userId) {
   try {
-    const response = await fetch(`/api/user/status/${userId}`);
+    // Check URL parameters first for immediate Pro status
+    const urlParams = new URLSearchParams(window.location.search);
+    const plan = urlParams.get('plan');
+    const upgraded = urlParams.get('upgraded');
+    
+    if (plan === 'pro' || upgraded === 'true') {
+      console.log('🎉 Pro status detected from URL parameters');
+      localStorage.setItem('isPro', 'true');
+      unlockPro();
+      return;
+    }
+    
+    const response = await fetch(`/api/user/status/${userId}?plan=${plan || ''}&upgraded=${upgraded || ''}`);
     if (!response.ok) throw new Error('Failed to fetch user status');
     const status = await response.json();
 
+    console.log('🔍 Backend user status:', status);
+
     // Update localStorage from backend
-    if (status.plan === 'pro' && new Date(status.subscription_expires) > new Date()) {
+    if (status.user && status.user.plan === 'pro' && 
+        (!status.user.subscription_expires || new Date(status.user.subscription_expires) > new Date())) {
       localStorage.setItem('isPro', 'true');
       unlockPro();
+      console.log('✅ Pro status confirmed from backend');
     } else {
       localStorage.removeItem('isPro');
+      console.log('ℹ️ User status: Free');
     }
 
-    if (status.report_credits && status.report_credits > 0) {
-      localStorage.setItem('reportCredits', status.report_credits);
+    if (status.user && status.user.report_credits && status.user.report_credits > 0) {
+      localStorage.setItem('reportCredits', status.user.report_credits);
       removeLocks();
     }
   } catch (err) {
@@ -9050,13 +9321,83 @@ async function verifyUserStatusFromBackend(userId) {
   }
 }
 
+// Immediate Pro check (runs before DOM is ready)
+(function immediateProCheck() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const plan = urlParams.get('plan');
+  const upgraded = urlParams.get('upgraded');
+  
+  console.log('⚡ Immediate Pro check - plan:', plan, 'upgraded:', upgraded);
+  
+  if (plan === 'pro' || upgraded === 'true') {
+    console.log('⚡ IMMEDIATE Pro unlock triggered');
+    localStorage.setItem('isPro', 'true');
+    
+    // Try to unlock immediately
+    if (typeof removeAllLocks === 'function') {
+      removeAllLocks();
+    }
+    
+    // Set up retry when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('⚡ DOM ready - retrying unlock');
+        if (typeof removeAllLocks === 'function') {
+          removeAllLocks();
+        }
+      });
+    }
+  }
+})();
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async function() {
-  // Get user ID and verify status from backend
-  const userId = localStorage.getItem('videobossUserId');
-  if (userId) {
-    await verifyUserStatusFromBackend(userId);
+  console.log('🚀 Analyzer page loading...');
+  console.log('Current URL:', window.location.href);
+  console.log('Current localStorage isPro:', localStorage.getItem('isPro'));
+  console.log('Document ready state:', document.readyState);
+  
+  // Check for Pro status from URL parameters FIRST (immediate unlock)
+  const urlParams = new URLSearchParams(window.location.search);
+  const plan = urlParams.get('plan');
+  const upgraded = urlParams.get('upgraded');
+  
+  console.log('URL parameters - plan:', plan, 'upgraded:', upgraded);
+  console.log('Full URL search:', window.location.search);
+  
+  if (plan === 'pro' || upgraded === 'true') {
+    console.log('🎉 Pro status detected from URL - immediate unlock');
+    console.log('Setting localStorage isPro to true');
+    localStorage.setItem('isPro', 'true');
+    console.log('localStorage isPro after setting:', localStorage.getItem('isPro'));
+    
+    console.log('Calling unlockPro()...');
+    unlockPro();
+    
+    console.log('Calling updatePlanStatus()...');
+    updatePlanStatus();
+    
+    // Retry unlock after a short delay to ensure all elements are loaded
+    setTimeout(() => {
+      console.log('🔄 Retrying unlock after delay...');
+      unlockPro();
+    }, 500);
+    
+    setTimeout(() => {
+      console.log('🔄 Final unlock retry...');
+      unlockPro();
+    }, 1000);
+    
+    // Clean up URL parameters
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    console.log('URL cleaned up, returning early');
+    return; // Skip other checks since we're already Pro
   }
+  
+  // Get user ID and verify status from backend
+  const userId = localStorage.getItem('videobossUserId') || '123'; // Default user ID
+  await verifyUserStatusFromBackend(userId);
   
   checkPaymentSuccess();
   updatePlanStatus();

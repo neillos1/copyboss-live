@@ -193,8 +193,25 @@
         // Handle payment success
         handlePaymentSuccess();
         
-        // Auto-redirect countdown
-        let countdown = 5;
+        // Check for Pro upgrade and redirect immediately
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan');
+        const upgraded = urlParams.get('upgraded');
+        
+        console.log('🎯 Success page loaded with URL:', window.location.href);
+        console.log('🎯 Success page parameters - plan:', plan, 'upgraded:', upgraded);
+        
+        if (plan === 'pro' || upgraded === 'true') {
+            // Immediate redirect for Pro users
+            console.log('🎉 Pro upgrade detected - redirecting immediately');
+            const redirectUrl = '/analyzer.html?plan=pro&upgraded=true';
+            console.log('🎉 Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+            return;
+        }
+        
+        // Auto-redirect countdown (faster for other users)
+        let countdown = 3;
         const countdownElement = document.getElementById('countdown');
         
         const redirectInterval = setInterval(() => {
@@ -205,7 +222,6 @@
                 clearInterval(redirectInterval);
                 
                 // Check for affiliate intent or redirect parameter
-                const urlParams = new URLSearchParams(window.location.search);
                 const redirectTo = urlParams.get('redirect');
                 const intent = urlParams.get('intent');
                 
@@ -218,6 +234,11 @@
                 } else if (intent === 'affiliate') {
                     // Affiliate intent flow (fallback if no redirect)
                     redirectUrl = '/affiliate-dashboard.html';
+                }
+                
+                // Add Pro status parameter to ensure analyzer unlocks
+                if (redirectUrl.includes('analyzer')) {
+                    redirectUrl += '?plan=pro&upgraded=true';
                 }
                 
                 window.location.href = redirectUrl;

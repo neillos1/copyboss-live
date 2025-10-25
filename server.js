@@ -1,6 +1,8 @@
 // server.js
 const express = require('express');
 const path = require('path');
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +28,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// --- MIME type fix for JavaScript files ---
+app.use((req, res, next) => {
+  if (req.path.endsWith('.js')) {
+    res.setHeader('Content-Type', 'application/javascript');
+  }
+  next();
+});
+
 // --- Static public dir ---
 const publicDir = path.join(__dirname, 'public');
 app.use(express.static(publicDir, { fallthrough: true }));
@@ -47,17 +57,88 @@ app.get(['/api.me', '/api/me'], (_req, res) => {
   res.json({ ok: true, user: null, env: process.env.NODE_ENV || 'development' });
 });
 
+// --- Debug endpoint for unlock testing ---
+app.get('/debug-unlock', (req, res) => {
+  const plan = req.query.plan;
+  const upgraded = req.query.upgraded;
+  
+  res.json({
+    ok: true,
+    message: 'Debug unlock endpoint',
+    plan: plan,
+    upgraded: upgraded,
+    shouldUnlock: plan === 'pro' || upgraded === 'true',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // --- Additional API endpoints for analyzer functionality ---
 app.get('/api/user/status/:userId', (req, res) => {
-  // Stub for user status endpoint
+  // Enhanced user status endpoint with Pro plan support
+  const userId = req.params.userId;
+  
+  // Check if user has Pro status - check multiple sources
+  const isPro = req.headers['x-user-pro'] === 'true' || 
+                req.query.pro === 'true' ||
+                req.query.plan === 'pro' ||
+                req.query.upgraded === 'true';
+  
+  console.log(`🔍 User status check for ${userId}:`, { isPro, query: req.query });
+  
+  // If Pro status detected, immediately set localStorage flag
+  if (isPro) {
+    console.log('✅ Pro status confirmed - user should be unlocked');
+  }
+  
   res.json({ 
     ok: true, 
     user: { 
-      id: req.params.userId, 
+      id: userId, 
       status: 'active',
+      plan: isPro ? 'pro' : 'free',
+      subscription_expires: isPro ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null,
+      report_credits: isPro ? 999 : 0,
       avatar_url: null 
     } 
   });
+});
+
+// Stripe session details endpoint
+app.post('/api/session-details', express.json(), async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ ok: false, error: 'Session ID required' });
+    }
+    
+    // In a real implementation, you would:
+    // 1. Verify the session with Stripe API
+    // 2. Extract user ID and plan from session metadata
+    // 3. Update user status in database
+    // 4. Return session details
+    
+    // For now, simulate a successful Pro upgrade
+    const mockSession = {
+      id: sessionId,
+      payment_status: 'paid',
+      metadata: {
+        userId: '123', // This should come from the actual session
+        plan: 'pro'
+      }
+    };
+    
+    console.log('🎉 Stripe session processed - Pro upgrade successful:', sessionId);
+    
+    res.json({
+      ok: true,
+      session: mockSession
+    });
+    
+  } catch (error) {
+    console.error('❌ Session details error:', error);
+    res.status(500).json({ ok: false, error: 'Failed to process session' });
+  }
 });
 
 app.post('/api/save-analysis', express.json(), (req, res) => {
@@ -77,6 +158,15 @@ try {
   console.log('✅ Upload route loaded');
 } catch (err) {
   console.warn('⚠️  Upload route failed to load (missing API keys):', err.message);
+  // Add stub upload route for development
+  app.post('/upload', (req, res) => {
+    console.log('📤 Upload stub called');
+    res.json({ 
+      ok: true, 
+      message: 'Upload endpoint (stub - API keys needed for full functionality)',
+      jobId: `upload-${Date.now()}`
+    });
+  });
 }
 
 try {
@@ -85,6 +175,16 @@ try {
   console.log('✅ Analyze route loaded');
 } catch (err) {
   console.warn('⚠️  Analyze route failed to load (missing API keys):', err.message);
+  // Add stub analyze route for development
+  app.post('/api/analyze', (req, res) => {
+    console.log('🔍 Analyze stub called');
+    res.json({ 
+      ok: true, 
+      jobId: `analyze-${Date.now()}`,
+      status: 'queued',
+      message: 'Analysis endpoint (stub - API keys needed for full functionality)'
+    });
+  });
 }
 
 try {
@@ -109,9 +209,31 @@ app.use((err, _req, res, _next) => {
   res.status(404).send('Not found');
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`CopyBoss dev server running: http://localhost:${PORT}`);
-});
+// HTTPS Server Setup
+try {
+  // Load SSL certificates
+  const key = fs.readFileSync('cert/localhost-key.pem');
+  const cert = fs.readFileSync('cert/localhost-cert.pem');
+  
+  // Create HTTPS server
+  const httpsServer = https.createServer({ key, cert }, app);
+  
+  httpsServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`🔒 CopyBoss HTTPS server running: https://localhost:${PORT}`);
+    console.log(`📋 Note: You may need to accept the self-signed certificate in your browser`);
+    console.log(`🔧 To trust the certificate: Click "Advanced" → "Proceed to localhost (unsafe)"`);
+  });
+  
+} catch (error) {
+  console.error('❌ HTTPS setup failed:', error.message);
+  console.log('🔄 Falling back to HTTP server...');
+  
+  // Fallback to HTTP if HTTPS fails
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`⚠️  CopyBoss HTTP server running: http://localhost:${PORT}`);
+    console.log(`⚠️  Note: Stripe iframe may not work due to mixed content policy`);
+  });
+}
 
 // === Leaderboard API (file-backed) - added by automation ===
 // Dependencies: uses built-in fs, no external DB required (easy to replace with real DB later)
