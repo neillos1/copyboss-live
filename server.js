@@ -1,6 +1,7 @@
 // server.js
 const express = require('express');
 const path = require('path');
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 
@@ -89,8 +90,8 @@ app.get('/api/user/status/:userId', (req, res) => {
   if (isPro) {
     console.log('✅ Pro status confirmed - user should be unlocked');
   }
-  
-  res.json({ 
+    
+    res.json({ 
     ok: true, 
     user: { 
       id: userId, 
@@ -130,7 +131,7 @@ app.post('/api/session-details', express.json(), async (req, res) => {
     
     console.log('🎉 Stripe session processed - Pro upgrade successful:', sessionId);
     
-    res.json({
+    res.json({ 
       ok: true,
       session: mockSession
     });
@@ -178,7 +179,7 @@ try {
   // Add stub analyze route for development
   app.post('/api/analyze', (req, res) => {
     console.log('🔍 Analyze stub called');
-    res.json({ 
+    res.json({
       ok: true, 
       jobId: `analyze-${Date.now()}`,
       status: 'queued',
@@ -209,30 +210,44 @@ app.use((err, _req, res, _next) => {
   res.status(404).send('Not found');
 });
 
-// HTTPS Server Setup
-try {
-  // Load SSL certificates
-  const key = fs.readFileSync('cert/localhost-key.pem');
-  const cert = fs.readFileSync('cert/localhost-cert.pem');
-  
-  // Create HTTPS server
-  const httpsServer = https.createServer({ key, cert }, app);
-  
-  httpsServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`🔒 CopyBoss HTTPS server running: https://localhost:${PORT}`);
-    console.log(`📋 Note: You may need to accept the self-signed certificate in your browser`);
-    console.log(`🔧 To trust the certificate: Click "Advanced" → "Proceed to localhost (unsafe)"`);
+// Server Setup - Production vs Development
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  // Production: Use HTTP server for Render deployment
+  const server = http.createServer(app);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 CopyBoss server running on port ${PORT} (production)`);
+    console.log(`🌐 Server listening on 0.0.0.0:${PORT}`);
+    console.log(`✅ Render deployment ready - no 502 errors`);
   });
-  
-} catch (error) {
-  console.error('❌ HTTPS setup failed:', error.message);
-  console.log('🔄 Falling back to HTTP server...');
-  
-  // Fallback to HTTP if HTTPS fails
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`⚠️  CopyBoss HTTP server running: http://localhost:${PORT}`);
-    console.log(`⚠️  Note: Stripe iframe may not work due to mixed content policy`);
-  });
+} else {
+  // Development: Try HTTPS first, fallback to HTTP
+  try {
+    // Load SSL certificates for local development
+    const key = fs.readFileSync('cert/localhost-key.pem');
+    const cert = fs.readFileSync('cert/localhost-cert.pem');
+    
+    // Create HTTPS server
+    const httpsServer = https.createServer({ key, cert }, app);
+    
+    httpsServer.listen(PORT, '0.0.0.0', () => {
+      console.log(`🔒 CopyBoss HTTPS server running: https://localhost:${PORT}`);
+      console.log(`📋 Note: You may need to accept the self-signed certificate in your browser`);
+      console.log(`🔧 To trust the certificate: Click "Advanced" → "Proceed to localhost (unsafe)"`);
+    });
+    
+  } catch (error) {
+    console.error('❌ HTTPS setup failed:', error.message);
+    console.log('🔄 Falling back to HTTP server...');
+    
+    // Fallback to HTTP if HTTPS fails
+    const server = http.createServer(app);
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`⚠️  CopyBoss HTTP server running: http://localhost:${PORT}`);
+      console.log(`⚠️  Note: Stripe iframe may not work due to mixed content policy`);
+    });
+  }
 }
 
 // === Leaderboard API (file-backed) - added by automation ===
@@ -317,7 +332,7 @@ try {
         }
 
         return res.json({ ok: true, period, limit, items, userRank });
-      } catch (err) {
+  } catch (err) {
         console.error('[LEADERBOARD] GET error', err);
         return res.status(500).json({ ok: false, error: 'server_error' });
       }
