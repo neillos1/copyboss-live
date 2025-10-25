@@ -2,6 +2,176 @@
 <html lang="en">
 
 <head>
+    <!-- ✅ Debug Logger -->
+    <script>
+      console.log("🔥 Analyzer page script is running...");
+
+      window.onerror = function (message, source, lineno, colno, error) {
+        console.error("🚨 Global JS Error Caught:", {
+          message, source, lineno, colno, error
+        });
+      };
+
+      window.addEventListener("unhandledrejection", function (event) {
+        console.error("🚨 Unhandled Promise Rejection:", event.reason);
+      });
+
+      // 🔧 COMPREHENSIVE DEBUGGING & FIX SCRIPT
+      function debugAndFixAnalyzer() {
+        console.log("🔍 Starting comprehensive analyzer debugging...");
+        
+        // Check if main content elements exist
+        const gaugeContainer = document.getElementById('cb-gauges');
+        const analyzerWrapper = document.querySelector('.analyzer-wrapper');
+        const mainWrapper = document.getElementById('main-wrapper');
+        
+        console.log("📊 Gauge container found:", !!gaugeContainer);
+        console.log("📦 Analyzer wrapper found:", !!analyzerWrapper);
+        console.log("📦 Main wrapper found:", !!mainWrapper);
+        
+        // Check for hidden elements
+        if (gaugeContainer) {
+          const computedStyle = window.getComputedStyle(gaugeContainer);
+          console.log("📊 Gauge container display:", computedStyle.display);
+          console.log("📊 Gauge container visibility:", computedStyle.visibility);
+          console.log("📊 Gauge container opacity:", computedStyle.opacity);
+        }
+        
+        // Force visibility of main content areas
+        if (analyzerWrapper) {
+          analyzerWrapper.style.display = 'flex';
+          analyzerWrapper.style.visibility = 'visible';
+          analyzerWrapper.style.opacity = '1';
+          console.log("✅ Analyzer wrapper visibility forced");
+        }
+        
+        if (mainWrapper) {
+          mainWrapper.style.display = 'block';
+          mainWrapper.style.visibility = 'visible';
+          mainWrapper.style.opacity = '1';
+          console.log("✅ Main wrapper visibility forced");
+        }
+        
+        if (gaugeContainer) {
+          gaugeContainer.style.display = 'grid';
+          gaugeContainer.style.visibility = 'visible';
+          gaugeContainer.style.opacity = '1';
+          console.log("✅ Gauge container visibility forced");
+        }
+        
+        // Check for any elements with display: none that shouldn't be hidden
+        const allElements = document.querySelectorAll('*');
+        let hiddenElements = 0;
+        allElements.forEach(el => {
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' && el.id && (el.id.includes('gauge') || el.id.includes('chart') || el.id.includes('analyzer'))) {
+            console.warn("🚨 Important element hidden:", el.id, el.className);
+            hiddenElements++;
+          }
+        });
+        console.log("🚨 Hidden important elements found:", hiddenElements);
+        
+        // Force show all gauge boxes
+        const gaugeBoxes = document.querySelectorAll('.gauge-box');
+        console.log("📊 Gauge boxes found:", gaugeBoxes.length);
+        gaugeBoxes.forEach((box, index) => {
+          box.style.display = 'block';
+          box.style.visibility = 'visible';
+          box.style.opacity = '1';
+          console.log(`✅ Gauge box ${index} visibility forced`);
+        });
+        
+        // Check for chart elements
+        const chartElements = document.querySelectorAll('[id*="chart"], [id*="gauge"], canvas');
+        console.log("📈 Chart elements found:", chartElements.length);
+        chartElements.forEach((el, index) => {
+          const style = window.getComputedStyle(el);
+          console.log(`📈 Chart element ${index}:`, el.id, 'display:', style.display);
+        });
+        
+        console.log("✅ Analyzer debugging and fixing completed");
+      }
+      
+      // Run debug and fix on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', debugAndFixAnalyzer);
+      } else {
+        debugAndFixAnalyzer();
+      }
+      
+      // Also run after a delay to catch any late-loading issues
+      setTimeout(debugAndFixAnalyzer, 1000);
+      setTimeout(debugAndFixAnalyzer, 3000);
+      
+      // 🔧 CHART INITIALIZATION FIX
+      function initializeCharts() {
+        console.log("📈 Starting chart initialization...");
+        
+        // Wait for ApexCharts to be available
+        function waitForApexCharts() {
+          if (typeof ApexCharts !== 'undefined') {
+            console.log("✅ ApexCharts loaded, initializing charts...");
+            
+            // Initialize all gauge charts
+            const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
+            
+            gaugeIds.forEach(gaugeId => {
+              const element = document.getElementById(gaugeId);
+              if (element) {
+                console.log(`📊 Initializing gauge: ${gaugeId}`);
+                try {
+                  // Simple gauge initialization
+                  const options = {
+                    series: [0],
+                    chart: {
+                      type: 'radialBar',
+                      height: 200,
+                      id: gaugeId
+                    },
+                    plotOptions: {
+                      radialBar: {
+                        startAngle: -90,
+                        endAngle: 90,
+                        hollow: {
+                          margin: 0,
+                          size: '70%'
+                        }
+                      }
+                    },
+                    colors: ['#3B82F6'],
+                    labels: ['Score']
+                  };
+                  
+                  new ApexCharts(element, options).render();
+                  console.log(`✅ Gauge ${gaugeId} initialized`);
+                } catch (error) {
+                  console.error(`❌ Error initializing gauge ${gaugeId}:`, error);
+                }
+              } else {
+                console.warn(`⚠️ Gauge element not found: ${gaugeId}`);
+              }
+            });
+          } else {
+            console.log("⏳ Waiting for ApexCharts...");
+            setTimeout(waitForApexCharts, 100);
+          }
+        }
+        
+        waitForApexCharts();
+      }
+      
+      // Initialize charts after DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+      } else {
+        initializeCharts();
+      }
+      
+      // Also try to initialize charts after delays
+      setTimeout(initializeCharts, 2000);
+      setTimeout(initializeCharts, 5000);
+    </script>
+    
     <!-- ✅ Dev Crash Guard (local only) -->
     <script src="/js/dev-crashguard.js?v=1"></script>
     
