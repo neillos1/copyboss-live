@@ -197,6 +197,13 @@
         if (window.engagementGauge && typeof window.engagementGauge.render === 'function') window.engagementGauge.render();
         if (window.hookGauge && typeof window.hookGauge.render === 'function') window.hookGauge.render();
 
+        // 🛠️ PATCH: ApexCharts CSS is being hidden — this breaks chart rendering
+        const chartCSS = document.querySelector('.apexcharts-css');
+        if (chartCSS) {
+            chartCSS.style.display = 'block';
+            console.log("✅ ApexCharts CSS was hidden — now forced to visible!");
+        }
+
         console.log("✅ Final patch applied. All wrappers and charts forced visible.");
       }
       
