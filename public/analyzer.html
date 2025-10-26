@@ -103,6 +103,24 @@
       setTimeout(debugAndFixAnalyzer, 1000);
       setTimeout(debugAndFixAnalyzer, 3000);
       
+      // ✅ Helper function to force ApexChart container resize
+      function forceApexChartContainersToResize() {
+        console.log("🔧 Forcing ApexChart container resize via bounding rects");
+
+        const chartEls = document.querySelectorAll('[id^="apexcharts"]');
+        chartEls.forEach((el, index) => {
+          const parent = el.parentElement;
+          if (parent) {
+            parent.style.minHeight = "250px"; // Safely forces render space
+            parent.style.minWidth = "250px";
+            parent.style.display = "block";
+            parent.style.opacity = "1";
+            parent.style.visibility = "visible";
+            console.log(`✅ Forced style on container ${index}`);
+          }
+        });
+      }
+
       // 🔧 CHART INITIALIZATION FIX
       function initializeCharts() {
         console.log("📈 Starting chart initialization...");
@@ -221,8 +239,13 @@
         }, 2000);
       }
 
-      // 🔁 Automatically run after unlock logic completes
-      setTimeout(runFinalRenderingPatch, 3000);
+        // 🔁 Automatically run after unlock logic completes
+        setTimeout(runFinalRenderingPatch, 3000);
+        
+        // ✅ Call container resize function after final rendering patch
+        setTimeout(() => {
+          forceApexChartContainersToResize();
+        }, 3500); // Slightly delayed to allow unlock/re-render logic first
     </script>
     
     <!-- ✅ Dev Crash Guard (local only) -->
