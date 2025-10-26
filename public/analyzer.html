@@ -105,18 +105,25 @@
       
       // ✅ Helper function to force ApexChart container resize
       function forceApexChartContainersToResize() {
-        console.log("🔧 Forcing ApexChart container resize via bounding rects");
+        console.log("🔧 Restricting ApexChart resize to gauge containers only");
 
-        const chartEls = document.querySelectorAll('[id^="apexcharts"]');
+        // Only target elements inside the main analyzer content area
+        const gaugeArea = document.querySelector('.result-content, .analyzer-section, .gauge-wrapper');
+        if (!gaugeArea) {
+          console.warn("⚠️ Gauge area not found — skipping resize");
+          return;
+        }
+
+        const chartEls = gaugeArea.querySelectorAll('[id^="apexcharts"]');
         chartEls.forEach((el, index) => {
           const parent = el.parentElement;
           if (parent) {
-            parent.style.minHeight = "250px"; // Safely forces render space
+            parent.style.minHeight = "250px";
             parent.style.minWidth = "250px";
             parent.style.display = "block";
             parent.style.opacity = "1";
             parent.style.visibility = "visible";
-            console.log(`✅ Forced style on container ${index}`);
+            console.log(`✅ Resized gauge container ${index}`);
           }
         });
       }

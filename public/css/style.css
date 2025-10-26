@@ -77,6 +77,15 @@ html, body { overflow-x: hidden; }
 }
 
 /* === MOBILE NAVIGATION STYLES === */
+/* 🔒 Navbar position safeguard */
+nav, .navbar, header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}
+
 .cb-navbar { position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(8px); }
 .cb-nav-inner { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; }
 .cb-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
