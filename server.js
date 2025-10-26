@@ -41,6 +41,9 @@ app.use((req, res, next) => {
 const publicDir = path.join(__dirname, 'public');
 app.use(express.static(publicDir, { fallthrough: true }));
 
+// --- Boss directory static serving ---
+app.use('/boss', express.static(path.join(__dirname, 'public/boss')));
+
 // --- Health check ---
 app.get('/__health', (_req, res) => {
   res.json({ ok: true, env: process.env.NODE_ENV || 'development', now: Date.now() });
