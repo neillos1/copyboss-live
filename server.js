@@ -373,6 +373,11 @@ try {
 // === End leaderboard block ===
 
 
+// === Boss analyzer redirect ===
+app.get(['/boss/analyzer.html', '/boss/analyzer.html*'], (req, res) => {
+  res.redirect('/analyzer.html');
+});
+
 // === Simple SPA fallback route ===
 // Specific routes for HTML pages
 app.get(["/analyzer", "/generator", "/pricing", "/leaderboard"], (req, res) => {
