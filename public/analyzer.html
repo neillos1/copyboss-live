@@ -9388,6 +9388,44 @@ function removeAllLocks() {
   console.log("✅ Forcing full page display override…");
   document.documentElement.setAttribute("style", "display: block !important;");
   document.body.setAttribute("style", "display: block !important;");
+  
+  // 🔁 RETRY CHART + GAUGE RENDER
+  setTimeout(() => {
+    console.log("🔁 Retrying chart + gauge render...");
+
+    // Unhide all main wrappers and force dimensions
+    document.querySelectorAll('.gauge-wrapper, .result-content, .analyzer-section, .chart-box').forEach(el => {
+      el.style.display = 'block';
+      el.style.visibility = 'visible';
+      el.style.opacity = '1';
+      el.style.height = 'auto';
+      el.style.minHeight = '100px';
+      el.style.overflow = 'visible';
+    });
+
+    // Re-initialize any ApexCharts that failed
+    if (typeof ApexCharts !== "undefined") {
+      console.log("✅ ApexCharts found, forcing re-render…");
+      const charts = document.querySelectorAll(".apexcharts-canvas");
+      charts.forEach((el, i) => {
+        if (!el.innerHTML.trim()) {
+          console.log(`⛔ Empty chart #${i + 1}, reloading chart...`);
+          const chartId = el.getAttribute('id');
+          if (chartId && window[chartId]) {
+            try {
+              window[chartId].render();
+              console.log(`✅ Chart #${i + 1} rendered via window["${chartId}"]`);
+            } catch (e) {
+              console.error(`❌ Failed to render chart #${i + 1}:`, e);
+            }
+          }
+        }
+      });
+    } else {
+      console.error("❌ ApexCharts not loaded yet.");
+    }
+
+  }, 1000); // Delay to ensure DOM updates finished
 }
 
 function applyLocks() {
