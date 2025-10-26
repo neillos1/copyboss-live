@@ -37,14 +37,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Static public dir ---
-const publicDir = path.join(__dirname, 'public');
-app.use(express.static(publicDir, { fallthrough: true }));
-
 // --- Boss analyzer redirect ---
 app.get('/boss/analyzer.html', (req, res) => {
   res.redirect(302, '/analyzer.html');
 });
+
+// --- Static public dir ---
+const publicDir = path.join(__dirname, 'public');
+app.use(express.static(publicDir, { fallthrough: true }));
 
 // --- Boss directory static serving ---
 app.use('/boss', express.static(path.join(__dirname, 'public/boss')));
