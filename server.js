@@ -41,6 +41,11 @@ app.use((req, res, next) => {
 const publicDir = path.join(__dirname, 'public');
 app.use(express.static(publicDir, { fallthrough: true }));
 
+// --- Boss analyzer redirect ---
+app.get('/boss/analyzer.html', (req, res) => {
+  res.redirect(302, '/analyzer.html');
+});
+
 // --- Boss directory static serving ---
 app.use('/boss', express.static(path.join(__dirname, 'public/boss')));
 
@@ -373,10 +378,6 @@ try {
 // === End leaderboard block ===
 
 
-// === Boss analyzer redirect ===
-app.get(['/boss/analyzer.html', '/boss/analyzer.html*'], (req, res) => {
-  res.redirect('/analyzer.html');
-});
 
 // === Simple SPA fallback route ===
 // Specific routes for HTML pages
