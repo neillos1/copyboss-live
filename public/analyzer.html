@@ -170,6 +170,38 @@
       // Also try to initialize charts after delays
       setTimeout(initializeCharts, 2000);
       setTimeout(initializeCharts, 5000);
+      
+      // 🛠️ FINAL RENDERING PATCH - RUNS ONCE AFTER ALL CHART SETUP
+      let finalPatchExecuted = false;
+      function runFinalRenderingPatch() {
+        if (finalPatchExecuted) return;
+        finalPatchExecuted = true;
+        
+        console.log("🛠️ Final rendering patch running…");
+
+        const wrappers = document.querySelectorAll('.analyzer-wrapper, .result-content, .gauge-box, .chart-box');
+        wrappers.forEach(wrapper => {
+          wrapper.style.display = 'block';
+          wrapper.style.visibility = 'visible';
+          wrapper.style.opacity = '1';
+          wrapper.style.height = 'auto';
+          wrapper.style.minHeight = '150px';
+          wrapper.style.overflow = 'visible';
+        });
+
+        // ApexCharts force rerender (if available)
+        if (window.viralGauge && typeof window.viralGauge.render === 'function') window.viralGauge.render();
+        if (window.captionGauge && typeof window.captionGauge.render === 'function') window.captionGauge.render();
+        if (window.soundGauge && typeof window.soundGauge.render === 'function') window.soundGauge.render();
+        if (window.viewerGauge && typeof window.viewerGauge.render === 'function') window.viewerGauge.render();
+        if (window.engagementGauge && typeof window.engagementGauge.render === 'function') window.engagementGauge.render();
+        if (window.hookGauge && typeof window.hookGauge.render === 'function') window.hookGauge.render();
+
+        console.log("✅ Final patch applied. All wrappers and charts forced visible.");
+      }
+      
+      // Run final patch once after all chart setup is complete
+      setTimeout(runFinalRenderingPatch, 2000);
     </script>
     
     <!-- ✅ Dev Crash Guard (local only) -->
@@ -9617,7 +9649,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   // Get user ID and verify status from backend
   const userId = localStorage.getItem('videobossUserId') || '123'; // Default user ID
-  await verifyUserStatusFromBackend(userId);
+    await verifyUserStatusFromBackend(userId);
   
   checkPaymentSuccess();
   updatePlanStatus();
@@ -10520,6 +10552,7 @@ async function saveAnalysisResult(score) {
 <script src="/js/mascot.failsafe.js?v=4"></script>
 <script src="/js/mascot.sound.js?v=4"></script>
 <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
+
 
 </body>
 </html>
