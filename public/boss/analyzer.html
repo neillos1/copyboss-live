@@ -256,7 +256,7 @@
     </script>
     
     <!-- ✅ Dev Crash Guard (local only) -->
-    <script src="../../js/dev-crashguard.js?v=1"></script>
+    <script src="/js/dev-crashguard.js?v=1"></script>
     
     <!-- ✅ Primary SEO Meta -->
     <meta charset="utf-8" />
@@ -345,9 +345,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <!-- Core CSS -->
-    <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="../../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
-    <link href="../../assets/css/demo.css?v=navfix1" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+    <link href="/assets/css/demo.css?v=navfix1" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Chart Libraries -->
@@ -356,22 +356,22 @@
 <script src="https://js.stripe.com/v3"></script>
 
     <!-- Custom CSS -->
-    <link href="../../css/style.css" rel="stylesheet" />
-    <link href="../../css/mobile-reset-analyzer.css" rel="stylesheet" />
-    <link href="../../css/mobile-auto-patch.css" rel="stylesheet" />
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="/css/mobile-reset-analyzer.css" rel="stylesheet" />
+    <link href="/css/mobile-auto-patch.css" rel="stylesheet" />
     
     <!-- Custom JavaScript -->
-    <script src="../../js/app.js?v=1"></script>
-    <script src="../../js/analyzer.js?v=1"></script>
-    <script src="../../js/charts.js?v=1"></script>
-    <script src="../../js/mobile-nav.js?v=1"></script>
-    <script src="../../js/avatar-helper.js?v=1"></script>
-    <script src="../../js/countdown.js?v=1"></script>
-    <script src="../../js/mobile-gap-guard.js?v=1"></script>
-    <script src="../../js/mobile-header.js?v=1"></script>
-    <script src="../../js/under-footer-clean.mobile.js?v=1"></script>
-    <script src="../../js/under-footer-guard.mobile.js?v=1"></script>
-    <script src="../../js/app-test.js?v=1"></script>
+    <script src="/js/app.js?v=1"></script>
+    <script src="/js/analyzer.js?v=1"></script>
+    <script src="/js/charts.js?v=1"></script>
+    <script src="/js/mobile-nav.js?v=1"></script>
+    <script src="/js/avatar-helper.js?v=1"></script>
+    <script src="/js/countdown.js?v=1"></script>
+    <script src="/js/mobile-gap-guard.js?v=1"></script>
+    <script src="/js/mobile-header.js?v=1"></script>
+    <script src="/js/under-footer-clean.mobile.js?v=1"></script>
+    <script src="/js/under-footer-guard.mobile.js?v=1"></script>
+    <script src="/js/app-test.js?v=1"></script>
     
     <!-- Inline Styles -->
     <style>
@@ -890,8 +890,8 @@
     <!-- Mobile Navigation -->
     <nav id="cb-header" class="cb-navbar">
         <div class="cb-nav-inner">
-            <a href="../../index.html" class="cb-brand">
-                <img src="../../assets/img/logo.png" alt="CopyBoss" class="cb-brand-img" />
+            <a href="/index.html" class="cb-brand">
+                <img src="/assets/img/logo.png" alt="CopyBoss" class="cb-brand-img" />
                 <span class="cb-brand-text">CopyBoss</span>
             </a>
             
@@ -901,7 +901,7 @@
                 </button>
                 
                 <div class="cb-avatar-holder">
-                    <img src="../../assets/img/default-avatar.png" alt="User Avatar" class="cb-avatar-img" id="cb-avatar-img" />
+                    <img src="/assets/img/default-avatar.png" alt="User Avatar" class="cb-avatar-img" id="cb-avatar-img" />
                 </div>
                 
                 <button class="cb-burger" id="cb-burger">
@@ -918,12 +918,12 @@
     <div class="cb-drawer" id="cb-drawer">
         <div class="cb-drawer-scroll">
             <ul class="cb-drawer-list">
-                <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="../../generator.html"><i class="fas fa-magic"></i> Generator</a></li>
-                <li class="cb-pro"><a href="../../analyzer.html"><i class="fas fa-chart-line"></i> Analyzer <span class="cb-pro-pill">PRO</span></a></li>
-                <li><a href="../../leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
-                <li><a href="../../pricing.html"><i class="fas fa-dollar-sign"></i> Pricing</a></li>
-                <li><a href="../../support.html"><i class="fas fa-question-circle"></i> Support</a></li>
+                <li><a href="/index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/generator.html"><i class="fas fa-magic"></i> Generator</a></li>
+                <li class="cb-pro"><a href="/analyzer.html"><i class="fas fa-chart-line"></i> Analyzer <span class="cb-pro-pill">PRO</span></a></li>
+                <li><a href="/leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+                <li><a href="/pricing.html"><i class="fas fa-dollar-sign"></i> Pricing</a></li>
+                <li><a href="/support.html"><i class="fas fa-question-circle"></i> Support</a></li>
             </ul>
             
             <div class="cb-drawer-leaderboard">
@@ -1113,7 +1113,7 @@
         // Load leaderboard preview
         async function loadLeaderboardPreview() {
             try {
-                const response = await fetch('../../api/leaderboard?limit=3');
+                const response = await fetch('/api/leaderboard?limit=3');
                 const data = await response.json();
                 
                 const preview = document.getElementById('cb-leaderboard-preview');
