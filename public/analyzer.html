@@ -107,6 +107,13 @@
       function initializeCharts() {
         console.log("📈 Starting chart initialization...");
         
+        // ✅ Fix Safari disabling ApexCharts CSS
+        const apexStyle = document.querySelector('style.apexcharts-css');
+        if (apexStyle && apexStyle.disabled) {
+          console.log("Fixing: Re-enabling apexcharts-css");
+          apexStyle.disabled = false;
+        }
+        
         // Wait for ApexCharts to be available
         function waitForApexCharts() {
           if (typeof ApexCharts !== 'undefined') {
