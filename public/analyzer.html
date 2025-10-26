@@ -171,44 +171,51 @@
       setTimeout(initializeCharts, 2000);
       setTimeout(initializeCharts, 5000);
       
-      // 🛠️ FINAL RENDERING PATCH - RUNS ONCE AFTER ALL CHART SETUP
+      // 🛠️ FINAL RENDERING PATCH - IMPROVED VERSION
       let finalPatchExecuted = false;
+
       function runFinalRenderingPatch() {
         if (finalPatchExecuted) return;
         finalPatchExecuted = true;
-        
-        console.log("🛠️ Final rendering patch running…");
 
-        const wrappers = document.querySelectorAll('.analyzer-wrapper, .result-content, .gauge-box, .chart-box');
-        wrappers.forEach(wrapper => {
-          wrapper.style.display = 'block';
-          wrapper.style.visibility = 'visible';
-          wrapper.style.opacity = '1';
-          wrapper.style.height = 'auto';
-          wrapper.style.minHeight = '150px';
-          wrapper.style.overflow = 'visible';
+        console.log('🔧 Final rendering patch running…');
+
+        // Force visibility on all wrappers
+        document.querySelectorAll('.gauge-wrapper, .result-content, .analyzer-section, .chart-box').forEach(el => {
+          el.style.display = 'block';
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+          el.style.minHeight = '100px';
+          el.style.height = 'auto';
+          el.style.overflow = 'visible';
         });
 
-        // ApexCharts force rerender (if available)
-        if (window.viralGauge && typeof window.viralGauge.render === 'function') window.viralGauge.render();
-        if (window.captionGauge && typeof window.captionGauge.render === 'function') window.captionGauge.render();
-        if (window.soundGauge && typeof window.soundGauge.render === 'function') window.soundGauge.render();
-        if (window.viewerGauge && typeof window.viewerGauge.render === 'function') window.viewerGauge.render();
-        if (window.engagementGauge && typeof window.engagementGauge.render === 'function') window.engagementGauge.render();
-        if (window.hookGauge && typeof window.hookGauge.render === 'function') window.hookGauge.render();
-
-        // 🛠️ PATCH: ApexCharts CSS is being hidden — this breaks chart rendering
-        const chartCSS = document.querySelector('.apexcharts-css');
-        if (chartCSS) {
-            chartCSS.style.display = 'block';
-            console.log("✅ ApexCharts CSS was hidden — now forced to visible!");
+        // 🔧 Force ApexCharts CSS to load
+        const apexStyle = document.querySelector('.apexcharts-css');
+        if (apexStyle) {
+          apexStyle.disabled = false;
+          apexStyle.removeAttribute('disabled');
+          apexStyle.style.display = 'block';
         }
 
-        console.log("✅ Final patch applied. All wrappers and charts forced visible.");
+        // ✅ Retry chart render after delay
+        setTimeout(() => {
+          if (window.ApexCharts && typeof ApexCharts.exec === 'function') {
+            console.log('🔁 Re-rendering all ApexCharts via ApexCharts.exec...');
+            ApexCharts.exec('viralGauge', 'updateOptions', {});
+            ApexCharts.exec('captionGauge', 'updateOptions', {});
+            ApexCharts.exec('soundGauge', 'updateOptions', {});
+            ApexCharts.exec('viewerGauge', 'updateOptions', {});
+            ApexCharts.exec('engagementGauge', 'updateOptions', {});
+            ApexCharts.exec('hookGauge', 'updateOptions', {});
+          } else {
+            console.warn('⚠️ ApexCharts not ready yet.');
+          }
+        }, 2000);
       }
-      
-      // Run final patch once after all chart setup is complete
-      setTimeout(runFinalRenderingPatch, 2000);
+
+      // 🔁 Automatically run after unlock logic completes
+      setTimeout(runFinalRenderingPatch, 3000);
     </script>
     
     <!-- ✅ Dev Crash Guard (local only) -->
