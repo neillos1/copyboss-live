@@ -22,6 +22,35 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
       wrapper.style.visibility = 'visible';
       wrapper.style.opacity = '1';
     }
+    
+    // --- FINAL DOM STABILITY + FULL CHART REBUILD ---
+    setTimeout(() => {
+      try {
+        const wrapper = document.querySelector(".analyzer-wrapper");
+        if (!wrapper) return console.error("❌ Wrapper missing on final rebuild.");
+
+        console.warn("🧩 Final analyzer rebuild triggered...");
+        wrapper.style.display = "grid";
+        wrapper.style.opacity = "1";
+        wrapper.style.visibility = "visible";
+
+        // Force a complete chart re-init if gauges disappeared
+        const gaugeCount = document.querySelectorAll(".apexcharts-canvas").length;
+        if (gaugeCount === 0 && typeof initializeCharts === "function") {
+          console.log("⚙️ No charts detected — rebuilding...");
+          initializeCharts();
+        }
+
+        // Force another redraw for good measure
+        if (window.ApexCharts) {
+          ApexCharts.exec(null, "updateOptions", { chart: { animations: { enabled: true } } }, true);
+          ApexCharts.exec(null, "resize");
+          console.log("✅ Charts rebuilt and resized successfully.");
+        }
+      } catch (e) {
+        console.error("❌ Final rebuild error:", e);
+      }
+    }, 2000);
   };
 
   const observer = new MutationObserver(() => restoreVisibility());
