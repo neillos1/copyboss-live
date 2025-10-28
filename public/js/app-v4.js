@@ -472,11 +472,15 @@ try {
               console.warn('⚠️ Error hiding upgrade buttons:', e);
             }
             
-            // 7. Remove any "Please upgrade" messages (safe)
+            // 7. Remove any "Please upgrade" messages (safe) - but preserve analyzer wrappers
             try {
               let upgradeMessages = 0;
               document.querySelectorAll('*').forEach(element => {
                 if (element && element.textContent && element.textContent.includes('Please upgrade')) {
+                  // Skip if element is inside analyzer wrapper
+                  if (element.closest('.analyzer-wrapper, .main-analyzer, .page-analyzer')) {
+                    return;
+                  }
                   if (element.style) {
                     element.style.display = 'none';
                     upgradeMessages++;
@@ -489,7 +493,37 @@ try {
               console.warn('⚠️ Error hiding upgrade messages:', e);
             }
             
+            // 8. Ensure analyzer wrapper is visible after unlock
+            try {
+              const analyzerWrapper = document.querySelector('.analyzer-wrapper');
+              if (analyzerWrapper) {
+                analyzerWrapper.style.display = 'block';
+                analyzerWrapper.style.visibility = 'visible';
+                analyzerWrapper.style.opacity = '1';
+                console.log('✅ Analyzer wrapper visibility ensured');
+              }
+            } catch (e) {
+              console.warn('⚠️ Error ensuring analyzer wrapper visibility:', e);
+            }
+            
+            // 9. Fail-safe: Check if page content is too small and reload if needed
+            try {
+              const bodyContentLength = document.body.innerHTML.length;
+              console.log('📏 Body content length after unlock:', bodyContentLength);
+              
+              if (bodyContentLength < 500) {
+                console.warn('⚠️ Page content too small after unlock, reloading in 1 second...');
+                setTimeout(() => {
+                  console.log('🔄 Reloading page due to insufficient content');
+                  location.reload();
+                }, 1000);
+              }
+            } catch (e) {
+              console.warn('⚠️ Error checking body content length:', e);
+            }
+            
             console.log('✅ removeAllLocks() completed safely');
+            console.log("✅ Analyzer re-rendered successfully after Pro unlock");
           } catch (error) {
             console.error('❌ Critical error in removeAllLocks():', error);
           }
