@@ -1,134 +1,6 @@
-// public/js/app.js
-// Main app entry with SPA routing and unlock logic
-console.log("🔥 APP.JS IS LOADED");
-
-// User tier management system
-let userTier = 'free'; // Default tier: free, reports2, reports15, pro
-
-// Initialize user tier from localStorage
-function initializeUserTier() {
-  try {
-    const storedTier = localStorage.getItem('userTier');
-    const isPro = localStorage.getItem('isPro') === 'true';
-    
-    if (isPro) {
-      userTier = 'pro';
-    } else if (storedTier) {
-      userTier = storedTier;
-    } else {
-      userTier = 'free';
-    }
-    
-    console.log("User Tier Active:", userTier);
-    return userTier;
-  } catch (error) {
-    console.warn('⚠️ Error initializing user tier:', error);
-    userTier = 'free';
-    return userTier;
-  }
-}
-
-// Check if user has Pro access
-function isProUser() {
-  return userTier === 'pro' || localStorage.getItem('isPro') === 'true';
-}
-
-// Update user tier and localStorage
-function updateUserTier(newTier) {
-  try {
-    userTier = newTier;
-    localStorage.setItem('userTier', newTier);
-    
-    if (newTier === 'pro') {
-      localStorage.setItem('isPro', 'true');
-    } else {
-      localStorage.setItem('isPro', 'false');
-    }
-    
-    console.log("User Tier Updated:", userTier);
-    
-    // Trigger UI updates
-    updateUIForTier();
-  } catch (error) {
-    console.warn('⚠️ Error updating user tier:', error);
-  }
-}
-
-// Update UI based on user tier
-function updateUIForTier() {
-  try {
-    const isPro = isProUser();
-    
-    // Update user plan display
-    const planElement = document.getElementById('userPlan');
-    if (planElement) {
-      planElement.textContent = isPro ? 'Pro Plan' : 'Free Plan';
-    }
-    
-    // Show/hide Pro features
-    if (isPro) {
-      // Show all gauges and Pro features
-      document.querySelectorAll('.pro-locked').forEach(el => {
-        el.classList.remove('pro-locked');
-        el.style.filter = 'none';
-        el.style.pointerEvents = 'auto';
-      });
-      
-      document.querySelectorAll('.locked-overlay').forEach(el => {
-        el.style.display = 'none';
-      });
-    } else {
-      // Show only first 2 gauges for free users
-      const gaugeBoxes = document.querySelectorAll('.gauge-box');
-      gaugeBoxes.forEach((box, index) => {
-        if (index >= 2) { // Hide gauges 3-6 (index 2-5)
-          box.classList.add('pro-locked');
-          box.style.filter = 'blur(5px)';
-          box.style.pointerEvents = 'none';
-        }
-      });
-    }
-    
-    console.log("UI updated for tier:", userTier);
-  } catch (error) {
-    console.warn('⚠️ Error updating UI for tier:', error);
-  }
-}
-
-// Initialize tier on load
-initializeUserTier();
-
-// IMMEDIATE Pro unlock URL detection - runs first before any async calls
-(function immediateProUnlockCheck() {
-  try {
-    console.log("Raw query:", window.location.search);
-    
-    // Extract URL parameters immediately
-    const urlParams = new URLSearchParams(window.location.search);
-    const plan = urlParams.get('plan');
-    const upgraded = urlParams.get('upgraded');
-    
-    console.log("Immediate Pro check - plan:", plan, "upgraded:", upgraded);
-    console.log("Full URL:", window.location.href);
-    
-    // Check for Pro unlock parameters
-    if (plan === 'pro' || upgraded === 'true') {
-      console.log('🎉 IMMEDIATE PRO UNLOCK DETECTED - Updating tier and showing popup');
-      
-      // Update user tier immediately
-      updateUserTier('pro');
-      
-      // Show success popup with minimal delay
-      setTimeout(() => {
-        showProUnlockPopup();
-      }, 500);
-    }
-  } catch (error) {
-    console.error('❌ Error in immediate Pro unlock check:', error);
-  }
-})();
-
-// Show Pro unlock success popup
+// ========================
+// PRO UNLOCK POPUP FUNCTION (needed by immediate check)
+// ========================
 function showProUnlockPopup() {
   try {
     // Check if popup was already shown this session
@@ -259,6 +131,132 @@ function showProUnlockPopup() {
   }
 }
 
+// ========================
+// IMMEDIATE PRO URL CHECK
+// ========================
+(function() {
+  try {
+    console.log("🔍 Immediate Pro Unlock Init");
+    const query = window.location.search;
+    console.log("Raw query:", query);
+    const params = new URLSearchParams(query);
+    const plan = params.get('plan');
+    const upgraded = params.get('upgraded');
+    console.log("Immediate Pro check - plan:", plan, "upgraded:", upgraded);
+    console.log("Full URL:", window.location.href);
+
+    if (plan === 'pro' && upgraded === 'true') {
+      console.log("🎉 IMMEDIATE PRO UNLOCK DETECTED");
+      localStorage.setItem('userTier', 'pro');
+      localStorage.removeItem('proPopupShown');
+      setTimeout(() => showProUnlockPopup(), 300);
+    }
+  } catch (err) {
+    console.error("Immediate Pro Unlock Error:", err);
+  }
+})();
+
+// public/js/app.js
+// Main app entry with SPA routing and unlock logic
+console.log("🔥 APP.JS IS LOADED");
+
+// User tier management system
+let userTier = 'free'; // Default tier: free, reports2, reports15, pro
+
+// Initialize user tier from localStorage
+function initializeUserTier() {
+  try {
+    const storedTier = localStorage.getItem('userTier');
+    const isPro = localStorage.getItem('isPro') === 'true';
+    
+    if (isPro) {
+      userTier = 'pro';
+    } else if (storedTier) {
+      userTier = storedTier;
+    } else {
+      userTier = 'free';
+    }
+    
+    console.log("User Tier Active:", userTier);
+    return userTier;
+  } catch (error) {
+    console.warn('⚠️ Error initializing user tier:', error);
+    userTier = 'free';
+    return userTier;
+  }
+}
+
+// Check if user has Pro access
+function isProUser() {
+  return userTier === 'pro' || localStorage.getItem('isPro') === 'true';
+}
+
+// Update user tier and localStorage
+function updateUserTier(newTier) {
+  try {
+    userTier = newTier;
+    localStorage.setItem('userTier', newTier);
+    
+    if (newTier === 'pro') {
+      localStorage.setItem('isPro', 'true');
+    } else {
+      localStorage.setItem('isPro', 'false');
+    }
+    
+    console.log("User Tier Updated:", userTier);
+    
+    // Trigger UI updates
+    updateUIForTier();
+  } catch (error) {
+    console.warn('⚠️ Error updating user tier:', error);
+  }
+}
+
+// Update UI based on user tier
+function updateUIForTier() {
+  try {
+    const isPro = isProUser();
+    
+    // Update user plan display
+    const planElement = document.getElementById('userPlan');
+    if (planElement) {
+      planElement.textContent = isPro ? 'Pro Plan' : 'Free Plan';
+    }
+    
+    // Show/hide Pro features
+    if (isPro) {
+      // Show all gauges and Pro features
+      document.querySelectorAll('.pro-locked').forEach(el => {
+        el.classList.remove('pro-locked');
+        el.style.filter = 'none';
+        el.style.pointerEvents = 'auto';
+      });
+      
+      document.querySelectorAll('.locked-overlay').forEach(el => {
+        el.style.display = 'none';
+      });
+    } else {
+      // Show only first 2 gauges for free users
+      const gaugeBoxes = document.querySelectorAll('.gauge-box');
+      gaugeBoxes.forEach((box, index) => {
+        if (index >= 2) { // Hide gauges 3-6 (index 2-5)
+          box.classList.add('pro-locked');
+          box.style.filter = 'blur(5px)';
+          box.style.pointerEvents = 'none';
+        }
+      });
+    }
+    
+    console.log("UI updated for tier:", userTier);
+  } catch (error) {
+    console.warn('⚠️ Error updating UI for tier:', error);
+  }
+}
+
+// Initialize tier on load
+initializeUserTier();
+
+
 // Handle Pro-only button clicks
 function handleProFeatureClick(featureName) {
   if (!isProUser()) {
@@ -371,7 +369,7 @@ try {
       console.log('Full URL search:', window.location.search);
       
       if (plan === 'pro' || upgraded === 'true') {
-        console.log('🎉 PRO STATUS DETECTED - Already handled by immediate check');
+        console.log('🎉 PRO STATUS DETECTED - Already handled by immediate check at top of file');
       
         // Define safe unlock function with error handling
         function removeAllLocks() {
@@ -576,7 +574,7 @@ try {
           console.log('Route change - plan:', plan, 'upgraded:', upgraded);
           
           if (plan === 'pro' || upgraded === 'true') {
-            console.log('🎉 Pro status detected on analyzer route - Already handled by immediate check');
+            console.log('🎉 Pro status detected on analyzer route - Already handled by immediate check at top of file');
             
             if (typeof window.forceUnlockPro === 'function') {
               // Wait a bit for DOM to be ready
