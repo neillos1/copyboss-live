@@ -4,6 +4,10 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 // PERSISTENT DOM MUTATION OBSERVER
 // ========================
 (function observeDisplayFix() {
+  // Global rebuild guard to prevent infinite recursion
+  let isRebuilding = false;
+  let rebuildTimeout = null;
+  
   const restoreVisibility = () => {
     const html = document.documentElement;
     const body = document.body;
@@ -24,10 +28,28 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
     }
     
     // --- FINAL DOM STABILITY + FULL CHART REBUILD ---
-    setTimeout(() => {
+    // Clear any existing timeout to prevent multiple rebuilds
+    if (rebuildTimeout) {
+      clearTimeout(rebuildTimeout);
+    }
+    
+    rebuildTimeout = setTimeout(() => {
+      // Prevent recursive rebuilds
+      if (isRebuilding) {
+        console.log("❌ Recursive rebuild prevented");
+        return;
+      }
+      
+      isRebuilding = true;
+      console.log("🧠 Rebuild started once");
+      
       try {
         const wrapper = document.querySelector(".analyzer-wrapper");
-        if (!wrapper) return console.error("❌ Wrapper missing on final rebuild.");
+        if (!wrapper) {
+          console.error("❌ Wrapper missing on final rebuild.");
+          isRebuilding = false;
+          return;
+        }
 
         console.warn("🧩 Final analyzer rebuild triggered...");
         wrapper.style.display = "grid";
@@ -50,8 +72,15 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
           ApexCharts.exec(null, "resize");
           console.log("✅ Charts rebuilt and resized successfully.");
         }
+        
+        console.log("✅ Rebuild complete");
       } catch (e) {
         console.error("❌ Final rebuild error:", e);
+      } finally {
+        // Reset the guard after a delay to allow for future legitimate rebuilds
+        setTimeout(() => {
+          isRebuilding = false;
+        }, 3000);
       }
     }, 2000);
   };
@@ -63,8 +92,13 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
   restoreVisibility();
   console.log("🛡️ Persistent DOM visibility observer active.");
   
-  // Make redrawCharts globally available
+  // Make redrawCharts globally available with recursion guard
   window.redrawCharts = function() {
+    if (isRebuilding) {
+      console.log("❌ Recursive redrawCharts prevented");
+      return;
+    }
+    
     console.log("🔄 Global redrawCharts called...");
     if (typeof redrawCharts === 'function') {
       redrawCharts();
@@ -707,6 +741,12 @@ try {
         
         // Delayed ApexCharts re-render to fix missing gauges after visibility restore
         setTimeout(() => {
+          // Prevent recursive calls
+          if (isRebuilding) {
+            console.log("❌ Recursive delayed re-render prevented");
+            return;
+          }
+          
           console.warn("🌀 Forcing layout recalculation + chart redraw...");
           try {
             const wrapper = document.querySelector('.analyzer-wrapper');
@@ -745,6 +785,12 @@ try {
         
         // --- FINAL CHART RESIZE + REPAINT SAFEGUARD ---
         setTimeout(() => {
+          // Prevent recursive calls
+          if (isRebuilding) {
+            console.log("❌ Recursive final resize prevented");
+            return;
+          }
+          
           try {
             console.warn("🌀 Forcing ApexCharts global resize + repaint...");
             if (window.ApexCharts) {

@@ -224,8 +224,17 @@
       }
       
       // ✅ Chart redraw function for when wrapper becomes visible
+      let isRedrawing = false;
       function redrawCharts() {
+        // Prevent recursive redraws
+        if (isRedrawing) {
+          console.log("❌ Recursive redrawCharts prevented");
+          return;
+        }
+        
+        isRedrawing = true;
         console.log("🔄 Redrawing charts after wrapper visibility change...");
+        
         try {
           if (typeof ApexCharts !== 'undefined') {
             const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
@@ -258,6 +267,11 @@
           }
         } catch (error) {
           console.error("❌ Error redrawing charts:", error);
+        } finally {
+          // Reset the guard after a delay
+          setTimeout(() => {
+            isRedrawing = false;
+          }, 2000);
         }
       }
       
