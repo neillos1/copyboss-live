@@ -151,6 +151,17 @@
           apexStyle.disabled = false;
         }
         
+        // ✅ CRITICAL: Ensure wrapper is visible before chart initialization
+        const wrapper = document.querySelector('.analyzer-wrapper');
+        if (wrapper) {
+          console.log("🔧 Ensuring analyzer wrapper is visible before chart init...");
+          wrapper.style.display = 'grid';
+          wrapper.style.visibility = 'visible';
+          wrapper.style.opacity = '1';
+          // Force a reflow to ensure dimensions are calculated
+          wrapper.offsetHeight;
+        }
+        
         // Wait for ApexCharts to be available
         function waitForApexCharts() {
           if (typeof ApexCharts !== 'undefined') {
@@ -164,6 +175,14 @@
               if (element) {
                 console.log(`📊 Initializing gauge: ${gaugeId}`);
                 try {
+                  // Ensure parent container is visible before rendering
+                  const parent = element.closest('.gauge-box, .gauge-wrapper, .analyzer-wrapper');
+                  if (parent) {
+                    parent.style.display = 'block';
+                    parent.style.visibility = 'visible';
+                    parent.style.opacity = '1';
+                  }
+                  
                   // Simple gauge initialization
                   const options = {
                     series: [0],
@@ -202,6 +221,44 @@
         }
         
         waitForApexCharts();
+      }
+      
+      // ✅ Chart redraw function for when wrapper becomes visible
+      function redrawCharts() {
+        console.log("🔄 Redrawing charts after wrapper visibility change...");
+        try {
+          if (typeof ApexCharts !== 'undefined') {
+            const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
+            
+            gaugeIds.forEach(gaugeId => {
+              const element = document.getElementById(gaugeId);
+              if (element) {
+                // Check if chart exists and redraw it
+                if (ApexCharts.getChartByID(gaugeId)) {
+                  console.log(`🔄 Redrawing existing chart: ${gaugeId}`);
+                  ApexCharts.exec(gaugeId, 'updateOptions', {}, true);
+                } else {
+                  console.log(`🔄 Re-initializing missing chart: ${gaugeId}`);
+                  // Re-initialize if chart doesn't exist
+                  const options = {
+                    series: [0],
+                    chart: { type: 'radialBar', height: 200, id: gaugeId },
+                    plotOptions: { radialBar: { startAngle: -90, endAngle: 90, hollow: { margin: 0, size: '70%' } } },
+                    colors: ['#3B82F6'],
+                    labels: ['Score']
+                  };
+                  new ApexCharts(element, options).render();
+                }
+              }
+            });
+            
+            // Force global resize
+            ApexCharts.exec(null, 'resize');
+            console.log("✅ Charts redrawn successfully");
+          }
+        } catch (error) {
+          console.error("❌ Error redrawing charts:", error);
+        }
       }
       
       // Initialize charts after DOM is ready

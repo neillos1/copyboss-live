@@ -39,6 +39,9 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
         if (gaugeCount === 0 && typeof initializeCharts === "function") {
           console.log("⚙️ No charts detected — rebuilding...");
           initializeCharts();
+        } else if (typeof redrawCharts === "function") {
+          console.log("🔄 Charts exist — redrawing...");
+          redrawCharts();
         }
 
         // Force another redraw for good measure
@@ -59,6 +62,20 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
   // Run once immediately
   restoreVisibility();
   console.log("🛡️ Persistent DOM visibility observer active.");
+  
+  // Make redrawCharts globally available
+  window.redrawCharts = function() {
+    console.log("🔄 Global redrawCharts called...");
+    if (typeof redrawCharts === 'function') {
+      redrawCharts();
+    } else {
+      console.warn("⚠️ redrawCharts function not found, trying direct ApexCharts redraw...");
+      if (window.ApexCharts) {
+        ApexCharts.exec(null, 'resize');
+        console.log("✅ Direct ApexCharts resize completed");
+      }
+    }
+  };
 })();
 
 // ========================
@@ -702,14 +719,22 @@ try {
             }
 
             if (typeof ApexCharts !== 'undefined') {
-              // Destroy and rebuild all charts
-              document.querySelectorAll(".apexcharts-canvas").forEach(c => c.remove());
-              if (typeof initializeCharts === 'function') {
-                initializeCharts();
-                console.log("✅ Charts re-rendered after forced layout reflow.");
+              // Check if charts exist and redraw them
+              const gaugeCount = document.querySelectorAll(".apexcharts-canvas").length;
+              if (gaugeCount > 0) {
+                console.log(`🔄 Found ${gaugeCount} existing charts — redrawing...`);
+                if (typeof redrawCharts === 'function') {
+                  redrawCharts();
+                } else {
+                  ApexCharts.exec(null, 'resize');
+                }
               } else {
-                console.error("⚠️ initializeCharts() not found.");
+                console.log("🔄 No charts found — re-initializing...");
+                if (typeof initializeCharts === 'function') {
+                  initializeCharts();
+                }
               }
+              console.log("✅ Charts re-rendered after forced layout reflow.");
             } else {
               console.error("⚠️ ApexCharts library not loaded yet.");
             }
