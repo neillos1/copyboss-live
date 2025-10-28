@@ -522,8 +522,32 @@ try {
               console.warn('⚠️ Error checking body content length:', e);
             }
             
+            // 10. DOM safeguard: Check if analyzer wrapper is hidden and force re-display
+            try {
+              const wrapper = document.querySelector('.analyzer-wrapper');
+              if (wrapper && wrapper.offsetParent === null) {
+                console.warn("⚠️ Analyzer wrapper hidden — forcing re-display");
+                wrapper.style.display = 'block';
+                wrapper.style.visibility = 'visible';
+                wrapper.style.opacity = '1';
+              }
+            } catch (e) {
+              console.warn('⚠️ Error checking analyzer wrapper visibility:', e);
+            }
+            
+            // 11. Check if body content is blank and restore if needed
+            try {
+              if (document.body.innerHTML.trim().length < 1000) {
+                console.error("❌ Analyzer content wiped — restoring base structure");
+                location.href = "https://www.copy-boss.com/analyzer.html?restored=true";
+              }
+            } catch (e) {
+              console.warn('⚠️ Error checking body content integrity:', e);
+            }
+            
             console.log('✅ removeAllLocks() completed safely');
             console.log("✅ Analyzer re-rendered successfully after Pro unlock");
+            console.log("✅ Analyzer display integrity verified post-unlock");
           } catch (error) {
             console.error('❌ Critical error in removeAllLocks():', error);
           }
@@ -550,6 +574,28 @@ try {
             console.log('🔓 Safe unlock starting...');
             checkChartsReady();
             removeAllLocks();
+            
+            // DOM safeguard after unlock
+            setTimeout(() => {
+              try {
+                const wrapper = document.querySelector('.analyzer-wrapper');
+                if (wrapper && wrapper.offsetParent === null) {
+                  console.warn("⚠️ Analyzer wrapper hidden in safeUnlock — forcing re-display");
+                  wrapper.style.display = 'block';
+                  wrapper.style.visibility = 'visible';
+                  wrapper.style.opacity = '1';
+                }
+                
+                if (document.body.innerHTML.trim().length < 1000) {
+                  console.error("❌ Analyzer content wiped in safeUnlock — restoring base structure");
+                  location.href = "https://www.copy-boss.com/analyzer.html?restored=true";
+                }
+                
+                console.log("✅ Analyzer display integrity verified in safeUnlock");
+              } catch (e) {
+                console.warn('⚠️ Error in safeUnlock DOM safeguard:', e);
+              }
+            }, 500);
           } catch (e) {
             console.error('❌ Error in safe unlock:', e);
           }
@@ -584,6 +630,28 @@ try {
         // Make unlock function globally available
         window.forceUnlockPro = removeAllLocks;
         console.log('✅ Global forceUnlockPro function available');
+        
+        // Final DOM integrity check after all unlock operations
+        setTimeout(() => {
+          try {
+            const wrapper = document.querySelector('.analyzer-wrapper');
+            if (wrapper && wrapper.offsetParent === null) {
+              console.warn("⚠️ Analyzer wrapper hidden in safeProUnlock — forcing re-display");
+              wrapper.style.display = 'block';
+              wrapper.style.visibility = 'visible';
+              wrapper.style.opacity = '1';
+            }
+            
+            if (document.body.innerHTML.trim().length < 1000) {
+              console.error("❌ Analyzer content wiped in safeProUnlock — restoring base structure");
+              location.href = "https://www.copy-boss.com/analyzer.html?restored=true";
+            }
+            
+            console.log("✅ Analyzer display integrity verified in safeProUnlock");
+          } catch (e) {
+            console.warn('⚠️ Error in safeProUnlock final DOM safeguard:', e);
+          }
+        }, 1000);
       } else {
         console.log('ℹ️ No Pro status detected in URL parameters');
       }
