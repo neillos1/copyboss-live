@@ -652,6 +652,36 @@ try {
             console.warn('⚠️ Error in safeProUnlock final DOM safeguard:', e);
           }
         }, 1000);
+        
+        // Global re-display safeguard to stop body/html from hiding after Pro unlock
+        setTimeout(() => {
+          try {
+            const html = document.documentElement;
+            const body = document.body;
+            const wrapper = document.querySelector('.analyzer-wrapper');
+            
+            if (html && html.style.display === 'none') {
+              console.error("❌ HTML display:none detected — forcing re-display");
+              html.style.display = 'block';
+            }
+            
+            if (body && body.style.display === 'none') {
+              console.error("❌ BODY display:none detected — forcing re-display");
+              body.style.display = 'block';
+            }
+            
+            if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+              console.error("❌ Analyzer wrapper hidden globally — forcing re-display");
+              wrapper.style.display = 'block';
+              wrapper.style.visibility = 'visible';
+              wrapper.style.opacity = '1';
+            }
+            
+            console.log("✅ Global re-display safeguard completed");
+          } catch (e) {
+            console.warn('⚠️ Error in global re-display safeguard:', e);
+          }
+        }, 1500);
       } else {
         console.log('ℹ️ No Pro status detected in URL parameters');
       }
