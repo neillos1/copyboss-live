@@ -659,6 +659,35 @@ try {
           safeUnlock();
         }, 2000);
         
+        // Delayed ApexCharts re-render to fix missing gauges after visibility restore
+        setTimeout(() => {
+          console.warn("🌀 Final render retry — forcing full chart + gauge rebuild...");
+          try {
+            if (typeof ApexCharts !== 'undefined') {
+              document.querySelectorAll(".apexcharts-canvas").forEach(c => c.remove());
+              // Call initializeCharts if it exists globally, otherwise try to trigger chart rendering
+              if (typeof initializeCharts === 'function') {
+                initializeCharts();
+              } else {
+                console.warn("⚠️ initializeCharts function not found, trying direct ApexCharts rendering...");
+                // Try to re-render existing charts
+                const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
+                gaugeIds.forEach(gaugeId => {
+                  const element = document.getElementById(gaugeId);
+                  if (element && typeof ApexCharts.exec === 'function') {
+                    ApexCharts.exec(gaugeId, 'updateOptions', {});
+                  }
+                });
+              }
+              console.log("✅ Charts successfully re-rendered after delay.");
+            } else {
+              console.error("❌ ApexCharts not found for retry.");
+            }
+          } catch (e) {
+            console.error("⚠️ Render retry failed:", e);
+          }
+        }, 1200);
+        
         // Make unlock function globally available
         window.forceUnlockPro = removeAllLocks;
         console.log('✅ Global forceUnlockPro function available');
