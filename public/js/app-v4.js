@@ -1,6 +1,38 @@
 console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 
 // ========================
+// PERSISTENT DOM MUTATION OBSERVER
+// ========================
+(function observeDisplayFix() {
+  const restoreVisibility = () => {
+    const html = document.documentElement;
+    const body = document.body;
+    if (html && html.style.display === 'none') {
+      console.warn("❌ HTML hidden — restoring...");
+      html.style.display = 'block';
+    }
+    if (body && body.style.display === 'none') {
+      console.warn("❌ BODY hidden — restoring...");
+      body.style.display = 'block';
+    }
+    const wrapper = document.querySelector('.analyzer-wrapper');
+    if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+      console.warn("❌ Analyzer wrapper hidden — restoring...");
+      wrapper.style.display = 'grid';
+      wrapper.style.visibility = 'visible';
+      wrapper.style.opacity = '1';
+    }
+  };
+
+  const observer = new MutationObserver(() => restoreVisibility());
+  observer.observe(document, { attributes: true, childList: true, subtree: true });
+
+  // Run once immediately
+  restoreVisibility();
+  console.log("🛡️ Persistent DOM visibility observer active.");
+})();
+
+// ========================
 // PRO UNLOCK POPUP FUNCTION (needed by immediate check)
 // ========================
 function showProUnlockPopup() {
