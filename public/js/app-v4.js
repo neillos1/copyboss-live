@@ -661,32 +661,33 @@ try {
         
         // Delayed ApexCharts re-render to fix missing gauges after visibility restore
         setTimeout(() => {
-          console.warn("🌀 Final render retry — forcing full chart + gauge rebuild...");
+          console.warn("🌀 Forcing layout recalculation + chart redraw...");
           try {
+            const wrapper = document.querySelector('.analyzer-wrapper');
+            if (wrapper) {
+              // Force a reflow — ensures layout recalculates
+              wrapper.offsetHeight; 
+              wrapper.style.display = 'grid';
+              wrapper.style.opacity = '1';
+              wrapper.style.visibility = 'visible';
+            }
+
             if (typeof ApexCharts !== 'undefined') {
+              // Destroy and rebuild all charts
               document.querySelectorAll(".apexcharts-canvas").forEach(c => c.remove());
-              // Call initializeCharts if it exists globally, otherwise try to trigger chart rendering
               if (typeof initializeCharts === 'function') {
                 initializeCharts();
+                console.log("✅ Charts re-rendered after forced layout reflow.");
               } else {
-                console.warn("⚠️ initializeCharts function not found, trying direct ApexCharts rendering...");
-                // Try to re-render existing charts
-                const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
-                gaugeIds.forEach(gaugeId => {
-                  const element = document.getElementById(gaugeId);
-                  if (element && typeof ApexCharts.exec === 'function') {
-                    ApexCharts.exec(gaugeId, 'updateOptions', {});
-                  }
-                });
+                console.error("⚠️ initializeCharts() not found.");
               }
-              console.log("✅ Charts successfully re-rendered after delay.");
             } else {
-              console.error("❌ ApexCharts not found for retry.");
+              console.error("⚠️ ApexCharts library not loaded yet.");
             }
           } catch (e) {
-            console.error("⚠️ Render retry failed:", e);
+            console.error("❌ Final redraw error:", e);
           }
-        }, 1200);
+        }, 1500);
         
         // Make unlock function globally available
         window.forceUnlockPro = removeAllLocks;
