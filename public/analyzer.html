@@ -105,6 +105,7 @@
       
       // ✅ Helper function to force ApexChart container resize
       function forceApexChartContainersToResize() {
+        console.warn("🌀 Entering forceApexChartContainersToResize()");
         console.log("🔧 Restricting ApexChart resize to gauge containers only");
 
         // Only target elements inside the main analyzer content area
@@ -126,6 +127,17 @@
             console.log(`✅ Resized gauge container ${index}`);
           }
         });
+        
+        // Re-check analyzer wrapper after resize
+        const wrapper = document.querySelector('.analyzer-wrapper');
+        if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+          console.error("❌ Analyzer wrapper hidden AFTER resize cycle — restoring...");
+          wrapper.style.display = 'block';
+          wrapper.style.visibility = 'visible';
+          wrapper.style.opacity = '1';
+        }
+        
+        console.warn("✅ Exiting forceApexChartContainersToResize()");
       }
 
       // 🔧 CHART INITIALIZATION FIX
@@ -210,6 +222,7 @@
         if (finalPatchExecuted) return;
         finalPatchExecuted = true;
 
+        console.warn("🌀 Entering runFinalRenderingPatch()");
         console.log('🔧 Final rendering patch running…');
 
         // Force visibility on all wrappers
@@ -244,6 +257,17 @@
             console.warn('⚠️ ApexCharts not ready yet.');
           }
         }, 2000);
+        
+        // Re-check analyzer wrapper after render patch
+        const wrapper = document.querySelector('.analyzer-wrapper');
+        if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+          console.error("❌ Analyzer wrapper hidden AFTER render patch — restoring...");
+          wrapper.style.display = 'block';
+          wrapper.style.visibility = 'visible';
+          wrapper.style.opacity = '1';
+        }
+        
+        console.warn("✅ Exiting runFinalRenderingPatch()");
       }
 
         // 🔁 Automatically run after unlock logic completes
