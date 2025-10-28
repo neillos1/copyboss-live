@@ -1,3 +1,5 @@
+console.log("✅ JS file version: v4.0 Immediate Pro Check active");
+
 // ========================
 // PRO UNLOCK POPUP FUNCTION (needed by immediate check)
 // ========================
@@ -137,6 +139,7 @@ function showProUnlockPopup() {
 (function() {
   try {
     console.log("🔍 Immediate Pro Unlock Init");
+    console.log("✅ Immediate Pro IIFE executing correctly");
     const query = window.location.search;
     console.log("Raw query:", query);
     const params = new URLSearchParams(query);
