@@ -689,6 +689,24 @@ try {
           }
         }, 1500);
         
+        // --- FINAL CHART RESIZE + REPAINT SAFEGUARD ---
+        setTimeout(() => {
+          try {
+            console.warn("🌀 Forcing ApexCharts global resize + repaint...");
+            if (window.ApexCharts) {
+              ApexCharts.exec(null, 'updateOptions', {
+                chart: { animations: { enabled: true } }
+              }, true);
+              ApexCharts.exec(null, 'resize');
+              console.log("✅ ApexCharts resize + repaint complete.");
+            } else {
+              console.error("⚠️ ApexCharts not available for resize.");
+            }
+          } catch (e) {
+            console.error("❌ Chart repaint safeguard failed:", e);
+          }
+        }, 1600);
+        
         // Make unlock function globally available
         window.forceUnlockPro = removeAllLocks;
         console.log('✅ Global forceUnlockPro function available');
