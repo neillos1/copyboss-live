@@ -134,13 +134,15 @@
           }
         });
         
-        // Re-check analyzer wrapper after resize
-        const wrapper = document.querySelector('.analyzer-wrapper');
-        if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
-          console.error("❌ Analyzer wrapper hidden AFTER resize cycle — restoring...");
-          wrapper.style.display = 'block';
-          wrapper.style.visibility = 'visible';
-          wrapper.style.opacity = '1';
+        // Only check analyzer wrapper if not yet rendered
+        if (!window.__analyzerRendered) {
+          const wrapper = document.querySelector('.analyzer-wrapper');
+          if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+            console.error("❌ Analyzer wrapper hidden AFTER resize cycle — restoring...");
+            wrapper.style.display = 'block';
+            wrapper.style.visibility = 'visible';
+            wrapper.style.opacity = '1';
+          }
         }
         
         console.warn("✅ Exiting forceApexChartContainersToResize()");
@@ -230,6 +232,15 @@
             // Mark charts as initialized
             window.__chartsInitialized = true;
             console.log("✅ Charts initialized once");
+            
+            // Permanently enforce analyzer visibility after charts initialize
+            const analyzer = document.querySelector(".analyzer");
+            if (analyzer) {
+              analyzer.style.display = "block";
+              analyzer.style.opacity = "1";
+              analyzer.style.visibility = "visible";
+              console.log("✅ Final analyzer wrapper permanently visible");
+            }
           } else {
             console.log("⏳ Waiting for ApexCharts...");
             setTimeout(waitForApexCharts, 100);
@@ -357,13 +368,24 @@
           }
         }, 2000);
         
-        // Re-check analyzer wrapper after render patch
-        const wrapper = document.querySelector('.analyzer-wrapper');
-        if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
-          console.error("❌ Analyzer wrapper hidden AFTER render patch — restoring...");
-          wrapper.style.display = 'block';
-          wrapper.style.visibility = 'visible';
-          wrapper.style.opacity = '1';
+        // Only check analyzer wrapper if not yet rendered
+        if (!window.__analyzerRendered) {
+          const wrapper = document.querySelector('.analyzer-wrapper');
+          if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+            console.error("❌ Analyzer wrapper hidden AFTER render patch — restoring...");
+            wrapper.style.display = 'block';
+            wrapper.style.visibility = 'visible';
+            wrapper.style.opacity = '1';
+          }
+        }
+        
+        // Permanently enforce analyzer visibility
+        const analyzer = document.querySelector(".analyzer");
+        if (analyzer) {
+          analyzer.style.display = "block";
+          analyzer.style.opacity = "1";
+          analyzer.style.visibility = "visible";
+          console.log("✅ Final analyzer wrapper permanently visible");
         }
         
         console.warn("✅ Exiting runFinalRenderingPatch()");

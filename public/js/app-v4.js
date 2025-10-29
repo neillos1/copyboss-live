@@ -32,12 +32,16 @@ window.__chartsInitialized = false;
       console.warn("❌ BODY hidden — restoring...");
       body.style.display = 'block';
     }
-    const wrapper = document.querySelector('.analyzer-wrapper');
-    if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
-      console.warn("❌ Analyzer wrapper hidden — restoring...");
-      wrapper.style.display = 'grid';
-      wrapper.style.visibility = 'visible';
-      wrapper.style.opacity = '1';
+    
+    // Only restore analyzer wrapper if not yet rendered
+    if (!window.__analyzerRendered) {
+      const wrapper = document.querySelector('.analyzer-wrapper');
+      if (wrapper && (wrapper.offsetParent === null || wrapper.style.display === 'none')) {
+        console.warn("❌ Analyzer wrapper hidden — restoring...");
+        wrapper.style.display = 'grid';
+        wrapper.style.visibility = 'visible';
+        wrapper.style.opacity = '1';
+      }
     }
     
     // --- FINAL DOM STABILITY + FULL CHART REBUILD ---
@@ -89,6 +93,15 @@ window.__chartsInitialized = false;
         console.log("✅ Rebuild complete");
         window.__analyzerRendered = true;
         console.log("✅ Analyzer fully rendered once");
+        
+        // Permanently enforce analyzer visibility
+        const analyzer = document.querySelector(".analyzer");
+        if (analyzer) {
+          analyzer.style.display = "block";
+          analyzer.style.opacity = "1";
+          analyzer.style.visibility = "visible";
+          console.log("✅ Final analyzer wrapper permanently visible");
+        }
       } catch (e) {
         console.error("❌ Final rebuild error:", e);
       } finally {
