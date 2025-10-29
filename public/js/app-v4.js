@@ -90,9 +90,13 @@ window.__chartsInitialized = false;
 
         // Force another redraw for good measure
         if (window.ApexCharts) {
-          ApexCharts.exec(null, "updateOptions", { chart: { animations: { enabled: true } } }, true);
-          ApexCharts.exec(null, "resize");
-          console.log("✅ Charts rebuilt and resized successfully.");
+          try {
+            ApexCharts.exec(null, "updateOptions", { chart: { animations: { enabled: true } } }, true);
+            ApexCharts.exec(null, "resize");
+            console.log("✅ Charts rebuilt and resized successfully.");
+          } catch (chartError) {
+            console.warn("⚠️ Chart redraw error (safe):", chartError);
+          }
         }
         
         console.log("✅ Rebuild complete");
@@ -811,22 +815,26 @@ try {
             }
 
             if (typeof ApexCharts !== 'undefined') {
-              // Check if charts exist and redraw them
-              const gaugeCount = document.querySelectorAll(".apexcharts-canvas").length;
-              if (gaugeCount > 0) {
-                console.log(`🔄 Found ${gaugeCount} existing charts — redrawing...`);
-                if (typeof redrawCharts === 'function') {
-                  redrawCharts();
+              try {
+                // Check if charts exist and redraw them
+                const gaugeCount = document.querySelectorAll(".apexcharts-canvas").length;
+                if (gaugeCount > 0) {
+                  console.log(`🔄 Found ${gaugeCount} existing charts — redrawing...`);
+                  if (typeof redrawCharts === 'function') {
+                    redrawCharts();
+                  } else {
+                    ApexCharts.exec(null, 'resize');
+                  }
                 } else {
-                  ApexCharts.exec(null, 'resize');
+                  console.log("🔄 No charts found — re-initializing...");
+                  if (typeof initializeCharts === 'function') {
+                    initializeCharts();
+                  }
                 }
-              } else {
-                console.log("🔄 No charts found — re-initializing...");
-                if (typeof initializeCharts === 'function') {
-                  initializeCharts();
-                }
+                console.log("✅ Charts re-rendered after forced layout reflow.");
+              } catch (chartError) {
+                console.warn("⚠️ Chart operation error (safe):", chartError);
               }
-              console.log("✅ Charts re-rendered after forced layout reflow.");
             } else {
               console.error("⚠️ ApexCharts library not loaded yet.");
             }
@@ -852,11 +860,15 @@ try {
           try {
             console.warn("🌀 Forcing ApexCharts global resize + repaint...");
             if (window.ApexCharts) {
-              ApexCharts.exec(null, 'updateOptions', {
-                chart: { animations: { enabled: true } }
-              }, true);
-              ApexCharts.exec(null, 'resize');
-              console.log("✅ ApexCharts resize + repaint complete.");
+              try {
+                ApexCharts.exec(null, 'updateOptions', {
+                  chart: { animations: { enabled: true } }
+                }, true);
+                ApexCharts.exec(null, 'resize');
+                console.log("✅ ApexCharts resize + repaint complete.");
+              } catch (apexError) {
+                console.warn("⚠️ ApexCharts operation error (safe):", apexError);
+              }
             } else {
               console.error("⚠️ ApexCharts not available for resize.");
             }
