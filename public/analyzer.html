@@ -174,6 +174,12 @@
           return;
         }
         
+        // Only block if both render AND charts are complete
+        if (window.__analyzerRendered && window.__chartsInitialized) {
+          console.log("⚠️ Rebuild prevented - analyzer and charts already rendered");
+          return;
+        }
+        
         console.log("📈 Starting chart initialization...");
         
         // ✅ Fix Safari disabling ApexCharts CSS
@@ -278,7 +284,8 @@
               console.log("✅ Analyzer wrapper permanently visible");
             }
             
-            // Mark analyzer as fully rendered and lock visibility
+            // Only set render flags AFTER all charts are successfully rendered
+            console.log("✅ All charts rendered successfully");
             window.__analyzerRendered = true;
             window.__suppressGlobalHide = true;
             console.log("✅ Analyzer fully rendered & locked visible");
@@ -371,6 +378,17 @@
         initializeCharts();
       }
       
+      // Final visibility check after load
+      window.addEventListener("load", () => {
+        const wrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
+        if (wrapper) {
+          wrapper.style.display = "grid";
+          wrapper.style.opacity = "1";
+          wrapper.style.visibility = "visible";
+          console.log("✅ Final visibility ensured after load");
+        }
+      });
+      
       // Also try to initialize charts after delays
       setTimeout(initializeCharts, 2000);
       setTimeout(initializeCharts, 5000);
@@ -379,8 +397,8 @@
       let finalPatchExecuted = false;
 
       function runFinalRenderingPatch() {
-        // Gate: Skip if already rendered
-        if (window.__analyzerRendered) {
+        // Gate: Skip if already rendered AND charts initialized
+        if (window.__analyzerRendered && window.__chartsInitialized) {
           console.log("🧱 Final patch skipped — already rendered");
           return;
         }

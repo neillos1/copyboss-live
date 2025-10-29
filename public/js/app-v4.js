@@ -138,9 +138,14 @@ function qs(sel) { return document.querySelector(sel); }
           wrapper.style.visibility = "visible";
         }
         
-        window.__analyzerRendered = true;
-        window.__suppressGlobalHide = true;
-        console.log("✅ Analyzer fully rendered & locked visible");
+        // Only set render flags if charts are also initialized
+        if (window.__chartsInitialized) {
+          window.__analyzerRendered = true;
+          window.__suppressGlobalHide = true;
+          console.log("✅ Analyzer fully rendered & locked visible");
+        } else {
+          console.log("⚠️ Rebuild complete but charts not yet initialized");
+        }
       } catch (e) {
         console.error("❌ Final rebuild error:", e);
       } finally {
@@ -201,6 +206,15 @@ function showProUnlockPopup() {
   try {
     // Check if popup was already shown this session
     if (localStorage.getItem('proPopupShown') === 'true') {
+      return;
+    }
+    
+    // Temporarily allow Pro popup logic to show even if __analyzerRendered is true
+    if (document.querySelector('.pro-upgrade-modal')) {
+      const popup = document.querySelector('.pro-upgrade-modal');
+      popup.style.display = 'flex';
+      popup.style.opacity = '1';
+      console.log('✅ Pro popup visible');
       return;
     }
     
@@ -831,8 +845,8 @@ try {
         
         // Delayed ApexCharts re-render to fix missing gauges after visibility restore
         setTimeout(() => {
-          // Gate: Skip if already rendered
-          if (window.__analyzerRendered) {
+          // Gate: Skip if already rendered AND charts initialized
+          if (window.__analyzerRendered && window.__chartsInitialized) {
             console.log("🧱 Final patch skipped — already rendered");
             return;
           }
@@ -891,8 +905,8 @@ try {
         
         // --- FINAL CHART RESIZE + REPAINT SAFEGUARD ---
         setTimeout(() => {
-          // Gate: Skip if already rendered
-          if (window.__analyzerRendered) {
+          // Gate: Skip if already rendered AND charts initialized
+          if (window.__analyzerRendered && window.__chartsInitialized) {
             console.log("🧱 Final patch skipped — already rendered");
             return;
           }
