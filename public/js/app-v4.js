@@ -533,47 +533,47 @@ function updateUIForTier() {
     }
     
     // ✅ Step 1: Wait for ApexCharts to fully render
-    setTimeout(() => {
-      console.log("✅ Charts finished rendering, applying lock visuals...");
+    // setTimeout(() => {
+    //   console.log("✅ Charts finished rendering, applying lock visuals...");
 
-      // Step 2: Identify all gauges
-      const allGauges = document.querySelectorAll(".gauge-container");
-      if (!allGauges.length) {
-        console.warn("⚠️ No gauge containers found.");
-        return;
-      }
+    //   // Step 2: Identify all gauges
+    //   const allGauges = document.querySelectorAll(".gauge-container");
+    //   if (!allGauges.length) {
+    //     console.warn("⚠️ No gauge containers found.");
+    //     return;
+    //   }
 
-      // Step 3: Unlock first 2 gauges for free users
-      allGauges.forEach((gauge, index) => {
-        const overlay = gauge.querySelector(".locked-overlay");
-        const padlock = gauge.querySelector(".padlock-icon");
-        const blurCard = gauge.closest(".report-card");
+    //   // Step 3: Unlock first 2 gauges for free users
+    //   allGauges.forEach((gauge, index) => {
+    //     const overlay = gauge.querySelector(".locked-overlay");
+    //     const padlock = gauge.querySelector(".padlock-icon");
+    //     const blurCard = gauge.closest(".report-card");
 
-        if (index < 2) {
-          // Free gauges stay visible
-          if (overlay) overlay.style.display = "none";
-          if (padlock) padlock.style.display = "none";
-          if (blurCard) blurCard.classList.remove("blurred-report");
-          gauge.style.filter = "none";
-          console.log(`🟢 Gauge ${index + 1} unlocked (free tier)`);
-        } else {
-          // Locked gauges show padlock & blur
-          if (overlay) overlay.style.display = "flex";
-          if (padlock) padlock.style.display = "block";
-          if (blurCard) blurCard.classList.add("blurred-report");
-          gauge.style.filter = "blur(6px)";
-          console.log(`🔒 Gauge ${index + 1} locked`);
-        }
-      });
+    //     if (index < 2) {
+    //       // Free gauges stay visible
+    //       if (overlay) overlay.style.display = "none";
+    //       if (padlock) padlock.style.display = "none";
+    //       if (blurCard) blurCard.classList.remove("blurred-report");
+    //       gauge.style.filter = "none";
+    //       console.log(`🟢 Gauge ${index + 1} unlocked (free tier)`);
+    //     } else {
+    //       // Locked gauges show padlock & blur
+    //       if (overlay) overlay.style.display = "flex";
+    //       if (padlock) padlock.style.display = "block";
+    //       if (blurCard) blurCard.classList.add("blurred-report");
+    //       gauge.style.filter = "blur(6px)";
+    //       console.log(`🔒 Gauge ${index + 1} locked`);
+    //     }
+    //   });
 
-      // Step 4: Remove any full-page overlay
-      const fullOverlay = document.querySelector(".pro-upgrade-popup, .global-lock-overlay");
-      if (fullOverlay) {
-        fullOverlay.style.display = "none";
-        console.log("🚫 Removed incorrect global overlay blocking charts.");
-      }
+    //   // Step 4: Remove any full-page overlay
+    //   const fullOverlay = document.querySelector(".pro-upgrade-popup, .global-lock-overlay");
+    //   if (fullOverlay) {
+    //     fullOverlay.style.display = "none";
+    //     console.log("🚫 Removed incorrect global overlay blocking charts.");
+    //   }
 
-    }, 2000); // 2-second delay ensures ApexCharts CSS loads first
+    // }, 2000); // 2-second delay ensures ApexCharts CSS loads first
     
     console.log("UI updated for tier:", userTier);
   } catch (error) {
@@ -906,7 +906,7 @@ try {
           try {
             console.log('🔓 Safe unlock starting...');
             checkChartsReady();
-            removeAllLocks();
+            // removeAllLocks(); // DISABLED FOR PRODUCTION - charts need to render first
             
             // DOM safeguard after unlock
             setTimeout(() => {
@@ -1068,7 +1068,7 @@ try {
         }, 1600);
         
         // Make unlock function globally available
-        window.forceUnlockPro = removeAllLocks;
+        // window.forceUnlockPro = removeAllLocks; // DISABLED FOR PRODUCTION
         console.log('✅ Global forceUnlockPro function available');
         
         // Force render safeguard - ensure charts render even with Stripe CORS issues
@@ -1076,10 +1076,10 @@ try {
           console.log("💡 Charts forced to render even with Stripe CORS block");
           
           // Force show fallback popup if Pro unlock detected
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get('plan') === 'pro' && urlParams.get('upgraded') === 'true') {
-            createFallbackProPopup();
-          }
+          // const urlParams = new URLSearchParams(window.location.search);
+          // if (urlParams.get('plan') === 'pro' && urlParams.get('upgraded') === 'true') {
+          //   createFallbackProPopup();
+          // }
         }, 2000);
 
 // ========================
@@ -1164,21 +1164,21 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Force show Pro popup after render - with fallback
-    setTimeout(() => {
-      let popup = document.querySelector("#proUnlockPopup, #proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal, .pro-upgrade-popup");
-      
-      if (popup) {
-        popup.style.display = "flex";
-        popup.style.opacity = "1";
-        popup.style.visibility = "visible";
-        console.log("💎 Pro popup displayed manually.");
-        console.log("💎 Pro popup element successfully detected.");
-      } else {
-        // Create fallback popup if none exists
-        popup = createFallbackProPopup();
-        console.log("💎 Fallback Pro popup displayed");
-      }
-    }, 1500);
+    // setTimeout(() => {
+    //   let popup = document.querySelector("#proUnlockPopup, #proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal, .pro-upgrade-popup");
+    //   
+    //   if (popup) {
+    //     popup.style.display = "flex";
+    //     popup.style.opacity = "1";
+    //     popup.style.visibility = "visible";
+    //     console.log("💎 Pro popup displayed manually.");
+    //     console.log("💎 Pro popup element successfully detected.");
+    //   } else {
+    //     // Create fallback popup if none exists
+    //     popup = createFallbackProPopup();
+    //     console.log("💎 Fallback Pro popup displayed");
+    //   }
+    // }, 1500);
 
   } catch (err) {
     console.error("🔥 Analyzer render failure:", err);
@@ -1187,9 +1187,9 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("💡 Charts forced to render even with Stripe CORS block");
     
     // Create fallback popup on error
-    setTimeout(() => {
-      createFallbackProPopup();
-    }, 1000);
+    // setTimeout(() => {
+    //   createFallbackProPopup();
+    // }, 1000);
   }
 });
         
@@ -1382,6 +1382,32 @@ setTimeout(() => {
   });
 
   console.log("🎨 All ApexCharts containers force-shown.");
+}, 1500);
+
+// 🚀 PRODUCTION-SAFE RENDER RESET
+setTimeout(() => {
+  console.log("🚀 Forcing full analyzer render for production build...");
+
+  // Remove any global overlay that blocks clicks
+  const overlays = document.querySelectorAll(
+    ".pro-upgrade-popup, .global-lock-overlay, .locked-overlay"
+  );
+  overlays.forEach(el => el.remove());
+
+  // Force all ApexCharts to display
+  document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
+    el.style.opacity = "1";
+    el.style.visibility = "visible";
+    el.style.display = "block";
+  });
+
+  // Ensure gauge boxes and results cards show normally
+  document.querySelectorAll(".report-card, .gauge-container").forEach(el => {
+    el.style.filter = "none";
+    el.style.pointerEvents = "auto";
+  });
+
+  console.log("✅ All charts and gauges forced visible for production.");
 }, 1500);
 
 // ✅ FINAL FALLBACK: Manually inject ApexCharts CSS if missing
