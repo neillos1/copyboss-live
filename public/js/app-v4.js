@@ -1,12 +1,17 @@
 console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 
 // ========================
+// GLOBAL VARIABLES - DECLARED FIRST
+// ========================
+window.isRebuilding = false;
+console.log("✅ Global variable window.isRebuilding initialized");
+
+// ========================
 // GLOBAL SINGLE-EXECUTION GUARDS
 // ========================
 window.__analyzerRendered = false;
 window.__unlockCompleted = false;
 window.__chartsInitialized = false;
-window.isRebuilding = false;
 
 // ========================
 // PERSISTENT DOM MUTATION OBSERVER
@@ -64,7 +69,7 @@ window.isRebuilding = false;
         const wrapper = document.querySelector(".analyzer-wrapper");
         if (!wrapper) {
           console.error("❌ Wrapper missing on final rebuild.");
-          isRebuilding = false;
+          window.isRebuilding = false;
           return;
         }
 
