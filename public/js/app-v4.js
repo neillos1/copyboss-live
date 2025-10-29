@@ -1388,3 +1388,52 @@ setTimeout(() => {
     console.log("🎨 ApexCharts CSS already present.");
   }
 }, 2000);
+
+// 🚨 FINAL FIX: Force full ApexCharts visual render even if CSS is blocked
+setTimeout(() => {
+  console.log("🚨 Final ApexCharts visibility enforcement starting...");
+
+  // Remove any hidden ApexCharts stylesheet
+  document.querySelectorAll('style[id*="apexcharts"], link[href*="apexcharts"]').forEach(el => {
+    el.removeAttribute("media");
+    el.removeAttribute("disabled");
+    el.removeAttribute("hidden");
+    el.disabled = false;
+    console.log("✅ Re-enabled or cleaned ApexCharts stylesheet element");
+  });
+
+  // Inject absolute fallback CSS
+  const fallbackStyle = document.createElement("style");
+  fallbackStyle.id = "apexcharts-global-fallback";
+  fallbackStyle.textContent = `
+    .apexcharts-canvas, .apexcharts-svg, .apexcharts-inner {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+      position: relative !important;
+      transform: none !important;
+      overflow: visible !important;
+    }
+    .apexcharts-tooltip, .apexcharts-legend, .apexcharts-title-text {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+    }
+    svg, foreignObject {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+    }
+  `;
+  document.head.appendChild(fallbackStyle);
+  console.log("💎 ApexCharts global fallback stylesheet injected.");
+
+  // Force redraw of all charts
+  document.querySelectorAll(".apexcharts-canvas").forEach(canvas => {
+    canvas.style.opacity = "1";
+    canvas.style.display = "block";
+    canvas.style.visibility = "visible";
+  });
+
+  console.log("🎯 ApexCharts elements fully unhidden and redrawn.");
+}, 1800);
