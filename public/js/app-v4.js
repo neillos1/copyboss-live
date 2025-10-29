@@ -70,12 +70,13 @@ function qs(sel) { return document.querySelector(sel); }
 
 // Create fallback Pro popup if missing
 function createFallbackProPopup() {
-  let popup = document.querySelector("#proUnlockPopup, #proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal");
+  let popup = document.querySelector("#proUnlockPopup, #proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal, .pro-upgrade-popup");
   
   if (!popup) {
     console.log("💎 Creating fallback Pro popup...");
     popup = document.createElement('div');
     popup.id = 'proUnlockPopup';
+    popup.className = 'pro-upgrade-popup';
     popup.innerHTML = `
       <div style="
         position: fixed;
@@ -116,6 +117,8 @@ function createFallbackProPopup() {
     `;
     document.body.appendChild(popup);
     console.log("💎 Fallback Pro popup displayed");
+  } else {
+    console.log("💎 Pro popup element successfully detected.");
   }
   
   return popup;
@@ -1133,13 +1136,14 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     // Force show Pro popup after render - with fallback
     setTimeout(() => {
-      let popup = document.querySelector("#proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal");
+      let popup = document.querySelector("#proUnlockPopup, #proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal, .pro-upgrade-popup");
       
       if (popup) {
         popup.style.display = "flex";
         popup.style.opacity = "1";
         popup.style.visibility = "visible";
         console.log("💎 Pro popup displayed manually.");
+        console.log("💎 Pro popup element successfully detected.");
       } else {
         // Create fallback popup if none exists
         popup = createFallbackProPopup();

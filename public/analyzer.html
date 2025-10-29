@@ -11065,6 +11065,12 @@ async function saveAnalysisResult(score) {
 <script src="js/app-v4.js?v=4.1"></script>
 <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
 
+<!-- Fallback Pro popup -->
+<div id="proUnlockPopup" class="pro-upgrade-popup" style="display:flex;flex-direction:column;align-items:center;justify-content:center;position:fixed;inset:0;background:rgba(0,0,0,0.8);color:#fff;z-index:9999;opacity:1;visibility:visible;">
+  <h2 style="margin-bottom:10px;">Upgrade to CopyBoss Pro</h2>
+  <p style="margin-bottom:20px;">Unlock all viral analysis metrics instantly.</p>
+  <button onclick="window.location.href='/pricing.html'" style="background:#7f5af0;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">Upgrade Now</button>
+</div>
 
 </body>
 </html>
