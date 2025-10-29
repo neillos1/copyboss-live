@@ -1483,6 +1483,35 @@ setTimeout(() => {
   console.log("🎯 ApexCharts elements fully unhidden and redrawn.");
 }, 1800);
 
+// 🛠️ FINAL APEXCHARTS RE-RENDER PATCH FOR SAFARI
+setTimeout(() => {
+  console.log("🛠️ Final ApexCharts re-render patch executing...");
+
+  // Find all existing ApexCharts instances and re-render them manually
+  if (window.ApexCharts && typeof ApexCharts.exec === "function") {
+    document.querySelectorAll(".apexcharts-canvas").forEach((canvas, i) => {
+      const chartID = canvas.getAttribute("id");
+      if (chartID) {
+        try {
+          ApexCharts.exec(chartID, "updateOptions", {}, true);
+          console.log(`✅ Re-rendered chart ID: ${chartID}`);
+        } catch (err) {
+          console.warn(`⚠️ Failed to re-render chart ${chartID}`, err);
+        }
+      }
+    });
+  }
+
+  // Force visibility for Safari
+  document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg, .apexcharts-inner").forEach(el => {
+    el.style.opacity = "1";
+    el.style.visibility = "visible";
+    el.style.display = "block";
+  });
+
+  console.log("✅ ApexCharts forced re-render complete.");
+}, 2000);
+
 // ✅ Inject forced ApexCharts CSS patch
 const cssPatch = document.createElement("link");
 cssPatch.rel = "stylesheet";
