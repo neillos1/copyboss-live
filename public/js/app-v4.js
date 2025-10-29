@@ -1121,6 +1121,16 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("🎯 All charts finished rendering.");
     console.log("💡 Charts forced to render even with Stripe CORS block");
 
+    // ✅ Fallback force-render patch for ApexCharts
+    setTimeout(() => {
+      document.querySelectorAll('.apexcharts-canvas, .apexcharts-svg').forEach(el => {
+        el.style.opacity = '1';
+        el.style.visibility = 'visible';
+        el.style.display = 'block';
+      });
+      console.log("✅ ApexCharts fallback render patch applied.");
+    }, 1200);
+
     // Mark render as complete
     window.__analyzerRendered = true;
     window.isRendering = false;
