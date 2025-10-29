@@ -532,29 +532,48 @@ function updateUIForTier() {
       planElement.textContent = isPro ? 'Pro Plan' : 'Free Plan';
     }
     
-    // Show/hide Pro features
-    if (isPro) {
-      // Show all gauges and Pro features
-      document.querySelectorAll('.pro-locked').forEach(el => {
-        el.classList.remove('pro-locked');
-        el.style.filter = 'none';
-        el.style.pointerEvents = 'auto';
-      });
-      
-      document.querySelectorAll('.locked-overlay').forEach(el => {
-        el.style.display = 'none';
-      });
-    } else {
-      // Show only first 2 gauges for free users
-      const gaugeBoxes = document.querySelectorAll('.gauge-box');
-      gaugeBoxes.forEach((box, index) => {
-        if (index >= 2) { // Hide gauges 3-6 (index 2-5)
-          box.classList.add('pro-locked');
-          box.style.filter = 'blur(5px)';
-          box.style.pointerEvents = 'none';
+    // ✅ Step 1: Wait for ApexCharts to fully render
+    setTimeout(() => {
+      console.log("✅ Charts finished rendering, applying lock visuals...");
+
+      // Step 2: Identify all gauges
+      const allGauges = document.querySelectorAll(".gauge-container");
+      if (!allGauges.length) {
+        console.warn("⚠️ No gauge containers found.");
+        return;
+      }
+
+      // Step 3: Unlock first 2 gauges for free users
+      allGauges.forEach((gauge, index) => {
+        const overlay = gauge.querySelector(".locked-overlay");
+        const padlock = gauge.querySelector(".padlock-icon");
+        const blurCard = gauge.closest(".report-card");
+
+        if (index < 2) {
+          // Free gauges stay visible
+          if (overlay) overlay.style.display = "none";
+          if (padlock) padlock.style.display = "none";
+          if (blurCard) blurCard.classList.remove("blurred-report");
+          gauge.style.filter = "none";
+          console.log(`🟢 Gauge ${index + 1} unlocked (free tier)`);
+        } else {
+          // Locked gauges show padlock & blur
+          if (overlay) overlay.style.display = "flex";
+          if (padlock) padlock.style.display = "block";
+          if (blurCard) blurCard.classList.add("blurred-report");
+          gauge.style.filter = "blur(6px)";
+          console.log(`🔒 Gauge ${index + 1} locked`);
         }
       });
-    }
+
+      // Step 4: Remove any full-page overlay
+      const fullOverlay = document.querySelector(".pro-upgrade-popup, .global-lock-overlay");
+      if (fullOverlay) {
+        fullOverlay.style.display = "none";
+        console.log("🚫 Removed incorrect global overlay blocking charts.");
+      }
+
+    }, 2000); // 2-second delay ensures ApexCharts CSS loads first
     
     console.log("UI updated for tier:", userTier);
   } catch (error) {
