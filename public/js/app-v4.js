@@ -166,12 +166,12 @@ function qs(sel) { return document.querySelector(sel); }
   
   // Make redrawCharts globally available with recursion guard
   window.redrawCharts = function() {
-    if (window.__analyzerRendered || window.__suppressGlobalHide) {
-      console.log("⛔ Blocked a hide after render");
+    if ((window.__analyzerRendered || window.__suppressGlobalHide) && !window.isRendering) {
+      console.log("⛔ Blocked hide (post-render)");
       return;
     }
     
-    if (window.__analyzerRendered) {
+    if (window.__analyzerRendered && !window.isRendering) {
       console.log("⚠️ Rebuild prevented - analyzer already rendered");
       return;
     }
@@ -360,6 +360,16 @@ function showProUnlockPopup() {
       console.log("🎉 IMMEDIATE PRO UNLOCK DETECTED");
       localStorage.setItem('userTier', 'pro');
       localStorage.removeItem('proPopupShown');
+      
+      // Force show Pro popup immediately
+      const popup = document.querySelector('.pro-upgrade-modal');
+      if (popup) {
+        popup.style.display = 'flex';
+        popup.style.opacity = '1';
+        popup.style.visibility = 'visible';
+        console.log('✅ Pro popup visible again');
+      }
+      
       setTimeout(() => showProUnlockPopup(), 300);
     }
   } catch (err) {
@@ -845,14 +855,14 @@ try {
         
         // Delayed ApexCharts re-render to fix missing gauges after visibility restore
         setTimeout(() => {
-          // Gate: Skip if already rendered AND charts initialized
-          if (window.__analyzerRendered && window.__chartsInitialized) {
+          // Gate: Skip if already rendered AND charts initialized (but allow during rendering)
+          if ((window.__analyzerRendered && window.__chartsInitialized) && !window.isRendering) {
             console.log("🧱 Final patch skipped — already rendered");
             return;
           }
           
-          // Prevent multiple renders after analyzer is fully rendered
-          if (window.__analyzerRendered) {
+          // Prevent multiple renders after analyzer is fully rendered (but allow during rendering)
+          if (window.__analyzerRendered && !window.isRendering) {
             console.log("⚠️ Rebuild prevented - analyzer already rendered");
             return;
           }
@@ -905,8 +915,8 @@ try {
         
         // --- FINAL CHART RESIZE + REPAINT SAFEGUARD ---
         setTimeout(() => {
-          // Gate: Skip if already rendered AND charts initialized
-          if (window.__analyzerRendered && window.__chartsInitialized) {
+          // Gate: Skip if already rendered AND charts initialized (but allow during rendering)
+          if ((window.__analyzerRendered && window.__chartsInitialized) && !window.isRendering) {
             console.log("🧱 Final patch skipped — already rendered");
             return;
           }

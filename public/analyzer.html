@@ -180,6 +180,8 @@
           return;
         }
         
+        // Disable guards temporarily during rendering
+        window.isRendering = true;
         console.log("📈 Starting chart initialization...");
         
         // ✅ Fix Safari disabling ApexCharts CSS
@@ -205,8 +207,9 @@
           if (typeof ApexCharts !== 'undefined') {
             console.log("✅ ApexCharts loaded, initializing charts...");
             
-            // Initialize all gauge charts
+            // Initialize all gauge charts with Promise tracking
             const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
+            const chartPromises = [];
             
             gaugeIds.forEach(gaugeId => {
               try {
@@ -255,10 +258,16 @@
                   options.series = sanitizeSeries(options.series);
                 }
                 
-                new ApexCharts(element, options).render();
+                // Create chart and track promise
+                const chart = new ApexCharts(element, options);
+                const renderPromise = chart.render();
+                chartPromises.push(renderPromise);
+                
                 console.log(`✅ Gauge ${gaugeId} initialized`);
               } catch (error) {
                 console.error(`❌ Error initializing gauge ${gaugeId}:`, error);
+                // Add resolved promise for failed charts
+                chartPromises.push(Promise.resolve());
               }
             });
             
@@ -266,29 +275,37 @@
             window.__chartsInitialized = true;
             console.log("✅ Charts initialized once");
             
-            // Permanently enforce analyzer visibility after charts initialize
-            const analyzer = document.querySelector(".analyzer");
-            if (analyzer) {
-              analyzer.style.display = "block";
-              analyzer.style.opacity = "1";
-              analyzer.style.visibility = "visible";
-              console.log("✅ Final analyzer wrapper permanently visible");
-            }
-            
-            // Also ensure analyzer-wrapper is visible
-            const analyzerWrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
-            if (analyzerWrapper) {
-              analyzerWrapper.style.display = "grid";
-              analyzerWrapper.style.opacity = "1";
-              analyzerWrapper.style.visibility = "visible";
-              console.log("✅ Analyzer wrapper permanently visible");
-            }
-            
-            // Only set render flags AFTER all charts are successfully rendered
-            console.log("✅ All charts rendered successfully");
-            window.__analyzerRendered = true;
-            window.__suppressGlobalHide = true;
-            console.log("✅ Analyzer fully rendered & locked visible");
+            // Wait for all charts to render before setting final flags
+            Promise.allSettled(chartPromises).then(() => {
+              console.log("✅ All charts rendered successfully");
+              
+              // Permanently enforce analyzer visibility after charts initialize
+              const analyzer = document.querySelector(".analyzer");
+              if (analyzer) {
+                analyzer.style.display = "block";
+                analyzer.style.opacity = "1";
+                analyzer.style.visibility = "visible";
+                console.log("✅ Final analyzer wrapper permanently visible");
+              }
+              
+              // Also ensure analyzer-wrapper is visible
+              const analyzerWrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
+              if (analyzerWrapper) {
+                analyzerWrapper.style.display = "grid";
+                analyzerWrapper.style.opacity = "1";
+                analyzerWrapper.style.visibility = "visible";
+                console.log("✅ Analyzer wrapper permanently visible");
+              }
+              
+              // Set render flags AFTER all charts are successfully rendered
+              window.__analyzerRendered = true;
+              window.__suppressGlobalHide = true;
+              window.isRendering = false;
+              console.log("✅ Analyzer fully rendered & locked visible");
+            }).catch(error => {
+              console.error("❌ Chart rendering error:", error);
+              window.isRendering = false;
+            });
           } else {
             console.log("⏳ Waiting for ApexCharts...");
             setTimeout(waitForApexCharts, 100);
@@ -307,9 +324,9 @@
           return;
         }
         
-        // Prevent multiple redraws after analyzer is fully rendered
-        if (window.__analyzerRendered || window.__suppressGlobalHide) {
-          console.log("⛔ Blocked a hide after render");
+        // Prevent multiple redraws after analyzer is fully rendered (but allow during rendering)
+        if ((window.__analyzerRendered || window.__suppressGlobalHide) && !window.isRendering) {
+          console.log("⛔ Blocked hide (post-render)");
           return;
         }
         
@@ -381,11 +398,11 @@
       // Final visibility check after load
       window.addEventListener("load", () => {
         const wrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
-        if (wrapper) {
+        if (wrapper && wrapper.offsetHeight < 200) {
           wrapper.style.display = "grid";
           wrapper.style.opacity = "1";
           wrapper.style.visibility = "visible";
-          console.log("✅ Final visibility ensured after load");
+          console.log("✅ Analyzer forced visible after load fallback");
         }
       });
       
@@ -397,8 +414,8 @@
       let finalPatchExecuted = false;
 
       function runFinalRenderingPatch() {
-        // Gate: Skip if already rendered AND charts initialized
-        if (window.__analyzerRendered && window.__chartsInitialized) {
+        // Gate: Skip if already rendered AND charts initialized (but allow during rendering)
+        if ((window.__analyzerRendered && window.__chartsInitialized) && !window.isRendering) {
           console.log("🧱 Final patch skipped — already rendered");
           return;
         }
