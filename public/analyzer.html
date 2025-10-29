@@ -241,6 +241,19 @@
               analyzer.style.visibility = "visible";
               console.log("✅ Final analyzer wrapper permanently visible");
             }
+            
+            // Also ensure analyzer-wrapper is visible
+            const analyzerWrapper = document.querySelector(".analyzer-wrapper");
+            if (analyzerWrapper) {
+              analyzerWrapper.style.display = "grid";
+              analyzerWrapper.style.opacity = "1";
+              analyzerWrapper.style.visibility = "visible";
+              console.log("✅ Analyzer wrapper permanently visible");
+            }
+            
+            // Mark analyzer as fully rendered
+            window.__analyzerRendered = true;
+            console.log("✅ Analyzer fully rendered once");
           } else {
             console.log("⏳ Waiting for ApexCharts...");
             setTimeout(waitForApexCharts, 100);

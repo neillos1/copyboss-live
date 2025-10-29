@@ -6,13 +6,13 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 window.__analyzerRendered = false;
 window.__unlockCompleted = false;
 window.__chartsInitialized = false;
+window.isRebuilding = false;
 
 // ========================
 // PERSISTENT DOM MUTATION OBSERVER
 // ========================
 (function observeDisplayFix() {
-  // Global rebuild guard to prevent infinite recursion
-  let isRebuilding = false;
+  // Use global rebuild guard to prevent infinite recursion
   let rebuildTimeout = null;
   
   const restoreVisibility = () => {
@@ -52,12 +52,12 @@ window.__chartsInitialized = false;
     
     rebuildTimeout = setTimeout(() => {
       // Prevent recursive rebuilds
-      if (isRebuilding) {
+      if (typeof window.isRebuilding !== "undefined" && window.isRebuilding) {
         console.log("❌ Recursive rebuild prevented");
         return;
       }
       
-      isRebuilding = true;
+      window.isRebuilding = true;
       console.log("🧠 Rebuild started once");
       
       try {
@@ -107,7 +107,7 @@ window.__chartsInitialized = false;
       } finally {
         // Reset the guard after a delay to allow for future legitimate rebuilds
         setTimeout(() => {
-          isRebuilding = false;
+          window.isRebuilding = false;
         }, 3000);
       }
     }, 2000);
@@ -127,7 +127,7 @@ window.__chartsInitialized = false;
       return;
     }
     
-    if (isRebuilding) {
+    if (typeof window.isRebuilding !== "undefined" && window.isRebuilding) {
       console.log("❌ Recursive redrawCharts prevented");
       return;
     }
@@ -789,7 +789,7 @@ try {
           }
           
           // Prevent recursive calls
-          if (isRebuilding) {
+          if (typeof window.isRebuilding !== "undefined" && window.isRebuilding) {
             console.log("❌ Recursive delayed re-render prevented");
             return;
           }
@@ -839,7 +839,7 @@ try {
           }
           
           // Prevent recursive calls
-          if (isRebuilding) {
+          if (typeof window.isRebuilding !== "undefined" && window.isRebuilding) {
             console.log("❌ Recursive final resize prevented");
             return;
           }
