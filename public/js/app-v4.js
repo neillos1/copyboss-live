@@ -1364,3 +1364,27 @@ setTimeout(() => {
 
   console.log("🎨 All ApexCharts containers force-shown.");
 }, 1500);
+
+// ✅ FINAL FALLBACK: Manually inject ApexCharts CSS if missing
+setTimeout(() => {
+  const existing = document.querySelector('link[href*="apexcharts"], style[id*="apexcharts"]');
+  if (!existing) {
+    const style = document.createElement("style");
+    style.id = "apexcharts-fallback-style";
+    style.textContent = `
+      .apexcharts-canvas, .apexcharts-svg, .apexcharts-inner {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      .apexcharts-tooltip, .apexcharts-legend {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    `;
+    document.head.appendChild(style);
+    console.log("🧩 ApexCharts fallback CSS manually injected.");
+  } else {
+    console.log("🎨 ApexCharts CSS already present.");
+  }
+}, 2000);
