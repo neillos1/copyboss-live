@@ -12,6 +12,29 @@ console.log("✅ Global variable window.isRebuilding initialized");
 window.__analyzerRendered = false;
 window.__unlockCompleted = false;
 window.__chartsInitialized = false;
+window.__suppressGlobalHide = true; // Once true, no code is allowed to hide analyzer again
+window.__didFinalResize = false; // Track if final resize already happened
+
+// ========================
+// SAFE HELPER FUNCTIONS
+// ========================
+function num(n, fallback = 0) {
+  const x = Number(n);
+  return Number.isFinite(x) ? x : fallback;
+}
+
+function sanitizeSeries(series) {
+  if (!Array.isArray(series)) return [];
+  return series.map(s => {
+    if (Array.isArray(s)) return s.map(v => num(v));
+    if (s && Array.isArray(s.data)) return {...s, data: s.data.map(v => num(v))};
+    // Apex accepts {name, data: []} objects; ensure shape
+    if (s && typeof s === "object") return {...s, data: Array.isArray(s.data) ? s.data.map(v => num(v)) : []};
+    return num(s);
+  });
+}
+
+function qs(sel) { return document.querySelector(sel); }
 
 // ========================
 // PERSISTENT DOM MUTATION OBSERVER
@@ -24,6 +47,12 @@ window.__chartsInitialized = false;
     // Prevent multiple restorations after analyzer is fully rendered
     if (window.__analyzerRendered) {
       console.log("⚠️ Rebuild prevented - analyzer already rendered");
+      return;
+    }
+    
+    // Hard stop: Block any hide after render
+    if (window.__analyzerRendered || window.__suppressGlobalHide) {
+      console.log("⛔ Blocked a hide after render");
       return;
     }
     
@@ -100,17 +129,18 @@ window.__chartsInitialized = false;
         }
         
         console.log("✅ Rebuild complete");
-        window.__analyzerRendered = true;
-        console.log("✅ Analyzer fully rendered once");
         
         // Permanently enforce analyzer visibility
-        const analyzer = document.querySelector(".analyzer");
-        if (analyzer) {
-          analyzer.style.display = "block";
-          analyzer.style.opacity = "1";
-          analyzer.style.visibility = "visible";
-          console.log("✅ Final analyzer wrapper permanently visible");
+        const wrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
+        if (wrapper) {
+          wrapper.style.display = "grid";
+          wrapper.style.opacity = "1";
+          wrapper.style.visibility = "visible";
         }
+        
+        window.__analyzerRendered = true;
+        window.__suppressGlobalHide = true;
+        console.log("✅ Analyzer fully rendered & locked visible");
       } catch (e) {
         console.error("❌ Final rebuild error:", e);
       } finally {
@@ -131,25 +161,35 @@ window.__chartsInitialized = false;
   
   // Make redrawCharts globally available with recursion guard
   window.redrawCharts = function() {
+    if (window.__analyzerRendered || window.__suppressGlobalHide) {
+      console.log("⛔ Blocked a hide after render");
+      return;
+    }
+    
     if (window.__analyzerRendered) {
       console.log("⚠️ Rebuild prevented - analyzer already rendered");
       return;
     }
     
-    if (typeof window.isRebuilding !== "undefined" && window.isRebuilding) {
-      console.log("❌ Recursive redrawCharts prevented");
+    if (window.__analyzerRendered && window.isRebuilding) {
+      console.log("⚠️ Skip redraw during rebuild");
       return;
     }
     
     console.log("🔄 Global redrawCharts called...");
-    if (typeof redrawCharts === 'function') {
-      redrawCharts();
-    } else {
-      console.warn("⚠️ redrawCharts function not found, trying direct ApexCharts redraw...");
-      if (window.ApexCharts) {
-        ApexCharts.exec(null, 'resize');
-        console.log("✅ Direct ApexCharts resize completed");
+    try {
+      if (typeof redrawCharts === 'function') {
+        redrawCharts();
+      } else {
+        console.warn("⚠️ redrawCharts function not found, trying direct ApexCharts redraw...");
+        if (window.ApexCharts) {
+          ApexCharts.exec(null, 'resize');
+          console.log("✅ Direct ApexCharts resize completed");
+        }
       }
+    } catch (err) {
+      console.error("Chart redraw error (safe):", err);
+      return; // Do not schedule another redraw
     }
   };
 })();
@@ -791,6 +831,12 @@ try {
         
         // Delayed ApexCharts re-render to fix missing gauges after visibility restore
         setTimeout(() => {
+          // Gate: Skip if already rendered
+          if (window.__analyzerRendered) {
+            console.log("🧱 Final patch skipped — already rendered");
+            return;
+          }
+          
           // Prevent multiple renders after analyzer is fully rendered
           if (window.__analyzerRendered) {
             console.log("⚠️ Rebuild prevented - analyzer already rendered");
@@ -845,6 +891,18 @@ try {
         
         // --- FINAL CHART RESIZE + REPAINT SAFEGUARD ---
         setTimeout(() => {
+          // Gate: Skip if already rendered
+          if (window.__analyzerRendered) {
+            console.log("🧱 Final patch skipped — already rendered");
+            return;
+          }
+          
+          // Ensure only one resize happens after success
+          if (window.__didFinalResize) {
+            console.log("⚠️ Final resize already completed");
+            return;
+          }
+          
           // Prevent multiple renders after analyzer is fully rendered
           if (window.__analyzerRendered) {
             console.log("⚠️ Rebuild prevented - analyzer already rendered");
@@ -861,6 +919,7 @@ try {
             console.warn("🌀 Forcing ApexCharts global resize + repaint...");
             if (window.ApexCharts) {
               try {
+                window.__didFinalResize = true;
                 ApexCharts.exec(null, 'updateOptions', {
                   chart: { animations: { enabled: true } }
                 }, true);

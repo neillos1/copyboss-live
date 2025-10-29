@@ -148,6 +148,24 @@
         console.warn("✅ Exiting forceApexChartContainersToResize()");
       }
 
+      // 🔧 SAFE HELPER FUNCTIONS
+      function num(n, fallback = 0) {
+        const x = Number(n);
+        return Number.isFinite(x) ? x : fallback;
+      }
+
+      function sanitizeSeries(series) {
+        if (!Array.isArray(series)) return [];
+        return series.map(s => {
+          if (Array.isArray(s)) return s.map(v => num(v));
+          if (s && Array.isArray(s.data)) return {...s, data: s.data.map(v => num(v))};
+          if (s && typeof s === "object") return {...s, data: Array.isArray(s.data) ? s.data.map(v => num(v)) : []};
+          return num(s);
+        });
+      }
+
+      function qs(sel) { return document.querySelector(sel); }
+
       // 🔧 CHART INITIALIZATION FIX
       function initializeCharts() {
         // Prevent multiple chart initializations
@@ -185,47 +203,56 @@
             const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
             
             gaugeIds.forEach(gaugeId => {
-              const element = document.getElementById(gaugeId);
-              if (element) {
-                console.log(`📊 Initializing gauge: ${gaugeId}`);
-                try {
-                  // Ensure parent container is visible before rendering
-                  const parent = element.closest('.gauge-box, .gauge-wrapper, .analyzer-wrapper');
-                  if (parent) {
-                    parent.style.display = 'block';
-                    parent.style.visibility = 'visible';
-                    parent.style.opacity = '1';
-                  }
-                  
-                  // Simple gauge initialization
-                  const options = {
-                    series: [0],
-                    chart: {
-                      type: 'radialBar',
-                      height: 200,
-                      id: gaugeId
-                    },
-                    plotOptions: {
-                      radialBar: {
-                        startAngle: -90,
-                        endAngle: 90,
-                        hollow: {
-                          margin: 0,
-                          size: '70%'
-                        }
-                      }
-                    },
-                    colors: ['#3B82F6'],
-                    labels: ['Score']
-                  };
-                  
-                  new ApexCharts(element, options).render();
-                  console.log(`✅ Gauge ${gaugeId} initialized`);
-                } catch (error) {
-                  console.error(`❌ Error initializing gauge ${gaugeId}:`, error);
+              try {
+                const element = document.getElementById(gaugeId);
+                
+                // Container check
+                if (!element) {
+                  console.warn(`⛔ Missing chart container for ${gaugeId}`);
+                  return;
                 }
-              } else {
-                console.warn(`⚠️ Gauge element not found: ${gaugeId}`);
+                
+                console.log(`📊 Initializing gauge: ${gaugeId}`);
+                
+                // Ensure parent container is visible before rendering
+                const parent = element.closest('.gauge-box, .gauge-wrapper, .analyzer-wrapper');
+                if (parent) {
+                  parent.style.display = 'block';
+                  parent.style.visibility = 'visible';
+                  parent.style.opacity = '1';
+                }
+                
+                // Simple gauge initialization with sanitized series
+                const options = {
+                  series: sanitizeSeries([0]),
+                  chart: {
+                    type: 'radialBar',
+                    height: 200,
+                    id: gaugeId
+                  },
+                  plotOptions: {
+                    radialBar: {
+                      startAngle: -90,
+                      endAngle: 90,
+                      hollow: {
+                        margin: 0,
+                        size: '70%'
+                      }
+                    }
+                  },
+                  colors: ['#3B82F6'],
+                  labels: ['Score']
+                };
+                
+                // Sanitize series before rendering
+                if (options.series) {
+                  options.series = sanitizeSeries(options.series);
+                }
+                
+                new ApexCharts(element, options).render();
+                console.log(`✅ Gauge ${gaugeId} initialized`);
+              } catch (error) {
+                console.error(`❌ Error initializing gauge ${gaugeId}:`, error);
               }
             });
             
@@ -243,7 +270,7 @@
             }
             
             // Also ensure analyzer-wrapper is visible
-            const analyzerWrapper = document.querySelector(".analyzer-wrapper");
+            const analyzerWrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
             if (analyzerWrapper) {
               analyzerWrapper.style.display = "grid";
               analyzerWrapper.style.opacity = "1";
@@ -251,9 +278,10 @@
               console.log("✅ Analyzer wrapper permanently visible");
             }
             
-            // Mark analyzer as fully rendered
+            // Mark analyzer as fully rendered and lock visibility
             window.__analyzerRendered = true;
-            console.log("✅ Analyzer fully rendered once");
+            window.__suppressGlobalHide = true;
+            console.log("✅ Analyzer fully rendered & locked visible");
           } else {
             console.log("⏳ Waiting for ApexCharts...");
             setTimeout(waitForApexCharts, 100);
@@ -266,9 +294,15 @@
       // ✅ Chart redraw function for when wrapper becomes visible
       let isRedrawing = false;
       function redrawCharts() {
+        // First line: Gate check
+        if (window.__analyzerRendered && window.isRebuilding) {
+          console.log("⚠️ Skip redraw during rebuild");
+          return;
+        }
+        
         // Prevent multiple redraws after analyzer is fully rendered
-        if (window.__analyzerRendered) {
-          console.log("⚠️ Rebuild prevented - analyzer already rendered");
+        if (window.__analyzerRendered || window.__suppressGlobalHide) {
+          console.log("⛔ Blocked a hide after render");
           return;
         }
         
@@ -286,33 +320,42 @@
             const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
             
             gaugeIds.forEach(gaugeId => {
-              const element = document.getElementById(gaugeId);
-              if (element) {
-                // Check if chart exists and redraw it
-                if (ApexCharts.getChartByID(gaugeId)) {
-                  console.log(`🔄 Redrawing existing chart: ${gaugeId}`);
-                  ApexCharts.exec(gaugeId, 'updateOptions', {}, true);
-                } else {
-                  console.log(`🔄 Re-initializing missing chart: ${gaugeId}`);
-                  // Re-initialize if chart doesn't exist
-                  const options = {
-                    series: [0],
-                    chart: { type: 'radialBar', height: 200, id: gaugeId },
-                    plotOptions: { radialBar: { startAngle: -90, endAngle: 90, hollow: { margin: 0, size: '70%' } } },
-                    colors: ['#3B82F6'],
-                    labels: ['Score']
-                  };
-                  new ApexCharts(element, options).render();
+              try {
+                const element = document.getElementById(gaugeId);
+                if (element) {
+                  // Check if chart exists and redraw it
+                  if (ApexCharts.getChartByID(gaugeId)) {
+                    console.log(`🔄 Redrawing existing chart: ${gaugeId}`);
+                    ApexCharts.exec(gaugeId, 'updateOptions', {}, true);
+                  } else {
+                    console.log(`🔄 Re-initializing missing chart: ${gaugeId}`);
+                    // Re-initialize if chart doesn't exist
+                    const options = {
+                      series: [0],
+                      chart: { type: 'radialBar', height: 200, id: gaugeId },
+                      plotOptions: { radialBar: { startAngle: -90, endAngle: 90, hollow: { margin: 0, size: '70%' } } },
+                      colors: ['#3B82F6'],
+                      labels: ['Score']
+                    };
+                    new ApexCharts(element, options).render();
+                  }
                 }
+              } catch (gaugeError) {
+                console.warn(`⚠️ Gauge ${gaugeId} error (safe):`, gaugeError);
               }
             });
             
             // Force global resize
-            ApexCharts.exec(null, 'resize');
-            console.log("✅ Charts redrawn successfully");
+            try {
+              ApexCharts.exec(null, 'resize');
+              console.log("✅ Charts redrawn successfully");
+            } catch (resizeError) {
+              console.warn("⚠️ Chart resize error (safe):", resizeError);
+            }
           }
         } catch (error) {
-          console.error("❌ Error redrawing charts:", error);
+          console.error("Chart redraw error (safe):", error);
+          return; // Do not schedule another redraw
         } finally {
           // Reset the guard after a delay
           setTimeout(() => {
@@ -336,6 +379,12 @@
       let finalPatchExecuted = false;
 
       function runFinalRenderingPatch() {
+        // Gate: Skip if already rendered
+        if (window.__analyzerRendered) {
+          console.log("🧱 Final patch skipped — already rendered");
+          return;
+        }
+        
         if (finalPatchExecuted) return;
         finalPatchExecuted = true;
         
@@ -369,13 +418,18 @@
         // ✅ Retry chart render after delay
         setTimeout(() => {
           if (window.ApexCharts && typeof ApexCharts.exec === 'function') {
-            console.log('🔁 Re-rendering all ApexCharts via ApexCharts.exec...');
-            ApexCharts.exec('viralGauge', 'updateOptions', {});
-            ApexCharts.exec('captionGauge', 'updateOptions', {});
-            ApexCharts.exec('soundGauge', 'updateOptions', {});
-            ApexCharts.exec('viewerGauge', 'updateOptions', {});
-            ApexCharts.exec('engagementGauge', 'updateOptions', {});
-            ApexCharts.exec('hookGauge', 'updateOptions', {});
+            try {
+              console.log('🔁 Re-rendering all ApexCharts via ApexCharts.exec...');
+              ApexCharts.exec('viralGauge', 'updateOptions', {});
+              ApexCharts.exec('captionGauge', 'updateOptions', {});
+              ApexCharts.exec('soundGauge', 'updateOptions', {});
+              ApexCharts.exec('viewerGauge', 'updateOptions', {});
+              ApexCharts.exec('engagementGauge', 'updateOptions', {});
+              ApexCharts.exec('hookGauge', 'updateOptions', {});
+              console.log("✅ Safe render completed");
+            } catch (chartError) {
+              console.warn("⚠️ Chart render error (safe):", chartError);
+            }
           } else {
             console.warn('⚠️ ApexCharts not ready yet.');
           }
