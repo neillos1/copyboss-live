@@ -1344,3 +1344,23 @@ window.addEventListener("DOMContentLoaded", async () => {
                             'JavaScript Error in app.js: ' + error.message + 
                             '<br>Check console for details.</div>';
 }
+
+// ✅ Global ApexCharts visibility override
+setTimeout(() => {
+  const css = document.querySelector('style[id*="apexcharts"], link[href*="apexcharts"]');
+  if (css) {
+    css.disabled = false;
+    css.removeAttribute('media');
+    css.removeAttribute('hidden');
+    css.sheet && (css.sheet.disabled = false);
+    console.log("✅ ApexCharts CSS visibility restored globally.");
+  }
+
+  document.querySelectorAll('.apexcharts-canvas, .apexcharts-svg, .apexcharts-inner').forEach(el => {
+    el.style.opacity = '1';
+    el.style.visibility = 'visible';
+    el.style.display = 'block';
+  });
+
+  console.log("🎨 All ApexCharts containers force-shown.");
+}, 1500);
