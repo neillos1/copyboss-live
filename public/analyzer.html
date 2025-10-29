@@ -316,34 +316,58 @@
             window.__chartsInitialized = true;
             console.log("✅ Charts initialized once");
             
-            // Force manual chart render cycle
-            console.log("🧠 Forcing manual chart render cycle...");
+            // ==========================
+            // ⚙️ FORCE CREATE & RENDER CHARTS
+            // ==========================
+            console.log("🧠 Forcing manual ApexCharts render cycle...");
+
+            // Helper to safely create charts if missing
+            function ensureChart(id, options) {
+              let chart = ApexCharts.getChartByID(id);
+              if (!chart) {
+                const el = document.querySelector(`#${id}`);
+                if (el) {
+                  chart = new ApexCharts(el, options);
+                  chart.render();
+                  console.log("✅ Created and rendered chart:", id);
+                } else {
+                  console.warn("⚠️ Chart element missing:", id);
+                }
+              } else {
+                console.log("♻️ Chart already exists:", id);
+              }
+              return chart;
+            }
+
+            // Base chart configuration
+            const baseOptions = {
+              chart: { type: "radialBar", height: 250 },
+              plotOptions: { radialBar: { hollow: { size: "70%" } } },
+              series: [70],
+              labels: ["Score"]
+            };
+
+            // IDs of all gauge charts
             const chartIDs = [
               "apexchartviralGauge",
-              "apexchartcaptionGauge", 
+              "apexchartcaptionGauge",
               "apexchartsoundGauge",
               "apexchartviewerGauge",
               "apexchartsegmentGauge",
               "apexchartshookGauge"
             ];
 
-            const forcedChartPromises = chartIDs.map(id => {
-              try {
-                const chart = ApexCharts.getChartByID(id);
-                if (chart) {
-                  console.log("Rendering chart:", id);
-                  return chart.render();
-                } else {
-                  console.warn("⚠️ Chart not found:", id);
-                  return Promise.resolve();
-                }
-              } catch (err) {
-                console.error("Render error for", id, err);
-                return Promise.resolve();
-              }
-            });
+            // Create all charts
+            chartIDs.forEach(id => ensureChart(id, baseOptions));
 
-            Promise.allSettled(forcedChartPromises).then(() => {
+            // Verify render completion
+            console.log("🧠 Starting chart render verification...");
+            const renderedCharts = chartIDs.filter(id => ApexCharts.getChartByID(id));
+            console.log("✅ Rendered charts:", renderedCharts);
+
+            Promise.allSettled(
+              renderedCharts.map(id => ApexCharts.getChartByID(id).render())
+            ).then(() => {
               console.log("✅ All charts rendered successfully");
               window.__analyzerRendered = true;
               window.__suppressGlobalHide = true;
