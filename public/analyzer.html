@@ -105,6 +105,12 @@
       
       // ✅ Helper function to force ApexChart container resize
       function forceApexChartContainersToResize() {
+        // Prevent multiple resizes after analyzer is fully rendered
+        if (window.__analyzerRendered) {
+          console.log("⚠️ Rebuild prevented - analyzer already rendered");
+          return;
+        }
+        
         console.warn("🌀 Entering forceApexChartContainersToResize()");
         console.log("🔧 Restricting ApexChart resize to gauge containers only");
 
@@ -142,6 +148,12 @@
 
       // 🔧 CHART INITIALIZATION FIX
       function initializeCharts() {
+        // Prevent multiple chart initializations
+        if (window.__chartsInitialized) {
+          console.log("⚠️ Rebuild prevented - charts already initialized");
+          return;
+        }
+        
         console.log("📈 Starting chart initialization...");
         
         // ✅ Fix Safari disabling ApexCharts CSS
@@ -214,6 +226,10 @@
                 console.warn(`⚠️ Gauge element not found: ${gaugeId}`);
               }
             });
+            
+            // Mark charts as initialized
+            window.__chartsInitialized = true;
+            console.log("✅ Charts initialized once");
           } else {
             console.log("⏳ Waiting for ApexCharts...");
             setTimeout(waitForApexCharts, 100);
@@ -226,6 +242,12 @@
       // ✅ Chart redraw function for when wrapper becomes visible
       let isRedrawing = false;
       function redrawCharts() {
+        // Prevent multiple redraws after analyzer is fully rendered
+        if (window.__analyzerRendered) {
+          console.log("⚠️ Rebuild prevented - analyzer already rendered");
+          return;
+        }
+        
         // Prevent recursive redraws
         if (isRedrawing) {
           console.log("❌ Recursive redrawCharts prevented");
@@ -292,6 +314,12 @@
       function runFinalRenderingPatch() {
         if (finalPatchExecuted) return;
         finalPatchExecuted = true;
+        
+        // Prevent multiple patches after analyzer is fully rendered
+        if (window.__analyzerRendered) {
+          console.log("⚠️ Rebuild prevented - analyzer already rendered");
+          return;
+        }
 
         console.warn("🌀 Entering runFinalRenderingPatch()");
         console.log('🔧 Final rendering patch running…');

@@ -1,6 +1,13 @@
 console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 
 // ========================
+// GLOBAL SINGLE-EXECUTION GUARDS
+// ========================
+window.__analyzerRendered = false;
+window.__unlockCompleted = false;
+window.__chartsInitialized = false;
+
+// ========================
 // PERSISTENT DOM MUTATION OBSERVER
 // ========================
 (function observeDisplayFix() {
@@ -9,6 +16,12 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
   let rebuildTimeout = null;
   
   const restoreVisibility = () => {
+    // Prevent multiple restorations after analyzer is fully rendered
+    if (window.__analyzerRendered) {
+      console.log("⚠️ Rebuild prevented - analyzer already rendered");
+      return;
+    }
+    
     const html = document.documentElement;
     const body = document.body;
     if (html && html.style.display === 'none') {
@@ -74,6 +87,8 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
         }
         
         console.log("✅ Rebuild complete");
+        window.__analyzerRendered = true;
+        console.log("✅ Analyzer fully rendered once");
       } catch (e) {
         console.error("❌ Final rebuild error:", e);
       } finally {
@@ -94,6 +109,11 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
   
   // Make redrawCharts globally available with recursion guard
   window.redrawCharts = function() {
+    if (window.__analyzerRendered) {
+      console.log("⚠️ Rebuild prevented - analyzer already rendered");
+      return;
+    }
+    
     if (isRebuilding) {
       console.log("❌ Recursive redrawCharts prevented");
       return;
@@ -488,6 +508,12 @@ try {
       
         // Define safe unlock function with error handling
         function removeAllLocks() {
+          // Prevent multiple unlock attempts
+          if (window.__unlockCompleted) {
+            console.log("⚠️ Rebuild prevented - unlock already completed");
+            return;
+          }
+          
           try {
             console.log('🔓 removeAllLocks() called - removing ALL lock elements');
             console.log('Document body exists:', !!document.body);
@@ -660,6 +686,8 @@ try {
             console.log('✅ removeAllLocks() completed safely');
             console.log("✅ Analyzer re-rendered successfully after Pro unlock");
             console.log("✅ Analyzer display integrity verified post-unlock");
+            window.__unlockCompleted = true;
+            console.log("✅ Unlock completed once");
           } catch (error) {
             console.error('❌ Critical error in removeAllLocks():', error);
           }
@@ -741,6 +769,12 @@ try {
         
         // Delayed ApexCharts re-render to fix missing gauges after visibility restore
         setTimeout(() => {
+          // Prevent multiple renders after analyzer is fully rendered
+          if (window.__analyzerRendered) {
+            console.log("⚠️ Rebuild prevented - analyzer already rendered");
+            return;
+          }
+          
           // Prevent recursive calls
           if (isRebuilding) {
             console.log("❌ Recursive delayed re-render prevented");
@@ -785,6 +819,12 @@ try {
         
         // --- FINAL CHART RESIZE + REPAINT SAFEGUARD ---
         setTimeout(() => {
+          // Prevent multiple renders after analyzer is fully rendered
+          if (window.__analyzerRendered) {
+            console.log("⚠️ Rebuild prevented - analyzer already rendered");
+            return;
+          }
+          
           // Prevent recursive calls
           if (isRebuilding) {
             console.log("❌ Recursive final resize prevented");
