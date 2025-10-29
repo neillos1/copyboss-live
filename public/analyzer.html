@@ -316,6 +316,58 @@
             window.__chartsInitialized = true;
             console.log("✅ Charts initialized once");
             
+            // Force manual chart render cycle
+            console.log("🧠 Forcing manual chart render cycle...");
+            const chartIDs = [
+              "apexchartviralGauge",
+              "apexchartcaptionGauge", 
+              "apexchartsoundGauge",
+              "apexchartviewerGauge",
+              "apexchartsegmentGauge",
+              "apexchartshookGauge"
+            ];
+
+            const forcedChartPromises = chartIDs.map(id => {
+              try {
+                const chart = ApexCharts.getChartByID(id);
+                if (chart) {
+                  console.log("Rendering chart:", id);
+                  return chart.render();
+                } else {
+                  console.warn("⚠️ Chart not found:", id);
+                  return Promise.resolve();
+                }
+              } catch (err) {
+                console.error("Render error for", id, err);
+                return Promise.resolve();
+              }
+            });
+
+            Promise.allSettled(forcedChartPromises).then(() => {
+              console.log("✅ All charts rendered successfully");
+              window.__analyzerRendered = true;
+              window.__suppressGlobalHide = true;
+              window.isRendering = false;
+
+              const wrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
+              if (wrapper) {
+                wrapper.style.display = "grid";
+                wrapper.style.opacity = "1";
+                wrapper.style.visibility = "visible";
+                wrapper.style.minHeight = "100vh";
+              }
+
+              const popup = document.querySelector('.pro-upgrade-modal');
+              if (popup) {
+                popup.style.display = 'flex';
+                popup.style.opacity = '1';
+                popup.style.visibility = 'visible';
+                console.log("✅ Pro popup visible again");
+              } else {
+                console.warn("⚠️ Pro popup not found in DOM");
+              }
+            });
+            
             // Wait for all charts to render before setting final flags
             Promise.allSettled(chartPromises).then(() => {
               console.log("✅ All charts rendered successfully");
