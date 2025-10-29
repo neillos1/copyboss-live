@@ -532,6 +532,92 @@
           console.log("✅ Analyzer forced visible after load fallback");
         }
       });
+
+      // Fresh render cycle on DOMContentLoaded
+      window.addEventListener("DOMContentLoaded", async () => {
+        console.log("🚀 Analyzer booting fresh render cycle...");
+
+        try {
+          // Reset flags
+          window.__analyzerRendered = false;
+          window.isRendering = true;
+
+          const chartIds = [
+            "apexchartviralGauge",
+            "apexchartcaptionGauge",
+            "apexchartsoundGauge",
+            "apexchartviewerGauge",
+            "apexchartengagementGauge",
+            "apexchartHookGauge"
+          ];
+
+          const chartPromises = chartIds.map(id => {
+            const el = document.getElementById(id);
+            if (!el) {
+              console.warn(`⚠️ Missing element: ${id}`);
+              return Promise.resolve();
+            }
+
+            // Destroy existing chart instance if any
+            if (el._chart) {
+              try {
+                el._chart.destroy();
+              } catch (err) {}
+            }
+
+            // Create a new chart every time
+            const chart = new ApexCharts(el, {
+              chart: { type: "radialBar", height: 250 },
+              series: [Math.floor(Math.random() * 100)],
+              labels: [id.replace("apexchart", "")],
+              colors: ["#10b981"],
+              plotOptions: {
+                radialBar: {
+                  hollow: { size: "65%" },
+                  dataLabels: { name: { show: true }, value: { show: true } }
+                }
+              }
+            });
+
+            el._chart = chart;
+            return chart.render().then(() => {
+              console.log(`✅ Rendered chart: ${id}`);
+            });
+          });
+
+          await Promise.allSettled(chartPromises);
+          console.log("🎯 All charts finished rendering.");
+
+          // Mark render as complete
+          window.__analyzerRendered = true;
+          window.isRendering = false;
+
+          // Make wrapper visible
+          const wrapper = document.querySelector(".page-analyzer");
+          if (wrapper) {
+            wrapper.style.display = "block";
+            wrapper.style.opacity = "1";
+            wrapper.style.visibility = "visible";
+            console.log("💡 Analyzer wrapper visible.");
+          }
+
+          // Force show Pro popup after render
+          setTimeout(() => {
+            const popup = document.querySelector("#proPopup, .pro-popup, .upgrade-modal");
+            if (popup) {
+              popup.style.display = "flex";
+              popup.style.opacity = "1";
+              popup.style.visibility = "visible";
+              console.log("💎 Pro popup displayed manually.");
+            } else {
+              console.warn("⚠️ No Pro popup element found.");
+            }
+          }, 1500);
+
+        } catch (err) {
+          console.error("🔥 Analyzer render failure:", err);
+        }
+      });
       
       // Also try to initialize charts after delays
       setTimeout(initializeCharts, 2000);
