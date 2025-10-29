@@ -207,66 +207,107 @@
           if (typeof ApexCharts !== 'undefined') {
             console.log("✅ ApexCharts loaded, initializing charts...");
             
-            // Initialize all gauge charts with Promise tracking
-            const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
+            // Find all chart elements and render them
+            const chartElements = document.querySelectorAll('.cb-gauges .apexcharts-canvas, [id^="apexchart"], #viralGauge, #captionGauge, #soundGauge, #viewerGauge, #engagementGauge, #hookGauge');
             const chartPromises = [];
             
-            gaugeIds.forEach(gaugeId => {
-              try {
-                const element = document.getElementById(gaugeId);
-                
-                // Container check
+            // Debug: Log what elements we found
+            console.log("🔍 Chart element search results:");
+            console.log("- .cb-gauges .apexcharts-canvas:", document.querySelectorAll('.cb-gauges .apexcharts-canvas').length);
+            console.log("- [id^='apexchart']:", document.querySelectorAll('[id^="apexchart"]').length);
+            console.log("- #viralGauge:", document.getElementById('viralGauge') ? 'found' : 'not found');
+            console.log("- #captionGauge:", document.getElementById('captionGauge') ? 'found' : 'not found');
+            console.log("- #soundGauge:", document.getElementById('soundGauge') ? 'found' : 'not found');
+            console.log("- #viewerGauge:", document.getElementById('viewerGauge') ? 'found' : 'not found');
+            console.log("- #engagementGauge:", document.getElementById('engagementGauge') ? 'found' : 'not found');
+            console.log("- #hookGauge:", document.getElementById('hookGauge') ? 'found' : 'not found');
+            
+            console.log("🧠 Starting chart render cycle, total:", chartElements.length);
+            
+            // If no chart elements found, try to create them for known gauge IDs
+            if (chartElements.length === 0) {
+              console.log("⚠️ No chart elements found, creating fallback gauges...");
+              const gaugeIds = ['viralGauge', 'captionGauge', 'soundGauge', 'viewerGauge', 'engagementGauge', 'hookGauge'];
+              
+              gaugeIds.forEach(gaugeId => {
+                let element = document.getElementById(gaugeId);
                 if (!element) {
-                  console.warn(`⛔ Missing chart container for ${gaugeId}`);
-                  return;
+                  // Create element if it doesn't exist
+                  element = document.createElement('div');
+                  element.id = gaugeId;
+                  element.style.width = '200px';
+                  element.style.height = '200px';
+                  
+                  // Try to find a container to add it to
+                  const container = document.querySelector('.cb-gauges, .gauge-wrapper, .analyzer-wrapper') || document.body;
+                  container.appendChild(element);
+                  console.log(`📊 Created missing gauge element: ${gaugeId}`);
                 }
-                
-                console.log(`📊 Initializing gauge: ${gaugeId}`);
-                
+                chartElements.push(element);
+                console.log(`📊 Added fallback gauge: ${gaugeId}`);
+              });
+            }
+            
+            chartElements.forEach(el => {
+              try {
                 // Ensure parent container is visible before rendering
-                const parent = element.closest('.gauge-box, .gauge-wrapper, .analyzer-wrapper');
+                const parent = el.closest('.gauge-box, .gauge-wrapper, .analyzer-wrapper, .cb-gauges');
                 if (parent) {
                   parent.style.display = 'block';
                   parent.style.visibility = 'visible';
                   parent.style.opacity = '1';
                 }
                 
-                // Simple gauge initialization with sanitized series
-                const options = {
-                  series: sanitizeSeries([0]),
-                  chart: {
-                    type: 'radialBar',
-                    height: 200,
-                    id: gaugeId
-                  },
-                  plotOptions: {
-                    radialBar: {
-                      startAngle: -90,
-                      endAngle: 90,
-                      hollow: {
-                        margin: 0,
-                        size: '70%'
+                // Check if chart already exists
+                let chart = null;
+                if (el.id && ApexCharts.getChartByID(el.id)) {
+                  chart = ApexCharts.getChartByID(el.id);
+                  console.log(`📊 Re-rendering existing chart: ${el.id}`);
+                } else {
+                  // Create new chart
+                  const gaugeId = el.id || `chart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                  console.log(`📊 Creating new chart: ${gaugeId}`);
+                  
+                  const options = {
+                    series: sanitizeSeries([0]),
+                    chart: {
+                      type: 'radialBar',
+                      height: 200,
+                      id: gaugeId
+                    },
+                    plotOptions: {
+                      radialBar: {
+                        startAngle: -90,
+                        endAngle: 90,
+                        hollow: {
+                          margin: 0,
+                          size: '70%'
+                        }
                       }
-                    }
-                  },
-                  colors: ['#3B82F6'],
-                  labels: ['Score']
-                };
-                
-                // Sanitize series before rendering
-                if (options.series) {
-                  options.series = sanitizeSeries(options.series);
+                    },
+                    colors: ['#3B82F6'],
+                    labels: ['Score']
+                  };
+                  
+                  // Sanitize series before rendering
+                  if (options.series) {
+                    options.series = sanitizeSeries(options.series);
+                  }
+                  
+                  chart = new ApexCharts(el, options);
                 }
                 
-                // Create chart and track promise
-                const chart = new ApexCharts(element, options);
-                const renderPromise = chart.render();
-                chartPromises.push(renderPromise);
-                
-                console.log(`✅ Gauge ${gaugeId} initialized`);
-              } catch (error) {
-                console.error(`❌ Error initializing gauge ${gaugeId}:`, error);
-                // Add resolved promise for failed charts
+                // Render chart and track promise
+                if (chart) {
+                  const renderPromise = chart.render();
+                  chartPromises.push(renderPromise);
+                  console.log(`✅ Chart ${el.id || 'unnamed'} render promise added`);
+                } else {
+                  console.warn("Chart not found for:", el.id);
+                  chartPromises.push(Promise.resolve());
+                }
+              } catch (err) {
+                console.warn("Render failed for", el.id, err);
                 chartPromises.push(Promise.resolve());
               }
             });
@@ -278,6 +319,11 @@
             // Wait for all charts to render before setting final flags
             Promise.allSettled(chartPromises).then(() => {
               console.log("✅ All charts rendered successfully");
+              
+              // Set render flags AFTER all charts are successfully rendered
+              window.__analyzerRendered = true;
+              window.__suppressGlobalHide = true;
+              window.isRendering = false;
               
               // Permanently enforce analyzer visibility after charts initialize
               const analyzer = document.querySelector(".analyzer");
@@ -297,10 +343,15 @@
                 console.log("✅ Analyzer wrapper permanently visible");
               }
               
-              // Set render flags AFTER all charts are successfully rendered
-              window.__analyzerRendered = true;
-              window.__suppressGlobalHide = true;
-              window.isRendering = false;
+              // Force show Pro popup
+              const popup = document.querySelector('.pro-upgrade-modal');
+              if (popup) {
+                popup.style.display = 'flex';
+                popup.style.opacity = '1';
+                popup.style.visibility = 'visible';
+                console.log('✅ Pro popup visible again');
+              }
+              
               console.log("✅ Analyzer fully rendered & locked visible");
             }).catch(error => {
               console.error("❌ Chart rendering error:", error);
