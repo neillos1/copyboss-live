@@ -1512,6 +1512,40 @@ setTimeout(() => {
   console.log("✅ ApexCharts forced re-render complete.");
 }, 2000);
 
+// --- SAFARI FINAL PATCH ---
+// Purpose: reload apexcharts CSS and force full repaint after initialization
+setTimeout(() => {
+  console.log("🧠 Safari CSS reload + paint patch running...");
+
+  // 1️⃣ Reload ApexCharts stylesheet if missing or disabled
+  const cssFound = [...document.styleSheets].some(
+    s => s.href && s.href.includes("apexcharts")
+  );
+  if (!cssFound) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://cdn.jsdelivr.net/npm/apexcharts@3.44.0/dist/apexcharts.css";
+    document.head.appendChild(link);
+    console.log("✅ ApexCharts CSS reloaded into <head>");
+  }
+
+  // 2️⃣ Force reflow on all chart containers
+  const charts = document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg");
+  charts.forEach(el => {
+    el.style.display = "block";
+    el.style.opacity = "1";
+    el.style.visibility = "visible";
+    void el.offsetHeight; // forces reflow
+  });
+
+  // 3️⃣ Trigger ApexCharts repaint if available
+  if (window.ApexCharts && typeof ApexCharts.exec === "function") {
+    ApexCharts.exec("all", "updateOptions", {}, true);
+  }
+
+  console.log("🎨 Safari forced repaint completed.");
+}, 2500);
+
 // ✅ Inject forced ApexCharts CSS patch
 const cssPatch = document.createElement("link");
 cssPatch.rel = "stylesheet";
