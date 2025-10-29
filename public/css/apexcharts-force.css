@@ -1,0 +1,17 @@
+/* ✅ ApexCharts Forced Visibility Patch */
+.apexcharts-canvas,
+.apexcharts-svg,
+.apexcharts-inner,
+.apexcharts-legend,
+.apexcharts-tooltip,
+.apexcharts-title-text,
+svg,
+foreignObject {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 10 !important;
+}

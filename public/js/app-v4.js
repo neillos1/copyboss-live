@@ -1437,3 +1437,10 @@ setTimeout(() => {
 
   console.log("🎯 ApexCharts elements fully unhidden and redrawn.");
 }, 1800);
+
+// ✅ Inject forced ApexCharts CSS patch
+const cssPatch = document.createElement("link");
+cssPatch.rel = "stylesheet";
+cssPatch.href = "/css/apexcharts-force.css?v=" + Date.now();
+document.head.appendChild(cssPatch);
+console.log("💥 ApexCharts Force CSS Patch loaded");
