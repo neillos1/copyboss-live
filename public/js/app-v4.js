@@ -379,16 +379,18 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
         /* Locked visuals (paid sections) */
         .locked-section { filter: blur(4px) saturate(0.95); opacity: 0.8; transition: filter .2s ease, opacity .2s ease; }
         .cb-lock-wrap { position: relative; }
+        /* Support blurred class on common cards */
+        .gauge-box.blurred, .gauge-container.blurred, .report-card.blurred, .gauge-card.blurred { filter: blur(4px); opacity: 0.8; pointer-events: none; }
         /* Small badge in top-right */
-        .unlock-badge { position: absolute; top: 6px; right: 8px; font-size: 13px; background: rgba(0,0,0,0.45); color: #fff; border-radius: 8px; padding: 4px 8px; backdrop-filter: blur(6px); z-index: 3; transition: all 0.3s ease; pointer-events: none; }
+        .unlock-badge { position: absolute; top: 6px; right: 8px; font-size: 13px; background: rgba(0,0,0,0.45); color: #fff; border-radius: 8px; padding: 4px 8px; backdrop-filter: blur(6px); z-index: 4; transition: all 0.3s ease; pointer-events: none; }
         .unlock-badge .pad { margin-right: 6px; }
         /* Subtext below gauges (AI feedback) */
-        .ai-subtext, .feedback-subtext, .gauge-subtext { margin-top: 12px !important; line-height: 1.4 !important; position: relative !important; z-index: 2 !important; display: block !important; text-align: center !important; }
+        .ai-feedback, .ai-subtext, .feedback-subtext, .gauge-subtext { margin-top: 12px !important; line-height: 1.4 !important; position: relative !important; z-index: 3 !important; display: block !important; text-align: center !important; }
         /* Ensure charts sit below subtext within cards */
         .gauge-box .apexcharts-canvas,
         .gauge-box .apexcharts-svg,
         .gauge-container .apexcharts-canvas,
-        .gauge-container .apexcharts-svg { position: relative !important; z-index: 0 !important; }
+        .gauge-container .apexcharts-svg { position: relative !important; z-index: 1 !important; }
       `;
       document.head.appendChild(style);
     }
@@ -435,7 +437,7 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
       // Respect data-pro flag: gate only when data-pro="true"
       const requiresPro = el.getAttribute('data-pro') === 'true';
       if (requiresPro) {
-        el.classList.add('locked-section');
+        el.classList.add('locked-section', 'blurred');
         const badge = document.createElement('div');
         badge.className = 'unlock-badge';
         badge.innerHTML = `
@@ -444,7 +446,7 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
         `;
         el.appendChild(badge);
       } else {
-        el.classList.remove('locked-section');
+        el.classList.remove('locked-section', 'blurred');
       }
     });
 

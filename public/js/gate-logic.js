@@ -45,6 +45,9 @@
         if (localStorage.getItem('vbProUnlocked') === 'true') {
           window.CB_PRO_UNLOCKED = true;
           console.log('Pro access unlocked (local cache).');
+          // Remove blur/badges if present
+          document.querySelectorAll('.blurred, .locked-section').forEach(el => el.classList.remove('blurred', 'locked-section'));
+          document.querySelectorAll('.unlock-badge').forEach(el => el.remove());
           return;
         }
 
@@ -64,8 +67,8 @@
           window.CB_PRO_UNLOCKED = true;
           // Remove gating visuals
           document.querySelectorAll('[data-pro="true"]').forEach(el => {
-            el.classList.remove('locked-section');
-            const badge = el.querySelector('.unlock-overlay');
+            el.classList.remove('locked-section', 'blurred');
+            const badge = el.querySelector('.unlock-badge, .unlock-overlay');
             if (badge && badge.parentNode) badge.parentNode.removeChild(badge);
           });
           console.log('Pro access unlocked.');
@@ -75,6 +78,17 @@
         console.error('Verification failed:', err);
       }
     });
+
+    // 3) Apply blur on locked sections if not unlocked yet
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('vbProUnlocked') === 'true') return;
+      document.querySelectorAll('[data-pro="true"]').forEach(el => {
+        el.classList.add('blurred');
+      });
+      console.log('🔒 Applied blur to Pro sections (not unlocked)');
+    });
+
+    console.log('✅ Analyzer gating + Stripe unlock system finalized');
   } catch (e) {
     console.error('Gate logic fatal error:', e);
   }
