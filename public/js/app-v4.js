@@ -1434,6 +1434,39 @@ setTimeout(() => {
   }
 }, 2000);
 
+// --- SAFARI APEXCHARTS CSS REINJECT PATCH ---
+setTimeout(() => {
+  const apexStyle = document.querySelector('style[id^="apexcharts-css"]');
+  if (apexStyle && apexStyle.textContent.trim().length < 50) {
+    console.warn("⚠️ ApexCharts CSS appears empty. Re-injecting fallback styles...");
+    apexStyle.textContent = `
+      .apexcharts-canvas text {
+        font-family: inherit !important;
+        fill: #ccc !important;
+      }
+      .apexcharts-title-text,
+      .apexcharts-subtitle-text {
+        fill: #fff !important;
+      }
+      .apexcharts-radialbar-track path {
+        stroke: rgba(255,255,255,0.15) !important;
+      }
+      .apexcharts-radialbar-area path {
+        stroke-linecap: round !important;
+        transition: all 0.4s ease !important;
+      }
+      .apexcharts-tooltip {
+        background: rgba(0,0,0,0.8) !important;
+        color: #fff !important;
+        border-radius: 6px !important;
+      }
+    `;
+    console.log("✅ ApexCharts fallback CSS re-injected successfully");
+  } else {
+    console.log("✅ ApexCharts CSS already intact or restored");
+  }
+}, 2500);
+
 // 🚨 FINAL FIX: Force full ApexCharts visual render even if CSS is blocked
 setTimeout(() => {
   console.log("🚨 Final ApexCharts visibility enforcement starting...");
