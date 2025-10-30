@@ -1589,3 +1589,44 @@ setTimeout(() => {
 
   console.log("✅ Safari ApexCharts repaint + CSS reload complete.");
 }, 2500);
+
+// --- SAFARI INLINE RENDER FAILSAFE ---
+// Purpose: directly repaints ApexCharts elements even if Safari hides the apexcharts-css
+setTimeout(() => {
+  console.log("🧩 Running Safari inline render failsafe...");
+
+  // Step 1️⃣ - Make sure all ApexCharts wrappers are visible
+  const chartContainers = document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg");
+  chartContainers.forEach((chart, i) => {
+    chart.style.visibility = "visible";
+    chart.style.opacity = "1";
+    chart.style.display = "block";
+    chart.style.transform = "translateZ(0)"; // triggers hardware acceleration
+  });
+
+  // Step 2️⃣ - Force each chart to repaint manually
+  if (window.ApexCharts && typeof ApexCharts.exec === "function") {
+    document.querySelectorAll(".apexcharts-canvas").forEach((canvas) => {
+      const chartId = canvas.getAttribute("id");
+      if (chartId) {
+        try {
+          ApexCharts.exec(chartId, "updateOptions", {}, true);
+          console.log(`🎯 Repainted chart: ${chartId}`);
+        } catch (err) {
+          console.warn(`⚠️ Chart repaint failed for ${chartId}:`, err);
+        }
+      }
+    });
+  }
+
+  // Step 3️⃣ - Backup fallback paint (if ApexCharts.exec fails)
+  chartContainers.forEach((chart) => {
+    if (!chart.querySelector("svg")) return;
+    const svg = chart.querySelector("svg");
+    svg.style.visibility = "visible";
+    svg.style.opacity = "1";
+    svg.style.display = "block";
+  });
+
+  console.log("✅ Safari inline repaint completed.");
+}, 3000);
