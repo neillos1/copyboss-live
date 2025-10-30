@@ -287,6 +287,31 @@ function createFallbackProPopup() {
   };
 })();
 
+// ===== CopyBoss Analyzer: Overlay & Duplicate Container Fix =====
+document.addEventListener("DOMContentLoaded", () => {
+  // 🧹 Remove extra containers above navbar
+  const wrappers = document.querySelectorAll(".main-wrapper");
+  if (wrappers.length > 1) {
+    // Keep the last one (main content)
+    for (let i = 0; i < wrappers.length - 1; i++) {
+      wrappers[i].remove();
+    }
+    console.log("✅ Removed duplicate main-wrapper containers.");
+  }
+
+  // 🌑 Remove any dark overlay layers
+  const overlays = document.querySelectorAll("div[style*='background-color: rgba'], .apexcharts-css, .dark-overlay, .overlay");
+  overlays.forEach(el => {
+    el.remove();
+  });
+
+  // 🩵 Optional: reset body visibility
+  document.body.style.overflow = "auto";
+  document.body.style.backgroundColor = "#0b0d20"; // restore normal background if needed
+
+  console.log("✅ Overlay cleanup completed.");
+});
+
 // === Safari Origin Unification & Render Unlock ===
 // Ensures all ApexCharts assets and canvases load from same origin and forces Safari to repaint GPU layers properly.
 
@@ -448,22 +473,23 @@ function showProUnlockPopup() {
     // Mark popup as shown
     localStorage.setItem('proPopupShown', 'true');
     
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    `;
+    // ✅ Disabled default overlay creation to prevent permanent dark layer.
+    // // Create overlay
+    // const overlay = document.createElement('div');
+    // overlay.style.cssText = `
+    //   position: fixed;
+    //   top: 0;
+    //   left: 0;
+    //   width: 100%;
+    //   height: 100%;
+    //   background: rgba(0, 0, 0, 0.7);
+    //   z-index: 10000;
+    //   display: flex;
+    //   align-items: center;
+    //   justify-content: center;
+    //   opacity: 0;
+    //   transition: opacity 0.3s ease;
+    // `;
     
     // Create popup card
     const popup = document.createElement('div');
@@ -532,26 +558,26 @@ function showProUnlockPopup() {
     `;
     document.head.appendChild(bounceStyle);
     
-    // Assemble popup
+    // Assemble popup (overlay disabled)
     popup.appendChild(glow);
-    overlay.appendChild(popup);
-    document.body.appendChild(overlay);
+    // overlay.appendChild(popup);
+    // document.body.appendChild(overlay);
     
-    // Animate in
+    // Animate in (overlay disabled)
     setTimeout(() => {
-      overlay.style.opacity = '1';
-      popup.style.transform = 'scale(1)';
+      // overlay.style.opacity = '1';
+      // popup.style.transform = 'scale(1)';
     }, 50);
     
-    // Auto-close after 4 seconds
+    // Auto-close after 4 seconds (overlay disabled)
     setTimeout(() => {
-      overlay.style.opacity = '0';
-      popup.style.transform = 'scale(0.9)';
+      // overlay.style.opacity = '0';
+      // popup.style.transform = 'scale(0.9)';
       
       setTimeout(() => {
-        if (overlay.parentNode) {
-          overlay.parentNode.removeChild(overlay);
-        }
+        // if (overlay.parentNode) {
+        //   overlay.parentNode.removeChild(overlay);
+        // }
         if (style.parentNode) {
           style.parentNode.removeChild(style);
         }
