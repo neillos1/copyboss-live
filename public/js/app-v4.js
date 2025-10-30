@@ -1552,3 +1552,40 @@ cssPatch.rel = "stylesheet";
 cssPatch.href = "/css/apexcharts-force.css?v=" + Date.now();
 document.head.appendChild(cssPatch);
 console.log("💥 ApexCharts Force CSS Patch loaded");
+
+// --- SAFARI FINAL PATCH (2025-10-30) ---
+// Reload apexcharts CSS + force Safari repaint for hidden SVGs
+setTimeout(() => {
+  console.log("🧠 Safari ApexCharts CSS reload + repaint started...");
+
+  // Step 1️⃣ — Reload stylesheet if hidden or detached
+  const cssHidden = [...document.styleSheets].some(
+    s => s.href?.includes("apexcharts") && s.disabled
+  );
+  if (cssHidden) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://cdn.jsdelivr.net/npm/apexcharts@3.44.0/dist/apexcharts.css";
+    document.head.appendChild(link);
+    console.log("✅ Reattached apexcharts.css to <head>");
+  }
+
+  // Step 2️⃣ — Force visibility on all ApexCharts elements
+  document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg, .apexcharts-inner").forEach(el => {
+    el.style.opacity = "1";
+    el.style.display = "block";
+    el.style.visibility = "visible";
+    void el.offsetHeight; // force reflow
+  });
+
+  // Step 3️⃣ — Trigger ApexCharts repaint if API available
+  if (window.ApexCharts && typeof ApexCharts.exec === "function") {
+    document.querySelectorAll(".apexcharts-canvas").forEach(canvas => {
+      const id = canvas.getAttribute("id");
+      if (id) ApexCharts.exec(id, "updateOptions", {}, true);
+    });
+    console.log("🎨 All charts repainted successfully.");
+  }
+
+  console.log("✅ Safari ApexCharts repaint + CSS reload complete.");
+}, 2500);
