@@ -1467,6 +1467,40 @@ setTimeout(() => {
   }
 }, 2500);
 
+// === Safari Plan B Force-Paint Patch ===
+// Some Safari builds render invisible ApexCharts + result cards despite full DOM presence.
+// This patch forces Safari to repaint the analyzer section after charts finish initializing.
+
+(function forceSafariPaintOnce() {
+  try {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (!isSafari) return; // Skip for non-Safari browsers
+
+    console.log("⚙️ Running Safari force-paint patch...");
+
+    setTimeout(() => {
+      const analyzer = document.querySelector(".page-analyzer");
+      const charts = document.querySelectorAll(".apexcharts-canvas, .report-card, .pro-locked-results");
+      if (!analyzer || charts.length === 0) return console.warn("Safari patch: no analyzer content found.");
+
+      // Force layout reflow and paint
+      analyzer.style.display = "none";
+      void analyzer.offsetHeight; // trigger reflow
+      analyzer.style.display = "block";
+
+      charts.forEach(el => {
+        el.style.opacity = "0.999"; // subtle visual poke to trigger repaint
+        el.style.transform = "translateZ(0)";
+      });
+
+      document.body.offsetHeight; // another reflow
+      console.log("✅ Safari repaint forced successfully (Plan B).");
+    }, 2800); // wait for charts to fully initialize
+  } catch (err) {
+    console.error("❌ Safari force-paint patch error:", err);
+  }
+})();
+
 // 🚨 FINAL FIX: Force full ApexCharts visual render even if CSS is blocked
 setTimeout(() => {
   console.log("🚨 Final ApexCharts visibility enforcement starting...");
