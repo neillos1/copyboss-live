@@ -363,6 +363,68 @@ document.addEventListener("DOMContentLoaded", () => {
 // Log after cleanup adjustments
 console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
 
+// ========================
+// PRO GATING VISUALS (layout-safe, no global overlay)
+// ========================
+(function activateProGatingVisuals() {
+  try {
+    // Inject minimal CSS once
+    if (!document.getElementById('cb-pro-gating-styles')) {
+      const style = document.createElement('style');
+      style.id = 'cb-pro-gating-styles';
+      style.textContent = `
+        .locked-section { filter: blur(6px) saturate(0.9); opacity: 0.6; transition: filter .2s ease, opacity .2s ease; }
+        .unlock-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 9; pointer-events: none; }
+        .unlock-badge { display:flex; align-items:center; gap:10px; background: rgba(0,0,0,0.55); color:#fff; padding:10px 14px; border-radius:12px; font-weight:600; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+        .unlock-badge .pad { font-size: 16px; }
+        .unlock-text { font-size: 14px; }
+        .cb-lock-wrap { position: relative; }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const isUnlocked = !!window.CB_PRO_UNLOCKED;
+
+    // Select up to 4 gauges and 4 result cards
+    const gauges = Array.from(document.querySelectorAll('.gauge-box, .gauge-container')).slice(0, 4);
+    const resultCards = Array.from(document.querySelectorAll('.report-card, .pro-locked-results')).slice(0, 4);
+    const targets = [...gauges, ...resultCards];
+
+    targets.forEach((el) => {
+      if (!el) return;
+      // Ensure container positioning for overlay stacking
+      if (!el.classList.contains('cb-lock-wrap')) el.classList.add('cb-lock-wrap');
+
+      // Remove existing overlays to avoid duplicates
+      const old = el.querySelector('.unlock-overlay');
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+
+      if (!isUnlocked) {
+        // Apply blur/opacity
+        el.classList.add('locked-section');
+
+        // Build overlay badge (non-interactive)
+        const overlay = document.createElement('div');
+        overlay.className = 'unlock-overlay';
+        overlay.innerHTML = `
+          <div class="unlock-badge">
+            <span class="pad">🔒</span>
+            <span class="unlock-text">Unlock with Pro</span>
+          </div>
+        `;
+        el.appendChild(overlay);
+      } else {
+        // Clear gating visuals if unlocked
+        el.classList.remove('locked-section');
+      }
+    });
+
+    console.log("✅ Gating visuals reactivated (Pro lock system rebuilt).");
+  } catch (e) {
+    console.warn('⚠️ Failed to activate Pro gating visuals:', e);
+  }
+})();
+
 // === Safari Static Analyzer Fallback (Layout Safe) ===
 (function() {
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
