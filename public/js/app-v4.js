@@ -287,6 +287,54 @@ function createFallbackProPopup() {
   };
 })();
 
+// === Safari Origin Unification & Render Unlock ===
+// Ensures all ApexCharts assets and canvases load from same origin and forces Safari to repaint GPU layers properly.
+
+(function unifySafariOriginAndRepaint() {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) return;
+
+  console.log("🧩 Applying Safari same-origin unification...");
+
+  try {
+    // Step 1: Force script and asset URLs to match current host exactly
+    const currentOrigin = window.location.origin;
+    const scripts = document.querySelectorAll('script[src]');
+    scripts.forEach(s => {
+      if (s.src && !s.src.startsWith(currentOrigin)) {
+        const fixed = s.src.replace(/^https?:\/\/(www\.)?copy-boss\.com/i, currentOrigin);
+        if (fixed !== s.src) {
+          console.log("Repointing script:", s.src, "→", fixed);
+          s.src = fixed;
+        }
+      }
+    });
+
+    // Step 2: Add meta tag to allow GPU rendering for same-origin only
+    const meta = document.createElement('meta');
+    meta.httpEquiv = "Cross-Origin-Opener-Policy";
+    meta.content = "same-origin";
+    document.head.appendChild(meta);
+
+    const meta2 = document.createElement('meta');
+    meta2.httpEquiv = "Cross-Origin-Embedder-Policy";
+    meta2.content = "same-origin";
+    document.head.appendChild(meta2);
+
+    // Step 3: Trigger forced reflow + repaint
+    setTimeout(() => {
+      document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(chart => {
+        chart.style.display = "none";
+        void chart.offsetHeight;
+        chart.style.display = "block";
+      });
+      console.log("✅ Safari repaint and origin fix applied.");
+    }, 2500);
+  } catch (err) {
+    console.error("❌ Safari origin unification failed:", err);
+  }
+})();
+
 // === Safari Hard Fallback to Static Chart Images ===
 // This forces ApexCharts to capture charts as PNG snapshots if Safari fails to render SVG or Canvas.
 
