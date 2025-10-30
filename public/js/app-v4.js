@@ -287,6 +287,41 @@ function createFallbackProPopup() {
   };
 })();
 
+// === Safari Hard Fallback to Static Chart Images ===
+// This forces ApexCharts to capture charts as PNG snapshots if Safari fails to render SVG or Canvas.
+
+(function enableSafariImageFallback() {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) return;
+
+  console.log("🧩 Enabling static image fallback for Safari charts...");
+
+  setTimeout(() => {
+    const charts = document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg");
+    if (charts.length === 0) return console.warn("No charts found for image fallback.");
+
+    charts.forEach(chart => {
+      try {
+        // Convert the chart canvas or SVG to a data URL image
+        const canvas = chart.querySelector("canvas");
+        if (canvas && canvas.toDataURL) {
+          const img = new Image();
+          img.src = canvas.toDataURL("image/png");
+          img.style.width = "100%";
+          img.style.height = "auto";
+          chart.replaceWith(img);
+        } else {
+          console.warn("Chart not convertible to image:", chart);
+        }
+      } catch (err) {
+        console.error("Image fallback error:", err);
+      }
+    });
+
+    console.log("✅ Safari static image fallback complete.");
+  }, 3000);
+})();
+
 // === ApexCharts Safari Fallback: Force Canvas Rendering ===
 // Safari sometimes fails to paint SVG charts properly due to GPU compositing bugs.
 // This fallback forces ApexCharts to render charts in 'canvas' mode across all instances.
