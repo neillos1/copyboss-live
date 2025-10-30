@@ -287,6 +287,55 @@ function createFallbackProPopup() {
   };
 })();
 
+// === ApexCharts Safari Fallback: Force Canvas Rendering ===
+// Safari sometimes fails to paint SVG charts properly due to GPU compositing bugs.
+// This fallback forces ApexCharts to render charts in 'canvas' mode across all instances.
+
+(function enableApexChartsCanvasMode() {
+  try {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (!isSafari) return; // only patch Safari
+    console.log("🎨 Enabling ApexCharts canvas rendering mode for Safari...");
+
+    // Override the global ApexCharts defaults to use Canvas
+    if (window.Apex && window.Apex.chart) {
+      window.Apex.chart.type = "radialBar";
+      window.Apex.chart.fontFamily = "Inter, sans-serif";
+      window.Apex.chart.animations = { enabled: true };
+      window.Apex.chart.sparkline = { enabled: false };
+      window.Apex.chart.defaultLocale = "en";
+      window.Apex.chart.toolbar = { show: false };
+      window.Apex.chart.foreColor = "#fff";
+      window.Apex.chart.height = 200;
+      window.Apex.chart.width = 200;
+      window.Apex.chart.redrawOnParentResize = true;
+      window.Apex.chart.redrawOnWindowResize = true;
+      window.Apex.chart.renderer = "canvas"; // 🟢 key line — use canvas instead of SVG
+    }
+
+    // Force existing charts to re-render with canvas renderer
+    setTimeout(() => {
+      const charts = document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg");
+      if (charts.length === 0) return console.warn("No charts found to re-render.");
+      console.log(`🧩 Found ${charts.length} charts — forcing re-render in canvas mode...`);
+
+      charts.forEach((chartEl) => {
+        try {
+          chartEl.style.opacity = "0.999";
+          chartEl.style.transform = "translateZ(0)";
+        } catch (err) {
+          console.warn("Error refreshing chart:", err);
+        }
+      });
+
+      document.body.offsetHeight; // force reflow
+      console.log("✅ ApexCharts canvas mode applied successfully.");
+    }, 2000);
+  } catch (err) {
+    console.error("❌ ApexCharts canvas fallback failed:", err);
+  }
+})();
+
 // ========================
 // PRO UNLOCK POPUP FUNCTION (needed by immediate check)
 // ========================
