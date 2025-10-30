@@ -363,6 +363,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // Log after cleanup adjustments
 console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
 
+// Reset gauges init flag on navigate/reload
+window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = false; } catch(e){} });
+
 // ========================
 // PRO GATING VISUALS (layout-safe, no global overlay)
 // ========================
@@ -1370,6 +1373,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 Analyzer booting fresh render cycle...");
 
   try {
+    // Guard to ensure gauges render only once per load
+    if (window.VB_GAUGES_INIT) {
+      console.log("⚠️ Gauge render skipped — already initialized in this session");
+      return;
+    }
+    window.VB_GAUGES_INIT = true;
     // Reset flags
     window.__analyzerRendered = false;
     window.isRendering = true;
@@ -1388,6 +1397,13 @@ window.addEventListener("DOMContentLoaded", async () => {
       if (!el) {
         console.warn(`⚠️ Missing element: ${id}`);
         return Promise.resolve();
+      }
+
+      // Remove duplicate rendered canvases if any
+      const dup = el.querySelector('.apexcharts-canvas');
+      if (dup) {
+        dup.remove();
+        console.log(`🧹 Removed duplicate gauge for ${id}`);
       }
 
       // Destroy existing chart instance if any
@@ -1434,6 +1450,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     // Mark render as complete
     window.__analyzerRendered = true;
     window.isRendering = false;
+    console.log("✅ Gauge rendering stabilized — duplicates prevented");
 
     // Make wrapper visible
     const wrapper = document.querySelector(".page-analyzer");

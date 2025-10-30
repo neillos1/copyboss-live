@@ -6,6 +6,18 @@ const https = require('https');
 const fs = require('fs');
 
 const app = express();
+// Stripe setup
+let stripe = null;
+try {
+  const Stripe = require('stripe');
+  if (process.env.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  } else {
+    console.warn('⚠️ STRIPE_SECRET_KEY not set. /api/verify-session will return verified:false.');
+  }
+} catch (e) {
+  console.warn('⚠️ Stripe SDK not available. Install "stripe" package to enable verification.');
+}
 const PORT = process.env.PORT || 3000;
 
 // --- Dev-friendly no-cache to avoid stale assets locally ---
@@ -59,6 +71,22 @@ app.use(express.json({ limit: '256kb' }));
 app.post('/__client_error', (req, res) => {
   console.error('🚨 CLIENT ERROR:', req.body?.message, req.body?.meta || '');
   res.json({ ok: true });
+});
+
+// --- Stripe session verification ---
+app.post('/api/verify-session', express.json(), async (req, res) => {
+  try {
+    const { sessionId } = req.body || {};
+    if (!sessionId) return res.status(400).json({ verified: false, error: 'sessionId required' });
+    if (!stripe) return res.json({ verified: false, error: 'stripe_unavailable' });
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const ok = session && session.payment_status === 'paid';
+    return res.json({ verified: !!ok });
+  } catch (err) {
+    console.error('❌ /api/verify-session error:', err && err.message ? err.message : err);
+    return res.status(500).json({ verified: false, error: 'server_error' });
+  }
 });
 
 // --- Dev stub for missing API endpoints ---
@@ -228,6 +256,7 @@ if (isProduction) {
     console.log(`🚀 CopyBoss server running on port ${PORT} (production)`);
     console.log(`🌐 Server listening on 0.0.0.0:${PORT}`);
     console.log(`✅ Render deployment ready - no 502 errors`);
+    console.log('✅ Stripe verification route ready');
   });
 } else {
   // Development: Try HTTPS first, fallback to HTTP
@@ -243,6 +272,7 @@ if (isProduction) {
       console.log(`🔒 CopyBoss HTTPS server running: https://localhost:${PORT}`);
       console.log(`📋 Note: You may need to accept the self-signed certificate in your browser`);
       console.log(`🔧 To trust the certificate: Click "Advanced" → "Proceed to localhost (unsafe)"`);
+      console.log('✅ Stripe verification route ready');
     });
     
   } catch (error) {
@@ -254,6 +284,7 @@ if (isProduction) {
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`⚠️  CopyBoss HTTP server running: http://localhost:${PORT}`);
       console.log(`⚠️  Note: Stripe iframe may not work due to mixed content policy`);
+      console.log('✅ Stripe verification route ready');
     });
   }
 }
