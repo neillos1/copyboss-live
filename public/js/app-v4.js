@@ -383,11 +383,28 @@ console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
       document.head.appendChild(style);
     }
 
+    // Assign data-pro based on title text
+    const assignProDataAttributes = () => {
+      const cardSelectors = '.gauge-box, .gauge-container, .report-card, .metric-card, .result-card, .pro-locked-results';
+      document.querySelectorAll(cardSelectors).forEach(card => {
+        // Find a heading inside the card
+        const titleEl = card.querySelector('h1, h2, h3, .card-title, .metric-title, .title');
+        const title = (titleEl?.textContent || '').trim().toLowerCase();
+        if (!title) return;
+        const isFree = title.includes('sound match') || title.includes('viewer understanding');
+        card.setAttribute('data-pro', isFree ? 'false' : 'true');
+      });
+    };
+
+    // Run assignment now (DOM may already be ready) and after DOMContentLoaded as safety
+    assignProDataAttributes();
+    document.addEventListener('DOMContentLoaded', assignProDataAttributes, { once: true });
+
     const isUnlocked = !!window.CB_PRO_UNLOCKED;
 
-    // Select up to 4 gauges and 4 result cards
-    const gauges = Array.from(document.querySelectorAll('.gauge-box, .gauge-container')).slice(0, 4);
-    const resultCards = Array.from(document.querySelectorAll('.report-card, .pro-locked-results')).slice(0, 4);
+    // Select all gauges and result cards and respect data-pro flag
+    const gauges = Array.from(document.querySelectorAll('.gauge-box, .gauge-container'));
+    const resultCards = Array.from(document.querySelectorAll('.report-card, .metric-card, .result-card, .pro-locked-results'));
     const targets = [...gauges, ...resultCards];
 
     targets.forEach((el) => {
@@ -399,11 +416,16 @@ console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
       const old = el.querySelector('.unlock-overlay');
       if (old && old.parentNode) old.parentNode.removeChild(old);
 
-      if (!isUnlocked) {
-        // Apply blur/opacity
-        el.classList.add('locked-section');
+      if (isUnlocked) {
+        // Clear all gating visuals if fully unlocked
+        el.classList.remove('locked-section');
+        return;
+      }
 
-        // Build overlay badge (non-interactive)
+      // Respect data-pro flag: gate only when data-pro="true"
+      const requiresPro = el.getAttribute('data-pro') === 'true';
+      if (requiresPro) {
+        el.classList.add('locked-section');
         const overlay = document.createElement('div');
         overlay.className = 'unlock-overlay';
         overlay.innerHTML = `
@@ -414,15 +436,46 @@ console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
         `;
         el.appendChild(overlay);
       } else {
-        // Clear gating visuals if unlocked
         el.classList.remove('locked-section');
       }
     });
 
     console.log("✅ Gating visuals reactivated (Pro lock system rebuilt).");
+    console.log("✅ Gating: Free = Sound Match, Viewer Understanding. All others gated.");
   } catch (e) {
     console.warn('⚠️ Failed to activate Pro gating visuals:', e);
   }
+})();
+
+// ========================
+// Gauge subtext overlap fix (spacing + z-index)
+// ========================
+(function fixGaugeSubtextOverlap(){
+  try {
+    if (!document.getElementById('cb-gauge-subtext-fix')) {
+      const style = document.createElement('style');
+      style.id = 'cb-gauge-subtext-fix';
+      style.textContent = `
+        /* Subtext below gauges */
+        .ai-subtext, .feedback-subtext, .gauge-subtext {
+          margin-top: 10px !important;
+          line-height: 1.25 !important;
+          position: relative !important;
+          z-index: 1 !important;
+        }
+        /* Ensure charts sit below subtext within cards */
+        .gauge-box .apexcharts-canvas,
+        .gauge-box .apexcharts-svg,
+        .gauge-container .apexcharts-canvas,
+        .gauge-container .apexcharts-svg {
+          position: relative !important;
+          z-index: 0 !important;
+        }
+      `;
+      document.head.appendChild(style);
+      console.log("✅ Fixed gauge subtext spacing/z-index to avoid overlap.");
+    }
+  } catch(e) { /* no-op */ }
 })();
 
 // === Safari Static Analyzer Fallback (Layout Safe) ===
