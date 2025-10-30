@@ -376,12 +376,19 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
       const style = document.createElement('style');
       style.id = 'cb-pro-gating-styles';
       style.textContent = `
-        .locked-section { filter: blur(6px) saturate(0.9); opacity: 0.6; transition: filter .2s ease, opacity .2s ease; }
-        .unlock-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 9; pointer-events: none; }
-        .unlock-badge { display:flex; align-items:center; gap:10px; background: rgba(0,0,0,0.55); color:#fff; padding:10px 14px; border-radius:12px; font-weight:600; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
-        .unlock-badge .pad { font-size: 16px; }
-        .unlock-text { font-size: 14px; }
+        /* Locked visuals (paid sections) */
+        .locked-section { filter: blur(4px) saturate(0.95); opacity: 0.8; transition: filter .2s ease, opacity .2s ease; }
         .cb-lock-wrap { position: relative; }
+        /* Small badge in top-right */
+        .unlock-badge { position: absolute; top: 6px; right: 8px; font-size: 13px; background: rgba(0,0,0,0.45); color: #fff; border-radius: 8px; padding: 4px 8px; backdrop-filter: blur(6px); z-index: 3; transition: all 0.3s ease; pointer-events: none; }
+        .unlock-badge .pad { margin-right: 6px; }
+        /* Subtext below gauges (AI feedback) */
+        .ai-subtext, .feedback-subtext, .gauge-subtext { margin-top: 12px !important; line-height: 1.4 !important; position: relative !important; z-index: 2 !important; display: block !important; text-align: center !important; }
+        /* Ensure charts sit below subtext within cards */
+        .gauge-box .apexcharts-canvas,
+        .gauge-box .apexcharts-svg,
+        .gauge-container .apexcharts-canvas,
+        .gauge-container .apexcharts-svg { position: relative !important; z-index: 0 !important; }
       `;
       document.head.appendChild(style);
     }
@@ -415,8 +422,8 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
       // Ensure container positioning for overlay stacking
       if (!el.classList.contains('cb-lock-wrap')) el.classList.add('cb-lock-wrap');
 
-      // Remove existing overlays to avoid duplicates
-      const old = el.querySelector('.unlock-overlay');
+      // Remove existing badges to avoid duplicates
+      const old = el.querySelector('.unlock-badge');
       if (old && old.parentNode) old.parentNode.removeChild(old);
 
       if (isUnlocked) {
@@ -429,15 +436,13 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
       const requiresPro = el.getAttribute('data-pro') === 'true';
       if (requiresPro) {
         el.classList.add('locked-section');
-        const overlay = document.createElement('div');
-        overlay.className = 'unlock-overlay';
-        overlay.innerHTML = `
-          <div class="unlock-badge">
-            <span class="pad">🔒</span>
-            <span class="unlock-text">Unlock with Pro</span>
-          </div>
+        const badge = document.createElement('div');
+        badge.className = 'unlock-badge';
+        badge.innerHTML = `
+          <span class="pad">🔒</span>
+          <span class="unlock-text">Unlock with Pro</span>
         `;
-        el.appendChild(overlay);
+        el.appendChild(badge);
       } else {
         el.classList.remove('locked-section');
       }
@@ -1373,6 +1378,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 Analyzer booting fresh render cycle...");
 
   try {
+    // Mobile cache cleanup for stale overlays/containers
+    try {
+      document.querySelectorAll('.old-overlay, .dark-layer, .container-v1').forEach(el => el.remove());
+      console.log("🧽 Cleaned old cached overlays and containers");
+    } catch(_){}
     // Guard to ensure gauges render only once per load
     if (window.VB_GAUGES_INIT) {
       console.log("⚠️ Gauge render skipped — already initialized in this session");
