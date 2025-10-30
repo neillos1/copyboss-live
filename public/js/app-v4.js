@@ -335,39 +335,44 @@ function createFallbackProPopup() {
   }
 })();
 
-// === Safari Hard Fallback to Static Chart Images ===
-// This forces ApexCharts to capture charts as PNG snapshots if Safari fails to render SVG or Canvas.
-
-(function enableSafariImageFallback() {
+// === Safari Static Analyzer Fallback (Layout Safe) ===
+(function() {
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (!isSafari) return;
 
-  console.log("🧩 Enabling static image fallback for Safari charts...");
+  console.log("🧩 Safari detected – showing static analyzer preview.");
 
-  setTimeout(() => {
-    const charts = document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg");
-    if (charts.length === 0) return console.warn("No charts found for image fallback.");
+  // Target main analyzer section only
+  const mainContainer = document.querySelector("#analyzerWrapper") 
+                     || document.querySelector(".analyzer-page") 
+                     || document.body;
 
-    charts.forEach(chart => {
-      try {
-        // Convert the chart canvas or SVG to a data URL image
-        const canvas = chart.querySelector("canvas");
-        if (canvas && canvas.toDataURL) {
-          const img = new Image();
-          img.src = canvas.toDataURL("image/png");
-          img.style.width = "100%";
-          img.style.height = "auto";
-          chart.replaceWith(img);
-        } else {
-          console.warn("Chart not convertible to image:", chart);
-        }
-      } catch (err) {
-        console.error("Image fallback error:", err);
-      }
-    });
+  // Hide invisible live charts (keep wrapper layout intact)
+  mainContainer.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
+    el.style.visibility = "hidden";
+    el.style.position = "absolute";
+  });
 
-    console.log("✅ Safari static image fallback complete.");
-  }, 3000);
+  // Create centered replacement
+  const fallback = document.createElement("div");
+  fallback.style.cssText = `
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;
+    background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);
+    border-radius:20px;margin:auto;padding:60px 20px;
+    max-width:700px;color:#fff;font-size:18px;
+  `;
+  fallback.innerHTML = `
+    <h2 style="margin-bottom:20px;font-size:22px;">CopyBoss Analyzer Preview</h2>
+    <img src="/assets/analyzer-preview.png"
+         alt="Analyzer preview"
+         style="max-width:600px;width:100%;border-radius:12px;margin-bottom:20px;">
+    <p>Your full interactive charts are available in Chrome, Edge, or Firefox.<br>
+       Safari currently displays a static preview for compatibility.</p>
+  `;
+  mainContainer.appendChild(fallback);
+
+  console.log("✅ Safari fallback loaded safely inside layout.");
 })();
 
 // === ApexCharts Safari Fallback: Force Canvas Rendering ===
