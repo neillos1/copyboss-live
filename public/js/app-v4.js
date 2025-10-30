@@ -1630,3 +1630,32 @@ setTimeout(() => {
 
   console.log("✅ Safari inline repaint completed.");
 }, 3000);
+
+// --- SAFARI APEXCHARTS DIAGNOSTIC ---
+setTimeout(() => {
+  console.group("🔍 Safari ApexCharts Diagnostic");
+  const charts = document.querySelectorAll(".apexcharts-canvas");
+  console.log(`Found ${charts.length} chart containers.`);
+  charts.forEach((c, i) => {
+    const svg = c.querySelector("svg");
+    if (!svg) {
+      console.warn(`❌ Chart ${i} has no SVG element`);
+      return;
+    }
+    const styles = svg.querySelectorAll("style");
+    console.log(`✅ Chart ${i} SVG found, ${styles.length} internal style blocks`);
+    console.log("→ visibility:", getComputedStyle(svg).visibility);
+    console.log("→ display:", getComputedStyle(svg).display);
+    console.log("→ opacity:", getComputedStyle(svg).opacity);
+  });
+
+  const apexStyle = document.querySelector('style[id^="apexcharts-css"]');
+  if (apexStyle) {
+    console.log("Global ApexCharts CSS status:");
+    console.log("disabled:", apexStyle.disabled);
+    console.log("text length:", apexStyle.textContent.length);
+  } else {
+    console.warn("⚠️ No global apexcharts-css block found in DOM");
+  }
+  console.groupEnd();
+}, 2000);
