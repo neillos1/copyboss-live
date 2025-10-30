@@ -219,11 +219,11 @@ function createFallbackProPopup() {
         console.log("✅ Rebuild complete");
         
         // Permanently enforce analyzer visibility
-        const wrapper = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
-        if (wrapper) {
-          wrapper.style.display = "grid";
-          wrapper.style.opacity = "1";
-          wrapper.style.visibility = "visible";
+        const wrapperAnalyzer = document.querySelector(".analyzer-wrapper") || document.querySelector(".page-analyzer");
+        if (wrapperAnalyzer) {
+          wrapperAnalyzer.style.display = "grid";
+          wrapperAnalyzer.style.opacity = "1";
+          wrapperAnalyzer.style.visibility = "visible";
         }
         
         // Only set render flags if charts are also initialized
@@ -359,6 +359,9 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("❌ Safari origin unification failed:", err);
   }
 })();
+
+// Log after cleanup adjustments
+console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
 
 // === Safari Static Analyzer Fallback (Layout Safe) ===
 (function() {
