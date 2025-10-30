@@ -11072,6 +11072,41 @@ async function saveAnalysisResult(score) {
   <button onclick="window.location.href='/pricing.html'" style="background:#7f5af0;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">Upgrade Now</button>
 </div>
 
+<script>
+// === Safari Visibility Fallback ===
+// Detect Safari and show a static preview instead of invisible charts.
+(function handleSafariFallback() {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) return;
+
+  console.log("🧩 Safari detected — enabling static analyzer fallback.");
+
+  // Hide the dynamic chart containers
+  document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
+    el.style.display = "none";
+  });
+
+  // Show static replacement (image or message)
+  const fallback = document.createElement("div");
+  fallback.style.cssText = `
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;padding:80px 20px;
+    color:#fff;font-size:18px;background:rgba(0,0,0,0.4);
+    border-radius:20px;backdrop-filter:blur(10px);
+  `;
+  fallback.innerHTML = `
+    <img src="/assets/analyzer-preview.png" 
+         alt="CopyBoss Analyzer Preview" 
+         style="max-width:600px;width:100%;border-radius:12px;margin-bottom:20px;">
+    <p>Your full interactive charts are available in Chrome, Edge, or Firefox.<br>
+       Safari currently displays a preview image for performance compatibility.</p>
+  `;
+  document.querySelector(".page-analyzer")?.prepend(fallback);
+
+  console.log("✅ Safari static analyzer fallback loaded.");
+})();
+</script>
+
 </body>
 </html>
 
