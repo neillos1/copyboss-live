@@ -1501,6 +1501,46 @@ setTimeout(() => {
   }
 })();
 
+// === Safari Deep Repaint + ShadowRoot SVG Reset (Plan C) ===
+(function safariDeepRepaintFix() {
+  try {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (!isSafari) return;
+
+    console.log("🔄 Running Safari Deep Repaint Patch (Plan C)...");
+
+    setTimeout(() => {
+      const allSVGs = document.querySelectorAll(".apexcharts-svg");
+      if (allSVGs.length === 0) return console.warn("No ApexCharts SVGs detected for deep repaint.");
+
+      allSVGs.forEach(svg => {
+        try {
+          // 1. Force Safari to recalc the SVG shadow root
+          svg.innerHTML = svg.innerHTML; // reparse contents
+          svg.style.transform = "translateZ(0)";
+          svg.style.willChange = "transform, opacity";
+          svg.style.opacity = "0.9999";
+
+          // 2. Create a temporary shadow layer
+          const clone = svg.cloneNode(true);
+          clone.style.position = "absolute";
+          clone.style.left = "-9999px";
+          document.body.appendChild(clone);
+          requestAnimationFrame(() => clone.remove());
+        } catch (err) {
+          console.warn("SVG repaint loop error:", err);
+        }
+      });
+
+      // 3. Final layout flush
+      document.body.offsetHeight;
+      console.log("✅ Safari Deep Repaint patch completed successfully.");
+    }, 3200);
+  } catch (err) {
+    console.error("❌ Safari Deep Repaint Patch Error:", err);
+  }
+})();
+
 // 🚨 FINAL FIX: Force full ApexCharts visual render even if CSS is blocked
 setTimeout(() => {
   console.log("🚨 Final ApexCharts visibility enforcement starting...");
