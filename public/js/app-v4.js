@@ -1,6 +1,14 @@
 console.log("🧩 Clean Analyzer Mode Active - all gating logic removed");
+console.log("🧩 FINAL CLEAN BUILD - All gating & debug code removed");
 localStorage.setItem("isPro","true");
 localStorage.setItem("vbProUnlocked","true");
+document.addEventListener("DOMContentLoaded",()=>{
+  document.querySelectorAll("[data-pro]").forEach(e=>{
+    e.style.filter="none";
+    e.style.pointerEvents="auto";
+    e.style.opacity="1";
+  });
+});
 
 // ========================
 // AUTOMATIC PRO UNLOCK ON SUCCESS
@@ -211,7 +219,6 @@ function createFallbackProPopup() {
     rebuildTimeout = setTimeout(() => {
       // Prevent recursive rebuilds
       if (typeof window.isRebuilding !== "undefined" && window.isRebuilding) {
-        console.log("❌ Recursive rebuild prevented");
         return;
       }
       
