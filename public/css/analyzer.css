@@ -41,3 +41,8 @@
   z-index: 0 !important;
 }
 
+/* Optional styling tweak */
+.apexcharts-canvas {
+  margin-top: 10px !important;
+}
+

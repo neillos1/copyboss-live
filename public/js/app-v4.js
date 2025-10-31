@@ -15,8 +15,8 @@ window.addEventListener("DOMContentLoaded", ()=>{
       document.querySelectorAll("[data-pro='true']").forEach(el=>{
         el.classList.remove("blurred");
       });
-      console.log("💎 Pro unlock visuals refreshed");
-    },800);
+      console.log("💎 Pro unlock visuals refreshed (post-render)");
+    },2500);
     if(window.Swal){
       Swal.fire({
         icon:"success",
@@ -1476,6 +1476,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         } catch (err) {}
       }
 
+      // Remove any existing charts to prevent duplication
+      document.querySelectorAll(".apexcharts-canvas").forEach(e => e.remove());
+      
       // Create a new chart every time
       const chart = new ApexCharts(el, {
         chart: { type: "radialBar", height: 250 },
