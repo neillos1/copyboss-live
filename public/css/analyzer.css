@@ -4,16 +4,27 @@
   pointer-events: none;
   user-select: none;
   opacity: 0.6;
+  position: relative;
 }
 .btn-upgrade, .unlock-badge {
-  background: linear-gradient(135deg, #f4b400, #ff6f00);
+  background: linear-gradient(135deg, #6c63ff, #8e7cff);
   color: #fff !important;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 10px 20px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+.btn-upgrade:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4);
 }
 .unlock-badge::after {
   content: "💎 Pro Feature";
