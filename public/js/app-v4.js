@@ -11,6 +11,12 @@ window.addEventListener("DOMContentLoaded", ()=>{
     document.querySelectorAll("[data-pro='true']").forEach(el=>{
       el.classList.remove("blurred");
     });
+    setTimeout(()=>{
+      document.querySelectorAll("[data-pro='true']").forEach(el=>{
+        el.classList.remove("blurred");
+      });
+      console.log("💎 Pro unlock visuals refreshed");
+    },800);
     if(window.Swal){
       Swal.fire({
         icon:"success",
@@ -1478,8 +1484,24 @@ window.addEventListener("DOMContentLoaded", async () => {
         colors: ["#10b981"],
         plotOptions: {
           radialBar: {
-            hollow: { size: "65%" },
-            dataLabels: { name: { show: true }, value: { show: true } }
+            startAngle: -150,
+            endAngle: 150,
+            hollow: {
+              margin: 0,
+              size: "70%",
+              background: "transparent",
+              position: "front",
+            },
+            track: {
+              background: "rgba(255,255,255,0.08)",
+              strokeWidth: "100%",
+              margin: 0,
+            },
+            dataLabels: {
+              show: true,
+              name: { offsetY: 30, color: "#fff", fontSize: "15px" },
+              value: { offsetY: 10, color: "#fff", fontSize: "22px", formatter: v => Math.round(v)+"%" }
+            }
           }
         }
       });
