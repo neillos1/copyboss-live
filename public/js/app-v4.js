@@ -1367,11 +1367,31 @@ window.addEventListener("DOMContentLoaded", async () => {
           radialBar: {
             startAngle: -150,
             endAngle: 150,
-            track: { background: "rgba(255,255,255,0.08)", margin: 0 },
-            hollow: { size: "70%", background: "transparent" },
-            stroke: { lineCap: "round" }
-          }
-        }
+            hollow: {
+              size: "70%",
+              background: "transparent",
+            },
+            track: {
+              background: "rgba(255,255,255,0.08)",
+              strokeWidth: "100%",
+              margin: 0,
+              dropShadow: { enabled: false },
+            },
+            dataLabels: {
+              show: true,
+              name: {
+                offsetY: 30,
+                fontSize: "15px",
+              },
+              value: {
+                offsetY: 10,
+                fontSize: "22px",
+                formatter: v => Math.round(v) + "%",
+              },
+            },
+          },
+        },
+        stroke: { lineCap: "round" }
       });
 
       el._chart = chart;
