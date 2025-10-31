@@ -103,4 +103,22 @@ if (document.readyState !== 'loading') {
   setTimeout(() => window.dispatchEvent(new Event('forceRebuild')), 1500);
 }
 
+// 🧪 TEMP TEST CHECKOUT
+window.testStripeCheckout = async () => {
+  console.log("🧪 Launching test checkout...");
+  const stripe = Stripe(window.STRIPE_PUBLIC_KEY);
+  try {
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: [{ price: 'price_XXX_REPLACE_WITH_YOUR_PRICE_ID', quantity: 1 }],
+      mode: 'payment',
+      successUrl: 'https://www.copy-boss.com/analyzer.html?upgraded=true',
+      cancelUrl: 'https://www.copy-boss.com/analyzer.html?cancelled=true',
+    });
+    if (error) console.error("Stripe checkout error:", error);
+  } catch (err) {
+    console.error("Stripe init error:", err);
+  }
+};
+console.log("✅ Stripe test function ready — run window.testStripeCheckout() in console to test.");
+
 
