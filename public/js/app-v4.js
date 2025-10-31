@@ -1,6 +1,29 @@
 console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 
 // ========================
+// AUTOMATIC PRO UNLOCK ON SUCCESS
+// ========================
+window.addEventListener("DOMContentLoaded", ()=>{
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("success")==="1"){
+    console.log("🎉 Stripe success detected — unlocking Pro...");
+    localStorage.setItem("vbProUnlocked","true");
+    document.querySelectorAll("[data-pro='true']").forEach(el=>{
+      el.classList.remove("blurred");
+    });
+    if(window.Swal){
+      Swal.fire({
+        icon:"success",
+        title:"Pro Unlocked!",
+        text:"Full access enabled — enjoy all Analyzer tools.",
+        timer:3000,
+        showConfirmButton:false
+      });
+    }
+  }
+});
+
+// ========================
 // STRIPE ERROR SUPPRESSION & FALLBACK SAFEGUARDS
 // ========================
 // Suppress Stripe-related CORS and frame errors
@@ -231,6 +254,18 @@ function createFallbackProPopup() {
           window.__analyzerRendered = true;
           window.__suppressGlobalHide = true;
           console.log("✅ Analyzer fully rendered & locked visible");
+          
+          // Final gauge subtext visibility fix after render
+          setTimeout(()=>{
+            document.querySelectorAll(".cb-gauge-subtext-fix").forEach(el=>{
+              el.style.display="block";
+              el.style.visibility="visible";
+              el.style.opacity="1";
+              el.style.zIndex="25";
+              el.style.marginTop="6px";
+            });
+            console.log("✅ Gauge subtext re-enabled after render");
+          },2000);
         } else {
           console.log("⚠️ Rebuild complete but charts not yet initialized");
         }
