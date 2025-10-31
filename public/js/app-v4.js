@@ -1,3 +1,26 @@
+// --- Hard Lock: Force Pro mode + stop backend overrides ---
+window.__forcePro = true;
+Object.defineProperty(localStorage, "setItem", {
+  writable: true,
+  value: (k, v) => {
+    if (k === "isPro" && window.__forcePro) {
+      console.log("💎 Hard override active – keeping Pro status true");
+      v = "true";
+    }
+    Storage.prototype.setItem.call(localStorage, k, v);
+  }
+});
+localStorage.setItem("isPro", "true");
+localStorage.setItem("vbProUnlocked", "true");
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-pro='true']").forEach(el=>{
+    el.classList.remove("blurred");
+    el.style.filter = "none";
+  });
+  console.log("✅ All Pro sections permanently unlocked (Hard Lock)");
+});
+// --- End Hard Lock ---
+
 console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 
 // ========================
@@ -1487,7 +1510,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       
       // Create a new chart every time
       const chart = new ApexCharts(el, {
-        chart: { type: "radialBar", height: 250 },
+        chart: { type: "radialBar", sparkline: { enabled: true } },
         series: [Math.floor(Math.random() * 100)],
         labels: [id.replace("apexchart", "")],
         colors: ["#10b981"],
@@ -1495,27 +1518,9 @@ window.addEventListener("DOMContentLoaded", async () => {
           radialBar: {
             startAngle: -150,
             endAngle: 150,
-            hollow: {
-              margin: 0,
-              size: "70%",
-              background: "transparent",
-              position: "front",
-            },
-            track: {
-              background: "rgba(255,255,255,0.08)",
-              strokeWidth: "100%",
-              margin: 0,
-              dropShadow: { enabled: false }
-            },
-            stroke: {
-              lineCap: "round",
-              colors: ["transparent"]
-            },
-            dataLabels: {
-              show: true,
-              name: { offsetY: 30, fontSize: "15px" },
-              value: { offsetY: 10, fontSize: "22px" }
-            }
+            track: { background: "rgba(255,255,255,0.08)", margin: 0 },
+            hollow: { size: "70%", background: "transparent" },
+            stroke: { lineCap: "round" }
           }
         }
       });
@@ -2157,3 +2162,5 @@ setTimeout(() => {
   }
   console.groupEnd();
 }, 2000);
+
+console.log("🔥 Analyzer Hard Lock + Half-Arc enforced ✅");
