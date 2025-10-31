@@ -4,6 +4,12 @@ console.log("✅ JS file version: v4.1 Immediate Pro Check active");
 // AUTOMATIC PRO UNLOCK ON SUCCESS
 // ========================
 window.addEventListener("DOMContentLoaded", ()=>{
+  // Force Pro unlock if success=1 is in URL
+  if (window.location.search.includes("success=1")) {
+    console.log("💎 Forced Pro preview mode active");
+    localStorage.setItem("isPro","true");
+  }
+  
   const params = new URLSearchParams(window.location.search);
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
@@ -1499,11 +1505,16 @@ window.addEventListener("DOMContentLoaded", async () => {
               background: "rgba(255,255,255,0.08)",
               strokeWidth: "100%",
               margin: 0,
+              dropShadow: { enabled: false }
+            },
+            stroke: {
+              lineCap: "round",
+              colors: ["transparent"]
             },
             dataLabels: {
               show: true,
-              name: { offsetY: 30, color: "#fff", fontSize: "15px" },
-              value: { offsetY: 10, color: "#fff", fontSize: "22px", formatter: v => Math.round(v)+"%" }
+              name: { offsetY: 30, fontSize: "15px" },
+              value: { offsetY: 10, fontSize: "22px" }
             }
           }
         }
