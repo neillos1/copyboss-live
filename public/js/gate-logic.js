@@ -24,14 +24,73 @@ function startCheckout(plan) {
   try {
     console.log('🔐 Gate logic loaded');
 
-    // 1) Attach click to unlock badges and upgrade buttons
-    document.addEventListener('click', async (e) => {
-      const target = e.target.closest('.unlock-badge, .unlock-overlay, .btn-upgrade');
-      if (!target) return;
-      e.preventDefault();
-      console.log('Starting Stripe checkout...');
-      startCheckout("pro");
+    // Helper: Bind unlock buttons with duplicate prevention
+    function bindUnlockButtons() {
+      const buttons = document.querySelectorAll('.btn-upgrade, .unlock-badge, .cb-pro-cta');
+      let boundCount = 0;
+      
+      buttons.forEach(btn => {
+        // Skip if already bound
+        if (btn.dataset.bound === 'true') return;
+        
+        // Remove old href
+        if (btn.hasAttribute('href')) {
+          btn.removeAttribute('href');
+        }
+        if (btn.href === '#') {
+          btn.href = 'javascript:void(0)';
+        }
+        
+        // Bind click handler
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🟢 Pro unlock button clicked');
+          startCheckout("pro");
+        });
+        
+        // Mark as bound
+        btn.dataset.bound = 'true';
+        boundCount++;
+      });
+      
+      if (boundCount > 0) {
+        console.log(`✅ Pro unlock button ready (${boundCount} buttons bound)`);
+      }
+      
+      return boundCount;
+    }
+
+    // 1) Initial binding on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      bindUnlockButtons();
     });
+
+    // 2) Continuous rebinding with MutationObserver (for SPA rebuilds)
+    const observer = new MutationObserver(() => {
+      bindUnlockButtons();
+    });
+    
+    // Start observing after a delay to let initial render complete
+    setTimeout(() => {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+      console.log('👀 MutationObserver active for unlock button binding');
+    }, 2000);
+
+    // 3) Periodic rebinding as fallback (every 2 seconds for first 10 seconds)
+    let rebindAttempts = 0;
+    const rebindInterval = setInterval(() => {
+      rebindAttempts++;
+      bindUnlockButtons();
+      
+      // Stop after 5 attempts (10 seconds)
+      if (rebindAttempts >= 5) {
+        clearInterval(rebindInterval);
+      }
+    }, 2000);
 
     // 2) On load, verify session (for Payment Link returns with query params)
     document.addEventListener('DOMContentLoaded', async () => {
@@ -94,13 +153,42 @@ function startCheckout(plan) {
       }
     });
 
-    // 3) Apply blur on locked sections if not unlocked yet
+    // 3) Apply blur on locked sections if not unlocked yet + inject unlock buttons
     document.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('vbProUnlocked') === 'true') return;
+      
       document.querySelectorAll('[data-pro="true"]').forEach(el => {
         el.classList.add('blurred');
+        
+        // Inject unlock button if missing
+        const existingBtn = el.querySelector('.btn-upgrade, .cb-pro-cta');
+        if (!existingBtn) {
+          const btn = document.createElement('button');
+          btn.className = 'btn-upgrade cb-pro-cta';
+          btn.textContent = 'Unlock with Pro';
+          btn.style.cssText = `
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6c63ff, #8e7cff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 10;
+            position: relative;
+          `;
+          el.appendChild(btn);
+          btn.dataset.bound = 'false'; // Will be bound by bindUnlockButtons
+          console.log('💎 Injected unlock button into blurred section');
+        }
       });
+      
       console.log('🔒 Applied blur to Pro sections (not unlocked)');
+      
+      // Bind injected buttons immediately
+      setTimeout(() => bindUnlockButtons(), 500);
     });
 
     console.log('✅ Analyzer gating + Stripe Payment Links live and functional');

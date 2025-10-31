@@ -1,0 +1,43 @@
+/* === Analyzer Pro Gating UI === */
+[data-pro="true"].blurred {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.6;
+}
+.btn-upgrade, .unlock-badge {
+  background: linear-gradient(135deg, #f4b400, #ff6f00);
+  color: #fff !important;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.unlock-badge::after {
+  content: "💎 Pro Feature";
+  font-size: 12px;
+  margin-left: 8px;
+  color: #fff;
+}
+
+/* Gauge subtext fix - ensure readable below circular gauge */
+.cb-gauge-subtext-fix, .ai-subtext, .feedback-subtext, .gauge-subtext {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 20 !important;
+  margin-top: 6px !important;
+}
+
+/* Ensure charts sit below subtext within cards */
+.gauge-box .apexcharts-canvas,
+.gauge-box .apexcharts-svg,
+.gauge-container .apexcharts-canvas,
+.gauge-container .apexcharts-svg {
+  position: relative !important;
+  z-index: 0 !important;
+}
+

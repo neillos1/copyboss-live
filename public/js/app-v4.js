@@ -466,12 +466,14 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
       const style = document.createElement('style');
       style.id = 'cb-gauge-subtext-fix';
       style.textContent = `
-        /* Subtext below gauges */
-        .ai-subtext, .feedback-subtext, .gauge-subtext {
-          margin-top: 10px !important;
-          line-height: 1.25 !important;
+        /* Gauge subtext fix - ensure readable below circular gauge */
+        .cb-gauge-subtext-fix, .ai-subtext, .feedback-subtext, .gauge-subtext {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
           position: relative !important;
-          z-index: 1 !important;
+          z-index: 20 !important;
+          margin-top: 6px !important;
         }
         /* Ensure charts sit below subtext within cards */
         .gauge-box .apexcharts-canvas,
