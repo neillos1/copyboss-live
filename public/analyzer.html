@@ -11063,42 +11063,7 @@ async function saveAnalysisResult(score) {
 </style>
 <script src="/js/mascot.failsafe.js?v=4"></script>
 <script src="/js/mascot.sound.js?v=4"></script>
-<script src="/js/gate-logic.js?v=1"></script>
-<script>
-console.log("🧩 Emergency Analyzer Override Active");
-
-// Disable all gate logic and mutation observers
-window.stopGateLogic = true;
-if (window.MutationObserver) {
-  const observer = new MutationObserver(() => {});
-  observer.disconnect();
-}
-
-// Force Pro unlock globally
-localStorage.clear();
-localStorage.setItem("isPro", "true");
-localStorage.setItem("vbProUnlocked", "true");
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("[data-pro='true']").forEach(el=>{
-    el.classList.remove("blurred");
-    el.style.filter = "none";
-    el.style.pointerEvents = "auto";
-  });
-  console.log("✅ Emergency Pro Unlock executed");
-});
-
-// Prevent reactivation of gate-logic.js
-window.addEventListener("load", () => {
-  if (window.stopGateLogic) {
-    const gateScript = document.querySelector("script[src*='gate-logic.js']");
-    if (gateScript) {
-      gateScript.remove();
-      console.log("🚫 gate-logic.js neutralized");
-    }
-  }
-});
-</script>
-<script src="js/app-v4.js?v=4.1"></script>
+<script src="/js/app-v4.js?v=clean"></script>
 <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
 
 <!-- ✅ Fallback Pro Popup -->

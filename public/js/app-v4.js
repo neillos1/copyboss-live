@@ -1,27 +1,6 @@
-// --- Hard Lock: Force Pro mode + stop backend overrides ---
-window.__forcePro = true;
-Object.defineProperty(localStorage, "setItem", {
-  writable: true,
-  value: (k, v) => {
-    if (k === "isPro" && window.__forcePro) {
-      console.log("💎 Hard override active – keeping Pro status true");
-      v = "true";
-    }
-    Storage.prototype.setItem.call(localStorage, k, v);
-  }
-});
-localStorage.setItem("isPro", "true");
-localStorage.setItem("vbProUnlocked", "true");
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("[data-pro='true']").forEach(el=>{
-    el.classList.remove("blurred");
-    el.style.filter = "none";
-  });
-  console.log("✅ All Pro sections permanently unlocked (Hard Lock)");
-});
-// --- End Hard Lock ---
-
-console.log("✅ JS file version: v4.1 Immediate Pro Check active");
+console.log("🧩 Clean Analyzer Mode Active - all gating logic removed");
+localStorage.setItem("isPro","true");
+localStorage.setItem("vbProUnlocked","true");
 
 // ========================
 // AUTOMATIC PRO UNLOCK ON SUCCESS
@@ -192,7 +171,6 @@ function createFallbackProPopup() {
   const restoreVisibility = () => {
     // Prevent multiple restorations after analyzer is fully rendered
     if (window.__analyzerRendered) {
-      console.log("⚠️ Rebuild prevented - analyzer already rendered");
       return;
     }
     
@@ -315,8 +293,9 @@ function createFallbackProPopup() {
     }, 2000);
   };
 
-  const observer = new MutationObserver(() => restoreVisibility());
-  observer.observe(document, { attributes: true, childList: true, subtree: true });
+  // MutationObserver removed - clean analyzer mode
+  // const observer = new MutationObserver(() => restoreVisibility());
+  // observer.observe(document, { attributes: true, childList: true, subtree: true });
 
   // Run once immediately
   restoreVisibility();
@@ -330,7 +309,6 @@ function createFallbackProPopup() {
     }
     
     if (window.__analyzerRendered && !window.isRendering) {
-      console.log("⚠️ Rebuild prevented - analyzer already rendered");
       return;
     }
     
@@ -436,96 +414,7 @@ console.log("✅ Wrapper declarations cleaned — no duplicates remain.");
 // Reset gauges init flag on navigate/reload
 window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = false; } catch(e){} });
 
-// ========================
-// PRO GATING VISUALS (layout-safe, no global overlay)
-// ========================
-(function activateProGatingVisuals() {
-  try {
-    // Inject minimal CSS once
-    if (!document.getElementById('cb-pro-gating-styles')) {
-      const style = document.createElement('style');
-      style.id = 'cb-pro-gating-styles';
-      style.textContent = `
-        /* Locked visuals (paid sections) */
-        .locked-section { filter: blur(4px) saturate(0.95); opacity: 0.8; transition: filter .2s ease, opacity .2s ease; }
-        .cb-lock-wrap { position: relative; }
-        /* Support blurred class on common cards */
-        .gauge-box.blurred, .gauge-container.blurred, .report-card.blurred, .gauge-card.blurred { filter: blur(4px); opacity: 0.8; pointer-events: none; }
-        /* Small badge in top-right */
-        .unlock-badge { position: absolute; top: 6px; right: 8px; font-size: 13px; background: rgba(0,0,0,0.45); color: #fff; border-radius: 8px; padding: 4px 8px; backdrop-filter: blur(6px); z-index: 4; transition: all 0.3s ease; pointer-events: none; }
-        .unlock-badge .pad { margin-right: 6px; }
-        /* Subtext below gauges (AI feedback) */
-        .ai-feedback, .ai-subtext, .feedback-subtext, .gauge-subtext { margin-top: 12px !important; line-height: 1.4 !important; position: relative !important; z-index: 3 !important; display: block !important; text-align: center !important; }
-        /* Ensure charts sit below subtext within cards */
-        .gauge-box .apexcharts-canvas,
-        .gauge-box .apexcharts-svg,
-        .gauge-container .apexcharts-canvas,
-        .gauge-container .apexcharts-svg { position: relative !important; z-index: 1 !important; }
-      `;
-      document.head.appendChild(style);
-    }
-
-    // Assign data-pro based on title text
-    const assignProDataAttributes = () => {
-      const cardSelectors = '.gauge-box, .gauge-container, .report-card, .metric-card, .result-card, .pro-locked-results';
-      document.querySelectorAll(cardSelectors).forEach(card => {
-        // Find a heading inside the card
-        const titleEl = card.querySelector('h1, h2, h3, .card-title, .metric-title, .title');
-        const title = (titleEl?.textContent || '').trim().toLowerCase();
-        if (!title) return;
-        const isFree = title.includes('sound match') || title.includes('viewer understanding');
-        card.setAttribute('data-pro', isFree ? 'false' : 'true');
-      });
-    };
-
-    // Run assignment now (DOM may already be ready) and after DOMContentLoaded as safety
-    assignProDataAttributes();
-    document.addEventListener('DOMContentLoaded', assignProDataAttributes, { once: true });
-
-    const isUnlocked = !!window.CB_PRO_UNLOCKED;
-
-    // Select all gauges and result cards and respect data-pro flag
-    const gauges = Array.from(document.querySelectorAll('.gauge-box, .gauge-container'));
-    const resultCards = Array.from(document.querySelectorAll('.report-card, .metric-card, .result-card, .pro-locked-results'));
-    const targets = [...gauges, ...resultCards];
-
-    targets.forEach((el) => {
-      if (!el) return;
-      // Ensure container positioning for overlay stacking
-      if (!el.classList.contains('cb-lock-wrap')) el.classList.add('cb-lock-wrap');
-
-      // Remove existing badges to avoid duplicates
-      const old = el.querySelector('.unlock-badge');
-      if (old && old.parentNode) old.parentNode.removeChild(old);
-
-      if (isUnlocked) {
-        // Clear all gating visuals if fully unlocked
-        el.classList.remove('locked-section');
-        return;
-      }
-
-      // Respect data-pro flag: gate only when data-pro="true"
-      const requiresPro = el.getAttribute('data-pro') === 'true';
-      if (requiresPro) {
-        el.classList.add('locked-section', 'blurred');
-        const badge = document.createElement('div');
-        badge.className = 'unlock-badge';
-        badge.innerHTML = `
-          <span class="pad">🔒</span>
-          <span class="unlock-text">Unlock with Pro</span>
-        `;
-        el.appendChild(badge);
-      } else {
-        el.classList.remove('locked-section', 'blurred');
-      }
-    });
-
-    console.log("✅ Gating visuals reactivated (Pro lock system rebuilt).");
-    console.log("✅ Gating: Free = Sound Match, Viewer Understanding. All others gated.");
-  } catch (e) {
-    console.warn('⚠️ Failed to activate Pro gating visuals:', e);
-  }
-})();
+// PRO GATING VISUALS - REMOVED (Clean Analyzer Mode)
 
 // ========================
 // Gauge subtext overlap fix (spacing + z-index)
@@ -966,51 +855,7 @@ function handleProFeatureClick(featureName) {
   return true;
 }
 
-// Override Pro-only functions to check tier first
-function setupProFeatureGating() {
-  try {
-    // Override export chart function
-    if (typeof exportChart === 'function') {
-      const originalExportChart = exportChart;
-      window.exportChart = function() {
-        if (handleProFeatureClick('exportChart')) {
-          return originalExportChart.apply(this, arguments);
-        }
-      };
-    }
-    
-    // Override share report function
-    if (typeof shareReport === 'function') {
-      const originalShareReport = shareReport;
-      window.shareReport = function() {
-        if (handleProFeatureClick('shareReport')) {
-          return originalShareReport.apply(this, arguments);
-        }
-      };
-    }
-    
-    // Override download report function
-    if (typeof downloadReport === 'function') {
-      const originalDownloadReport = downloadReport;
-      window.downloadReport = function() {
-        if (handleProFeatureClick('downloadReport')) {
-          return originalDownloadReport.apply(this, arguments);
-        }
-      };
-    }
-    
-    console.log('✅ Pro feature gating setup complete');
-  } catch (error) {
-    console.warn('⚠️ Error setting up Pro feature gating:', error);
-  }
-}
-
-// Setup gating when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', setupProFeatureGating);
-} else {
-  setupProFeatureGating();
-}
+// setupProFeatureGating - REMOVED (Clean Analyzer Mode)
 
 // Wrap everything in try-catch to catch any errors
 try {
@@ -1074,7 +919,6 @@ try {
         function removeAllLocks() {
           // Prevent multiple unlock attempts
           if (window.__unlockCompleted) {
-            console.log("⚠️ Rebuild prevented - unlock already completed");
             return;
           }
           
@@ -1341,7 +1185,6 @@ try {
           
           // Prevent multiple renders after analyzer is fully rendered (but allow during rendering)
           if (window.__analyzerRendered && !window.isRendering) {
-            console.log("⚠️ Rebuild prevented - analyzer already rendered");
             return;
           }
           
@@ -1407,7 +1250,6 @@ try {
           
           // Prevent multiple renders after analyzer is fully rendered
           if (window.__analyzerRendered) {
-            console.log("⚠️ Rebuild prevented - analyzer already rendered");
             return;
           }
           
