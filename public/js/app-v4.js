@@ -955,6 +955,14 @@ try {
   console.log('🔥 DEBUG: This is the final debug message - if you see this, the script is working');
   console.log('🔥 DEBUG: FINAL TEST - This message should appear in browser console');
   
+  window.addEventListener('forceRebuild', () => {
+    console.log('🧩 Rebuild event triggered — refreshing analyzer visuals');
+    document.querySelectorAll('.btn-upgrade').forEach(btn => {
+      btn.textContent = 'Unlock with Pro 💎';
+      btn.classList.add('btn-pro');
+    });
+  });
+
   // Safe Pro unlock check with error handling
   (function safeProUnlock() {
     try {

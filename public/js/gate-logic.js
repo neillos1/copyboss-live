@@ -1,3 +1,5 @@
+window.STRIPE_PUBLIC_KEY = "pk_live_XXX_REPLACE_THIS";
+
 (function gateLogic() {
   try {
     console.log('🔐 Gate logic loaded');
@@ -93,5 +95,10 @@
     console.error('Gate logic fatal error:', e);
   }
 })();
+
+if (document.readyState !== 'loading') {
+  console.log('🎯 Forcing analyzer rebuild after Stripe key inject');
+  setTimeout(() => window.dispatchEvent(new Event('forceRebuild')), 1500);
+}
 
 
