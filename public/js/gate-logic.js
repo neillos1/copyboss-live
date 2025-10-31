@@ -1,4 +1,5 @@
-window.STRIPE_PUBLIC_KEY = "pk_live_XXX_REPLACE_THIS";
+// ✅ Live Stripe public key for CopyBoss checkout
+window.STRIPE_PUBLIC_KEY = "pk_live_51RywOpBL8jJykmhXDuBGEZJkzXUZyDQbDm2VpcbCIv3JRQIk1NJf8tHlqqX7qqvmh1uJLbwqqLeF3693EluIF9Sw00BwqndFgt";
 
 (function gateLogic() {
   try {
@@ -24,6 +25,7 @@ window.STRIPE_PUBLIC_KEY = "pk_live_XXX_REPLACE_THIS";
         }
 
         const stripe = window.Stripe(STRIPE_PUBLISHABLE_KEY);
+        console.log('✅ Stripe initialized with live key');
         // NOTE: In production, prefer creating a Checkout Session server-side.
         // Here we use lineItems for simplicity (requires price IDs to be public and allowed).
         const { error } = await stripe.redirectToCheckout({
