@@ -18,15 +18,24 @@ if (window.location.search.includes("success=1")) {
   localStorage.setItem("isPro", "true");
 
   const unlockAll = () => {
-    document.querySelectorAll("[data-pro='true'], .blurred").forEach(el => {
+    // Select both the locked containers and any elements inside them that might have filters
+    const elements = document.querySelectorAll("[data-pro='true'], .blurred, .cb-card, .cb-gauge, .cb-report, .cb-result, .apexcharts-canvas, .apexcharts-inner, .apexcharts-svg, .apexcharts-radialbar, .apexcharts-radialbar path, .apexcharts-text");
+
+    elements.forEach(el => {
+      // Remove blur/brightness/opacity filters at every level
       el.classList.remove("blurred");
       el.style.filter = "none";
+      el.style.backdropFilter = "none";
       el.style.opacity = "1";
       el.style.pointerEvents = "auto";
-      const btn = el.querySelector(".btn-upgrade");
-      if (btn) btn.remove();
+      el.style.transition = "none";
+      el.style.willChange = "auto";
     });
-    console.log("✅ Blur and lock layers cleared");
+
+    // Remove any unlock buttons that may still exist
+    document.querySelectorAll(".btn-upgrade").forEach(btn => btn.remove());
+
+    console.log("✅ Atomic blur removal completed");
   };
 
   // Run multiple times for delayed DOM loads
