@@ -103,3 +103,52 @@ body.pro-active * {
   backdrop-filter: none !important;
   opacity: 1 !important;
 }
+
+/* --- FINAL PATCH: Visual Unlock + Scroll Fix --- */
+
+/* Remove underline (border or pseudo-element) under titles */
+.cb-card h3::after,
+.cb-gauge h3::after,
+.cb-report h3::after,
+.cb-result h3::after {
+  content: none !important;
+  border: none !important;
+  background: none !important;
+}
+
+/* Completely disable pseudo-element blurs */
+.blurred::before,
+.blurred::after,
+[data-pro="true"]::before,
+[data-pro="true"]::after,
+.cb-card::before,
+.cb-card::after,
+.cb-gauge::before,
+.cb-gauge::after,
+.cb-report::before,
+.cb-report::after,
+.cb-result::before,
+.cb-result::after {
+  content: none !important;
+  display: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure full-page scroll always works */
+html, body {
+  overflow: auto !important;
+  height: auto !important;
+}
+
+/* Reinforce full unlock visuals */
+body.pro-active * {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+  will-change: auto !important;
+}
