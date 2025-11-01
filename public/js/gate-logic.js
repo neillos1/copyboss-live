@@ -47,11 +47,28 @@ if (window.location.search.includes("success=1")) {
   setTimeout(unlockAll, 10000);    // final safety sweep
 
   // Also clean up dynamically added elements (MutationObserver)
-  const observer = new MutationObserver(() => unlockAll());
-  observer.observe(document.body, { childList: true, subtree: true });
+  // STOP observer if body.pro-active is already true
+  const observer = new MutationObserver(() => {
+    if (document.body.classList.contains("pro-active")) {
+      observer.disconnect(); // Stop observing once pro-active
+      console.log("✅ MutationObserver stopped — pro-active already set");
+      return;
+    }
+    unlockAll();
+  });
+  
+  // Only observe if not already pro-active
+  if (!document.body.classList.contains("pro-active")) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
 
   document.body.classList.add("pro-active");
-  console.log("💎 Pro-active mode enabled, observer running");
+  
+  // Force overflow cleanup one-time after Stripe success
+  document.body.style.overflowY = "auto";
+  document.documentElement.style.overflowY = "auto";
+  
+  console.log("💎 Pro-active mode enabled, observer conditionally running");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -122,16 +139,24 @@ document.addEventListener("DOMContentLoaded", () => {
         el.style.opacity = "1";
       });
       
-      // Ensure pro-active class is set
+      // Ensure pro-active class is set and overflow is auto
       if (!document.body.classList.contains("pro-active")) {
         document.body.classList.add("pro-active");
       }
+      
+      // Force overflow cleanup
+      document.body.style.overflowY = "auto";
+      document.documentElement.style.overflowY = "auto";
     };
     
     cleanupProElements();
     
-    // Re-run cleanup after a short delay
-    setTimeout(cleanupProElements, 500);
+    // Re-run cleanup after a short delay (but only if not pro-active)
+    setTimeout(() => {
+      if (!document.body.classList.contains("pro-active")) {
+        cleanupProElements();
+      }
+    }, 500);
   }
   
   // Guard MutationObserver - don't run if pro-active class is already present

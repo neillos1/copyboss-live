@@ -379,3 +379,106 @@ body.pro-active .pro-blur {
   height: auto !important;
   min-height: auto !important;
 }
+
+/* ============================================================
+   FINAL SCROLL + BLUR OVERRIDE PRIORITY (PRO-ACTIVE CASCADE)
+   ============================================================
+   These rules must be at the VERY BOTTOM to win CSS cascade
+   ============================================================ */
+
+/* 1️⃣ Force all wrappers/containers to allow full scroll when Pro active */
+body.pro-active [class*="wrapper"],
+body.pro-active [class*="container"],
+body.pro-active .cb-main,
+body.pro-active .cb-container,
+body.pro-active .content-wrapper,
+body.pro-active .cb-results-grid {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+}
+
+/* 2️⃣ Ultimate blur removal - highest priority when Pro active */
+body.pro-active * {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+
+/* 3️⃣ Remove all pseudo-element blur/underlines when Pro active */
+body.pro-active .blurred::before,
+body.pro-active .blurred::after,
+body.pro-active [data-pro="true"]::before,
+body.pro-active [data-pro="true"]::after,
+body.pro-active .cb-card::before,
+body.pro-active .cb-card::after,
+body.pro-active .cb-gauge::before,
+body.pro-active .cb-gauge::after,
+body.pro-active .cb-report::before,
+body.pro-active .cb-report::after,
+body.pro-active .cb-result::before,
+body.pro-active .cb-result::after {
+  content: none !important;
+  display: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* 4️⃣ Remove white underlines under gauge/card headings when Pro active */
+body.pro-active .cb-card h3,
+body.pro-active .cb-gauge h3,
+body.pro-active .cb-report h3,
+body.pro-active .cb-result h3 {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+body.pro-active .cb-card h3::before,
+body.pro-active .cb-card h3::after,
+body.pro-active .cb-gauge h3::before,
+body.pro-active .cb-gauge h3::after,
+body.pro-active .cb-report h3::before,
+body.pro-active .cb-report h3::after,
+body.pro-active .cb-result h3::before,
+body.pro-active .cb-result h3::after {
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* 5️⃣ Footer socials horizontal layout (ensure no parent overrides) */
+body.pro-active .cb-footer-socials,
+body.pro-active footer .social-icons,
+body.pro-active .cb-footer .social-icons,
+body.pro-active .footer-socials {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+body.pro-active .cb-footer-socials *,
+body.pro-active footer .social-icons *,
+body.pro-active .cb-footer .social-icons * {
+  display: inline-flex !important;
+}
+
+/* 6️⃣ Force html/body overflow when Pro active */
+body.pro-active,
+body.pro-active html {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}

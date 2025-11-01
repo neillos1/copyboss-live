@@ -28,6 +28,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
     
     // Enhanced cleanup routine - removes blur and restores scroll
     const cleanupProUnlock = () => {
+      // STOP if already pro-active (prevents re-running)
+      if (document.body.classList.contains("pro-active")) {
+        // Still ensure overflow is set
+        document.body.style.overflowY = "auto";
+        document.documentElement.style.overflowY = "auto";
+        return;
+      }
+      
       // Remove blur classes and pro-blur
       document.querySelectorAll("[data-pro='true'], .blurred, .pro-blur").forEach(el => {
         el.classList.remove("blurred", "pro-blur");
@@ -37,15 +45,19 @@ window.addEventListener("DOMContentLoaded", ()=>{
         el.style.pointerEvents = "auto";
       });
       
-      // Restore scroll overflow
-      document.body.style.overflow = "auto";
-      document.documentElement.style.overflow = "auto";
+      // Restore scroll overflow (use overflowY specifically)
+      document.body.style.overflowY = "auto";
+      document.documentElement.style.overflowY = "auto";
       
       // Ensure pro-active class is set
       document.body.classList.add("pro-active");
       
       console.log("✅ Pro unlock cleanup completed");
     };
+    
+    // One-time overflow cleanup immediately after Stripe success
+    document.body.style.overflowY = "auto";
+    document.documentElement.style.overflowY = "auto";
     
     // Run cleanup immediately and after delays
     cleanupProUnlock();
@@ -394,7 +406,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 🩵 Optional: reset body visibility
-  document.body.style.overflow = "auto";
+  // Only set overflow if not pro-active (to prevent override)
+  if (!document.body.classList.contains("pro-active")) {
+    document.body.style.overflow = "auto";
+  } else {
+    document.body.style.overflowY = "auto";
+  }
   document.body.style.backgroundColor = "#0b0d20"; // restore normal background if needed
 
   console.log("✅ Overlay cleanup completed.");
