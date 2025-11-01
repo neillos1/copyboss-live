@@ -69,3 +69,37 @@
   margin-top: 10px !important;
 }
 
+/* --- FINAL PRO BLUR OVERRIDE --- */
+body.pro-active * {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+
+/* Target any leftover blurred/gated containers directly */
+.blurred,
+[data-pro="true"],
+.cb-card.blurred,
+.cb-gauge.blurred,
+.cb-report.blurred,
+.cb-result.blurred {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure ApexCharts layers are never blurred */
+.apexcharts-canvas,
+.apexcharts-inner,
+.apexcharts-svg,
+.apexcharts-radialbar,
+.apexcharts-radialbar path,
+.apexcharts-text {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+}
