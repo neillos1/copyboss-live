@@ -76,8 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const proElements = document.querySelectorAll("[data-pro='true']");
 
-  // 🧠 For non-Pro users
-  if (!isPro) {
+  // 🧠 For non-Pro users - apply blur to locked elements
+  if (!isPro && !window.location.search.includes("success=1")) {
+    // Ensure body does NOT have pro-active class
+    document.body.classList.remove("pro-active");
+    
     if (!hasUsedFree) {
       console.log("🎁 Free analysis available – first-time user");
       localStorage.setItem("hasUsedFreeAnalysis", "true");

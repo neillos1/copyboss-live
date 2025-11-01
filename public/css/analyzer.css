@@ -492,15 +492,19 @@ body.pro-active .sidebar .sidebar-wrapper {
   -webkit-overflow-scrolling: touch !important;
 }
 
-/* 8️⃣ Prevent blur/underlines from reappearing - aggressive override */
-body.pro-active *:not(.swal2-container):not(.swal2-popup):not(.swal2-backdrop-show) {
+/* 8️⃣ Prevent blur/underlines from reappearing - ONLY when pro-active */
+body.pro-active *:not(.swal2-container):not(.swal2-popup):not(.swal2-backdrop-show):not(.swal2-title):not(.swal2-content) {
   filter: none !important;
   backdrop-filter: none !important;
 }
 
 body.pro-active .blurred,
 body.pro-active [data-pro="true"],
-body.pro-active .pro-blur {
+body.pro-active .pro-blur,
+body.pro-active .cb-gauge,
+body.pro-active .cb-card,
+body.pro-active .cb-report,
+body.pro-active .cb-result {
   filter: none !important;
   backdrop-filter: none !important;
   opacity: 1 !important;
@@ -510,16 +514,35 @@ body.pro-active .pro-blur {
 body.pro-active .blurred::before,
 body.pro-active .blurred::after,
 body.pro-active [data-pro="true"]::before,
-body.pro-active [data-pro="true"]::after {
+body.pro-active [data-pro="true"]::after,
+body.pro-active .cb-card::before,
+body.pro-active .cb-card::after,
+body.pro-active .cb-gauge::before,
+body.pro-active .cb-gauge::after,
+body.pro-active .cb-report::before,
+body.pro-active .cb-report::after,
+body.pro-active .cb-result::before,
+body.pro-active .cb-result::after {
   content: none !important;
   display: none !important;
   filter: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
+/* Remove white underlines under gauge/card titles ONLY when pro-active */
 body.pro-active .cb-card h3,
 body.pro-active .cb-gauge h3,
 body.pro-active .cb-report h3,
-body.pro-active .cb-result h3,
+body.pro-active .cb-result h3 {
+  border-bottom: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
 body.pro-active .cb-card h3::before,
 body.pro-active .cb-card h3::after,
 body.pro-active .cb-gauge h3::before,
@@ -528,22 +551,31 @@ body.pro-active .cb-report h3::before,
 body.pro-active .cb-report h3::after,
 body.pro-active .cb-result h3::before,
 body.pro-active .cb-result h3::after {
-  border-bottom: none !important;
+  content: none !important;
+  display: none !important;
   border: none !important;
+  border-bottom: none !important;
   box-shadow: none !important;
   background: none !important;
-  content: none !important;
+  background-image: none !important;
+  height: 0 !important;
+  width: 0 !important;
 }
 
-/* 9️⃣ Footer spacing and clickability fixes */
-body.pro-active .new-footer {
-  padding: 70px 40px 50px !important;
+/* 9️⃣ Footer spacing normalized - balanced height (60-80px total) */
+body.pro-active .new-footer,
+.new-footer {
+  padding: 20px 40px 20px !important;
   margin-top: 0 !important;
+  min-height: auto !important;
+  height: auto !important;
 }
 
-body.pro-active .footer-container {
-  gap: 16px !important;
+body.pro-active .footer-container,
+.footer-container {
+  gap: 12px !important;
   z-index: 200 !important;
+  padding: 0 !important;
 }
 
 body.pro-active .social-icons,
@@ -572,19 +604,40 @@ body.pro-active [class*="overlay"]:not(.swal2-backdrop-show) {
   z-index: -1 !important;
 }
 
-/* 1️⃣1️⃣ Pro Unlock popup normal sizing */
-.pro-unlock-popup-normal {
+/* 1️⃣1️⃣ Pro Unlock popup normal sizing - small, centered */
+.pro-unlock-popup-normal,
+.swal2-popup.pro-unlock-popup-normal {
   max-width: 400px !important;
   width: 400px !important;
   padding: 1.5rem !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: auto !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
 
-.pro-unlock-title-normal {
+.pro-unlock-title-normal,
+.swal2-title.pro-unlock-title-normal {
   font-size: 1.5rem !important;
   margin-bottom: 0.75rem !important;
+  line-height: 1.3 !important;
 }
 
-.pro-unlock-content-normal {
+.pro-unlock-content-normal,
+.swal2-content.pro-unlock-content-normal {
   font-size: 0.95rem !important;
   padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure Swal popup is properly sized */
+body .swal2-popup {
+  max-width: 400px !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: 90vh !important;
+  padding: 1.5rem !important;
 }

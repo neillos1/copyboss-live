@@ -85,10 +85,21 @@ window.addEventListener("DOMContentLoaded", ()=>{
         showConfirmButton:false,
         width: "400px",
         padding: "1.5rem",
+        allowOutsideClick: true,
+        allowEscapeKey: true,
         customClass: {
           popup: "pro-unlock-popup-normal",
           title: "pro-unlock-title-normal",
           content: "pro-unlock-content-normal"
+        },
+        didOpen: () => {
+          const popup = document.querySelector('.swal2-popup');
+          if (popup) {
+            popup.style.maxWidth = '400px';
+            popup.style.width = '400px';
+            popup.style.height = 'auto';
+            popup.style.maxHeight = 'none';
+          }
         }
       });
     }
