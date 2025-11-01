@@ -10440,6 +10440,45 @@ async function saveAnalysisResult(score) {
 })();
 </script>
 
+<style id="final-ui-fix">
+/* Sidebar layout */
+.sidebar-wrapper {display:flex!important;flex-direction:column!important;justify-content:space-between!important;align-items:flex-start!important;}
+.sidebar-footer-group{margin-top:0!important;align-self:stretch!important;gap:8px!important;}
+
+/* Gauge title underlines */
+.cb-card h3,.cb-gauge h3,.cb-report h3,.cb-result h3{
+  border:none!important;
+  border-bottom:none!important;
+  box-shadow:none!important;
+  background:none!important;
+}
+.cb-card h3::before,.cb-card h3::after,
+.cb-gauge h3::before,.cb-gauge h3::after,
+.cb-report h3::before,.cb-report h3::after,
+.cb-result h3::before,.cb-result h3::after{
+  content:none!important;display:none!important;height:0!important;width:0!important;background:none!important;border:none!important;
+}
+
+/* Blur removal */
+body.pro-active .cb-gauge, body.pro-active .cb-gauge * {
+  filter:none!important;
+  backdrop-filter:none!important;
+  opacity:1!important;
+}
+
+/* Popup height */
+.swal2-popup {
+  max-height:450px!important;
+  height:auto!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+}
+
+/* Footer */
+footer {padding:8px 16px!important;min-height:auto!important;height:auto!important;gap:6px!important;}
+footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor:pointer!important;}
+</style>
+
 </body>
 </html>
 
