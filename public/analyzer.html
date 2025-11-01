@@ -2429,7 +2429,6 @@ html, body {
           const displayName = '@' + (data.user.username || data.user.email || 'user');
           if (usernameElement) {
             usernameElement.textContent = displayName;
-          }
             usernameElement.title = displayName; // Update tooltip with full username
           }
           
@@ -2444,55 +2443,55 @@ html, body {
           if (userProfile) {
             userProfile.style.display = 'flex';
           }
-        }
-        
-        // Ensure avatar exists in mobile navbar
-        const mobileActions = document.querySelector('.cb-actions');
-        if (mobileActions && !mobileActions.querySelector('.cb-avatar-holder')) {
-          const avatarHolder = document.createElement('div');
-          avatarHolder.className = 'cb-avatar-holder';
-          avatarHolder.innerHTML = `
-            <img src="/assets/img/default-avatar.svg?v=3" alt="Profile" class="cb-avatar-img" onerror="this.src='/assets/img/default-avatar.svg?v=3'" />
-          `;
           
-          const burger = mobileActions.querySelector('.cb-burger');
-          if (burger) {
-            mobileActions.insertBefore(avatarHolder, burger);
-          } else {
-            mobileActions.appendChild(avatarHolder);
-          }
-        }
-        
-        // Hide auth links when logged in
-        const authLinks = document.getElementById('auth-links');
-        const mobileAuthLinks = document.getElementById('mobile-auth-links');
-        if (authLinks) authLinks.style.display = 'none';
-        if (mobileAuthLinks) mobileAuthLinks.style.display = 'none';
-        
-        // Also hide any auth links in mobile navbar actions
-        const mobileNavAuth = document.querySelector('.cb-actions .auth-inline');
-        if (mobileNavAuth) mobileNavAuth.style.display = 'none';
-        
-        // Hide any Login/Sign Up text in mobile navbar
-        const mobileActionsCleanup = document.querySelector('.cb-actions');
-        if (mobileActionsCleanup) {
-          const authTexts = mobileActionsCleanup.querySelectorAll('*');
-          authTexts.forEach(el => {
-            if (el.textContent && (el.textContent.includes('Login') || el.textContent.includes('Sign Up') || el.textContent.includes('Sign In'))) {
-              el.style.display = 'none';
+          // Ensure avatar exists in mobile navbar
+          const mobileActions = document.querySelector('.cb-actions');
+          if (mobileActions && !mobileActions.querySelector('.cb-avatar-holder')) {
+            const avatarHolder = document.createElement('div');
+            avatarHolder.className = 'cb-avatar-holder';
+            avatarHolder.innerHTML = `
+              <img src="/assets/img/default-avatar.svg?v=3" alt="Profile" class="cb-avatar-img" onerror="this.src='/assets/img/default-avatar.svg?v=3'" />
+            `;
+            
+            const burger = mobileActions.querySelector('.cb-burger');
+            if (burger) {
+              mobileActions.insertBefore(avatarHolder, burger);
+            } else {
+              mobileActions.appendChild(avatarHolder);
             }
-          });
-        }
-        
-        // Remove any duplicate avatars in mobile navbar
-        const avatarHolders = document.querySelectorAll('.cb-actions .cb-avatar-holder');
-        if (avatarHolders.length > 1) {
-          // Keep only the first avatar holder, remove the rest
-          for (let i = 1; i < avatarHolders.length; i++) {
-            avatarHolders[i].remove();
+          }
+          
+          // Hide auth links when logged in
+          const authLinks = document.getElementById('auth-links');
+          const mobileAuthLinks = document.getElementById('mobile-auth-links');
+          if (authLinks) authLinks.style.display = 'none';
+          if (mobileAuthLinks) mobileAuthLinks.style.display = 'none';
+          
+          // Also hide any auth links in mobile navbar actions
+          const mobileNavAuth = document.querySelector('.cb-actions .auth-inline');
+          if (mobileNavAuth) mobileNavAuth.style.display = 'none';
+          
+          // Hide any Login/Sign Up text in mobile navbar
+          const mobileActionsCleanup = document.querySelector('.cb-actions');
+          if (mobileActionsCleanup) {
+            const authTexts = mobileActionsCleanup.querySelectorAll('*');
+            authTexts.forEach(el => {
+              if (el.textContent && (el.textContent.includes('Login') || el.textContent.includes('Sign Up') || el.textContent.includes('Sign In'))) {
+                el.style.display = 'none';
+              }
+            });
+          }
+          
+          // Remove any duplicate avatars in mobile navbar
+          const avatarHolders = document.querySelectorAll('.cb-actions .cb-avatar-holder');
+          if (avatarHolders.length > 1) {
+            // Keep only the first avatar holder, remove the rest
+            for (let i = 1; i < avatarHolders.length; i++) {
+              avatarHolders[i].remove();
+            }
           }
         }
-  } else {
+      } else {
         // User is not logged in, hide user profile section
         document.querySelector('.user-profile').style.display = 'none';
         
