@@ -1,6 +1,11 @@
 /* === Analyzer Pro Gating UI === */
-.apexcharts-inner,
-.apexcharts-canvas svg {
+.apexcharts-radialbar-area path,
+.apexcharts-radialbar-track path,
+.apexcharts-inner circle {
+  fill: transparent !important;
+  background: transparent !important;
+}
+.apexcharts-canvas {
   background: transparent !important;
 }
 .blurred {

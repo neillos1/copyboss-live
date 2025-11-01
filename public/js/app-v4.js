@@ -2031,4 +2031,22 @@ setTimeout(() => {
   console.groupEnd();
 }, 2000);
 
+// Force transparent fill on all Apex radial elements
+setTimeout(() => {
+  document.querySelectorAll(
+    ".apexcharts-radialbar-area path, .apexcharts-radialbar-track path, .apexcharts-inner circle"
+  ).forEach(p => {
+    p.style.fill = "transparent";
+    p.setAttribute("fill", "transparent");
+  });
+  console.log("✅ Gauge inner fills fully cleared");
+}, 1200);
+
+// Safety repaint (for Safari and Chrome cache)
+setTimeout(() => {
+  const charts = document.querySelectorAll(".apexcharts-canvas");
+  charts.forEach(chart => chart.style.background = "transparent");
+  console.log("🎨 ApexCharts background forced transparent");
+}, 2000);
+
 console.log("🔥 Analyzer Hard Lock + Half-Arc enforced ✅");

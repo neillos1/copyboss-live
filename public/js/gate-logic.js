@@ -12,23 +12,28 @@ const stripeLinks = {
 // ✅ Detect Stripe unlock via ?success=1
 if (window.location.search.includes("success=1")) {
   console.log("🎉 Stripe success detected — unlocking Pro...");
-  localStorage.setItem("vbProUnlocked","true");
-  localStorage.setItem("isPro","true");
+  localStorage.setItem("vbProUnlocked", "true");
+  localStorage.setItem("isPro", "true");
 
   const unlockAll = () => {
-    document.querySelectorAll("[data-pro='true']").forEach(el=>{
+    document.querySelectorAll("[data-pro='true'], .blurred").forEach(el => {
       el.classList.remove("blurred");
-      el.style.filter="none";
-      el.style.pointerEvents="auto";
-      const b=el.querySelector(".btn-upgrade"); if(b) b.remove();
+      el.style.filter = "none";
+      el.style.pointerEvents = "auto";
+      el.style.opacity = "1";
+      const btn = el.querySelector(".btn-upgrade");
+      if (btn) btn.remove();
     });
-    console.log("✅ Forced Pro unlock visuals cleared");
+    console.log("✅ All Pro locks removed and gauges visible");
   };
 
-  // run immediately and again after charts render
   unlockAll();
-  setTimeout(unlockAll,800);
-  setTimeout(unlockAll,2000);
+  setTimeout(unlockAll, 800);
+  setTimeout(unlockAll, 2000);
+  setTimeout(unlockAll, 4000);
+  setTimeout(() => {
+    document.body.classList.add("pro-active");
+  }, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
