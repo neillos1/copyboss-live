@@ -219,3 +219,42 @@ body.pro-active * {
   transition: none !important;
   will-change: auto !important;
 }
+
+/* --- SAFE RESTORE PATCH: PAGE HEIGHT + VISIBILITY --- */
+
+/* 1️⃣ Force every wrapper to expand to full content height */
+html, body, main, .cb-main, .cb-container, .analyzer-wrapper, .content-wrapper {
+  min-height: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  display: block !important;
+}
+
+/* 2️⃣ Fix any fixed-position or clipped wrappers */
+section, div[id*="wrapper"], div[class*="wrapper"], div[class*="container"] {
+  min-height: unset !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* 3️⃣ Restore the grid containing gauges and report cards */
+.cb-results-grid, .cb-gauges, .cb-reports {
+  display: grid !important;
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+/* 4️⃣ Ensure footer or final rows appear again */
+footer, .cb-footer, .bottom-section {
+  display: block !important;
+  height: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 5️⃣ Safety: remove any global overflow hidden rules */
+* {
+  overflow: visible !important;
+}
