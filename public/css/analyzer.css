@@ -152,3 +152,70 @@ body.pro-active * {
   transition: none !important;
   will-change: auto !important;
 }
+
+/* --- FINAL PATCH 2: Overlay, Underline, and Scroll Restore --- */
+
+/* 1. Remove any white bottom line under titles */
+.cb-card h3,
+.cb-gauge h3,
+.cb-report h3,
+.cb-result h3 {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+.cb-card h3::before,
+.cb-card h3::after,
+.cb-gauge h3::before,
+.cb-gauge h3::after,
+.cb-report h3::before,
+.cb-report h3::after,
+.cb-result h3::before,
+.cb-result h3::after {
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  background: none !important;
+}
+
+/* 2. Kill any overlay layers that sit on blurred cards */
+.cb-card > div[class*="overlay"],
+.cb-gauge > div[class*="overlay"],
+.cb-report > div[class*="overlay"],
+.cb-result > div[class*="overlay"],
+.blurred > div[class*="overlay"],
+[data-pro="true"] > div[class*="overlay"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 3. Make sure blurred cards are fully visible */
+.blurred,
+[data-pro="true"],
+.cb-card.blurred,
+.cb-gauge.blurred,
+.cb-report.blurred,
+.cb-result.blurred {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+}
+
+/* 4. Restore full scroll height */
+html, body, .analyzer-wrapper, .cb-container, .cb-main {
+  overflow: auto !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+/* 5. Reinforce full unlock once Pro active */
+body.pro-active * {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+  will-change: auto !important;
+}
