@@ -2134,10 +2134,10 @@ function enforceRuntimeUIOverrides() {
   const isProActive = document.body.classList.contains("pro-active") || 
                       window.location.search.includes("success=1");
   
-  // 1️⃣ Footer height normalization — force compact size
+  // 1️⃣ Footer compression — force compact size
   const footer = document.querySelector(".new-footer");
   if (footer) {
-    footer.style.setProperty("padding", "20px 40px 20px", "important");
+    footer.style.setProperty("padding", "10px 20px", "important");
     footer.style.setProperty("min-height", "auto", "important");
     footer.style.setProperty("height", "auto", "important");
     footer.style.setProperty("max-height", "none", "important");
@@ -2145,25 +2145,31 @@ function enforceRuntimeUIOverrides() {
   
   const footerContainer = document.querySelector(".footer-container");
   if (footerContainer) {
-    footerContainer.style.setProperty("gap", "12px", "important");
-    footerContainer.style.setProperty("padding", "0", "important");
+    footerContainer.style.setProperty("gap", "8px", "important");
+    footerContainer.style.setProperty("padding", "10px 20px", "important");
     footerContainer.style.setProperty("margin", "0", "important");
+    footerContainer.style.setProperty("min-height", "auto", "important");
+    footerContainer.style.setProperty("height", "auto", "important");
   }
   
-  // 2️⃣ Remove white underlines from gauge/card titles — runtime patch
+  // Ensure socials remain horizontally centered
+  const socialIcons = document.querySelector(".social-icons");
+  if (socialIcons) {
+    socialIcons.style.setProperty("display", "flex", "important");
+    socialIcons.style.setProperty("justify-content", "center", "important");
+    socialIcons.style.setProperty("align-items", "center", "important");
+    socialIcons.style.setProperty("flex-direction", "row", "important");
+  }
+  
+  // 2️⃣ Remove white underlines from gauge/card titles — aggressive runtime patch
   const titles = document.querySelectorAll(".cb-card h3, .cb-gauge h3, .cb-report h3, .cb-result h3");
   titles.forEach(h3 => {
-    h3.style.setProperty("border-bottom", "none", "important");
     h3.style.setProperty("border", "none", "important");
+    h3.style.setProperty("border-bottom", "none", "important");
     h3.style.setProperty("box-shadow", "none", "important");
     h3.style.setProperty("background", "none", "important");
     h3.style.setProperty("background-image", "none", "important");
-    
-    // Remove pseudo-elements via computed style reset
-    const computed = getComputedStyle(h3, "::before");
-    if (computed) {
-      h3.style.setProperty("--before-content", "none", "important");
-    }
+    h3.style.setProperty("background-color", "transparent", "important");
   });
   
   // Force remove pseudo-elements via DOM manipulation
@@ -2195,16 +2201,43 @@ function enforceRuntimeUIOverrides() {
     }
     
     .footer-container {
-      gap: 12px !important;
-      padding: 0 !important;
+      gap: 8px !important;
+      padding: 10px 20px !important;
+      min-height: auto !important;
+      height: auto !important;
+    }
+    
+    .new-footer {
+      padding: 10px 20px !important;
+      min-height: auto !important;
+      height: auto !important;
     }
     
     .swal2-popup {
       max-width: 400px !important;
       width: 400px !important;
       height: auto !important;
-      max-height: none !important;
+      max-height: 450px !important;
       padding: 1.5rem !important;
+    }
+    
+    .swal2-container {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    .swal2-container.swal2-backdrop-show {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    .sidebar-wrapper {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
     }
     
     ${isProActive ? `
@@ -2245,17 +2278,28 @@ function enforceRuntimeUIOverrides() {
           popup.style.setProperty("max-width", "400px", "important");
           popup.style.setProperty("width", "400px", "important");
           popup.style.setProperty("height", "auto", "important");
-          popup.style.setProperty("max-height", "none", "important");
+          popup.style.setProperty("max-height", "450px", "important");
           popup.style.setProperty("padding", "1.5rem", "important");
           popup.style.setProperty("margin", "auto", "important");
-          
-          // Center vertically and horizontally
-          const backdrop = document.querySelector(".swal2-backdrop-show");
-          if (backdrop) {
-            backdrop.style.setProperty("display", "flex", "important");
-            backdrop.style.setProperty("align-items", "center", "important");
-            backdrop.style.setProperty("justify-content", "center", "important");
-          }
+          popup.style.setProperty("flex-shrink", "0", "important");
+          popup.style.setProperty("align-self", "center", "important");
+        }
+        
+        // Center vertically and horizontally — remove parent flex stretch
+        const container = document.querySelector(".swal2-container");
+        if (container) {
+          container.style.setProperty("display", "flex", "important");
+          container.style.setProperty("align-items", "center", "important");
+          container.style.setProperty("justify-content", "center", "important");
+          container.style.setProperty("height", "auto", "important");
+        }
+        
+        const backdrop = document.querySelector(".swal2-backdrop-show");
+        if (backdrop) {
+          backdrop.style.setProperty("display", "flex", "important");
+          backdrop.style.setProperty("align-items", "center", "important");
+          backdrop.style.setProperty("justify-content", "center", "important");
+          backdrop.style.setProperty("height", "auto", "important");
         }
       }, 100);
       
@@ -2263,19 +2307,39 @@ function enforceRuntimeUIOverrides() {
     };
   }
   
-  // 4️⃣ Blur state enforcement — runtime check
-  if (isProActive) {
+  // 4️⃣ Blur state enforcement — runtime check with retries
+  const removeBlurCompletely = () => {
     // Ensure pro-active class is set
     document.body.classList.add("pro-active");
     
-    // Remove all blur immediately
-    document.querySelectorAll(".blurred, [data-pro='true'], .cb-gauge, .cb-card, .cb-report, .cb-result").forEach(el => {
+    // Remove all blur from every element with blur-related classes/attributes
+    document.querySelectorAll(".blurred, [data-pro='true'], .pro-blur, .cb-gauge, .cb-card, .cb-report, .cb-result").forEach(el => {
       el.classList.remove("blurred", "pro-blur");
       el.style.setProperty("filter", "none", "important");
       el.style.setProperty("backdrop-filter", "none", "important");
       el.style.setProperty("opacity", "1", "important");
       el.style.setProperty("pointer-events", "auto", "important");
     });
+    
+    // Also remove any inline filter/backdrop-filter styles
+    document.querySelectorAll("*").forEach(el => {
+      const computedFilter = getComputedStyle(el).filter;
+      const computedBackdropFilter = getComputedStyle(el).backdropFilter;
+      if (computedFilter && (computedFilter.includes("blur") || computedFilter !== "none")) {
+        el.style.setProperty("filter", "none", "important");
+      }
+      if (computedBackdropFilter && computedBackdropFilter !== "none") {
+        el.style.setProperty("backdrop-filter", "none", "important");
+      }
+    });
+  };
+  
+  if (isProActive) {
+    // Remove blur immediately and retry at 1s, 3s, 5s
+    removeBlurCompletely();
+    setTimeout(removeBlurCompletely, 1000);
+    setTimeout(removeBlurCompletely, 3000);
+    setTimeout(removeBlurCompletely, 5000);
   } else {
     // Ensure pro-active is removed for normal page
     document.body.classList.remove("pro-active");
@@ -2288,6 +2352,15 @@ function enforceRuntimeUIOverrides() {
         el.style.setProperty("pointer-events", "none", "important");
       }
     });
+  }
+  
+  // 5️⃣ Sidebar layout — ensure proper flex grouping
+  const sidebarWrapper = document.querySelector(".sidebar-wrapper");
+  if (sidebarWrapper) {
+    sidebarWrapper.style.setProperty("display", "flex", "important");
+    sidebarWrapper.style.setProperty("flex-direction", "column", "important");
+    sidebarWrapper.style.setProperty("justify-content", "space-between", "important");
+    sidebarWrapper.style.setProperty("align-items", "flex-start", "important");
   }
   
   console.log("✅ Runtime UI overrides enforced (Tailwind cascade overridden)");
