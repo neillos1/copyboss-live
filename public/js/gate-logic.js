@@ -9,7 +9,9 @@ const stripeLinks = {
   "pro": "https://buy.stripe.com/3cI00idzK9vD8oacqo5os02"
 };
 
-// ✅ Detect Stripe unlock via ?success=1
+// ============================================================
+// ✅ FINAL PRO UNLOCK FIX — removes all blur permanently
+// ============================================================
 if (window.location.search.includes("success=1")) {
   console.log("🎉 Stripe success detected — unlocking Pro...");
   localStorage.setItem("vbProUnlocked", "true");
@@ -19,21 +21,28 @@ if (window.location.search.includes("success=1")) {
     document.querySelectorAll("[data-pro='true'], .blurred").forEach(el => {
       el.classList.remove("blurred");
       el.style.filter = "none";
-      el.style.pointerEvents = "auto";
       el.style.opacity = "1";
+      el.style.pointerEvents = "auto";
       const btn = el.querySelector(".btn-upgrade");
       if (btn) btn.remove();
     });
-    console.log("✅ All Pro locks removed and gauges visible");
+    console.log("✅ Blur and lock layers cleared");
   };
 
-  unlockAll();
-  setTimeout(unlockAll, 800);
-  setTimeout(unlockAll, 2000);
-  setTimeout(unlockAll, 4000);
-  setTimeout(() => {
-    document.body.classList.add("pro-active");
-  }, 1000);
+  // Run multiple times for delayed DOM loads
+  unlockAll();                     // immediate
+  setTimeout(unlockAll, 800);      // after gauges render
+  setTimeout(unlockAll, 2000);     // after feedback loads
+  setTimeout(unlockAll, 4000);     // after animations
+  setTimeout(unlockAll, 7000);     // after observers reapply
+  setTimeout(unlockAll, 10000);    // final safety sweep
+
+  // Also clean up dynamically added elements (MutationObserver)
+  const observer = new MutationObserver(() => unlockAll());
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  document.body.classList.add("pro-active");
+  console.log("💎 Pro-active mode enabled, observer running");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
