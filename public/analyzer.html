@@ -2423,19 +2423,28 @@ html, body {
       if (response.ok) {
         // User is authenticated, update UI
         const data = await response.json();
-        const usernameElement = document.getElementById('loggedInName');
-        const displayName = '@' + (data.user.username || data.user.email);
-        usernameElement.textContent = displayName;
-        usernameElement.title = displayName; // Update tooltip with full username
-        
-        // Update avatar if user has one
-        const avatarImg = document.getElementById('avatar-img');
-        if (avatarImg && data.user.avatar_url) {
-          avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
+        // Guard against null user
+        if (data && data.user) {
+          const usernameElement = document.getElementById('loggedInName');
+          const displayName = '@' + (data.user.username || data.user.email || 'user');
+          if (usernameElement) {
+            usernameElement.textContent = displayName;
+          }
+            usernameElement.title = displayName; // Update tooltip with full username
+          }
+          
+          // Update avatar if user has one
+          const avatarImg = document.getElementById('avatar-img');
+          if (avatarImg && data.user.avatar_url) {
+            avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
+          }
+          
+          // Show user profile section
+          const userProfile = document.querySelector('.user-profile');
+          if (userProfile) {
+            userProfile.style.display = 'flex';
+          }
         }
-        
-        // Show user profile section
-        document.querySelector('.user-profile').style.display = 'flex';
         
         // Ensure avatar exists in mobile navbar
         const mobileActions = document.querySelector('.cb-actions');

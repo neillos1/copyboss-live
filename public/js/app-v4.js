@@ -24,13 +24,44 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
     localStorage.setItem("vbProUnlocked","true");
+    localStorage.setItem("isPro","true");
+    
+    // Enhanced cleanup routine - removes blur and restores scroll
+    const cleanupProUnlock = () => {
+      // Remove blur classes and pro-blur
+      document.querySelectorAll("[data-pro='true'], .blurred, .pro-blur").forEach(el => {
+        el.classList.remove("blurred", "pro-blur");
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+      });
+      
+      // Restore scroll overflow
+      document.body.style.overflow = "auto";
+      document.documentElement.style.overflow = "auto";
+      
+      // Ensure pro-active class is set
+      document.body.classList.add("pro-active");
+      
+      console.log("✅ Pro unlock cleanup completed");
+    };
+    
+    // Run cleanup immediately and after delays
+    cleanupProUnlock();
+    setTimeout(cleanupProUnlock, 500);
+    setTimeout(cleanupProUnlock, 1000);
+    setTimeout(cleanupProUnlock, 2000);
+    setTimeout(cleanupProUnlock, 4000);
+    
     document.querySelectorAll("[data-pro='true']").forEach(el=>{
-      el.classList.remove("blurred");
+      el.classList.remove("blurred", "pro-blur");
     });
     setTimeout(()=>{
       document.querySelectorAll("[data-pro='true']").forEach(el=>{
-        el.classList.remove("blurred");
+        el.classList.remove("blurred", "pro-blur");
       });
+      cleanupProUnlock();
       console.log("💎 Pro unlock visuals refreshed (post-render)");
     },2500);
     if(window.Swal){
@@ -81,7 +112,9 @@ window.addEventListener('unhandledrejection', (event) => {
 // GLOBAL VARIABLES - DECLARED FIRST
 // ========================
 window.isRebuilding = false;
+window.__disableAnalyzerLock = true; // Disable analyzer hard lock in production
 console.log("✅ Global variable window.isRebuilding initialized");
+console.log("✅ Analyzer hard lock disabled (__disableAnalyzerLock = true)");
 
 // ========================
 // GLOBAL SINGLE-EXECUTION GUARDS
@@ -2049,4 +2082,9 @@ setTimeout(() => {
   console.log("🎨 ApexCharts background forced transparent");
 }, 2000);
 
-console.log("🔥 Analyzer Hard Lock + Half-Arc enforced ✅");
+// Disable hard lock in production
+if (!window.__disableAnalyzerLock) {
+  console.log("🔥 Analyzer Hard Lock + Half-Arc enforced ✅");
+} else {
+  console.log("✅ Analyzer Hard Lock disabled — normal operation");
+}

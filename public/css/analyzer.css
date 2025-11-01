@@ -295,3 +295,87 @@ div[class*="wrapper"]:not(.analyzer-wrapper):not(.content-wrapper),
 div[class*="container"]:not(.cb-container) {
   overflow: visible !important;
 }
+
+/* --- FINAL ANALYZER UNLOCK + FOOTER ROW FIX --- */
+
+/* 1️⃣ Force html and body to allow vertical scroll */
+html, body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* 2️⃣ Footer socials horizontal flex row layout */
+.cb-footer-socials,
+footer .social-icons,
+.cb-footer .social-icons,
+.footer-socials {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cb-footer-socials a,
+footer .social-icons a,
+.cb-footer .social-icons a,
+.footer-socials a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 3️⃣ Remove underline and pseudo-element lines under headings when Pro active */
+body.pro-active .cb-card h3::before,
+body.pro-active .cb-card h3::after,
+body.pro-active .cb-gauge h3::before,
+body.pro-active .cb-gauge h3::after,
+body.pro-active .cb-report h3::before,
+body.pro-active .cb-report h3::after,
+body.pro-active .cb-result h3::before,
+body.pro-active .cb-result h3::after {
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+body.pro-active .cb-card h3,
+body.pro-active .cb-gauge h3,
+body.pro-active .cb-report h3,
+body.pro-active .cb-result h3 {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* 4️⃣ Remove all blur and backdrop-filter effects when Pro active */
+body.pro-active .cb-card,
+body.pro-active .cb-gauge,
+body.pro-active .cb-report,
+body.pro-active .cb-result,
+body.pro-active [data-pro="true"],
+body.pro-active .blurred,
+body.pro-active .pro-blur {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 5️⃣ Ensure containers have visible overflow and auto height for full scroll */
+.cb-container,
+.cb-main,
+.analyzer-wrapper,
+.cb-results-grid,
+.cb-gauges,
+.cb-reports {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+}

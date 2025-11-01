@@ -99,12 +99,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   } else {
     console.log("✅ Pro user — all features unlocked");
-    proElements.forEach(el => {
-      el.classList.remove("blurred");
-      el.style.filter = "none";
-      el.style.pointerEvents = "auto";
-      const btn = el.querySelector(".btn-upgrade");
-      if (btn) btn.remove();
-    });
+    
+    // Enhanced cleanup for Pro users
+    const cleanupProElements = () => {
+      // Remove data-pro, blurred, and pro-blur classes
+      proElements.forEach(el => {
+        el.removeAttribute("data-pro");
+        el.classList.remove("blurred", "pro-blur");
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+        const btn = el.querySelector(".btn-upgrade");
+        if (btn) btn.remove();
+      });
+      
+      // Also clean up any other blurred elements
+      document.querySelectorAll(".blurred, .pro-blur").forEach(el => {
+        el.classList.remove("blurred", "pro-blur");
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+      });
+      
+      // Ensure pro-active class is set
+      if (!document.body.classList.contains("pro-active")) {
+        document.body.classList.add("pro-active");
+      }
+    };
+    
+    cleanupProElements();
+    
+    // Re-run cleanup after a short delay
+    setTimeout(cleanupProElements, 500);
+  }
+  
+  // Guard MutationObserver - don't run if pro-active class is already present
+  if (!document.body.classList.contains("pro-active")) {
+    // MutationObserver logic here if needed - currently handled by unlockAll in success handler
   }
 });
