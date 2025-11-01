@@ -2123,3 +2123,201 @@ if (!window.__disableAnalyzerLock) {
 } else {
   console.log("✅ Analyzer Hard Lock disabled — normal operation");
 }
+
+// ============================================================
+// RUNTIME CSS CASCADE ENFORCEMENT — Overrides Tailwind
+// ============================================================
+// This runs after DOM ready and Tailwind loads to enforce final UI state
+function enforceRuntimeUIOverrides() {
+  console.log("🎨 Runtime CSS cascade enforcement starting...");
+  
+  const isProActive = document.body.classList.contains("pro-active") || 
+                      window.location.search.includes("success=1");
+  
+  // 1️⃣ Footer height normalization — force compact size
+  const footer = document.querySelector(".new-footer");
+  if (footer) {
+    footer.style.setProperty("padding", "20px 40px 20px", "important");
+    footer.style.setProperty("min-height", "auto", "important");
+    footer.style.setProperty("height", "auto", "important");
+    footer.style.setProperty("max-height", "none", "important");
+  }
+  
+  const footerContainer = document.querySelector(".footer-container");
+  if (footerContainer) {
+    footerContainer.style.setProperty("gap", "12px", "important");
+    footerContainer.style.setProperty("padding", "0", "important");
+    footerContainer.style.setProperty("margin", "0", "important");
+  }
+  
+  // 2️⃣ Remove white underlines from gauge/card titles — runtime patch
+  const titles = document.querySelectorAll(".cb-card h3, .cb-gauge h3, .cb-report h3, .cb-result h3");
+  titles.forEach(h3 => {
+    h3.style.setProperty("border-bottom", "none", "important");
+    h3.style.setProperty("border", "none", "important");
+    h3.style.setProperty("box-shadow", "none", "important");
+    h3.style.setProperty("background", "none", "important");
+    h3.style.setProperty("background-image", "none", "important");
+    
+    // Remove pseudo-elements via computed style reset
+    const computed = getComputedStyle(h3, "::before");
+    if (computed) {
+      h3.style.setProperty("--before-content", "none", "important");
+    }
+  });
+  
+  // Force remove pseudo-elements via DOM manipulation
+  const styleTag = document.createElement("style");
+  styleTag.id = "analyzer-runtime-overrides";
+  styleTag.textContent = `
+    .cb-card h3::before,
+    .cb-card h3::after,
+    .cb-gauge h3::before,
+    .cb-gauge h3::after,
+    .cb-report h3::before,
+    .cb-report h3::after,
+    .cb-result h3::before,
+    .cb-result h3::after {
+      content: none !important;
+      display: none !important;
+      height: 0 !important;
+      width: 0 !important;
+      border: none !important;
+      background: none !important;
+      box-shadow: none !important;
+      background-image: none !important;
+    }
+    
+    .new-footer {
+      padding: 20px 40px 20px !important;
+      min-height: auto !important;
+      height: auto !important;
+    }
+    
+    .footer-container {
+      gap: 12px !important;
+      padding: 0 !important;
+    }
+    
+    .swal2-popup {
+      max-width: 400px !important;
+      width: 400px !important;
+      height: auto !important;
+      max-height: none !important;
+      padding: 1.5rem !important;
+    }
+    
+    ${isProActive ? `
+      body.pro-active *:not(.swal2-container):not(.swal2-popup):not(.swal2-backdrop-show) {
+        filter: none !important;
+        backdrop-filter: none !important;
+      }
+      
+      body.pro-active .blurred,
+      body.pro-active [data-pro="true"],
+      body.pro-active .cb-gauge,
+      body.pro-active .cb-card,
+      body.pro-active .cb-report,
+      body.pro-active .cb-result {
+        filter: none !important;
+        backdrop-filter: none !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
+    ` : ''}
+  `;
+  
+  // Remove old override style if exists
+  const existing = document.getElementById("analyzer-runtime-overrides");
+  if (existing) existing.remove();
+  
+  document.head.appendChild(styleTag);
+  
+  // 3️⃣ Popup sizing — enforce after SweetAlert renders
+  if (window.Swal) {
+    const originalFire = window.Swal.fire;
+    window.Swal.fire = function(...args) {
+      const result = originalFire.apply(this, args);
+      
+      setTimeout(() => {
+        const popup = document.querySelector(".swal2-popup");
+        if (popup) {
+          popup.style.setProperty("max-width", "400px", "important");
+          popup.style.setProperty("width", "400px", "important");
+          popup.style.setProperty("height", "auto", "important");
+          popup.style.setProperty("max-height", "none", "important");
+          popup.style.setProperty("padding", "1.5rem", "important");
+          popup.style.setProperty("margin", "auto", "important");
+          
+          // Center vertically and horizontally
+          const backdrop = document.querySelector(".swal2-backdrop-show");
+          if (backdrop) {
+            backdrop.style.setProperty("display", "flex", "important");
+            backdrop.style.setProperty("align-items", "center", "important");
+            backdrop.style.setProperty("justify-content", "center", "important");
+          }
+        }
+      }, 100);
+      
+      return result;
+    };
+  }
+  
+  // 4️⃣ Blur state enforcement — runtime check
+  if (isProActive) {
+    // Ensure pro-active class is set
+    document.body.classList.add("pro-active");
+    
+    // Remove all blur immediately
+    document.querySelectorAll(".blurred, [data-pro='true'], .cb-gauge, .cb-card, .cb-report, .cb-result").forEach(el => {
+      el.classList.remove("blurred", "pro-blur");
+      el.style.setProperty("filter", "none", "important");
+      el.style.setProperty("backdrop-filter", "none", "important");
+      el.style.setProperty("opacity", "1", "important");
+      el.style.setProperty("pointer-events", "auto", "important");
+    });
+  } else {
+    // Ensure pro-active is removed for normal page
+    document.body.classList.remove("pro-active");
+    
+    // Apply blur to locked elements if not already blurred
+    document.querySelectorAll("[data-pro='true']").forEach(el => {
+      if (!el.classList.contains("blurred")) {
+        el.classList.add("blurred");
+        el.style.setProperty("filter", "blur(4px) brightness(0.7)", "important");
+        el.style.setProperty("pointer-events", "none", "important");
+      }
+    });
+  }
+  
+  console.log("✅ Runtime UI overrides enforced (Tailwind cascade overridden)");
+}
+
+// Run immediately if DOM ready, otherwise wait
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(enforceRuntimeUIOverrides, 500); // Wait for Tailwind
+    setTimeout(enforceRuntimeUIOverrides, 1500); // Retry after more delay
+    setTimeout(enforceRuntimeUIOverrides, 3000); // Final enforcement
+  });
+} else {
+  setTimeout(enforceRuntimeUIOverrides, 500);
+  setTimeout(enforceRuntimeUIOverrides, 1500);
+  setTimeout(enforceRuntimeUIOverrides, 3000);
+}
+
+// Also run on window load
+window.addEventListener("load", () => {
+  setTimeout(enforceRuntimeUIOverrides, 500);
+  setTimeout(enforceRuntimeUIOverrides, 2000);
+});
+
+// Watch for SweetAlert popups
+const popupObserver = new MutationObserver(() => {
+  const popup = document.querySelector(".swal2-popup");
+  if (popup) {
+    enforceRuntimeUIOverrides();
+  }
+});
+
+popupObserver.observe(document.body, { childList: true, subtree: true });
