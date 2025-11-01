@@ -482,3 +482,109 @@ body.pro-active html {
   height: auto !important;
   min-height: 100vh !important;
 }
+
+/* 7️⃣ Ensure sidebar scrolls when Pro active */
+body.pro-active .sidebar-wrapper,
+body.pro-active .sidebar .sidebar-wrapper {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: calc(100vh - 75px) !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* 8️⃣ Prevent blur/underlines from reappearing - aggressive override */
+body.pro-active *:not(.swal2-container):not(.swal2-popup):not(.swal2-backdrop-show) {
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body.pro-active .blurred,
+body.pro-active [data-pro="true"],
+body.pro-active .pro-blur {
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body.pro-active .blurred::before,
+body.pro-active .blurred::after,
+body.pro-active [data-pro="true"]::before,
+body.pro-active [data-pro="true"]::after {
+  content: none !important;
+  display: none !important;
+  filter: none !important;
+}
+
+body.pro-active .cb-card h3,
+body.pro-active .cb-gauge h3,
+body.pro-active .cb-report h3,
+body.pro-active .cb-result h3,
+body.pro-active .cb-card h3::before,
+body.pro-active .cb-card h3::after,
+body.pro-active .cb-gauge h3::before,
+body.pro-active .cb-gauge h3::after,
+body.pro-active .cb-report h3::before,
+body.pro-active .cb-report h3::after,
+body.pro-active .cb-result h3::before,
+body.pro-active .cb-result h3::after {
+  border-bottom: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  content: none !important;
+}
+
+/* 9️⃣ Footer spacing and clickability fixes */
+body.pro-active .new-footer {
+  padding: 70px 40px 50px !important;
+  margin-top: 0 !important;
+}
+
+body.pro-active .footer-container {
+  gap: 16px !important;
+  z-index: 200 !important;
+}
+
+body.pro-active .social-icons,
+body.pro-active .footer-links,
+body.pro-active .social-link,
+body.pro-active .footer-link {
+  pointer-events: auto !important;
+  z-index: 201 !important;
+  position: relative !important;
+  cursor: pointer !important;
+}
+
+body.pro-active .social-link,
+body.pro-active .footer-link {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 🔟 Remove any overlay blocking footer interactions */
+body.pro-active .pro-upgrade-popup,
+body.pro-active .global-lock-overlay,
+body.pro-active .locked-overlay,
+body.pro-active [class*="overlay"]:not(.swal2-backdrop-show) {
+  display: none !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* 1️⃣1️⃣ Pro Unlock popup normal sizing */
+.pro-unlock-popup-normal {
+  max-width: 400px !important;
+  width: 400px !important;
+  padding: 1.5rem !important;
+}
+
+.pro-unlock-title-normal {
+  font-size: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.pro-unlock-content-normal {
+  font-size: 0.95rem !important;
+  padding: 0 !important;
+}

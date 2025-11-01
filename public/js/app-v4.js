@@ -82,7 +82,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
         title:"Pro Unlocked!",
         text:"Full access enabled — enjoy all Analyzer tools.",
         timer:3000,
-        showConfirmButton:false
+        showConfirmButton:false,
+        width: "400px",
+        padding: "1.5rem",
+        customClass: {
+          popup: "pro-unlock-popup-normal",
+          title: "pro-unlock-title-normal",
+          content: "pro-unlock-content-normal"
+        }
       });
     }
   }
