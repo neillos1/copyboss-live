@@ -2394,3 +2394,97 @@ const popupObserver = new MutationObserver(() => {
 });
 
 popupObserver.observe(document.body, { childList: true, subtree: true });
+
+// ============================
+// 🧩 MICRO RUNTIME UI PATCH — NOV 1
+// ============================
+(function microRuntimeUIPatch() {
+  try {
+    console.log("🎨 Applying Micro Runtime UI Patch (Nov 1)");
+
+    // 1️⃣ Sidebar grouping fix (leaderboard + socials)
+    const sidebar = document.querySelector(".sidebar-wrapper");
+    if (sidebar) {
+      sidebar.style.display = "flex";
+      sidebar.style.flexDirection = "column";
+      sidebar.style.justifyContent = "space-between";
+      sidebar.style.alignItems = "flex-start";
+    }
+    const sidebarFooterGroup = document.querySelector(".sidebar-footer-group");
+    if (sidebarFooterGroup) {
+      sidebarFooterGroup.style.marginTop = "0";
+      sidebarFooterGroup.style.alignSelf = "stretch";
+      sidebarFooterGroup.style.gap = "8px";
+    }
+
+    // 2️⃣ White underline removal on gauge titles
+    const gaugeTitles = document.querySelectorAll(".cb-card h3, .cb-gauge h3, .cb-report h3, .cb-result h3");
+    gaugeTitles.forEach(h3 => {
+      h3.style.border = "none";
+      h3.style.borderBottom = "none";
+      h3.style.boxShadow = "none";
+      h3.style.backgroundImage = "none";
+      h3.style.backgroundColor = "transparent";
+    });
+    const style = document.createElement("style");
+    style.textContent = `
+      .cb-card h3::before,
+      .cb-card h3::after,
+      .cb-gauge h3::before,
+      .cb-gauge h3::after,
+      .cb-report h3::before,
+      .cb-report h3::after,
+      .cb-result h3::before,
+      .cb-result h3::after {
+        all: unset !important;
+        content: none !important;
+        display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 3️⃣ Blur removal (gauges only)
+    if (document.body.classList.contains("pro-active") || window.location.search.includes("success=1")) {
+      document.querySelectorAll(".cb-gauge, .cb-gauge *, .cb-gauge::before, .cb-gauge::after").forEach(el => {
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+      });
+    }
+
+    // 4️⃣ Popup height correction
+    const swalPatch = () => {
+      const popup = document.querySelector(".swal2-popup");
+      if (popup) {
+        popup.style.maxHeight = "450px";
+        popup.style.height = "auto";
+        popup.style.top = "50%";
+        popup.style.transform = "translateY(-50%)";
+        popup.style.display = "flex";
+        popup.style.alignItems = "center";
+        popup.style.justifyContent = "center";
+      }
+    };
+    swalPatch();
+    setTimeout(swalPatch, 500);
+    setTimeout(swalPatch, 1500);
+
+    // 5️⃣ Footer compression
+    const footer = document.querySelector("footer");
+    if (footer) {
+      footer.style.padding = "8px 16px";
+      footer.style.minHeight = "auto";
+      footer.style.height = "auto";
+      footer.style.gap = "6px";
+    }
+
+    console.log("✅ Micro Runtime UI Patch Applied Successfully");
+  } catch (err) {
+    console.error("❌ Micro Runtime UI Patch failed", err);
+  }
+})();
