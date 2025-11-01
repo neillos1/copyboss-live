@@ -12,18 +12,23 @@ const stripeLinks = {
 // ✅ Detect Stripe unlock via ?success=1
 if (window.location.search.includes("success=1")) {
   console.log("🎉 Stripe success detected — unlocking Pro...");
-  localStorage.setItem("vbProUnlocked", "true");
-  localStorage.setItem("isPro", "true");
-  setTimeout(() => {
-    document.querySelectorAll("[data-pro='true']").forEach(el => {
+  localStorage.setItem("vbProUnlocked","true");
+  localStorage.setItem("isPro","true");
+
+  const unlockAll = () => {
+    document.querySelectorAll("[data-pro='true']").forEach(el=>{
       el.classList.remove("blurred");
-      el.style.filter = "none";
-      el.style.pointerEvents = "auto";
-      const btn = el.querySelector(".btn-upgrade");
-      if (btn) btn.remove();
+      el.style.filter="none";
+      el.style.pointerEvents="auto";
+      const b=el.querySelector(".btn-upgrade"); if(b) b.remove();
     });
-    console.log("✅ Pro unlocked after Stripe payment");
-  }, 800);
+    console.log("✅ Forced Pro unlock visuals cleared");
+  };
+
+  // run immediately and again after charts render
+  unlockAll();
+  setTimeout(unlockAll,800);
+  setTimeout(unlockAll,2000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

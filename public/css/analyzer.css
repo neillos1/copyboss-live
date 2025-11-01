@@ -1,13 +1,18 @@
 /* === Analyzer Pro Gating UI === */
-[data-pro="true"].blurred,
+.apexcharts-inner,
+.apexcharts-canvas svg {
+  background: transparent !important;
+}
 .blurred {
   filter: blur(4px) brightness(0.7);
-  transition: filter 0.4s ease;
-  position: relative;
+  transition: filter .4s ease;
 }
 .btn-upgrade {
-  opacity: 1 !important;
-  pointer-events: auto !important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+[data-pro="true"].blurred {
+  position: relative;
 }
 .btn-upgrade, .unlock-badge {
   background: linear-gradient(135deg, #6c63ff, #8e7cff);
