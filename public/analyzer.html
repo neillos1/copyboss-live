@@ -10485,7 +10485,7 @@ footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor
   flex-direction: column !important;
   justify-content: flex-start !important;
   align-items: stretch !important;
-  gap: 12px !important;
+  gap: 10px !important;
   padding: 12px !important;
   position: relative !important;
   z-index: 5 !important;
@@ -10495,65 +10495,28 @@ footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor
   min-height: 200px !important;
 }
 
-/* Sidebar Layout Ordering - Elements positioned below reset timer */
-.sidebar-wrapper > .nav {
-  order: 1 !important;
-}
-
-.sidebar-wrapper > .user-profile {
-  order: 2 !important;
-}
-
+/* Sidebar Layout Ordering - Reorder specific sections */
 .sidebar-wrapper > .leaderboard-panel {
-  order: 3 !important;
+  order: 1 !important;
   margin-bottom: 0 !important;
 }
 
-/* Reset timer positioning - directly below leaderboard panel */
-.leaderboard-footer {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 10px !important;
-  margin-top: 10px !important;
-}
-
-.leaderboard-footer .reset-info {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-
-#sidebar-countdown {
-  order: 1 !important;
-  margin-top: 8px !important;
-}
-
-.leaderboard-footer .view-all-link {
+.sidebar-wrapper > #sidebar-countdown,
+.leaderboard-footer #sidebar-countdown {
   order: 2 !important;
-  margin-top: 8px !important;
+  margin-top: 10px !important;
   display: block !important;
 }
 
-/* Leaderboard link - separate from footer */
 .sidebar-wrapper > .leaderboard-link-wrapper {
+  order: 3 !important;
+  margin-top: 10px !important;
+  display: block !important;
+}
+
+.sidebar-wrapper > .sidebar-social-container {
   order: 4 !important;
   margin-top: 10px !important;
-  display: block !important;
-}
-
-/* Follow Us label - positioned after reset timer */
-.sidebar-wrapper > .sidebar-social-container {
-  order: 5 !important;
-  margin-top: 10px !important;
-}
-
-.sidebar-social-container .social-label {
-  order: 1 !important;
-  margin-bottom: 8px !important;
-}
-
-.sidebar-social-container .sidebar-social-icons {
-  order: 2 !important;
 }
 
 .sidebar-wrapper > * {
