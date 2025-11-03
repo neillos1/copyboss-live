@@ -10479,6 +10479,20 @@ footer {padding:8px 16px!important;min-height:auto!important;height:auto!importa
 footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor:pointer!important;}
 </style>
 
+<script id="final-ui-reinforcer">
+document.addEventListener("DOMContentLoaded", () => {
+  const reinforce = () => {
+    const s = document.getElementById("final-ui-fix");
+    if (s) document.head.appendChild(s.cloneNode(true));
+  };
+  // run immediately and a few times after to beat Tailwind and runtime scripts
+  reinforce();
+  setTimeout(reinforce, 1000);
+  setTimeout(reinforce, 3000);
+  setTimeout(reinforce, 6000);
+});
+</script>
+
 </body>
 </html>
 
