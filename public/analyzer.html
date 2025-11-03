@@ -10492,13 +10492,17 @@ body {
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  height: calc(100vh - 0px) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   box-sizing: border-box !important;
   padding: 12px 0 0 0 !important;
   scroll-padding-bottom: 0 !important;
-  overscroll-behavior: contain !important;
+  scroll-padding-top: 0 !important;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  overscroll-behavior-x: none !important;
   scrollbar-width: thin !important;
   position: relative !important;
   z-index: 5 !important;
@@ -10509,8 +10513,10 @@ body {
 /* Prevent phantom scroll gap */
 .sidebar-wrapper::after {
   content: "" !important;
-  display: block !important;
+  display: none !important;
   height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Custom scrollbar styling for sidebar */
@@ -10710,14 +10716,50 @@ footer .social-link {
         if (socials) wrapper.appendChild(socials);
       }
 
+      // Prevent overscroll - lock scroll to content bounds
+      function preventOverscroll() {
+        const wrapper = document.querySelector('.sidebar-wrapper');
+        if (!wrapper) return;
+        
+        let isScrolling = false;
+        wrapper.addEventListener('scroll', function() {
+          if (isScrolling) return;
+          isScrolling = true;
+          
+          const maxScroll = wrapper.scrollHeight - wrapper.clientHeight;
+          if (wrapper.scrollTop > maxScroll) {
+            wrapper.scrollTop = maxScroll;
+          }
+          if (wrapper.scrollTop < 0) {
+            wrapper.scrollTop = 0;
+          }
+          
+          requestAnimationFrame(() => { isScrolling = false; });
+        }, { passive: true });
+        
+        // Also prevent overscroll via CSS
+        wrapper.style.overscrollBehavior = 'none';
+        wrapper.style.overscrollBehaviorY = 'none';
+      }
+
       // Run now + recheck after load
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', reorderSidebar);
+        document.addEventListener('DOMContentLoaded', () => {
+          reorderSidebar();
+          preventOverscroll();
+        });
       } else {
         reorderSidebar();
+        preventOverscroll();
       }
-      setTimeout(reorderSidebar, 400);
-      setTimeout(reorderSidebar, 1200);
+      setTimeout(() => {
+        reorderSidebar();
+        preventOverscroll();
+      }, 400);
+      setTimeout(() => {
+        reorderSidebar();
+        preventOverscroll();
+      }, 1200);
     })();
     const socialBox = document.querySelector('.sidebar-social-container');
     if (socialBox) {
