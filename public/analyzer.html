@@ -10567,6 +10567,134 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script id="final-ui-runtime-patch">
+/* FINAL UI RUNTIME PATCH – NOV 3 */
+(function finalUIRuntimePatch() {
+  const applyFixes = () => {
+    try {
+      // 1️⃣ Particles overlay fix
+      const particles = document.querySelector('#particles.particles');
+      if (particles) {
+        particles.style.setProperty('pointer-events', 'none', 'important');
+        particles.style.setProperty('z-index', '0', 'important');
+        particles.style.setProperty('opacity', '1', 'important');
+        particles.style.setProperty('visibility', 'visible', 'important');
+      }
+
+      // Check if pro-active or success=1
+      const isProActive = document.body.classList.contains('pro-active') || 
+                          window.location.search.includes('success=1');
+
+      // 2️⃣ Blur removal
+      if (isProActive) {
+        document.querySelectorAll('#particles, .cb-gauge, .cb-report, .cb-card').forEach(el => {
+          el.style.setProperty('filter', 'none', 'important');
+          el.style.setProperty('backdrop-filter', 'none', 'important');
+          el.style.setProperty('opacity', '1', 'important');
+        });
+      }
+
+      // 3️⃣ Gauge title underline removal
+      document.querySelectorAll('.cb-card h3, .cb-gauge h3, .cb-report h3, .cb-result h3').forEach(h3 => {
+        h3.style.setProperty('border', 'none', 'important');
+        h3.style.setProperty('border-bottom', 'none', 'important');
+        h3.style.setProperty('box-shadow', 'none', 'important');
+        h3.style.setProperty('background', 'none', 'important');
+      });
+
+      // Remove pseudo-elements via CSS injection
+      const pseudoFix = document.createElement('style');
+      pseudoFix.id = 'gauge-pseudo-fix';
+      if (!document.getElementById('gauge-pseudo-fix')) {
+        pseudoFix.textContent = `
+          .cb-card h3::before, .cb-card h3::after,
+          .cb-gauge h3::before, .cb-gauge h3::after,
+          .cb-report h3::before, .cb-report h3::after,
+          .cb-result h3::before, .cb-result h3::after {
+            content: none !important;
+            display: none !important;
+            height: 0 !important;
+            width: 0 !important;
+          }
+        `;
+        document.head.appendChild(pseudoFix);
+      }
+
+      // 4️⃣ SweetAlert popup fix
+      document.querySelectorAll('.swal2-popup').forEach(popup => {
+        popup.style.setProperty('max-height', '450px', 'important');
+        popup.style.setProperty('height', 'auto', 'important');
+        popup.style.setProperty('top', '50%', 'important');
+        popup.style.setProperty('transform', 'translateY(-50%)', 'important');
+        popup.style.setProperty('flex-shrink', '0', 'important');
+        popup.style.setProperty('align-self', 'center', 'important');
+      });
+
+      // Ensure popup container doesn't stretch
+      const swalContainer = document.querySelector('.swal2-container');
+      if (swalContainer) {
+        swalContainer.style.setProperty('display', 'flex', 'important');
+        swalContainer.style.setProperty('align-items', 'center', 'important');
+        swalContainer.style.setProperty('justify-content', 'center', 'important');
+        swalContainer.style.setProperty('height', 'auto', 'important');
+      }
+
+      // 5️⃣ Sidebar layout fix
+      document.querySelectorAll('.sidebar-wrapper, .sidebar-social-container').forEach(el => {
+        el.style.setProperty('display', 'flex', 'important');
+        el.style.setProperty('flex-direction', 'column', 'important');
+        el.style.setProperty('justify-content', 'space-between', 'important');
+        el.style.setProperty('align-items', 'flex-start', 'important');
+      });
+
+      document.querySelectorAll('.social-label, .sidebar-social-icons').forEach(el => {
+        el.style.setProperty('align-self', 'stretch', 'important');
+      });
+
+      const sidebarFooter = document.querySelector('.sidebar-footer-group, .sidebar-social-container');
+      if (sidebarFooter) {
+        sidebarFooter.style.setProperty('gap', '8px', 'important');
+        sidebarFooter.style.setProperty('margin-top', '0', 'important');
+      }
+
+      // 6️⃣ Footer interaction fix
+      document.querySelectorAll('footer, footer a, footer svg').forEach(el => {
+        el.style.setProperty('pointer-events', 'auto', 'important');
+        el.style.setProperty('cursor', 'pointer', 'important');
+        el.style.setProperty('z-index', '500', 'important');
+      });
+
+      const footer = document.querySelector('footer');
+      if (footer) {
+        footer.style.setProperty('padding', '8px 16px', 'important');
+        footer.style.setProperty('gap', '6px', 'important');
+        footer.style.setProperty('min-height', 'auto', 'important');
+        footer.style.setProperty('height', 'auto', 'important');
+      }
+
+      console.log('✅ Final UI Runtime Patch applied');
+    } catch (err) {
+      console.error('❌ Final UI Runtime Patch failed:', err);
+    }
+  };
+
+  // Run immediately if DOM ready, otherwise wait
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      applyFixes();
+      setTimeout(applyFixes, 500);
+      setTimeout(applyFixes, 1500);
+      setTimeout(applyFixes, 3000);
+    });
+  } else {
+    applyFixes();
+    setTimeout(applyFixes, 500);
+    setTimeout(applyFixes, 1500);
+    setTimeout(applyFixes, 3000);
+  }
+})();
+</script>
+
 </body>
 </html>
 
