@@ -10498,6 +10498,8 @@ body {
   overflow-x: hidden !important;
   box-sizing: border-box !important;
   padding: 12px 0 0 0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
   scroll-padding-bottom: 0 !important;
   scroll-padding-top: 0 !important;
   overscroll-behavior: none !important;
@@ -10508,6 +10510,17 @@ body {
   z-index: 5 !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Remove all bottom spacing from sidebar children */
+.sidebar-wrapper > *:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.user-profile {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 /* Prevent phantom scroll gap */
@@ -10716,17 +10729,41 @@ footer .social-link {
         if (socials) wrapper.appendChild(socials);
       }
 
-      // Prevent overscroll - lock scroll to content bounds
+      // Prevent overscroll - aggressive scroll lock with precise bounds
       function preventOverscroll() {
         const wrapper = document.querySelector('.sidebar-wrapper');
         if (!wrapper) return;
         
+        // Remove any bottom padding/margin that could cause overscroll
+        wrapper.style.paddingBottom = '0';
+        wrapper.style.marginBottom = '0';
+        
+        // Find the last visible element and ensure it's flush
+        const lastElement = wrapper.lastElementChild;
+        if (lastElement) {
+          lastElement.style.marginBottom = '0';
+          lastElement.style.paddingBottom = '0';
+        }
+        
+        // Find user profile section and remove bottom spacing
+        const userProfile = wrapper.querySelector('.user-profile');
+        if (userProfile) {
+          userProfile.style.marginBottom = '0';
+          userProfile.style.paddingBottom = '0';
+        }
+        
+        // Aggressive scroll clamping
         let isScrolling = false;
-        wrapper.addEventListener('scroll', function() {
+        const clampScroll = () => {
           if (isScrolling) return;
           isScrolling = true;
           
-          const maxScroll = wrapper.scrollHeight - wrapper.clientHeight;
+          // Calculate exact scroll bounds
+          const scrollHeight = wrapper.scrollHeight;
+          const clientHeight = wrapper.clientHeight;
+          const maxScroll = Math.max(0, scrollHeight - clientHeight);
+          
+          // Clamp to exact bounds
           if (wrapper.scrollTop > maxScroll) {
             wrapper.scrollTop = maxScroll;
           }
@@ -10735,11 +10772,26 @@ footer .social-link {
           }
           
           requestAnimationFrame(() => { isScrolling = false; });
-        }, { passive: true });
+        };
+        
+        wrapper.addEventListener('scroll', clampScroll, { passive: false });
+        wrapper.addEventListener('wheel', (e) => {
+          const scrollHeight = wrapper.scrollHeight;
+          const clientHeight = wrapper.clientHeight;
+          const maxScroll = Math.max(0, scrollHeight - clientHeight);
+          
+          if (wrapper.scrollTop >= maxScroll && e.deltaY > 0) {
+            e.preventDefault();
+          }
+          if (wrapper.scrollTop <= 0 && e.deltaY < 0) {
+            e.preventDefault();
+          }
+        }, { passive: false });
         
         // Also prevent overscroll via CSS
         wrapper.style.overscrollBehavior = 'none';
         wrapper.style.overscrollBehaviorY = 'none';
+        wrapper.style.overscrollBehaviorX = 'none';
       }
 
       // Run now + recheck after load
