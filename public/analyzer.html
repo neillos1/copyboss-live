@@ -2425,20 +2425,20 @@ html, body {
         const data = await response.json();
         // Guard against null user
         if (data && data.user) {
-          const usernameElement = document.getElementById('loggedInName');
+        const usernameElement = document.getElementById('loggedInName');
           const displayName = '@' + (data.user.username || data.user.email || 'user');
           if (usernameElement) {
-            usernameElement.textContent = displayName;
-            usernameElement.title = displayName; // Update tooltip with full username
+        usernameElement.textContent = displayName;
+        usernameElement.title = displayName; // Update tooltip with full username
           }
-          
-          // Update avatar if user has one
+        
+        // Update avatar if user has one
           const avatarImg = document.getElementById('avatar-img');
-          if (avatarImg && data.user.avatar_url) {
-            avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
-          }
-          
-          // Show user profile section
+        if (avatarImg && data.user.avatar_url) {
+          avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
+        }
+        
+        // Show user profile section
           const userProfile = document.querySelector('.user-profile');
           if (userProfile) {
             userProfile.style.display = 'flex';
@@ -2491,7 +2491,7 @@ html, body {
             }
           }
         }
-      } else {
+  } else {
         // User is not logged in, hide user profile section
         document.querySelector('.user-profile').style.display = 'none';
         
@@ -10691,6 +10691,77 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(applyFixes, 500);
     setTimeout(applyFixes, 1500);
     setTimeout(applyFixes, 3000);
+  }
+})();
+</script>
+
+<script id="targeted-runtime-fixes">
+/* TARGETED RUNTIME FIXES – NOV 3 (POST-REVERT) */
+(function targetedRuntimeFixes() {
+  const applyFixes = () => {
+    try {
+      // 1️⃣ Particles overlay fix
+      const particles = document.querySelector('#particles.particles');
+      if (particles) {
+        particles.style.setProperty('pointer-events', 'none', 'important');
+        particles.style.setProperty('z-index', '0', 'important');
+      }
+
+      // Check if pro-active or success=1
+      const isProActive = document.body.classList.contains('pro-active') || 
+                          window.location.search.includes('success=1');
+
+      // 2️⃣ Blur removal on gauge/card elements when pro-active
+      if (isProActive) {
+        document.querySelectorAll('.cb-gauge, .cb-card, .cb-report, .cb-result').forEach(el => {
+          el.style.setProperty('filter', 'none', 'important');
+          el.style.setProperty('backdrop-filter', 'none', 'important');
+          el.style.setProperty('opacity', '1', 'important');
+        });
+      }
+
+      // 3️⃣ SweetAlert popup centering
+      document.querySelectorAll('.swal2-popup').forEach(popup => {
+        popup.style.setProperty('max-height', '450px', 'important');
+        popup.style.setProperty('height', 'auto', 'important');
+        popup.style.setProperty('top', '50%', 'important');
+        popup.style.setProperty('transform', 'translateY(-50%)', 'important');
+      });
+
+      // Ensure popup container centers properly
+      const swalContainer = document.querySelector('.swal2-container');
+      if (swalContainer) {
+        swalContainer.style.setProperty('display', 'flex', 'important');
+        swalContainer.style.setProperty('align-items', 'center', 'important');
+        swalContainer.style.setProperty('justify-content', 'center', 'important');
+      }
+
+      // 4️⃣ Footer interactivity
+      document.querySelectorAll('footer, footer a, footer svg').forEach(el => {
+        el.style.setProperty('pointer-events', 'auto', 'important');
+        el.style.setProperty('cursor', 'pointer', 'important');
+        el.style.setProperty('z-index', '500', 'important');
+      });
+
+      console.log('✅ Targeted runtime fixes applied');
+    } catch (err) {
+      console.error('❌ Targeted runtime fixes failed:', err);
+    }
+  };
+
+  // Run on DOMContentLoaded with retries
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      applyFixes();
+      setTimeout(applyFixes, 1000);
+      setTimeout(applyFixes, 3000);
+      setTimeout(applyFixes, 6000);
+    });
+  } else {
+    applyFixes();
+    setTimeout(applyFixes, 1000);
+    setTimeout(applyFixes, 3000);
+    setTimeout(applyFixes, 6000);
   }
 })();
 </script>
