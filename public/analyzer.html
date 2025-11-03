@@ -10628,75 +10628,55 @@ footer .social-link {
       });
     }
 
-    // 3) Sidebar: collapse gaps, restore column flow, ensure socials visible
+    // 3) Sidebar: Reorder elements to correct visual order
     // 🔒 PROTECTED: Do not modify this block structure - only adjust specific properties if requested
-    const wrap = document.querySelector('.sidebar-wrapper');
-    if (wrap) {
-      Object.assign(wrap.style, {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'stretch',
-        gap: '10px',
-        padding: '12px',
-        position: 'relative',
-        zIndex: '5',
-        visibility: 'visible',
-        opacity: '1',
-        height: 'auto',
-        minHeight: '200px'
-      });
-      // Ensure all direct children are visible
-      wrap.querySelectorAll('> *').forEach(child => {
-        child.style.display = 'block';
-        child.style.visibility = 'visible';
-        child.style.opacity = '1';
-      });
-      
-      // Extract #sidebar-countdown and "View Full Leaderboard" link from leaderboard-footer
-      // Move them to be direct children of .sidebar-wrapper for proper flex ordering
-      const leaderboardPanel = wrap.querySelector('.leaderboard-panel');
-      const leaderboardFooter = leaderboardPanel?.querySelector('.leaderboard-footer');
-      const countdown = leaderboardFooter?.querySelector('#sidebar-countdown');
-      const viewAllLink = leaderboardFooter?.querySelector('.view-all-link');
-      
-      // Extract countdown if it exists and isn't already a direct child
-      if (countdown && countdown.parentElement !== wrap) {
-        // Move countdown to be direct child of sidebar-wrapper, after leaderboard panel
-        if (leaderboardPanel && leaderboardPanel.nextSibling) {
-          wrap.insertBefore(countdown, leaderboardPanel.nextSibling);
-        } else {
-          wrap.appendChild(countdown);
-        }
-        countdown.style.cssText = 'margin-top: 8px; display: block; visibility: visible; opacity: 1; width: 100%;';
+    (() => {
+      if (window.__CB_SIDEBAR_ORDERED__) return;
+      window.__CB_SIDEBAR_ORDERED__ = true;
+
+      function reorderSidebar() {
+        const wrapper = document.querySelector('.sidebar-wrapper');
+        if (!wrapper) return;
+
+        // Locate all elements
+        const countdown = document.querySelector('#sidebar-countdown');
+        const leaderboard = document.querySelector('.leaderboard-panel');
+        const followLabel = document.querySelector('.social-label');
+        const socials = document.querySelector('.sidebar-social-icons');
+
+        // If any are nested, move them to be direct children of .sidebar-wrapper
+        const makeDirectChild = (el) => {
+          if (el && el.parentElement !== wrapper) {
+            wrapper.appendChild(el);
+          }
+        };
+        makeDirectChild(countdown);
+        makeDirectChild(leaderboard);
+        makeDirectChild(followLabel);
+        makeDirectChild(socials);
+
+        // Make sure the wrapper is a flex column
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'flex-start';
+        wrapper.style.gap = '10px';
+
+        // Apply the correct visual order
+        if (countdown) wrapper.appendChild(countdown);
+        if (leaderboard) wrapper.appendChild(leaderboard);
+        if (followLabel) wrapper.appendChild(followLabel);
+        if (socials) wrapper.appendChild(socials);
       }
-      
-      // Extract "View Full Leaderboard" link if it exists and isn't already a direct child
-      if (viewAllLink && viewAllLink.parentElement !== wrap) {
-        // Move link to be direct child of sidebar-wrapper, after countdown
-        const countdownElement = wrap.querySelector('#sidebar-countdown');
-        if (countdownElement && countdownElement.nextSibling) {
-          wrap.insertBefore(viewAllLink, countdownElement.nextSibling);
-        } else if (countdownElement) {
-          wrap.insertBefore(viewAllLink, countdownElement.nextSibling);
-        } else if (leaderboardPanel && leaderboardPanel.nextSibling) {
-          wrap.insertBefore(viewAllLink, leaderboardPanel.nextSibling);
-        } else {
-          wrap.appendChild(viewAllLink);
-        }
-        viewAllLink.style.cssText = 'margin-top: 10px; display: block; visibility: visible; opacity: 1; width: 100%;';
+
+      // Run now + recheck after load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', reorderSidebar);
+      } else {
+        reorderSidebar();
       }
-      
-      // Ensure "Follow Us" label is properly positioned
-      const socialContainer = wrap.querySelector('.sidebar-social-container');
-      const socialLabel = socialContainer?.querySelector('.social-label');
-      if (socialLabel) {
-        socialLabel.style.cssText = 'margin-top: 12px; display: block; visibility: visible; opacity: 1; width: 100%;';
-      }
-      if (socialContainer) {
-        socialContainer.style.cssText = 'margin-top: 8px; display: flex; flex-direction: column; visibility: visible; opacity: 1; width: 100%;';
-      }
-    }
+      setTimeout(reorderSidebar, 400);
+      setTimeout(reorderSidebar, 1200);
+    })();
     const socialBox = document.querySelector('.sidebar-social-container');
     if (socialBox) {
       Object.assign(socialBox.style, { 
