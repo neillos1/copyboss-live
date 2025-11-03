@@ -10495,28 +10495,46 @@ footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor
   min-height: 200px !important;
 }
 
-/* Sidebar Layout Ordering - Reorder specific sections */
+/* Sidebar Layout Ordering - Apply flex column to direct parent */
+.sidebar-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+/* Visual order and spacing for sidebar sections */
 .sidebar-wrapper > .leaderboard-panel {
   order: 1 !important;
   margin-bottom: 0 !important;
+  width: 100% !important;
 }
 
-.sidebar-wrapper > #sidebar-countdown,
-.leaderboard-footer #sidebar-countdown {
+.sidebar-wrapper > #sidebar-countdown {
   order: 2 !important;
-  margin-top: 10px !important;
+  margin-top: 8px !important;
   display: block !important;
+  width: 100% !important;
 }
 
-.sidebar-wrapper > .leaderboard-link-wrapper {
+.sidebar-wrapper > .view-all-link,
+.sidebar-wrapper > .leaderboard-link-wrapper .view-all-link {
   order: 3 !important;
   margin-top: 10px !important;
   display: block !important;
+  width: 100% !important;
+}
+
+.sidebar-wrapper > .sidebar-social-container .social-label {
+  order: 4 !important;
+  margin-top: 12px !important;
+  display: block !important;
+  width: 100% !important;
 }
 
 .sidebar-wrapper > .sidebar-social-container {
-  order: 4 !important;
-  margin-top: 10px !important;
+  order: 5 !important;
+  margin-top: 8px !important;
+  width: 100% !important;
 }
 
 .sidebar-wrapper > * {
@@ -10635,39 +10653,48 @@ footer .social-link {
         child.style.opacity = '1';
       });
       
-      // Extract "View Full Leaderboard" link from leaderboard-footer and position it separately
+      // Extract #sidebar-countdown and "View Full Leaderboard" link from leaderboard-footer
+      // Move them to be direct children of .sidebar-wrapper for proper flex ordering
       const leaderboardPanel = wrap.querySelector('.leaderboard-panel');
       const leaderboardFooter = leaderboardPanel?.querySelector('.leaderboard-footer');
+      const countdown = leaderboardFooter?.querySelector('#sidebar-countdown');
       const viewAllLink = leaderboardFooter?.querySelector('.view-all-link');
       
-      if (viewAllLink && !wrap.querySelector('.leaderboard-link-wrapper')) {
-        // Create wrapper for the link
-        const linkWrapper = document.createElement('div');
-        linkWrapper.className = 'leaderboard-link-wrapper';
-        linkWrapper.style.cssText = 'margin-top: 10px; display: block;';
-        
-        // Clone the link and move it
-        const clonedLink = viewAllLink.cloneNode(true);
-        linkWrapper.appendChild(clonedLink);
-        
-        // Insert after leaderboard panel
+      // Extract countdown if it exists and isn't already a direct child
+      if (countdown && countdown.parentElement !== wrap) {
+        // Move countdown to be direct child of sidebar-wrapper, after leaderboard panel
         if (leaderboardPanel && leaderboardPanel.nextSibling) {
-          wrap.insertBefore(linkWrapper, leaderboardPanel.nextSibling);
+          wrap.insertBefore(countdown, leaderboardPanel.nextSibling);
         } else {
-          wrap.appendChild(linkWrapper);
+          wrap.appendChild(countdown);
         }
-        
-        // Hide original link in footer
-        viewAllLink.style.display = 'none';
+        countdown.style.cssText = 'margin-top: 8px; display: block; visibility: visible; opacity: 1; width: 100%;';
       }
       
-      // Ensure reset timer is visible and properly positioned
-      const countdown = wrap.querySelector('#sidebar-countdown');
-      if (countdown) {
-        countdown.style.display = 'block';
-        countdown.style.visibility = 'visible';
-        countdown.style.opacity = '1';
-        countdown.style.marginTop = '8px';
+      // Extract "View Full Leaderboard" link if it exists and isn't already a direct child
+      if (viewAllLink && viewAllLink.parentElement !== wrap) {
+        // Move link to be direct child of sidebar-wrapper, after countdown
+        const countdownElement = wrap.querySelector('#sidebar-countdown');
+        if (countdownElement && countdownElement.nextSibling) {
+          wrap.insertBefore(viewAllLink, countdownElement.nextSibling);
+        } else if (countdownElement) {
+          wrap.insertBefore(viewAllLink, countdownElement.nextSibling);
+        } else if (leaderboardPanel && leaderboardPanel.nextSibling) {
+          wrap.insertBefore(viewAllLink, leaderboardPanel.nextSibling);
+        } else {
+          wrap.appendChild(viewAllLink);
+        }
+        viewAllLink.style.cssText = 'margin-top: 10px; display: block; visibility: visible; opacity: 1; width: 100%;';
+      }
+      
+      // Ensure "Follow Us" label is properly positioned
+      const socialContainer = wrap.querySelector('.sidebar-social-container');
+      const socialLabel = socialContainer?.querySelector('.social-label');
+      if (socialLabel) {
+        socialLabel.style.cssText = 'margin-top: 12px; display: block; visibility: visible; opacity: 1; width: 100%;';
+      }
+      if (socialContainer) {
+        socialContainer.style.cssText = 'margin-top: 8px; display: flex; flex-direction: column; visibility: visible; opacity: 1; width: 100%;';
       }
     }
     const socialBox = document.querySelector('.sidebar-social-container');
