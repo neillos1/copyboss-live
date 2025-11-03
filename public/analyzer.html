@@ -10493,6 +10493,80 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script id="final-ui-micropatch">
+document.addEventListener("DOMContentLoaded", () => {
+  // SIDEBAR FIX
+  document.querySelectorAll(".sidebar, .sidebar-wrapper").forEach(el => {
+    Object.assign(el.style, {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    });
+  });
+  document.querySelectorAll(".sidebar-footer, .sidebar-footer-group").forEach(el => {
+    Object.assign(el.style, {
+      marginTop: "0",
+      alignSelf: "stretch",
+      gap: "8px",
+    });
+  });
+
+  // GAUGE TITLE UNDERLINE FIX
+  document.querySelectorAll(".cb-card h3, .cb-gauge h3, .cb-report h3, .cb-result h3").forEach(el => {
+    Object.assign(el.style, {
+      border: "none",
+      borderBottom: "none",
+      boxShadow: "none",
+      background: "none",
+    });
+  });
+
+  // Remove pseudo underline traces
+  const css = document.createElement("style");
+  css.textContent = `
+    .cb-card h3::before, .cb-card h3::after,
+    .cb-gauge h3::before, .cb-gauge h3::after,
+    .cb-report h3::before, .cb-report h3::after,
+    .cb-result h3::before, .cb-result h3::after {
+      content: none !important;
+      display: none !important;
+      height: 0 !important;
+      width: 0 !important;
+    }
+  `;
+  document.head.appendChild(css);
+
+  // GAUGE BLUR FIX
+  if (document.body.classList.contains("pro-active") || window.location.search.includes("success=1")) {
+    document.querySelectorAll(".cb-gauge, .cb-gauge *").forEach(el => {
+      el.style.filter = "none";
+      el.style.backdropFilter = "none";
+      el.style.opacity = "1";
+    });
+  }
+
+  // POPUP HEIGHT FIX
+  document.querySelectorAll(".swal2-popup").forEach(el => {
+    Object.assign(el.style, {
+      maxHeight: "450px",
+      height: "auto",
+      top: "50%",
+      transform: "translateY(-50%)",
+    });
+  });
+
+  // FOOTER INTERACTIVITY
+  document.querySelectorAll("footer, footer a, footer svg").forEach(el => {
+    Object.assign(el.style, {
+      pointerEvents: "auto",
+      cursor: "pointer",
+      zIndex: "500",
+    });
+  });
+});
+</script>
+
 </body>
 </html>
 
