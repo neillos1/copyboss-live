@@ -10487,12 +10487,25 @@ footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor
   align-items: stretch !important;
   gap: 10px !important;
   padding: 12px !important;
+  padding-bottom: 8px !important;
   position: relative !important;
   z-index: 5 !important;
   visibility: visible !important;
   opacity: 1 !important;
-  height: auto !important;
-  min-height: 200px !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin !important;
+}
+
+/* Sidebar container - prevent extra scrolling space */
+.sidebar {
+  height: 100% !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin !important;
 }
 
 /* Sidebar Layout Ordering - Apply flex column to direct parent */
