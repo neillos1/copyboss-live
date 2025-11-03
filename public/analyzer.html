@@ -10479,26 +10479,30 @@ footer {padding:8px 16px!important;min-height:auto!important;height:auto!importa
 footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor:pointer!important;}
 
 /* Prevent double scrollbars - sidebar handles its own scrolling */
+html,
 body {
+  height: 100% !important;
   overflow-y: hidden !important;
 }
 
 /* 🔒 LOCKED STRUCTURE - DO NOT MODIFY OR DELETE */
 /* Sidebar and footer structure protection - prevents accidental deletion/modification */
-.sidebar-wrapper {
+.sidebar-wrapper,
+.sidebar-inner {
+  flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
   height: 100% !important;
-  flex: 1 !important;
-  width: 100% !important;
-  overflow-y: visible !important;
-  padding: 12px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 16px 12px 8px 12px !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin !important;
   position: relative !important;
   z-index: 5 !important;
   visibility: visible !important;
   opacity: 1 !important;
-  box-sizing: border-box !important;
 }
 
 /* Sidebar container - fill full viewport height, no bottom gap */
@@ -10508,16 +10512,10 @@ body {
   left: 0 !important;
   width: 260px !important;
   height: 100vh !important;
-  background: inherit !important;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: space-between !important;
-  align-items: flex-start !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 0 0 10px 0 !important;
-  box-sizing: border-box !important;
-  scrollbar-width: thin !important;
+  background: inherit !important;
+  overflow: hidden !important;
 }
 
 /* Sidebar Layout Ordering - Apply flex column to direct parent */
