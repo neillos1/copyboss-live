@@ -10487,8 +10487,7 @@ body {
 
 /* 🔒 LOCKED STRUCTURE - DO NOT MODIFY OR DELETE */
 /* Sidebar and footer structure protection - prevents accidental deletion/modification */
-.sidebar-wrapper,
-.sidebar-inner {
+.sidebar-wrapper {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -10496,13 +10495,23 @@ body {
   height: 100% !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  padding: 16px 12px 8px 12px !important;
+  padding: 12px 0 20px 0 !important;
   box-sizing: border-box !important;
   scrollbar-width: thin !important;
   position: relative !important;
   z-index: 5 !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Custom scrollbar styling for sidebar */
+.sidebar-wrapper::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.sidebar-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2) !important;
+  border-radius: 4px !important;
 }
 
 /* Sidebar container - fill full viewport height, no bottom gap */
