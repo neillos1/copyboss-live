@@ -10492,16 +10492,25 @@ body {
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  height: 100% !important;
+  height: calc(100vh - 0px) !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  padding: 12px 0 20px 0 !important;
   box-sizing: border-box !important;
+  padding: 12px 0 0 0 !important;
+  scroll-padding-bottom: 0 !important;
+  overscroll-behavior: contain !important;
   scrollbar-width: thin !important;
   position: relative !important;
   z-index: 5 !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Prevent phantom scroll gap */
+.sidebar-wrapper::after {
+  content: "" !important;
+  display: block !important;
+  height: 0 !important;
 }
 
 /* Custom scrollbar styling for sidebar */
@@ -10580,7 +10589,7 @@ body {
   flex-direction: column !important;
   gap: 8px !important;
   margin-top: auto !important;
-  padding-bottom: 10px !important;
+  padding-bottom: 12px !important;
   position: relative !important;
   z-index: 6 !important;
   visibility: visible !important;
