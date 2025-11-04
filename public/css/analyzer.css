@@ -641,3 +641,8 @@ body .swal2-popup {
   max-height: 90vh !important;
   padding: 1.5rem !important;
 }
+
+/* Unify all feedback card backgrounds to match Sound Match card */
+.report-card {
+  background: #062c85 !important;
+}
