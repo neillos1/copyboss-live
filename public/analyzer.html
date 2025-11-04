@@ -10608,7 +10608,8 @@ body {
   flex-direction: column !important;
   gap: 8px !important;
   margin-top: auto !important;
-  padding-bottom: 12px !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
   position: relative !important;
   z-index: 6 !important;
   visibility: visible !important;
@@ -10752,19 +10753,31 @@ footer .social-link {
           userProfile.style.paddingBottom = '0';
         }
         
-        // Aggressive scroll clamping
+        // Find social container and remove bottom padding
+        const socialContainer = wrapper.querySelector('.sidebar-social-container');
+        if (socialContainer) {
+          socialContainer.style.paddingBottom = '0';
+          socialContainer.style.marginBottom = '0';
+        }
+        
+        // Aggressive scroll clamping with tighter bounds
         let isScrolling = false;
         const clampScroll = () => {
           if (isScrolling) return;
           isScrolling = true;
           
-          // Calculate exact scroll bounds
+          // Calculate exact scroll bounds - use offsetHeight for more accurate measurement
           const scrollHeight = wrapper.scrollHeight;
           const clientHeight = wrapper.clientHeight;
-          const maxScroll = Math.max(0, scrollHeight - clientHeight);
+          const offsetHeight = wrapper.offsetHeight;
           
-          // Clamp to exact bounds
-          if (wrapper.scrollTop > maxScroll) {
+          // Use the tighter of clientHeight or offsetHeight
+          const viewportHeight = Math.min(clientHeight, offsetHeight);
+          const maxScroll = Math.max(0, scrollHeight - viewportHeight);
+          
+          // Clamp to exact bounds with small tolerance
+          const tolerance = 1; // Allow 1px tolerance for rounding
+          if (wrapper.scrollTop > maxScroll + tolerance) {
             wrapper.scrollTop = maxScroll;
           }
           if (wrapper.scrollTop < 0) {
@@ -10774,17 +10787,25 @@ footer .social-link {
           requestAnimationFrame(() => { isScrolling = false; });
         };
         
+        // Use both scroll and wheel events for maximum control
         wrapper.addEventListener('scroll', clampScroll, { passive: false });
         wrapper.addEventListener('wheel', (e) => {
           const scrollHeight = wrapper.scrollHeight;
           const clientHeight = wrapper.clientHeight;
-          const maxScroll = Math.max(0, scrollHeight - clientHeight);
+          const offsetHeight = wrapper.offsetHeight;
+          const viewportHeight = Math.min(clientHeight, offsetHeight);
+          const maxScroll = Math.max(0, scrollHeight - viewportHeight);
           
+          // Prevent wheel scroll when at bounds
           if (wrapper.scrollTop >= maxScroll && e.deltaY > 0) {
             e.preventDefault();
+            e.stopPropagation();
+            wrapper.scrollTop = maxScroll;
           }
           if (wrapper.scrollTop <= 0 && e.deltaY < 0) {
             e.preventDefault();
+            e.stopPropagation();
+            wrapper.scrollTop = 0;
           }
         }, { passive: false });
         
@@ -10792,6 +10813,9 @@ footer .social-link {
         wrapper.style.overscrollBehavior = 'none';
         wrapper.style.overscrollBehaviorY = 'none';
         wrapper.style.overscrollBehaviorX = 'none';
+        
+        // Force initial clamp
+        setTimeout(() => clampScroll(), 100);
       }
 
       // Run now + recheck after load
