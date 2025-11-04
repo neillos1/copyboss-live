@@ -10945,22 +10945,23 @@ footer .social-link {
       })();
 
       // Run now + recheck after load
+      // COMMENTED OUT: preventOverscroll() is now commented out above
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
           reorderSidebar();
-          preventOverscroll();
+          // preventOverscroll(); // COMMENTED OUT - replaced with stableSidebarScrollFix
         });
       } else {
         reorderSidebar();
-        preventOverscroll();
+        // preventOverscroll(); // COMMENTED OUT - replaced with stableSidebarScrollFix
       }
       setTimeout(() => {
         reorderSidebar();
-        preventOverscroll();
+        // preventOverscroll(); // COMMENTED OUT - replaced with stableSidebarScrollFix
       }, 400);
       setTimeout(() => {
         reorderSidebar();
-        preventOverscroll();
+        // preventOverscroll(); // COMMENTED OUT - replaced with stableSidebarScrollFix
       }, 1200);
     })();
     const socialBox = document.querySelector('.sidebar-social-container');
