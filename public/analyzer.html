@@ -10555,6 +10555,16 @@ body {
   overflow: hidden !important;
 }
 
+/* CRITICAL FIX: Remove the 100px padding-bottom from SCSS that creates overscroll */
+.sidebar .sidebar-wrapper,
+.sidebar-wrapper {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  /* Remove the calc(100vh - 75px) from SCSS and use exact 100vh */
+}
+
 /* Sidebar Layout Ordering - Apply flex column to direct parent */
 .sidebar-wrapper {
   display: flex !important;
