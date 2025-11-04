@@ -1,3 +1,16 @@
+// --- TEMP: disable popups so unlock flow can complete without errors ---
+window.__DISABLE_POPUPS__ = true;
+(function ensureSwalNoop(){
+  // Create a safe shim that works for BOTH usages: Swal.fire(...) and new Swal(...)
+  if (window.Swal) return; // if the real one loads later, fine
+  const noop = (...args) => console.log('🔕 Popup skipped', args);
+  function SwalShim(){ return { fire: noop }; }   // handles: new Swal(...)
+  SwalShim.fire = noop;                           // handles: Swal.fire(...)
+  window.Swal = SwalShim;
+})();
+// IMPORTANT: Do NOT load sweetalert2 script anywhere while __DISABLE_POPUPS__ is true.
+// Leave all existing popup calls in place; they will now safely no-op.
+
 console.log("🧩 Clean Analyzer Mode Active - all gating logic removed");
 console.log("🧩 FINAL CLEAN BUILD - All gating & debug code removed");
 localStorage.setItem("isPro","true");
@@ -25,6 +38,26 @@ window.addEventListener("DOMContentLoaded", ()=>{
     console.log("🎉 Stripe success detected — unlocking Pro...");
     localStorage.setItem("vbProUnlocked","true");
     localStorage.setItem("isPro","true");
+    
+    // --- FINAL BLUR CLEANER PATCH (Nov 4) ---
+    (function cbFinalBlurFix(){
+      if (!location.search.includes('success=1')) return;
+      console.log('🧼 Final Blur Cleaner starting');
+      try {
+        function removeAllBlur(){
+          document.querySelectorAll('.cb-gauge, .cb-card, .cb-result, .cb-report, [style*="blur"]').forEach(el=>{
+            el.style.filter = 'none';
+            el.style.backdropFilter = 'none';
+            el.style.opacity = '1';
+          });
+          console.log('✅ Blur removed pass');
+        }
+        removeAllBlur();
+        setTimeout(removeAllBlur, 300);
+        setTimeout(removeAllBlur, 800);
+        setTimeout(removeAllBlur, 1500);
+      } catch(e){ console.error('❌ Blur cleaner error', e); }
+    })();
     
     // Enhanced cleanup routine - removes blur and restores scroll
     const cleanupProUnlock = () => {
@@ -106,31 +139,6 @@ window.addEventListener("DOMContentLoaded", ()=>{
   }
 });
 
-/* --- FINAL BLUR CLEANER PATCH (Nov 4) --- */
-(function cbFinalBlurFix(){
-  // Run only if success=1 is in the URL
-  if (!location.search.includes('success=1')) return;
-
-  console.log('🧼 Running Final Blur Cleaner Patch');
-
-  function removeAllBlur(){
-    document.querySelectorAll('.cb-gauge, .cb-card, .cb-result, .cb-report, [style*="blur"]').forEach(el=>{
-      el.style.filter = 'none';
-      el.style.backdropFilter = 'none';
-      el.style.opacity = '1';
-      if (el.style.background && el.style.background.includes('rgba')) {
-        el.style.background = 'rgba(10,20,40,0.95)';
-      }
-    });
-    console.log('✅ All blur removed');
-  }
-
-  // Run immediately and again after small delays to catch late renders
-  removeAllBlur();
-  setTimeout(removeAllBlur, 300);
-  setTimeout(removeAllBlur, 800);
-  setTimeout(removeAllBlur, 1500);
-})();
 
 // ========================
 // STRIPE ERROR SUPPRESSION & FALLBACK SAFEGUARDS
