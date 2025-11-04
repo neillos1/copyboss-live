@@ -10855,6 +10855,62 @@ footer .social-link {
         setTimeout(() => clampScroll(), 100);
       }
 
+      // ============================================
+      // TEMPORARY DIAGNOSTIC SCRIPT (DEV ONLY)
+      // ============================================
+      // To enable: Add ?debugScroll=1 to URL
+      // To remove: Delete this entire block
+      // ============================================
+      if (location.search.includes('debugScroll=1')) {
+        (function diagnosticScroll() {
+          const wrap = document.querySelector('.sidebar .sidebar-wrapper');
+          if (!wrap) {
+            console.warn('[DEBUG] Sidebar wrapper not found');
+            return;
+          }
+
+          const logMetrics = () => {
+            const clientHeight = wrap.clientHeight;
+            const scrollHeight = wrap.scrollHeight;
+            const max = Math.max(0, scrollHeight - clientHeight);
+            const scrollTop = wrap.scrollTop;
+            
+            console.log('[DEBUG Scroll]', {
+              clientHeight,
+              scrollHeight,
+              max,
+              scrollTop,
+              'overscroll': scrollTop > max ? (scrollTop - max) : 0
+            });
+          };
+
+          // Log on load
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+              setTimeout(logMetrics, 100);
+            });
+          } else {
+            setTimeout(logMetrics, 100);
+          }
+
+          // Log on resize (throttled)
+          let resizeTimeout;
+          window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(logMetrics, 100);
+          });
+
+          // Log on scroll (throttled to 100ms)
+          let scrollTimeout;
+          wrap.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(logMetrics, 100);
+          }, { passive: true });
+
+          console.log('[DEBUG] Scroll diagnostics enabled for .sidebar .sidebar-wrapper');
+        })();
+      }
+
       // Run now + recheck after load
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
