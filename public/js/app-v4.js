@@ -11,35 +11,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 // ========================
-// SWEETALERT2 HELPER FUNCTION
-// ========================
-async function cbShowProUnlockedPopup(opts = {}) {
-  async function ensureReady() {
-    if (window.Swal && typeof Swal.fire === 'function') return;
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
-      s.onload = resolve; 
-      s.onerror = reject; 
-      document.head.appendChild(s);
-    });
-  }
-  try {
-    await ensureReady();
-    await Swal.fire({
-      title: 'Pro Unlocked 🎉',
-      html: '<p>Your analyzer just leveled up. Enjoy full access!</p>',
-      icon: 'success',
-      confirmButtonText: "Let's go",
-      heightAuto: false,
-      ...opts
-    });
-  } catch(e) { 
-    console.warn('Swal failed', e); 
-  }
-}
-
-// ========================
 // AUTOMATIC PRO UNLOCK ON SUCCESS
 // ========================
 window.addEventListener("DOMContentLoaded", ()=>{
@@ -54,18 +25,6 @@ window.addEventListener("DOMContentLoaded", ()=>{
     console.log("🎉 Stripe success detected — unlocking Pro...");
     localStorage.setItem("vbProUnlocked","true");
     localStorage.setItem("isPro","true");
-    
-    // Pro mode confirmed - trigger popup and unblur
-    if (typeof cbShowProUnlockedPopup === 'function') {
-      cbShowProUnlockedPopup({
-        html: '<p>Your analyzer just leveled up. Enjoy full access!</p>'
-      });
-    } else {
-      console.warn('cbShowProUnlockedPopup missing');
-    }
-    
-    // Trigger unblur immediately after popup
-    window.CB?.applyUnblur?.();
     
     // Enhanced cleanup routine - removes blur and restores scroll
     const cleanupProUnlock = () => {
@@ -117,59 +76,61 @@ window.addEventListener("DOMContentLoaded", ()=>{
       cleanupProUnlock();
       console.log("💎 Pro unlock visuals refreshed (post-render)");
     },2500);
-    // Apply .cb-unblur class to gauges after successful unlock
-    // Defensive guard: only run once, after verify-session confirms payment
-    if (!window.__cbUnblurApplied) {
-      window.__cbUnblurApplied = true;
-      
-      const applyUnblurClass = () => {
-        const gauges = document.querySelectorAll('.cb-gauge');
-        gauges.forEach(g => {
-          // Defensive guard: don't reapply if already has class
-          if (!g.classList.contains('cb-unblur')) {
-            g.classList.add('cb-unblur');
-            console.log('✅ Applied .cb-unblur class to gauge:', g);
+    if(window.Swal){
+      Swal.fire({
+        icon:"success",
+        title:"Pro Unlocked!",
+        text:"Full access enabled — enjoy all Analyzer tools.",
+        timer:3000,
+        showConfirmButton:false,
+        width: "400px",
+        padding: "1.5rem",
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        customClass: {
+          popup: "pro-unlock-popup-normal",
+          title: "pro-unlock-title-normal",
+          content: "pro-unlock-content-normal"
+        },
+        didOpen: () => {
+          const popup = document.querySelector('.swal2-popup');
+          if (popup) {
+            popup.style.maxWidth = '400px';
+            popup.style.width = '400px';
+            popup.style.height = 'auto';
+            popup.style.maxHeight = 'none';
           }
-        });
-      };
-      
-      // Expose applyUnblur function via window.CB for external access
-      if (!window.CB) {
-        window.CB = {};
-      }
-      window.CB.applyUnblur = applyUnblurClass;
-      
-      // Apply immediately and after a short delay for DOM stability
-      applyUnblurClass();
-      setTimeout(applyUnblurClass, 100);
-      setTimeout(applyUnblurClass, 500);
-    }
-    
-    // Use the helper function for Pro unlock popup
-    cbShowProUnlockedPopup({
-      timer: 3000,
-      showConfirmButton: false,
-      width: "400px",
-      padding: "1.5rem",
-      allowOutsideClick: true,
-      allowEscapeKey: true,
-      customClass: {
-        popup: "pro-unlock-popup-normal",
-        title: "pro-unlock-title-normal",
-        content: "pro-unlock-content-normal"
-      },
-      didOpen: () => {
-        const popup = document.querySelector('.swal2-popup');
-        if (popup) {
-          popup.style.maxWidth = '400px';
-          popup.style.width = '400px';
-          popup.style.height = 'auto';
-          popup.style.maxHeight = 'none';
         }
-      }
-    });
+      });
+    }
   }
 });
+
+/* --- FINAL BLUR CLEANER PATCH (Nov 4) --- */
+(function cbFinalBlurFix(){
+  // Run only if success=1 is in the URL
+  if (!location.search.includes('success=1')) return;
+
+  console.log('🧼 Running Final Blur Cleaner Patch');
+
+  function removeAllBlur(){
+    document.querySelectorAll('.cb-gauge, .cb-card, .cb-result, .cb-report, [style*="blur"]').forEach(el=>{
+      el.style.filter = 'none';
+      el.style.backdropFilter = 'none';
+      el.style.opacity = '1';
+      if (el.style.background && el.style.background.includes('rgba')) {
+        el.style.background = 'rgba(10,20,40,0.95)';
+      }
+    });
+    console.log('✅ All blur removed');
+  }
+
+  // Run immediately and again after small delays to catch late renders
+  removeAllBlur();
+  setTimeout(removeAllBlur, 300);
+  setTimeout(removeAllBlur, 800);
+  setTimeout(removeAllBlur, 1500);
+})();
 
 // ========================
 // STRIPE ERROR SUPPRESSION & FALLBACK SAFEGUARDS
