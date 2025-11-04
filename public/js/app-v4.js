@@ -11,6 +11,35 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 // ========================
+// SWEETALERT2 HELPER FUNCTION
+// ========================
+async function cbShowProUnlockedPopup(opts = {}) {
+  async function ensureReady() {
+    if (window.Swal && typeof Swal.fire === 'function') return;
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+      s.onload = resolve; 
+      s.onerror = reject; 
+      document.head.appendChild(s);
+    });
+  }
+  try {
+    await ensureReady();
+    await Swal.fire({
+      title: 'Pro Unlocked 🎉',
+      html: '<p>Your analyzer just leveled up. Enjoy full access!</p>',
+      icon: 'success',
+      confirmButtonText: "Let's go",
+      heightAuto: false,
+      ...opts
+    });
+  } catch(e) { 
+    console.warn('Swal failed', e); 
+  }
+}
+
+// ========================
 // AUTOMATIC PRO UNLOCK ON SUCCESS
 // ========================
 window.addEventListener("DOMContentLoaded", ()=>{
@@ -98,33 +127,29 @@ window.addEventListener("DOMContentLoaded", ()=>{
       setTimeout(applyUnblurClass, 500);
     }
     
-    if(window.Swal){
-      Swal.fire({
-        icon:"success",
-        title:"Pro Unlocked!",
-        text:"Full access enabled — enjoy all Analyzer tools.",
-        timer:3000,
-        showConfirmButton:false,
-        width: "400px",
-        padding: "1.5rem",
-        allowOutsideClick: true,
-        allowEscapeKey: true,
-        customClass: {
-          popup: "pro-unlock-popup-normal",
-          title: "pro-unlock-title-normal",
-          content: "pro-unlock-content-normal"
-        },
-        didOpen: () => {
-          const popup = document.querySelector('.swal2-popup');
-          if (popup) {
-            popup.style.maxWidth = '400px';
-            popup.style.width = '400px';
-            popup.style.height = 'auto';
-            popup.style.maxHeight = 'none';
-          }
+    // Use the helper function for Pro unlock popup
+    cbShowProUnlockedPopup({
+      timer: 3000,
+      showConfirmButton: false,
+      width: "400px",
+      padding: "1.5rem",
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      customClass: {
+        popup: "pro-unlock-popup-normal",
+        title: "pro-unlock-title-normal",
+        content: "pro-unlock-content-normal"
+      },
+      didOpen: () => {
+        const popup = document.querySelector('.swal2-popup');
+        if (popup) {
+          popup.style.maxWidth = '400px';
+          popup.style.width = '400px';
+          popup.style.height = 'auto';
+          popup.style.maxHeight = 'none';
         }
-      });
-    }
+      }
+    });
   }
 });
 

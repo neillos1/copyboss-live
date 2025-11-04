@@ -6835,7 +6835,18 @@ a:hover {
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- SweetAlert2 loader - ensures it's loaded once -->
+<script>
+(function ensureSwal(){
+  if (window.Swal && typeof window.Swal.fire === 'function') return;
+  var s = document.querySelector('script[data-swal11]');
+  if (s) return;
+  s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+  s.setAttribute('data-swal11','1');
+  document.head.appendChild(s);
+})();
+</script>
 
 
 
