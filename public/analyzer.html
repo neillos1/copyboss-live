@@ -10760,83 +10760,47 @@ footer .social-link {
           socialContainer.style.marginBottom = '0';
         }
         
-        // Hard lock scroll - find actual last element and lock to its position
-        let scrollLocked = false;
+        // Prevent overscroll - only block when at actual bounds, allow normal scrolling
+        let lastScrollTop = wrapper.scrollTop;
         
-        const lockScrollToLastElement = () => {
-          // Find the actual last visible element (likely user-profile or social container)
-          const lastElement = wrapper.querySelector('.user-profile') || 
-                             wrapper.querySelector('.sidebar-social-container') ||
-                             wrapper.lastElementChild;
+        const preventOverscroll = () => {
+          // Calculate max scroll using scrollHeight (more reliable)
+          const scrollHeight = wrapper.scrollHeight;
+          const clientHeight = wrapper.clientHeight;
+          const maxScroll = Math.max(0, scrollHeight - clientHeight);
           
-          if (!lastElement) return;
-          
-          // Measure the actual position of last element relative to wrapper
-          const wrapperRect = wrapper.getBoundingClientRect();
-          const lastElementRect = lastElement.getBoundingClientRect();
-          
-          // Calculate how much we can scroll before last element reaches bottom
-          const lastElementBottom = lastElementRect.bottom - wrapperRect.top;
-          const visibleHeight = wrapper.clientHeight;
-          
-          // Max scroll is when last element's bottom aligns with wrapper's bottom
-          const maxScroll = Math.max(0, lastElementBottom - visibleHeight);
-          
-          // Lock scroll immediately if it exceeds this
+          // Only clamp if we've exceeded the bounds
           if (wrapper.scrollTop > maxScroll) {
             wrapper.scrollTop = maxScroll;
-            scrollLocked = true;
-          } else {
-            scrollLocked = false;
           }
+          if (wrapper.scrollTop < 0) {
+            wrapper.scrollTop = 0;
+          }
+          
+          lastScrollTop = wrapper.scrollTop;
         };
         
-        // Clamp scroll on every scroll event
+        // Clamp scroll on scroll event - but allow normal scrolling
         wrapper.addEventListener('scroll', () => {
-          lockScrollToLastElement();
-        }, { passive: false });
+          preventOverscroll();
+        }, { passive: true });
         
-        // Prevent wheel scroll when at max
+        // Only prevent wheel when at exact bounds
         wrapper.addEventListener('wheel', (e) => {
-          const lastElement = wrapper.querySelector('.user-profile') || 
-                             wrapper.querySelector('.sidebar-social-container') ||
-                             wrapper.lastElementChild;
-          if (!lastElement) return;
+          const scrollHeight = wrapper.scrollHeight;
+          const clientHeight = wrapper.clientHeight;
+          const maxScroll = Math.max(0, scrollHeight - clientHeight);
           
-          const wrapperRect = wrapper.getBoundingClientRect();
-          const lastElementRect = lastElement.getBoundingClientRect();
-          const lastElementBottom = lastElementRect.bottom - wrapperRect.top;
-          const visibleHeight = wrapper.clientHeight;
-          const maxScroll = Math.max(0, lastElementBottom - visibleHeight);
-          
-          if (wrapper.scrollTop >= maxScroll && e.deltaY > 0) {
+          // Only prevent if we're at the boundary and trying to scroll further
+          if (wrapper.scrollTop >= maxScroll - 1 && e.deltaY > 0) {
             e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
             wrapper.scrollTop = maxScroll;
-            return false;
           }
-          if (wrapper.scrollTop <= 0 && e.deltaY < 0) {
+          if (wrapper.scrollTop <= 1 && e.deltaY < 0) {
             e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
             wrapper.scrollTop = 0;
-            return false;
-          }
-        }, { passive: false, capture: true });
-        
-        // Prevent touch overscroll
-        wrapper.addEventListener('touchmove', (e) => {
-          lockScrollToLastElement();
-          if (scrollLocked) {
-            e.preventDefault();
           }
         }, { passive: false });
-        
-        // Initial lock
-        setTimeout(lockScrollToLastElement, 100);
-        setTimeout(lockScrollToLastElement, 500);
-        setTimeout(lockScrollToLastElement, 1000);
         
         // Also prevent overscroll via CSS
         wrapper.style.overscrollBehavior = 'none';
