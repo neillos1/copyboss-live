@@ -36,6 +36,33 @@ window.addEventListener("DOMContentLoaded", ()=>{
   const params = new URLSearchParams(window.location.search);
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
+    
+    // 🧼 Final Blur Cleaner — runs after Stripe success
+    try {
+      const s = document.createElement('style');
+      s.textContent = `
+        *,*::before,*::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        .cb-gauge,.cb-card,.cb-result,.cb-report,.apexcharts-canvas,.apexcharts-svg {
+          filter: none !important; opacity: 1 !important;
+        }
+        [class*="blur"],.blur,.backdrop-blur {
+          filter: none !important; backdrop-filter: none !important;
+        }
+      `;
+      document.head.appendChild(s);
+
+      document.querySelectorAll('[style*="blur("],[style*="backdrop"]').forEach(el => {
+        el.style.filter = 'none';
+        el.style.backdropFilter = 'none';
+        el.style.webkitBackdropFilter = 'none';
+        el.style.opacity = '1';
+      });
+
+      console.log("✅ Blur removed globally after Stripe success");
+    } catch(e) {
+      console.warn("⚠️ Blur cleaner error:", e);
+    }
+    
     localStorage.setItem("vbProUnlocked","true");
     localStorage.setItem("isPro","true");
     
