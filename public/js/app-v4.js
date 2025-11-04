@@ -37,20 +37,31 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
     
-    // 🧼 Final Blur Cleaner — runs after Stripe success
+    // ============================================================
+    // 🧼 FINAL BLUR CLEANER — MUST RUN FIRST (before popups/observers)
+    // ============================================================
+    // This executes AUTOMATICALLY when success=1 is detected.
+    // It runs BEFORE any popup, observer, or other unlock code.
+    // Purpose: Remove all blur filters immediately via CSS + inline cleanup.
+    // ============================================================
     try {
       const s = document.createElement('style');
-      s.textContent = `
-        *,*::before,*::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-        .cb-gauge,.cb-card,.cb-result,.cb-report,.apexcharts-canvas,.apexcharts-svg {
-          filter: none !important; opacity: 1 !important;
-        }
-        [class*="blur"],.blur,.backdrop-blur {
-          filter: none !important; backdrop-filter: none !important;
-        }
-      `;
-      document.head.appendChild(s);
+      s.id = 'cb-final-blur-cleaner-css';
+      // Only add if not already present (prevents duplicates)
+      if (!document.getElementById('cb-final-blur-cleaner-css')) {
+        s.textContent = `
+          *,*::before,*::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+          .cb-gauge,.cb-card,.cb-result,.cb-report,.apexcharts-canvas,.apexcharts-svg {
+            filter: none !important; opacity: 1 !important;
+          }
+          [class*="blur"],.blur,.backdrop-blur {
+            filter: none !important; backdrop-filter: none !important;
+          }
+        `;
+        document.head.appendChild(s);
+      }
 
+      // Clean up inline blur styles
       document.querySelectorAll('[style*="blur("],[style*="backdrop"]').forEach(el => {
         el.style.filter = 'none';
         el.style.backdropFilter = 'none';
@@ -58,18 +69,19 @@ window.addEventListener("DOMContentLoaded", ()=>{
         el.style.opacity = '1';
       });
 
-      console.log("✅ Blur removed globally after Stripe success");
+      console.log("✅ Final Blur Cleaner: Global CSS + inline styles removed (executed FIRST)");
     } catch(e) {
-      console.warn("⚠️ Blur cleaner error:", e);
+      console.warn("⚠️ Final Blur Cleaner error:", e);
     }
     
     localStorage.setItem("vbProUnlocked","true");
     localStorage.setItem("isPro","true");
     
-    // --- FINAL BLUR CLEANER PATCH (Nov 4) ---
-    (function cbFinalBlurFix(){
+    // NOTE: Final Blur Cleaner already ran above (immediately after success detection).
+    // The delayed blur removal passes below are supplementary cleanup for late-rendered elements.
+    (function cbDelayedBlurCleanup(){
       if (!location.search.includes('success=1')) return;
-      console.log('🧼 Final Blur Cleaner starting');
+      console.log('🧼 Delayed Blur Cleanup: Running supplementary passes for late renders');
       try {
         function removeAllBlur(){
           document.querySelectorAll('.cb-gauge, .cb-card, .cb-result, .cb-report, [style*="blur"]').forEach(el=>{
@@ -77,13 +89,13 @@ window.addEventListener("DOMContentLoaded", ()=>{
             el.style.backdropFilter = 'none';
             el.style.opacity = '1';
           });
-          console.log('✅ Blur removed pass');
+          console.log('✅ Delayed blur cleanup pass');
         }
-        removeAllBlur();
+        // Run delayed passes to catch elements that render after initial cleanup
         setTimeout(removeAllBlur, 300);
         setTimeout(removeAllBlur, 800);
         setTimeout(removeAllBlur, 1500);
-      } catch(e){ console.error('❌ Blur cleaner error', e); }
+      } catch(e){ console.error('❌ Delayed blur cleanup error', e); }
     })();
     
     // Enhanced cleanup routine - removes blur and restores scroll
