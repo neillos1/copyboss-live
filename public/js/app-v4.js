@@ -55,6 +55,18 @@ window.addEventListener("DOMContentLoaded", ()=>{
     localStorage.setItem("vbProUnlocked","true");
     localStorage.setItem("isPro","true");
     
+    // Pro mode confirmed - trigger popup and unblur
+    if (typeof cbShowProUnlockedPopup === 'function') {
+      cbShowProUnlockedPopup({
+        html: '<p>Your analyzer just leveled up. Enjoy full access!</p>'
+      });
+    } else {
+      console.warn('cbShowProUnlockedPopup missing');
+    }
+    
+    // Trigger unblur immediately after popup
+    window.CB?.applyUnblur?.();
+    
     // Enhanced cleanup routine - removes blur and restores scroll
     const cleanupProUnlock = () => {
       // STOP if already pro-active (prevents re-running)
@@ -120,6 +132,12 @@ window.addEventListener("DOMContentLoaded", ()=>{
           }
         });
       };
+      
+      // Expose applyUnblur function via window.CB for external access
+      if (!window.CB) {
+        window.CB = {};
+      }
+      window.CB.applyUnblur = applyUnblurClass;
       
       // Apply immediately and after a short delay for DOM stability
       applyUnblurClass();
