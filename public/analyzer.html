@@ -2425,20 +2425,20 @@ html, body {
         const data = await response.json();
         // Guard against null user
         if (data && data.user) {
-          const usernameElement = document.getElementById('loggedInName');
+        const usernameElement = document.getElementById('loggedInName');
           const displayName = '@' + (data.user.username || data.user.email || 'user');
           if (usernameElement) {
-            usernameElement.textContent = displayName;
-            usernameElement.title = displayName; // Update tooltip with full username
+        usernameElement.textContent = displayName;
+        usernameElement.title = displayName; // Update tooltip with full username
           }
-          
-          // Update avatar if user has one
+        
+        // Update avatar if user has one
           const avatarImg = document.getElementById('avatar-img');
-          if (avatarImg && data.user.avatar_url) {
-            avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
-          }
-          
-          // Show user profile section
+        if (avatarImg && data.user.avatar_url) {
+          avatarImg.src = data.user.avatar_url + '?t=' + Date.now(); // Cache bust
+        }
+        
+        // Show user profile section
           const userProfile = document.querySelector('.user-profile');
           if (userProfile) {
             userProfile.style.display = 'flex';
@@ -2491,7 +2491,7 @@ html, body {
             }
           }
         }
-      } else {
+  } else {
         // User is not logged in, hide user profile section
         document.querySelector('.user-profile').style.display = 'none';
         
@@ -10784,6 +10784,8 @@ footer .social-link {
         }
         
         // Prevent overscroll - measure actual content height without padding
+        // COMMENTED OUT: Old preventOverscroll logic replaced with inline fix below
+        /*
         const preventOverscroll = () => {
           // Force remove any padding-bottom that might be causing extra space
           wrapper.style.paddingBottom = '0';
@@ -10851,8 +10853,9 @@ footer .social-link {
         wrapper.style.overscrollBehaviorY = 'none';
         wrapper.style.overscrollBehaviorX = 'none';
         
-        // Force initial clamp
-        setTimeout(() => clampScroll(), 100);
+        // COMMENTED OUT: clampScroll() is undefined
+        // setTimeout(() => clampScroll(), 100);
+        */
       }
 
       // ============================================
@@ -10910,6 +10913,36 @@ footer .social-link {
           console.log('[DEBUG] Scroll diagnostics enabled for .sidebar .sidebar-wrapper');
         })();
       }
+
+      // ============================================
+      // STABLE SIDEBAR SCROLL FIX
+      // ============================================
+      // To enable: Add ?enableScrollFix=1 to URL
+      // ============================================
+      (function stableSidebarScrollFix(){
+        if (!location.search.includes('enableScrollFix=1')) return;
+        const wrapper = document.querySelector('.sidebar .sidebar-wrapper');
+        if (!wrapper) return;
+        console.log('🧩 StableSidebarScrollFix active');
+
+        wrapper.style.overflowY = 'auto';
+        wrapper.style.height = '100dvh';
+        wrapper.style.overscrollBehavior = 'none';
+        wrapper.style.scrollBehavior = 'smooth';
+        wrapper.style.webkitOverflowScrolling = 'auto';
+
+        wrapper.addEventListener('scroll', () => {
+          const max = wrapper.scrollHeight - wrapper.clientHeight;
+          if (wrapper.scrollTop > max) wrapper.scrollTop = max;
+          if (wrapper.scrollTop < 0) wrapper.scrollTop = 0;
+        });
+
+        const observer = new ResizeObserver(() => {
+          const max = wrapper.scrollHeight - wrapper.clientHeight;
+          if (wrapper.scrollTop > max) wrapper.scrollTop = max;
+        });
+        observer.observe(wrapper);
+      })();
 
       // Run now + recheck after load
       if (document.readyState === 'loading') {
