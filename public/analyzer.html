@@ -10557,12 +10557,25 @@ body {
 
 /* CRITICAL FIX: Remove the 100px padding-bottom from SCSS that creates overscroll */
 .sidebar .sidebar-wrapper,
-.sidebar-wrapper {
+.sidebar-wrapper,
+.off-canvas-sidebar .sidebar-wrapper {
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
+  padding: 12px 0 0 0 !important; /* Top padding only, no bottom */
   height: 100vh !important;
   max-height: 100vh !important;
+  box-sizing: border-box !important;
   /* Remove the calc(100vh - 75px) from SCSS and use exact 100vh */
+}
+
+/* Also ensure no child elements add extra space */
+.sidebar-wrapper > * {
+  margin-bottom: 0 !important;
+}
+
+.sidebar-wrapper > *:last-child {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 /* Sidebar Layout Ordering - Apply flex column to direct parent */
@@ -10770,47 +10783,68 @@ footer .social-link {
           socialContainer.style.marginBottom = '0';
         }
         
-        // Prevent overscroll - only block when at actual bounds, allow normal scrolling
-        let lastScrollTop = wrapper.scrollTop;
-        
+        // Prevent overscroll - measure actual content height without padding
         const preventOverscroll = () => {
-          // Calculate max scroll using scrollHeight (more reliable)
+          // Force remove any padding-bottom that might be causing extra space
+          wrapper.style.paddingBottom = '0';
+          wrapper.style.marginBottom = '0';
+          
+          // Get all children and remove their bottom spacing
+          Array.from(wrapper.children).forEach(child => {
+            child.style.marginBottom = '0';
+            if (child === wrapper.lastElementChild) {
+              child.style.paddingBottom = '0';
+            }
+          });
+          
+          // Calculate max scroll - use offsetHeight which excludes padding
           const scrollHeight = wrapper.scrollHeight;
           const clientHeight = wrapper.clientHeight;
-          const maxScroll = Math.max(0, scrollHeight - clientHeight);
+          const offsetHeight = wrapper.offsetHeight;
           
-          // Only clamp if we've exceeded the bounds
-          if (wrapper.scrollTop > maxScroll) {
+          // Use the tighter measurement
+          const viewportHeight = Math.min(clientHeight, offsetHeight);
+          const maxScroll = Math.max(0, scrollHeight - viewportHeight);
+          
+          // Clamp if exceeded - but only if we're actually beyond content
+          if (wrapper.scrollTop > maxScroll + 5) { // 5px tolerance for rounding
             wrapper.scrollTop = maxScroll;
           }
           if (wrapper.scrollTop < 0) {
             wrapper.scrollTop = 0;
           }
-          
-          lastScrollTop = wrapper.scrollTop;
         };
         
-        // Clamp scroll on scroll event - but allow normal scrolling
-        wrapper.addEventListener('scroll', () => {
-          preventOverscroll();
-        }, { passive: true });
+        // Clamp scroll on scroll event
+        wrapper.addEventListener('scroll', preventOverscroll, { passive: true });
         
-        // Only prevent wheel when at exact bounds
+        // Prevent wheel when at bounds
         wrapper.addEventListener('wheel', (e) => {
+          preventOverscroll();
+          
           const scrollHeight = wrapper.scrollHeight;
           const clientHeight = wrapper.clientHeight;
-          const maxScroll = Math.max(0, scrollHeight - clientHeight);
+          const offsetHeight = wrapper.offsetHeight;
+          const viewportHeight = Math.min(clientHeight, offsetHeight);
+          const maxScroll = Math.max(0, scrollHeight - viewportHeight);
           
-          // Only prevent if we're at the boundary and trying to scroll further
-          if (wrapper.scrollTop >= maxScroll - 1 && e.deltaY > 0) {
+          // Only prevent if we're at the boundary
+          if (wrapper.scrollTop >= maxScroll - 5 && e.deltaY > 0) {
             e.preventDefault();
+            e.stopPropagation();
             wrapper.scrollTop = maxScroll;
           }
-          if (wrapper.scrollTop <= 1 && e.deltaY < 0) {
+          if (wrapper.scrollTop <= 5 && e.deltaY < 0) {
             e.preventDefault();
+            e.stopPropagation();
             wrapper.scrollTop = 0;
           }
         }, { passive: false });
+        
+        // Force initial cleanup
+        setTimeout(preventOverscroll, 100);
+        setTimeout(preventOverscroll, 500);
+        setTimeout(preventOverscroll, 1000);
         
         // Also prevent overscroll via CSS
         wrapper.style.overscrollBehavior = 'none';
