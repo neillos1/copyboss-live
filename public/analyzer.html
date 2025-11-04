@@ -10760,87 +10760,83 @@ footer .social-link {
           socialContainer.style.marginBottom = '0';
         }
         
-        // Aggressive scroll clamping - measure actual content height precisely
-        let isScrolling = false;
-        let maxScrollValue = 0;
+        // Hard lock scroll - find actual last element and lock to its position
+        let scrollLocked = false;
         
-        const calculateMaxScroll = () => {
-          // Get actual content measurements
-          const scrollHeight = wrapper.scrollHeight;
-          const clientHeight = wrapper.clientHeight;
+        const lockScrollToLastElement = () => {
+          // Find the actual last visible element (likely user-profile or social container)
+          const lastElement = wrapper.querySelector('.user-profile') || 
+                             wrapper.querySelector('.sidebar-social-container') ||
+                             wrapper.lastElementChild;
           
-          // Calculate max scroll more precisely
-          maxScrollValue = Math.max(0, scrollHeight - clientHeight);
+          if (!lastElement) return;
           
-          // If scrollHeight is still too large, measure actual content
-          if (maxScrollValue > 0) {
-            const lastChild = wrapper.lastElementChild;
-            if (lastChild) {
-              const lastChildBottom = lastChild.getBoundingClientRect().bottom;
-              const wrapperBottom = wrapper.getBoundingClientRect().bottom;
-              const actualContentHeight = lastChildBottom - wrapper.getBoundingClientRect().top;
-              const visibleHeight = clientHeight;
-              
-              // Use the actual measured content height
-              if (actualContentHeight > visibleHeight) {
-                maxScrollValue = Math.max(0, actualContentHeight - visibleHeight);
-              } else {
-                maxScrollValue = 0;
-              }
-            }
-          }
+          // Measure the actual position of last element relative to wrapper
+          const wrapperRect = wrapper.getBoundingClientRect();
+          const lastElementRect = lastElement.getBoundingClientRect();
           
-          return maxScrollValue;
-        };
-        
-        const clampScroll = () => {
-          if (isScrolling) return;
-          isScrolling = true;
+          // Calculate how much we can scroll before last element reaches bottom
+          const lastElementBottom = lastElementRect.bottom - wrapperRect.top;
+          const visibleHeight = wrapper.clientHeight;
           
-          // Recalculate max scroll on each scroll event
-          const maxScroll = calculateMaxScroll();
+          // Max scroll is when last element's bottom aligns with wrapper's bottom
+          const maxScroll = Math.max(0, lastElementBottom - visibleHeight);
           
-          // Clamp to exact bounds - no tolerance, be strict
+          // Lock scroll immediately if it exceeds this
           if (wrapper.scrollTop > maxScroll) {
             wrapper.scrollTop = maxScroll;
+            scrollLocked = true;
+          } else {
+            scrollLocked = false;
           }
-          if (wrapper.scrollTop < 0) {
-            wrapper.scrollTop = 0;
-          }
-          
-          requestAnimationFrame(() => { isScrolling = false; });
         };
         
-        // Use both scroll and wheel events for maximum control
-        wrapper.addEventListener('scroll', clampScroll, { passive: false });
+        // Clamp scroll on every scroll event
+        wrapper.addEventListener('scroll', () => {
+          lockScrollToLastElement();
+        }, { passive: false });
+        
+        // Prevent wheel scroll when at max
         wrapper.addEventListener('wheel', (e) => {
-          const maxScroll = calculateMaxScroll();
+          const lastElement = wrapper.querySelector('.user-profile') || 
+                             wrapper.querySelector('.sidebar-social-container') ||
+                             wrapper.lastElementChild;
+          if (!lastElement) return;
           
-          // Prevent wheel scroll when at bounds
+          const wrapperRect = wrapper.getBoundingClientRect();
+          const lastElementRect = lastElement.getBoundingClientRect();
+          const lastElementBottom = lastElementRect.bottom - wrapperRect.top;
+          const visibleHeight = wrapper.clientHeight;
+          const maxScroll = Math.max(0, lastElementBottom - visibleHeight);
+          
           if (wrapper.scrollTop >= maxScroll && e.deltaY > 0) {
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
             wrapper.scrollTop = maxScroll;
             return false;
           }
           if (wrapper.scrollTop <= 0 && e.deltaY < 0) {
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
             wrapper.scrollTop = 0;
             return false;
           }
-        }, { passive: false });
+        }, { passive: false, capture: true });
         
-        // Also prevent touch scrolling overscroll
+        // Prevent touch overscroll
         wrapper.addEventListener('touchmove', (e) => {
-          const maxScroll = calculateMaxScroll();
-          if (wrapper.scrollTop >= maxScroll && wrapper.scrollTop > 0) {
-            const touches = e.touches[0];
-            if (touches && touches.clientY < wrapper.getBoundingClientRect().bottom) {
-              e.preventDefault();
-            }
+          lockScrollToLastElement();
+          if (scrollLocked) {
+            e.preventDefault();
           }
         }, { passive: false });
+        
+        // Initial lock
+        setTimeout(lockScrollToLastElement, 100);
+        setTimeout(lockScrollToLastElement, 500);
+        setTimeout(lockScrollToLastElement, 1000);
         
         // Also prevent overscroll via CSS
         wrapper.style.overscrollBehavior = 'none';
