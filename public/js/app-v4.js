@@ -58,6 +58,25 @@ window.addEventListener("DOMContentLoaded", ()=>{
       }
     })();
     
+    // Unify analyzer card gradient background with Sound Match
+    (() => {
+      const style = document.createElement('style');
+      style.id = 'cb-analyzer-gradient-fix';
+      style.textContent = `
+        .gauge-box,
+        .locked-card,
+        .pro-locked,
+        .cb-gauge-card {
+          background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,30,90,0.95)) !important;
+          box-shadow: 0 0 25px rgba(0,0,0,0.4) !important;
+        }
+      `;
+      if (!document.getElementById('cb-analyzer-gradient-fix')) {
+        document.head.appendChild(style);
+        console.log("✅ Analyzer card gradient background unified to match Sound Match");
+      }
+    })();
+    
     // ============================================================
     // 🧼 FINAL BLUR CLEANER — MUST RUN FIRST (before popups/observers)
     // ============================================================
