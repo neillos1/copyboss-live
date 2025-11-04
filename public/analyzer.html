@@ -10996,6 +10996,9 @@ footer .social-link {
     // 🔒 END LOCKED SECTION
 
     // 4) Remove blur/blue haze from gauge cards
+    // COMMENTED OUT: Replaced with class toggle approach (.cb-unblur class)
+    // Blur removal now happens via class toggle after verify-session confirms payment
+    /*
     document.querySelectorAll('.cb-gauge, .cb-card, .cb-report, .cb-result, .gauge-box')
       .forEach(el => {
         el.style.filter = 'none';
@@ -11003,14 +11006,25 @@ footer .social-link {
         el.style.opacity = '1';
         el.style.boxShadow = 'none';
       });
+    */
 
-    // 5) Remove the heading underline pseudo-elements
-    const css = document.createElement('style');
-    css.textContent = `
+    // 5) Add .cb-unblur CSS class definition
+    const unblurCSS = document.createElement('style');
+    unblurCSS.id = 'cb-unblur-styles';
+    unblurCSS.textContent = `
+      .cb-unblur {
+        filter: none !important;
+        backdrop-filter: none !important;
+        opacity: 1 !important;
+        background: rgba(10,20,40,0.95) !important;
+      }
       .cb-card h3::before,.cb-card h3::after,
       .cb-gauge h3::before,.cb-gauge h3::after{content:none!important;display:none!important;}
     `;
-    document.head.appendChild(css);
+    // Only add if not already present
+    if (!document.getElementById('cb-unblur-styles')) {
+      document.head.appendChild(unblurCSS);
+    }
 
     // 6) Stop the "Pro Unlocked" alert from looping
     if (window.Swal && !window.__proSwalGuard) {

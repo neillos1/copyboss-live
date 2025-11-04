@@ -76,6 +76,28 @@ window.addEventListener("DOMContentLoaded", ()=>{
       cleanupProUnlock();
       console.log("💎 Pro unlock visuals refreshed (post-render)");
     },2500);
+    // Apply .cb-unblur class to gauges after successful unlock
+    // Defensive guard: only run once, after verify-session confirms payment
+    if (!window.__cbUnblurApplied) {
+      window.__cbUnblurApplied = true;
+      
+      const applyUnblurClass = () => {
+        const gauges = document.querySelectorAll('.cb-gauge');
+        gauges.forEach(g => {
+          // Defensive guard: don't reapply if already has class
+          if (!g.classList.contains('cb-unblur')) {
+            g.classList.add('cb-unblur');
+            console.log('✅ Applied .cb-unblur class to gauge:', g);
+          }
+        });
+      };
+      
+      // Apply immediately and after a short delay for DOM stability
+      applyUnblurClass();
+      setTimeout(applyUnblurClass, 100);
+      setTimeout(applyUnblurClass, 500);
+    }
+    
     if(window.Swal){
       Swal.fire({
         icon:"success",
