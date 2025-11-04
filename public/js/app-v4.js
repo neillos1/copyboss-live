@@ -37,6 +37,27 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
     
+    // Force consistent analyzer card background color via runtime injection
+    (() => {
+      const style = document.createElement('style');
+      style.id = 'cb-analyzer-card-bgfix';
+      style.textContent = `
+        .report-card,
+        .cb-card,
+        .cb-gauge-card,
+        .report-card[data-type],
+        .cb-gauge {
+          background: #062c85 !important;
+          background-color: #062c85 !important;
+          box-shadow: 0 0 25px rgba(0,0,0,0.4) !important;
+        }
+      `;
+      if (!document.getElementById('cb-analyzer-card-bgfix')) {
+        document.head.appendChild(style);
+        console.log("✅ Applied consistent dark-blue background to all analyzer cards");
+      }
+    })();
+    
     // ============================================================
     // 🧼 FINAL BLUR CLEANER — MUST RUN FIRST (before popups/observers)
     // ============================================================
