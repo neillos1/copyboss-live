@@ -646,3 +646,13 @@ body .swal2-popup {
 .report-card {
   background: #062c85 !important;
 }
+
+/* Strengthen background consistency for analyzer cards */
+.report-card,
+.cb-card,
+.report-card[data-type],
+.cb-gauge-card {
+  background: #062c85 !important;
+  background-color: #062c85 !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4) !important;
+}
