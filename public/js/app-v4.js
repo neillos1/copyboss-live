@@ -11,17 +11,10 @@ window.__DISABLE_POPUPS__ = true;
 // IMPORTANT: Do NOT load sweetalert2 script anywhere while __DISABLE_POPUPS__ is true.
 // Leave all existing popup calls in place; they will now safely no-op.
 
-console.log("🧩 Clean Analyzer Mode Active - all gating logic removed");
-console.log("🧩 FINAL CLEAN BUILD - All gating & debug code removed");
-localStorage.setItem("isPro","true");
-localStorage.setItem("vbProUnlocked","true");
+console.log("🧩 Analyzer gating logic active");
+
+// Clear any inline styles from gauge-box elements (one-time cleanup)
 document.addEventListener("DOMContentLoaded",()=>{
-  document.querySelectorAll("[data-pro]").forEach(e=>{
-    e.style.filter="none";
-    e.style.pointerEvents="auto";
-    e.style.opacity="1";
-  });
-  
   // Clear any inline styles from gauge-box elements (one-time cleanup)
   (() => {
     try {
@@ -50,11 +43,15 @@ window.addEventListener("DOMContentLoaded", ()=>{
   }
   
   const params = new URLSearchParams(window.location.search);
+  const isProUnlock = params.get("success") === "1" || localStorage.getItem("vbProUnlocked") === "true" || localStorage.getItem("isPro") === "true";
+  
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
+    localStorage.setItem("vbProUnlocked","true");
+    localStorage.setItem("isPro","true");
     
     // ============================================================
-    // 🧼 FINAL BLUR CLEANER — MUST RUN FIRST (before popups/observers)
+    // 🧼 FINAL BLUR CLEANER — ONLY RUNS WHEN success=1
     // ============================================================
     // This executes AUTOMATICALLY when success=1 is detected.
     // It runs BEFORE any popup, observer, or other unlock code.
@@ -85,13 +82,10 @@ window.addEventListener("DOMContentLoaded", ()=>{
         el.style.opacity = '1';
       });
 
-      console.log("✅ Final Blur Cleaner: Global CSS + inline styles removed (executed FIRST)");
+      console.log("✅ Blur removed for Pro user");
     } catch(e) {
       console.warn("⚠️ Final Blur Cleaner error:", e);
     }
-    
-    localStorage.setItem("vbProUnlocked","true");
-    localStorage.setItem("isPro","true");
     
     // NOTE: Final Blur Cleaner already ran above (immediately after success detection).
     // The delayed blur removal passes below are supplementary cleanup for late-rendered elements.
@@ -493,6 +487,41 @@ function createFallbackProPopup() {
     }
   };
 })();
+
+// Apply blur gating for free users (only when NOT Pro)
+document.addEventListener("DOMContentLoaded", () => {
+  const isPro = window.location.search.includes("success=1") || 
+                localStorage.getItem("vbProUnlocked") === "true" || 
+                localStorage.getItem("isPro") === "true";
+  
+  if (!isPro) {
+    console.log("🎯 Gating blur applied for free user");
+    
+    // Blur 4 Pro-locked gauges (keep Sound Match and Viewer Understanding unblurred)
+    const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
+    lockedGaugeIds.forEach(id => {
+      const gauge = document.querySelector(id);
+      if (gauge) {
+        gauge.style.filter = 'blur(6px)';
+        gauge.style.opacity = '0.7';
+        gauge.style.pointerEvents = 'none';
+      }
+    });
+    
+    // Blur 4 Pro-locked result cards (keep Sound Match and Viewer Understanding unblurred)
+    const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
+    lockedCardIds.forEach(id => {
+      const card = document.querySelector(id);
+      if (card) {
+        card.style.filter = 'blur(6px)';
+        card.style.opacity = '0.7';
+        card.style.pointerEvents = 'none';
+      }
+    });
+  } else {
+    console.log("✅ Pro user — blur gating skipped");
+  }
+});
 
 // ===== CopyBoss Analyzer: Overlay & Duplicate Container Fix =====
 document.addEventListener("DOMContentLoaded", () => {

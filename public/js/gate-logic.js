@@ -81,44 +81,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // Ensure body does NOT have pro-active class
     document.body.classList.remove("pro-active");
     
-    if (!hasUsedFree) {
-      console.log("🎁 Free analysis available – first-time user");
-      localStorage.setItem("hasUsedFreeAnalysis", "true");
-    } else {
-      console.log("🚫 Free use exhausted – blurring Pro elements");
-      proElements.forEach(el => {
-        el.classList.add("blurred");
-        el.style.position = "relative";
-        el.style.filter = "blur(4px) brightness(0.7)";
-        el.style.transition = "filter 0.4s ease";
-        el.style.pointerEvents = "none";
-
-        // Inject Unlock Button
-        let btn = el.querySelector(".btn-upgrade");
-        if (!btn) {
-          btn = document.createElement("button");
-          btn.className = "btn-upgrade";
-          btn.textContent = "Unlock with Pro 💎";
-          btn.onclick = () => window.location.href = stripeLinks.pro;
-          btn.style.position = "absolute";
-          btn.style.top = "50%";
-          btn.style.left = "50%";
-          btn.style.transform = "translate(-50%, -50%)";
-          btn.style.zIndex = "999";
-          btn.style.background = "linear-gradient(90deg,#00c6ff,#0072ff)";
-          btn.style.border = "none";
-          btn.style.color = "#fff";
-          btn.style.padding = "10px 18px";
-          btn.style.borderRadius = "8px";
-          btn.style.fontSize = "14px";
-          btn.style.cursor = "pointer";
-          btn.style.boxShadow = "0 0 15px rgba(0,0,0,0.3)";
-          el.appendChild(btn);
-        }
-      });
-    }
+    console.log("🎯 Gating blur applied for free user");
+    
+    // Blur 4 Pro-locked gauges (keep Sound Match and Viewer Understanding unblurred)
+    const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
+    lockedGaugeIds.forEach(id => {
+      const gauge = document.querySelector(id);
+      if (gauge) {
+        gauge.style.filter = 'blur(6px)';
+        gauge.style.opacity = '0.7';
+        gauge.style.pointerEvents = 'none';
+        gauge.classList.add("blurred");
+      }
+    });
+    
+    // Blur 4 Pro-locked result cards (keep Sound Match and Viewer Understanding unblurred)
+    const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
+    lockedCardIds.forEach(id => {
+      const card = document.querySelector(id);
+      if (card) {
+        card.style.filter = 'blur(6px)';
+        card.style.opacity = '0.7';
+        card.style.pointerEvents = 'none';
+        card.classList.add("blurred");
+      }
+    });
   } else {
-    console.log("✅ Pro user — all features unlocked");
+    console.log("✅ Blur removed for Pro user");
     
     // Enhanced cleanup for Pro users
     const cleanupProElements = () => {
