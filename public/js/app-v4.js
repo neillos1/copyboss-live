@@ -58,16 +58,19 @@ window.addEventListener("DOMContentLoaded", ()=>{
       }
     })();
     
-    // Unify analyzer card gradient background with Sound Match
+    // Unify analyzer card background to match Sound Match exactly
     (() => {
+      // Extract exact color and shadow from Sound Match card (#124582)
+      const soundMatchColor = '#124582';
+      const soundMatchShadow = '0 0 20px rgba(18, 69, 130, 0.7), 0 0 40px rgba(18, 69, 130, 0.5), 0 0 60px rgba(18, 69, 130, 0.3)';
+      
       const cards = document.querySelectorAll('.gauge-box');
-      const gradient = 'linear-gradient(135deg, rgba(15,25,60,0.95), rgba(40,60,140,0.95))';
       cards.forEach(card => {
-        card.style.background = gradient;
-        card.style.backgroundColor = 'rgba(40,60,140,0.95)';
-        card.style.boxShadow = '0 0 25px rgba(0,0,0,0.4)';
+        card.style.background = soundMatchColor;
+        card.style.backgroundColor = soundMatchColor;
+        card.style.boxShadow = soundMatchShadow;
       });
-      console.log("✅ All six analyzer cards now share the same bright blue gradient");
+      console.log("✅ All analyzer card backgrounds unified to match Sound Match color exactly (#124582)");
     })();
     
     // ============================================================
