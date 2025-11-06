@@ -1,9 +1,14 @@
 console.log("🔐 Gate logic loaded:", {});
 
 const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
-// Strict Pro check: only true if success=1 in URL OR isPro localStorage is true
+// Strict Pro check: only treat as Pro when success=1 or localStorage.isPro === "true"
 const urlParams = new URLSearchParams(window.location.search);
-const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
+const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true";
+
+console.log("🔍 Gating detection:", {
+  successParam: urlParams.get("success"),
+  localStorageIsPro: localStorage.getItem("isPro")
+});
 
 const stripeLinks = {
   "2reports": "https://buy.stripe.com/3cI6oG1R25fn5bY6205os01",
@@ -86,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Ensure body does NOT have pro-active class
     document.body.classList.remove("pro-active");
     
-    console.log("🚫 Free user — blur removal blocked");
+    console.log("🚫 Free user — blur removal blocked (final guard)");
     console.log("🎯 Gating blur active for free user");
     
     // Blur 4 Pro-locked gauges (keep Sound Match and Viewer Understanding unblurred)
@@ -112,51 +117,52 @@ document.addEventListener("DOMContentLoaded", () => {
         card.classList.add("blurred");
       }
     });
-  } else {
-    // Only log and remove blur if user is actually Pro
-    console.log("✅ Blur removed for Pro user");
-    
-    // Enhanced cleanup for Pro users
-    const cleanupProElements = () => {
-      // Remove data-pro, blurred, and pro-blur classes
-      proElements.forEach(el => {
-        el.removeAttribute("data-pro");
-        el.classList.remove("blurred", "pro-blur");
-        el.style.filter = "none";
-        el.style.backdropFilter = "none";
-        el.style.opacity = "1";
-        el.style.pointerEvents = "auto";
-        const btn = el.querySelector(".btn-upgrade");
-        if (btn) btn.remove();
-      });
-      
-      // Also clean up any other blurred elements
-      document.querySelectorAll(".blurred, .pro-blur").forEach(el => {
-        el.classList.remove("blurred", "pro-blur");
-        el.style.filter = "none";
-        el.style.backdropFilter = "none";
-        el.style.opacity = "1";
-      });
-      
-      // Ensure pro-active class is set and overflow is auto
-      if (!document.body.classList.contains("pro-active")) {
-        document.body.classList.add("pro-active");
-      }
-      
-      // Force overflow cleanup
-      document.body.style.overflowY = "auto";
-      document.documentElement.style.overflowY = "auto";
-    };
-    
-    cleanupProElements();
-    
-    // Re-run cleanup after a short delay (but only if not pro-active)
-    setTimeout(() => {
-      if (!document.body.classList.contains("pro-active")) {
-        cleanupProElements();
-      }
-    }, 500);
+    return;
   }
+
+  // Only log and remove blur if user is actually Pro
+  console.log("✅ Blur removed for Pro user");
+  
+  // Enhanced cleanup for Pro users
+  const cleanupProElements = () => {
+    // Remove data-pro, blurred, and pro-blur classes
+    proElements.forEach(el => {
+      el.removeAttribute("data-pro");
+      el.classList.remove("blurred", "pro-blur");
+      el.style.filter = "none";
+      el.style.backdropFilter = "none";
+      el.style.opacity = "1";
+      el.style.pointerEvents = "auto";
+      const btn = el.querySelector(".btn-upgrade");
+      if (btn) btn.remove();
+    });
+    
+    // Also clean up any other blurred elements
+    document.querySelectorAll(".blurred, .pro-blur").forEach(el => {
+      el.classList.remove("blurred", "pro-blur");
+      el.style.filter = "none";
+      el.style.backdropFilter = "none";
+      el.style.opacity = "1";
+    });
+    
+    // Ensure pro-active class is set and overflow is auto
+    if (!document.body.classList.contains("pro-active")) {
+      document.body.classList.add("pro-active");
+    }
+    
+    // Force overflow cleanup
+    document.body.style.overflowY = "auto";
+    document.documentElement.style.overflowY = "auto";
+  };
+  
+  cleanupProElements();
+  
+  // Re-run cleanup after a short delay (but only if not pro-active)
+  setTimeout(() => {
+    if (!document.body.classList.contains("pro-active")) {
+      cleanupProElements();
+    }
+  }, 500);
   
   // Guard MutationObserver - don't run if pro-active class is already present
   if (!document.body.classList.contains("pro-active")) {
