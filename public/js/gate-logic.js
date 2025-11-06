@@ -19,7 +19,9 @@ const stripeLinks = {
 // ============================================================
 // ✅ FINAL PRO UNLOCK FIX — removes all blur permanently
 // ============================================================
-if (window.location.search.includes("success=1")) {
+if (!isPro) {
+  console.log("🚫 Free user — blur removal blocked (final global guard)");
+} else {
   console.log("🎉 Stripe success detected — unlocking Pro...");
   localStorage.setItem("vbProUnlocked", "true");
   localStorage.setItem("isPro", "true");
@@ -81,20 +83,16 @@ if (window.location.search.includes("success=1")) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ Gate logic initialized");
 
+  const params = new URLSearchParams(window.location.search);
+  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
   const proElements = document.querySelectorAll("[data-pro='true']");
 
-  // Strict check: only remove blur if user is actually Pro
-  const isActuallyPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
-  
   // 🧠 For non-Pro users - apply blur to locked elements
-  if (!isActuallyPro) {
-    // Ensure body does NOT have pro-active class
+  if (!proActive) {
     document.body.classList.remove("pro-active");
-    
     console.log("🚫 Free user — blur removal blocked (final guard)");
     console.log("🎯 Gating blur active for free user");
-    
-    // Blur 4 Pro-locked gauges (keep Sound Match and Viewer Understanding unblurred)
+
     const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
     lockedGaugeIds.forEach(id => {
       const gauge = document.querySelector(id);
@@ -105,8 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         gauge.classList.add("blurred");
       }
     });
-    
-    // Blur 4 Pro-locked result cards (keep Sound Match and Viewer Understanding unblurred)
+
     const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
     lockedCardIds.forEach(id => {
       const card = document.querySelector(id);
@@ -120,12 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Only log and remove blur if user is actually Pro
   console.log("✅ Blur removed for Pro user");
-  
-  // Enhanced cleanup for Pro users
+
   const cleanupProElements = () => {
-    // Remove data-pro, blurred, and pro-blur classes
     proElements.forEach(el => {
       el.removeAttribute("data-pro");
       el.classList.remove("blurred", "pro-blur");
@@ -136,38 +130,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = el.querySelector(".btn-upgrade");
       if (btn) btn.remove();
     });
-    
-    // Also clean up any other blurred elements
+
     document.querySelectorAll(".blurred, .pro-blur").forEach(el => {
       el.classList.remove("blurred", "pro-blur");
       el.style.filter = "none";
       el.style.backdropFilter = "none";
       el.style.opacity = "1";
     });
-    
-    // Ensure pro-active class is set and overflow is auto
+
     if (!document.body.classList.contains("pro-active")) {
       document.body.classList.add("pro-active");
     }
-    
-    // Force overflow cleanup
+
     document.body.style.overflowY = "auto";
     document.documentElement.style.overflowY = "auto";
   };
-  
+
   cleanupProElements();
-  
-  // Re-run cleanup after a short delay (but only if not pro-active)
+
   setTimeout(() => {
     if (!document.body.classList.contains("pro-active")) {
       cleanupProElements();
     }
   }, 500);
-  
-  // Guard MutationObserver - don't run if pro-active class is already present
-  if (!document.body.classList.contains("pro-active")) {
-    // MutationObserver logic here if needed - currently handled by unlockAll in success handler
-  }
 });
 
 function enforceFreeUserBlur() {
@@ -201,3 +186,16 @@ window.addEventListener("load", () => {
   setTimeout(enforceFreeUserBlur, 1500);
   setTimeout(enforceFreeUserBlur, 3000); // backup pass
 });
+
+setInterval(() => {
+  const params = new URLSearchParams(window.location.search);
+  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
+  if (proActive) return;
+
+  document.querySelectorAll("#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card").forEach(el => {
+    el.style.filter = "blur(6px)";
+    el.style.opacity = "0.7";
+    el.style.pointerEvents = "none";
+  });
+  console.log("🧩 Global safety reblur pass executed for free user");
+}, 3000);
