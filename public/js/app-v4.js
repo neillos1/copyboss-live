@@ -60,23 +60,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
     
     // Unify analyzer card gradient background with Sound Match
     (() => {
-      const style = document.createElement('style');
-      style.id = 'cb-analyzer-gradient-fix';
-      style.textContent = `
-        .gauge-box,
-        .locked-card,
-        .pro-locked,
-        .cb-gauge-card,
-        #soundGaugeCard,
-        #viewerGaugeCard {
-          background: linear-gradient(135deg, rgba(15,25,60,0.95), rgba(40,60,140,0.95)) !important;
-          box-shadow: 0 0 25px rgba(0,0,0,0.4) !important;
-        }
-      `;
-      if (!document.getElementById('cb-analyzer-gradient-fix')) {
-        document.head.appendChild(style);
-        console.log("✅ All analyzer cards unified with brighter blue gradient");
-      }
+      const cards = document.querySelectorAll('.gauge-box');
+      const gradient = 'linear-gradient(135deg, rgba(15,25,60,0.95), rgba(40,60,140,0.95))';
+      cards.forEach(card => {
+        card.style.background = gradient;
+        card.style.backgroundColor = 'rgba(40,60,140,0.95)';
+        card.style.boxShadow = '0 0 25px rgba(0,0,0,0.4)';
+      });
+      console.log("✅ All six analyzer cards now share the same bright blue gradient");
     })();
     
     // ============================================================
