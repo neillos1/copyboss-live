@@ -120,10 +120,22 @@ console.log("🧩 Analyzer gating logic active");
 })();
 
 // Clear any inline styles from gauge-box elements (one-time cleanup)
+// ONLY runs for Pro users to avoid clearing gating blur for free users
 document.addEventListener("DOMContentLoaded",()=>{
   // Clear any inline styles from gauge-box elements (one-time cleanup)
   (() => {
     try {
+      // Check if user is Pro - only run cleanup for Pro users
+      const urlParams = new URLSearchParams(window.location.search);
+      const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
+      
+      if (!isPro) {
+        console.log("⛔ Skipping inline style cleanup for free user (to preserve gating blur)");
+        return;
+      }
+      
+      console.log("🧼 Inline style cleanup active for Pro user");
+      
       const cards = document.querySelectorAll('#cb-gauges .gauge-box');
       cards.forEach(el => {
         el.style.background = '';
