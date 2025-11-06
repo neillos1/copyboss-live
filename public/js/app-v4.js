@@ -21,6 +21,22 @@ document.addEventListener("DOMContentLoaded",()=>{
     e.style.pointerEvents="auto";
     e.style.opacity="1";
   });
+  
+  // Clear any inline styles from gauge-box elements (one-time cleanup)
+  (() => {
+    try {
+      const cards = document.querySelectorAll('#cb-gauges .gauge-box');
+      cards.forEach(el => {
+        el.style.background = '';
+        el.style.backgroundColor = '';
+        el.style.boxShadow = '';
+        el.style.filter = '';
+      });
+      console.log('✅ Analyzer cards: inline styles cleared');
+    } catch (e) {
+      console.warn('Inline cleanup skipped:', e);
+    }
+  })();
 });
 
 // ========================
@@ -36,25 +52,6 @@ window.addEventListener("DOMContentLoaded", ()=>{
   const params = new URLSearchParams(window.location.search);
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
-    
-    // Match analyzer card glow and background to results card neon style
-    (() => {
-      // Extract exact neon glow from results cards (.chart-card, .score-block)
-      // Bright light-blue neon effect: rgba(59, 130, 246, ...) = #3B82F6
-      const neonGlow = '0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3)';
-      // Background color that works with neon glow (from chart-card: #1a233a or report-card: #062c85)
-      const cardBackground = '#062c85';
-      
-      // Apply to all gauge boxes (all 6 analyzer cards)
-      const cards = document.querySelectorAll('.gauge-box');
-      cards.forEach(card => {
-        // Remove any previous inline overrides
-        card.style.background = cardBackground;
-        card.style.backgroundColor = cardBackground;
-        card.style.boxShadow = neonGlow;
-      });
-      console.log("✅ All analyzer cards now match results card neon glow style");
-    })();
     
     // ============================================================
     // 🧼 FINAL BLUR CLEANER — MUST RUN FIRST (before popups/observers)
