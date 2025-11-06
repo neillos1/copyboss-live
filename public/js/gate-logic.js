@@ -1,7 +1,9 @@
 console.log("🔐 Gate logic loaded:", {});
 
 const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
-const isPro = localStorage.getItem("vbProUnlocked") === "true";
+// Strict Pro check: only true if success=1 in URL OR isPro localStorage is true
+const urlParams = new URLSearchParams(window.location.search);
+const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
 
 const stripeLinks = {
   "2reports": "https://buy.stripe.com/3cI6oG1R25fn5bY6205os01",
@@ -76,12 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const proElements = document.querySelectorAll("[data-pro='true']");
 
+  // Strict check: only remove blur if user is actually Pro
+  const isActuallyPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
+  
   // 🧠 For non-Pro users - apply blur to locked elements
-  if (!isPro && !window.location.search.includes("success=1")) {
+  if (!isActuallyPro) {
     // Ensure body does NOT have pro-active class
     document.body.classList.remove("pro-active");
     
-    console.log("🎯 Gating blur applied for free user");
+    console.log("🚫 Free user — blur removal blocked");
+    console.log("🎯 Gating blur active for free user");
     
     // Blur 4 Pro-locked gauges (keep Sound Match and Viewer Understanding unblurred)
     const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
@@ -107,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   } else {
+    // Only log and remove blur if user is actually Pro
     console.log("✅ Blur removed for Pro user");
     
     // Enhanced cleanup for Pro users
