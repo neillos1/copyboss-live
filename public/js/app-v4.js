@@ -13,6 +13,112 @@ window.__DISABLE_POPUPS__ = true;
 
 console.log("🧩 Analyzer gating logic active");
 
+// ============================================================
+// 🎯 GATING BLUR ENFORCEMENT — RUNS IMMEDIATELY ON PAGE LOAD
+// ============================================================
+// Applies blur to Pro-locked elements for free users
+// Only removes blur when success=1 is detected
+// ============================================================
+(function enforceGatingBlur() {
+  // Check if user is Pro (only success=1 unlocks, not localStorage alone)
+  const isPro = window.location.search.includes("success=1");
+  
+  // Function to apply blur to locked elements
+  const applyBlurToLocked = () => {
+    if (isPro) return; // Skip if Pro user
+    
+    const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
+    const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
+    
+    let blurredCount = 0;
+    
+    // Apply blur to locked gauges
+    lockedGaugeIds.forEach(id => {
+      const el = document.querySelector(id);
+      if (el && !el.style.filter.includes('blur(6px)')) {
+        el.style.filter = 'blur(6px)';
+        el.style.opacity = '0.7';
+        el.style.pointerEvents = 'none';
+        el.style.transition = 'all 0.3s ease';
+        blurredCount++;
+      }
+    });
+    
+    // Apply blur to locked result cards
+    lockedCardIds.forEach(id => {
+      const el = document.querySelector(id);
+      if (el && !el.style.filter.includes('blur(6px)')) {
+        el.style.filter = 'blur(6px)';
+        el.style.opacity = '0.7';
+        el.style.pointerEvents = 'none';
+        el.style.transition = 'all 0.3s ease';
+        blurredCount++;
+      }
+    });
+    
+    if (blurredCount > 0) {
+      console.log(`🎯 Gating blur active — ${blurredCount} elements blurred`);
+    }
+  };
+  
+  // Run immediately if DOM is ready, otherwise wait
+  const runBlurEnforcement = () => {
+    if (isPro) {
+      console.log("✅ Blur removed for Pro user");
+      return;
+    }
+    
+    applyBlurToLocked();
+    
+    // MutationObserver to reapply blur if elements appear late
+    if (!window.__blurObserverActive) {
+      window.__blurObserverActive = true;
+      const observer = new MutationObserver(() => {
+        if (!isPro) {
+          applyBlurToLocked();
+        }
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: false
+      });
+      
+      // Check every 500ms for late-rendered elements
+      const intervalId = setInterval(() => {
+        if (isPro) {
+          clearInterval(intervalId);
+          observer.disconnect();
+          window.__blurObserverActive = false;
+        } else {
+          applyBlurToLocked();
+        }
+      }, 500);
+      
+      // Defensive fallback: reapply after 1.5s if blur is missing
+      setTimeout(() => {
+        if (!isPro) {
+          const allLocked = document.querySelectorAll('#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card');
+          const needsBlur = Array.from(allLocked).filter(el => !el.style.filter.includes('blur(6px)'));
+          if (needsBlur.length > 0) {
+            console.log(`🔄 Defensive blur reapply — ${needsBlur.length} elements missing blur`);
+            applyBlurToLocked();
+          }
+        }
+      }, 1500);
+    }
+  };
+  
+  // Execute immediately if DOM is ready, otherwise wait for DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runBlurEnforcement);
+  } else {
+    // DOM is already ready (interactive or complete)
+    runBlurEnforcement();
+  }
+})();
+
 // Clear any inline styles from gauge-box elements (one-time cleanup)
 document.addEventListener("DOMContentLoaded",()=>{
   // Clear any inline styles from gauge-box elements (one-time cleanup)
@@ -23,7 +129,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         el.style.background = '';
         el.style.backgroundColor = '';
         el.style.boxShadow = '';
-        el.style.filter = '';
+        // Don't clear filter here - let blur enforcement handle it
       });
       console.log('✅ Analyzer cards: inline styles cleared');
     } catch (e) {
@@ -43,8 +149,8 @@ window.addEventListener("DOMContentLoaded", ()=>{
   }
   
   const params = new URLSearchParams(window.location.search);
-  const isProUnlock = params.get("success") === "1" || localStorage.getItem("vbProUnlocked") === "true" || localStorage.getItem("isPro") === "true";
   
+  // ONLY run blur removal when success=1 is explicitly present
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
     localStorage.setItem("vbProUnlocked","true");
@@ -70,11 +176,25 @@ window.addEventListener("DOMContentLoaded", ()=>{
           [class*="blur"],.blur,.backdrop-blur {
             filter: none !important; backdrop-filter: none !important;
           }
+          #viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard,
+          #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card {
+            filter: none !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+          }
         `;
         document.head.appendChild(s);
       }
 
-      // Clean up inline blur styles
+      // Clean up inline blur styles from locked elements
+      const lockedSelectors = '#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card';
+      document.querySelectorAll(lockedSelectors).forEach(el => {
+        el.style.filter = 'none';
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+      });
+      
+      // Also clean up any other blur styles
       document.querySelectorAll('[style*="blur("],[style*="backdrop"]').forEach(el => {
         el.style.filter = 'none';
         el.style.backdropFilter = 'none';
@@ -488,40 +608,8 @@ function createFallbackProPopup() {
   };
 })();
 
-// Apply blur gating for free users (only when NOT Pro)
-document.addEventListener("DOMContentLoaded", () => {
-  const isPro = window.location.search.includes("success=1") || 
-                localStorage.getItem("vbProUnlocked") === "true" || 
-                localStorage.getItem("isPro") === "true";
-  
-  if (!isPro) {
-    console.log("🎯 Gating blur applied for free user");
-    
-    // Blur 4 Pro-locked gauges (keep Sound Match and Viewer Understanding unblurred)
-    const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
-    lockedGaugeIds.forEach(id => {
-      const gauge = document.querySelector(id);
-      if (gauge) {
-        gauge.style.filter = 'blur(6px)';
-        gauge.style.opacity = '0.7';
-        gauge.style.pointerEvents = 'none';
-      }
-    });
-    
-    // Blur 4 Pro-locked result cards (keep Sound Match and Viewer Understanding unblurred)
-    const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
-    lockedCardIds.forEach(id => {
-      const card = document.querySelector(id);
-      if (card) {
-        card.style.filter = 'blur(6px)';
-        card.style.opacity = '0.7';
-        card.style.pointerEvents = 'none';
-      }
-    });
-  } else {
-    console.log("✅ Pro user — blur gating skipped");
-  }
-});
+// Blur enforcement is now handled by the IIFE at the top of the file
+// This ensures it runs immediately on page load, before charts render
 
 // ===== CopyBoss Analyzer: Overlay & Duplicate Container Fix =====
 document.addEventListener("DOMContentLoaded", () => {
