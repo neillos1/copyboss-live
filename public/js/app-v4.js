@@ -37,40 +37,23 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(params.get("success")==="1"){
     console.log("🎉 Stripe success detected — unlocking Pro...");
     
-    // Force consistent analyzer card background color via runtime injection
+    // Match analyzer card glow and background to results card neon style
     (() => {
-      const style = document.createElement('style');
-      style.id = 'cb-analyzer-card-bgfix';
-      style.textContent = `
-        .report-card,
-        .cb-card,
-        .cb-gauge-card,
-        .report-card[data-type],
-        .cb-gauge {
-          background: #062c85 !important;
-          background-color: #062c85 !important;
-          box-shadow: 0 0 25px rgba(0,0,0,0.4) !important;
-        }
-      `;
-      if (!document.getElementById('cb-analyzer-card-bgfix')) {
-        document.head.appendChild(style);
-        console.log("✅ Applied consistent dark-blue background to all analyzer cards");
-      }
-    })();
-    
-    // Unify analyzer card background to match Sound Match exactly
-    (() => {
-      // Extract exact color and shadow from Sound Match card (#124582)
-      const soundMatchColor = '#124582';
-      const soundMatchShadow = '0 0 20px rgba(18, 69, 130, 0.7), 0 0 40px rgba(18, 69, 130, 0.5), 0 0 60px rgba(18, 69, 130, 0.3)';
+      // Extract exact neon glow from results cards (.chart-card, .score-block)
+      // Bright light-blue neon effect: rgba(59, 130, 246, ...) = #3B82F6
+      const neonGlow = '0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3)';
+      // Background color that works with neon glow (from chart-card: #1a233a or report-card: #062c85)
+      const cardBackground = '#062c85';
       
+      // Apply to all gauge boxes (all 6 analyzer cards)
       const cards = document.querySelectorAll('.gauge-box');
       cards.forEach(card => {
-        card.style.background = soundMatchColor;
-        card.style.backgroundColor = soundMatchColor;
-        card.style.boxShadow = soundMatchShadow;
+        // Remove any previous inline overrides
+        card.style.background = cardBackground;
+        card.style.backgroundColor = cardBackground;
+        card.style.boxShadow = neonGlow;
       });
-      console.log("✅ All analyzer card backgrounds unified to match Sound Match color exactly (#124582)");
+      console.log("✅ All analyzer cards now match results card neon glow style");
     })();
     
     // ============================================================
