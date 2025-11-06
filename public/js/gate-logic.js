@@ -169,3 +169,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // MutationObserver logic here if needed - currently handled by unlockAll in success handler
   }
 });
+
+function enforceFreeUserBlur() {
+  const params = new URLSearchParams(window.location.search);
+  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
+  if (proActive) return; // Don't re-blur for Pro users
+
+  console.log("🧩 Post-render blur enforcement triggered for free user");
+  const blurTargets = [
+    "#viralGaugeCard",
+    "#captionGaugeCard",
+    "#engagementGaugeCard",
+    "#ideaGaugeCard",
+    "#viral-card",
+    "#caption-card",
+    "#engagementforecast-card",
+    "#viralstrength-card"
+  ];
+
+  blurTargets.forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) {
+      el.style.filter = "blur(6px)";
+      el.style.opacity = "0.7";
+      el.style.pointerEvents = "none";
+    }
+  });
+}
+
+window.addEventListener("load", () => {
+  setTimeout(enforceFreeUserBlur, 1500);
+  setTimeout(enforceFreeUserBlur, 3000); // backup pass
+});
