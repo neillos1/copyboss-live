@@ -16,6 +16,35 @@ const stripeLinks = {
   "pro": "https://buy.stripe.com/3cI00idzK9vD8oacqo5os02"
 };
 
+const BLUR_TARGET_SELECTOR = "#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card";
+
+function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
+  const params = new URLSearchParams(window.location.search);
+  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
+  if (proActive) return;
+
+  document.body.style.overflow = "auto";
+  document.documentElement.style.overflow = "auto";
+  document.body.style.position = "relative";
+  document.body.style.height = "auto";
+
+  setTimeout(() => {
+    const targets = document.querySelectorAll(BLUR_TARGET_SELECTOR);
+    if (!targets.length) return;
+
+    targets.forEach(el => {
+      el.style.filter = "blur(6px)";
+      el.style.opacity = "0.7";
+      el.style.pointerEvents = "none";
+      el.style.transition = "filter 0.3s ease, opacity 0.3s ease";
+    });
+
+    if (logMessage) {
+      console.log("🎯 Final blur applied after chart render");
+    }
+  }, delay);
+}
+
 // ============================================================
 // ✅ FINAL PRO UNLOCK FIX — removes all blur permanently
 // ============================================================
@@ -95,30 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.body.style.overflow = "auto";
     document.documentElement.style.overflow = "auto";
+    document.body.style.position = "relative";
+    document.body.style.height = "auto";
 
-    const blurTargets = [
-      '#viralGaugeCard',
-      '#captionGaugeCard',
-      '#engagementGaugeCard',
-      '#ideaGaugeCard',
-      '#viral-card',
-      '#caption-card',
-      '#engagementforecast-card',
-      '#viralstrength-card'
-    ];
-
-    blurTargets.forEach(id => {
-      const el = document.querySelector(id);
-      if (el) {
-        el.style.filter = 'blur(6px)';
-        el.style.opacity = '0.75';
-        el.style.pointerEvents = 'none';
-        el.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-        el.style.backdropFilter = 'none';
-      }
-    });
-
-    console.log("🎯 Blur applied only to card elements, scrolling restored");
+    scheduleBlurForFreeUsers(1500, true);
     return;
   }
 
@@ -161,35 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function enforceFreeUserBlur() {
-  const params = new URLSearchParams(window.location.search);
-  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
-  if (proActive) return; // Don't re-blur for Pro users
-
-  document.body.style.overflow = "auto";
-  document.documentElement.style.overflow = "auto";
-
-  console.log("🧩 Post-render blur enforcement triggered for free user");
-  const blurTargets = [
-    '#viralGaugeCard',
-    '#captionGaugeCard',
-    '#engagementGaugeCard',
-    '#ideaGaugeCard',
-    '#viral-card',
-    '#caption-card',
-    '#engagementforecast-card',
-    '#viralstrength-card'
-  ];
-
-  blurTargets.forEach(id => {
-    const el = document.querySelector(id);
-    if (el) {
-      el.style.filter = 'blur(6px)';
-      el.style.opacity = '0.75';
-      el.style.pointerEvents = 'none';
-      el.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-      el.style.backdropFilter = 'none';
-    }
-  });
+  scheduleBlurForFreeUsers(1500, false);
 }
 
 window.addEventListener("load", () => {
@@ -198,33 +179,14 @@ window.addEventListener("load", () => {
 });
 
 setInterval(() => {
-  const params = new URLSearchParams(window.location.search);
-  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
-  if (proActive) return;
-
-  document.body.style.overflow = "auto";
-  document.documentElement.style.overflow = "auto";
-
-  const blurTargets = [
-    '#viralGaugeCard',
-    '#captionGaugeCard',
-    '#engagementGaugeCard',
-    '#ideaGaugeCard',
-    '#viral-card',
-    '#caption-card',
-    '#engagementforecast-card',
-    '#viralstrength-card'
-  ];
-
-  blurTargets.forEach(id => {
-    const el = document.querySelector(id);
-    if (el) {
-      el.style.filter = 'blur(6px)';
-      el.style.opacity = '0.75';
-      el.style.pointerEvents = 'none';
-      el.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-      el.style.backdropFilter = 'none';
-    }
-  });
+  scheduleBlurForFreeUsers(1500, false);
   console.log("🧩 Global safety reblur pass executed for free user");
 }, 3000);
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    document.body.style.overflow = "auto";
+    document.documentElement.style.overflow = "auto";
+    console.log("✅ Scroll restored globally");
+  }, 500);
+});
