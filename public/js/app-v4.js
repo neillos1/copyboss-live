@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
       
       if (!isPro) {
-        console.log("⛔ Skipping inline style cleanup for free user (to preserve gating blur)");
+        console.log("🚫 Free user — skipping inline cleanup");
         return;
       }
       
@@ -143,7 +143,12 @@ document.addEventListener("DOMContentLoaded",()=>{
         el.style.boxShadow = '';
         // Don't clear filter here - let blur enforcement handle it
       });
+
+      document.querySelectorAll('.analyzer-card, .result-card').forEach(el => {
+        el.removeAttribute('style');
+      });
       console.log('✅ Analyzer cards: inline styles cleared');
+      console.log('✅ Result cards: inline styles cleared');
     } catch (e) {
       console.warn('Inline cleanup skipped:', e);
     }
@@ -2347,6 +2352,10 @@ if (!window.__disableAnalyzerLock) {
 // ============================================================
 // This runs after DOM ready and Tailwind loads to enforce final UI state
 function enforceRuntimeUIOverrides() {
+  if (!(localStorage.getItem("isPro") === "true" || window.location.href.includes("success=1"))) {
+    console.log("🚫 Free user — skipping Tailwind runtime override enforcement");
+    return;
+  }
   console.log("🎨 Runtime CSS cascade enforcement starting...");
   
   const isProActive = document.body.classList.contains("pro-active") || 
