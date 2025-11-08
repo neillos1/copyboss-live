@@ -2743,3 +2743,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("✅ Minimal gating patch active; mode:", isPro ? "PRO" : "FREE");
 });
+
+// ✅ CopyBoss minimal scroll + blur safety fix (GT + Cursor sync version)
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    const url = new URL(window.location.href);
+    const isPro =
+      url.searchParams.get("success") === "1" ||
+      url.searchParams.get("plan") === "pro" ||
+      url.searchParams.get("upgraded") === "true" ||
+      localStorage.getItem("isPro") === "true";
+
+    document.documentElement.style.overflowY = "auto";
+    document.body.style.overflowY = "auto";
+
+    if (!isPro) {
+      const blurTargets = document.querySelectorAll(
+        ".gauge-card, .result-card, .cb-card, .gated-blur"
+      );
+      blurTargets.forEach(el => {
+        el.style.filter = "blur(6px)";
+        el.style.pointerEvents = "none";
+      });
+
+      new MutationObserver(() => {
+        blurTargets.forEach(el => (el.style.filter = "blur(6px)"));
+      }).observe(document.body, { childList: true, subtree: true });
+
+      console.log("🎯 Gating blur active for free user");
+    } else {
+      console.log("✅ Blur removed for Pro user");
+    }
+  } catch (err) {
+    console.error("❌ Gating blur error:", err);
+  }
+});
