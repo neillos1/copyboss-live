@@ -2716,35 +2716,7 @@ popupObserver.observe(document.body, { childList: true, subtree: true });
   }
 })();
 
-// ✅ CopyBoss minimal scroll + blur safety fix
-document.addEventListener("DOMContentLoaded", () => {
-  const url = new URL(window.location.href);
-  const isPro =
-    url.searchParams.get("success") === "1" ||
-    url.searchParams.get("plan") === "pro" ||
-    url.searchParams.get("upgraded") === "true";
-
-  document.documentElement.style.overflowY = "auto";
-  document.body.style.overflowY = "auto";
-
-  if (!isPro) {
-    const blurTargets = document.querySelectorAll(
-      ".gauge-card, .result-card, .cb-card, .gated-blur"
-    );
-    blurTargets.forEach(el => {
-      el.style.filter = "blur(6px)";
-      el.style.pointerEvents = "none";
-    });
-
-    new MutationObserver(() => {
-      blurTargets.forEach(el => (el.style.filter = "blur(6px)"));
-    }).observe(document.body, { childList: true, subtree: true });
-  }
-
-  console.log("✅ Minimal gating patch active; mode:", isPro ? "PRO" : "FREE");
-});
-
-// ✅ CopyBoss minimal scroll + blur safety fix (GT + Cursor sync version)
+// ✅ CopyBoss stable gating + layout patch (Nov 8 GT x Cursor)
 document.addEventListener("DOMContentLoaded", () => {
   try {
     const url = new URL(window.location.href);
@@ -2754,27 +2726,45 @@ document.addEventListener("DOMContentLoaded", () => {
       url.searchParams.get("upgraded") === "true" ||
       localStorage.getItem("isPro") === "true";
 
+    // Always enable scrolling
     document.documentElement.style.overflowY = "auto";
     document.body.style.overflowY = "auto";
 
-    if (!isPro) {
-      const blurTargets = document.querySelectorAll(
-        ".gauge-card, .result-card, .cb-card, .gated-blur"
-      );
-      blurTargets.forEach(el => {
-        el.style.filter = "blur(6px)";
-        el.style.pointerEvents = "none";
+    // Clean up hidden overlay spacing under navbar
+    const overlays = document.querySelectorAll(".cb-overlay, .hidden-section, .blank-space");
+    overlays.forEach(o => {
+      o.style.display = "none";
+      o.style.height = "0";
+      o.style.minHeight = "0";
+    });
+
+    // Define targets for blur gating
+    const blurTargets = () =>
+      document.querySelectorAll(".gauge-card, .result-card, .cb-card, .gated-blur");
+
+    // Apply or remove blur based on user type
+    const applyBlur = () => {
+      blurTargets().forEach(el => {
+        el.style.transition = "filter 0.3s ease";
+        el.style.filter = isPro ? "none" : "blur(6px)";
+        el.style.pointerEvents = isPro ? "auto" : "none";
       });
+      console.log(isPro ? "✅ Blur removed for Pro user" : "🎯 Gating blur active for free user");
+    };
 
-      new MutationObserver(() => {
-        blurTargets.forEach(el => (el.style.filter = "blur(6px)"));
-      }).observe(document.body, { childList: true, subtree: true });
+    applyBlur();
 
-      console.log("🎯 Gating blur active for free user");
-    } else {
-      console.log("✅ Blur removed for Pro user");
-    }
+    // Lightweight observer that stops after 3 rechecks
+    let pass = 0;
+    const observer = new MutationObserver(() => {
+      if (pass++ < 3) applyBlur();
+      else observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Stop spinner loop indicator (harmless background repaint)
+    window.stop && setTimeout(() => window.stop(), 1500);
   } catch (err) {
-    console.error("❌ Gating blur error:", err);
+    console.error("❌ Gating blur/layout patch error:", err);
   }
 });
