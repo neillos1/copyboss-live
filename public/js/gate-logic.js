@@ -93,27 +93,32 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🚫 Free user — blur removal blocked (final guard)");
     console.log("🎯 Gating blur active for free user");
 
-    const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
-    lockedGaugeIds.forEach(id => {
-      const gauge = document.querySelector(id);
-      if (gauge) {
-        gauge.style.filter = 'blur(6px)';
-        gauge.style.opacity = '0.7';
-        gauge.style.pointerEvents = 'none';
-        gauge.classList.add("blurred");
+    document.body.style.overflow = "auto";
+    document.documentElement.style.overflow = "auto";
+
+    const blurTargets = [
+      '#viralGaugeCard',
+      '#captionGaugeCard',
+      '#engagementGaugeCard',
+      '#ideaGaugeCard',
+      '#viral-card',
+      '#caption-card',
+      '#engagementforecast-card',
+      '#viralstrength-card'
+    ];
+
+    blurTargets.forEach(id => {
+      const el = document.querySelector(id);
+      if (el) {
+        el.style.filter = 'blur(6px)';
+        el.style.opacity = '0.75';
+        el.style.pointerEvents = 'none';
+        el.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+        el.style.backdropFilter = 'none';
       }
     });
 
-    const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
-    lockedCardIds.forEach(id => {
-      const card = document.querySelector(id);
-      if (card) {
-        card.style.filter = 'blur(6px)';
-        card.style.opacity = '0.7';
-        card.style.pointerEvents = 'none';
-        card.classList.add("blurred");
-      }
-    });
+    console.log("🎯 Blur applied only to card elements, scrolling restored");
     return;
   }
 
@@ -160,24 +165,29 @@ function enforceFreeUserBlur() {
   const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
   if (proActive) return; // Don't re-blur for Pro users
 
+  document.body.style.overflow = "auto";
+  document.documentElement.style.overflow = "auto";
+
   console.log("🧩 Post-render blur enforcement triggered for free user");
   const blurTargets = [
-    "#viralGaugeCard",
-    "#captionGaugeCard",
-    "#engagementGaugeCard",
-    "#ideaGaugeCard",
-    "#viral-card",
-    "#caption-card",
-    "#engagementforecast-card",
-    "#viralstrength-card"
+    '#viralGaugeCard',
+    '#captionGaugeCard',
+    '#engagementGaugeCard',
+    '#ideaGaugeCard',
+    '#viral-card',
+    '#caption-card',
+    '#engagementforecast-card',
+    '#viralstrength-card'
   ];
 
-  blurTargets.forEach(sel => {
-    const el = document.querySelector(sel);
+  blurTargets.forEach(id => {
+    const el = document.querySelector(id);
     if (el) {
-      el.style.filter = "blur(6px)";
-      el.style.opacity = "0.7";
-      el.style.pointerEvents = "none";
+      el.style.filter = 'blur(6px)';
+      el.style.opacity = '0.75';
+      el.style.pointerEvents = 'none';
+      el.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+      el.style.backdropFilter = 'none';
     }
   });
 }
@@ -192,10 +202,29 @@ setInterval(() => {
   const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
   if (proActive) return;
 
-  document.querySelectorAll("#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card").forEach(el => {
-    el.style.filter = "blur(6px)";
-    el.style.opacity = "0.7";
-    el.style.pointerEvents = "none";
+  document.body.style.overflow = "auto";
+  document.documentElement.style.overflow = "auto";
+
+  const blurTargets = [
+    '#viralGaugeCard',
+    '#captionGaugeCard',
+    '#engagementGaugeCard',
+    '#ideaGaugeCard',
+    '#viral-card',
+    '#caption-card',
+    '#engagementforecast-card',
+    '#viralstrength-card'
+  ];
+
+  blurTargets.forEach(id => {
+    const el = document.querySelector(id);
+    if (el) {
+      el.style.filter = 'blur(6px)';
+      el.style.opacity = '0.75';
+      el.style.pointerEvents = 'none';
+      el.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+      el.style.backdropFilter = 'none';
+    }
   });
   console.log("🧩 Global safety reblur pass executed for free user");
 }, 3000);
