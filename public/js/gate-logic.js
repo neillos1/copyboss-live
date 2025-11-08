@@ -1,5 +1,8 @@
 console.log("🔐 Gate logic loaded:", {});
 
+// 🚫 TEMPORARILY DISABLE LEGACY BLUR UNLOCK (GT FIX)
+const __GT_DISABLE_BLUR_UNLOCK = true;
+
 const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 // Strict Pro check: only treat as Pro when success=1 or localStorage.isPro === "true"
 const urlParams = new URLSearchParams(window.location.search);
@@ -50,7 +53,7 @@ function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
 // ============================================================
 if (!isPro) {
   console.log("🚫 Free user — blur removal blocked (final global guard)");
-} else {
+} else if (!__GT_DISABLE_BLUR_UNLOCK) {
   console.log("🎉 Stripe success detected — unlocking Pro...");
   localStorage.setItem("vbProUnlocked", "true");
   localStorage.setItem("isPro", "true");
@@ -132,6 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
       scheduleBlurForFreeUsers(1500, true);
       console.log("✅ Gate logic executed once");
     }
+    return;
+  }
+
+  if (__GT_DISABLE_BLUR_UNLOCK) {
+    console.log("🚫 Legacy blur unlock disabled (GT fix)");
     return;
   }
 
