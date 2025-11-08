@@ -118,59 +118,72 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 🧠 For non-Pro users - apply blur to locked elements
   if (!proActive) {
-    document.body.classList.remove("pro-active");
-    console.log("🚫 Free user — blur removal blocked (final guard)");
-    console.log("🎯 Gating blur active for free user");
+    if (!window.gateLogicAlreadyExecuted) {
+      window.gateLogicAlreadyExecuted = true;
+      document.body.classList.remove("pro-active");
+      console.log("🚫 Free user — blur removal blocked (final guard)");
+      console.log("🎯 Gating blur active for free user");
 
-    document.body.style.overflow = "auto";
-    document.documentElement.style.overflow = "auto";
-    document.body.style.position = "relative";
-    document.body.style.height = "auto";
+      document.body.style.overflow = "auto";
+      document.documentElement.style.overflow = "auto";
+      document.body.style.position = "relative";
+      document.body.style.height = "auto";
 
-    scheduleBlurForFreeUsers(1500, true);
+      scheduleBlurForFreeUsers(1500, true);
+      console.log("✅ Gate logic executed once");
+    }
     return;
   }
 
-  console.log("✅ Blur removed for Pro user");
+  if (!window.gateLogicAlreadyExecuted) {
+    window.gateLogicAlreadyExecuted = true;
+    console.log("✅ Blur removed for Pro user");
 
-  const cleanupProElements = () => {
-    proElements.forEach(el => {
-      el.removeAttribute("data-pro");
-      el.classList.remove("blurred", "pro-blur");
-      el.style.filter = "none";
-      el.style.backdropFilter = "none";
-      el.style.opacity = "1";
-      el.style.pointerEvents = "auto";
-      const btn = el.querySelector(".btn-upgrade");
-      if (btn) btn.remove();
-    });
+    const cleanupProElements = () => {
+      proElements.forEach(el => {
+        el.removeAttribute("data-pro");
+        el.classList.remove("blurred", "pro-blur");
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+        const btn = el.querySelector(".btn-upgrade");
+        if (btn) btn.remove();
+      });
 
-    document.querySelectorAll(".blurred, .pro-blur").forEach(el => {
-      el.classList.remove("blurred", "pro-blur");
-      el.style.filter = "none";
-      el.style.backdropFilter = "none";
-      el.style.opacity = "1";
-    });
+      document.querySelectorAll(".blurred, .pro-blur").forEach(el => {
+        el.classList.remove("blurred", "pro-blur");
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+      });
 
-    if (!document.body.classList.contains("pro-active")) {
-      document.body.classList.add("pro-active");
-    }
+      if (!document.body.classList.contains("pro-active")) {
+        document.body.classList.add("pro-active");
+      }
 
-    document.body.style.overflowY = "auto";
-    document.documentElement.style.overflowY = "auto";
-  };
+      document.body.style.overflowY = "auto";
+      document.documentElement.style.overflowY = "auto";
+    };
 
-  cleanupProElements();
+    cleanupProElements();
 
-  setTimeout(() => {
-    if (!document.body.classList.contains("pro-active")) {
-      cleanupProElements();
-    }
-  }, 500);
+    setTimeout(() => {
+      if (!document.body.classList.contains("pro-active")) {
+        cleanupProElements();
+      }
+    }, 500);
+
+    console.log("✅ Gate logic executed once");
+  }
 });
 
 function enforceFreeUserBlur() {
-  scheduleBlurForFreeUsers(1500, false);
+  if (!window.gateLogicAlreadyExecuted) {
+    window.gateLogicAlreadyExecuted = true;
+    scheduleBlurForFreeUsers(1500, false);
+    console.log("✅ Gate logic executed once");
+  }
 }
 
 window.addEventListener("load", () => {
@@ -179,8 +192,12 @@ window.addEventListener("load", () => {
 });
 
 setInterval(() => {
-  scheduleBlurForFreeUsers(1500, false);
-  console.log("🧩 Global safety reblur pass executed for free user");
+  if (!window.gateLogicAlreadyExecuted) {
+    window.gateLogicAlreadyExecuted = true;
+    scheduleBlurForFreeUsers(1500, false);
+    console.log("🧩 Global safety reblur pass executed for free user");
+    console.log("✅ Gate logic executed once");
+  }
 }, 3000);
 
 window.addEventListener("load", () => {
