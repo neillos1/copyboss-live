@@ -190,3 +190,33 @@ window.addEventListener("load", () => {
     console.log("✅ Scroll restored globally");
   }, 500);
 });
+
+(function forceScrollUnlock() {
+  function unlockAll() {
+    document.documentElement.style.overflow = "auto";
+    document.documentElement.style.position = "relative";
+    document.documentElement.style.height = "auto";
+    document.body.style.overflow = "auto";
+    document.body.style.position = "relative";
+    document.body.style.height = "auto";
+
+    document.querySelectorAll("*").forEach(el => {
+      const cs = getComputedStyle(el);
+      if (cs.overflow === "hidden" || cs.position === "fixed" || cs.height === "100vh") {
+        el.style.overflow = "auto";
+        el.style.position = "relative";
+        el.style.height = "auto";
+      }
+    });
+
+    window.onscroll = null;
+    window.onwheel = null;
+    window.ontouchmove = null;
+    console.log("✅ Full CSS-level scroll unlock executed");
+  }
+
+  unlockAll();
+  window.addEventListener("load", unlockAll);
+  setTimeout(unlockAll, 1500);
+  setInterval(unlockAll, 4000);
+})();
