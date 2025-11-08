@@ -656,3 +656,9 @@ body .swal2-popup {
   background-color: #062c85 !important;
   box-shadow: 0 0 20px rgba(0,0,0,0.4) !important;
 }
+
+.blurred-locked {
+  filter: blur(6px) !important;
+  opacity: 0.6 !important;
+  pointer-events: none !important;
+}

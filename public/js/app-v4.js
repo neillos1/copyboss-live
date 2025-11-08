@@ -2715,3 +2715,38 @@ popupObserver.observe(document.body, { childList: true, subtree: true });
     console.error("❌ Micro Runtime UI Patch failed", err);
   }
 })();
+
+// ---- FINAL ENFORCER FOR FREE USERS ----
+(function enforceFreeUserBlur() {
+  const isPro = window.location.href.includes("success=1") || localStorage.getItem("isPro") === "true";
+  if (isPro) return;
+  console.log("🎯 EnforceFreeUserBlur running...");
+  const blurTargets = [
+    "#viralGaugeCard","#captionGaugeCard","#engagementGaugeCard","#ideaGaugeCard",
+    "#viral-card","#caption-card","#engagementforecast-card","#viralstrength-card"
+  ];
+  const scrollTargets = ["html","body",".wrapper",".main",".page-wrapper"];
+  function apply() {
+    blurTargets.forEach(sel=>{
+      const el=document.querySelector(sel);
+      if(el){
+        el.classList.add("blurred-locked");
+        el.style.filter="blur(6px)";
+        el.style.opacity="0.6";
+        el.style.pointerEvents="none";
+      }
+    });
+    scrollTargets.forEach(sel=>{
+      document.querySelectorAll(sel).forEach(e=>{
+        e.style.overflowY="auto";
+        e.style.overflowX="hidden";
+        e.style.height="auto";
+        e.style.position="relative";
+      });
+    });
+  }
+  apply();
+  const obs=new MutationObserver(apply);
+  obs.observe(document.body,{childList:true,subtree:true,attributes:true});
+  window.addEventListener("load",()=>setTimeout(apply,1500));
+})();
