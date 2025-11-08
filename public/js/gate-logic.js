@@ -245,3 +245,44 @@ window.addEventListener("load", () => {
   setTimeout(unlockAll, 1500);
   setInterval(unlockAll, 4000);
 })();
+
+/* --- GT NOV8 RUNTIME PATCH --- */
+try {
+  if (typeof Swal !== "function") {
+    window.Swal = function () {
+      return {
+        fire: (opts) =>
+          console.log(
+            "⚠️ SweetAlert fallback active (GT patch)",
+            opts || ""
+          ),
+      };
+    };
+  }
+
+  if (window.__scrollUnlockObserver) {
+    window.__scrollUnlockObserver.disconnect();
+    console.log("🧩 Scroll unlock observer disconnected (GT patch)");
+  }
+
+  document.body.style.overflowY = "auto";
+  document.body.style.paddingTop = "0";
+  document.body.style.marginBottom = "0";
+
+  document
+    .querySelectorAll(".analyzer-container, .wrapper, main")
+    .forEach((el) => {
+      el.style.marginTop = "0";
+      el.style.marginBottom = "0";
+      el.style.paddingTop = "0";
+      el.style.paddingBottom = "0";
+    });
+
+  requestAnimationFrame(() => {
+    document.body.offsetHeight;
+    console.log("✅ GT NOV8 runtime patch applied successfully");
+  });
+} catch (e) {
+  console.warn("GT NOV8 patch error:", e);
+}
+/* --- END PATCH --- */
