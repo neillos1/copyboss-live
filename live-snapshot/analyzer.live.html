@@ -79,10 +79,6 @@
           
           // Define comprehensive unlock function
           function removeAllLocks() {
-            if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) {
-              // If the utility modal is open, do not alter scroll or body overflow.
-              return;
-            }
             console.log('🔓 removeAllLocks() called - removing ALL lock elements');
             console.log('Document body exists:', !!document.body);
             console.log('Document ready state:', document.readyState);
@@ -301,6 +297,14 @@
 #viralGaugeCard, #captionGaugeCard, #soundGaugeCard, #viewerGaugeCard, #engagementGaugeCard, #ideaGaugeCard {
   background: #062c85 !important;
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.70), 0 0 40px rgba(59, 130, 246, 0.50), 0 0 60px rgba(59, 130, 246, 0.30) !important;
+}
+#cb-gauges .gauge-box.pro-locked, #cb-gauges .gauge-box.locked-card {
+  background: #062c85 !important;
+  filter: none !important;
+}
+#cb-gauges .gauge-box.pro-locked::before, #cb-gauges .gauge-box.locked-card::before, #cb-gauges .gauge-box.pro-locked::after, #cb-gauges .gauge-box.locked-card::after {
+  content: none !important;
+  display: none !important;
 }
 </style>
 </head>
@@ -2323,7 +2327,7 @@ html, body {
       </div>
     </div>
   </a></li>
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="analyzer-history">
+  <li><a href="#" class="sidebar-btn" data-target="analyzer-history">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-history"></i>
@@ -2331,7 +2335,7 @@ html, body {
       </div>
     </div>
   </a></li>
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="download-results">
+  <li><a href="#" class="sidebar-btn" data-target="download-results">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-download"></i>
@@ -2340,7 +2344,7 @@ html, body {
       <span class="pro-badge">PRO</span>
     </div>
   </a></li>
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="share-report">
+  <li><a href="#" class="sidebar-btn" data-target="share-report">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-share-alt"></i>
@@ -2383,7 +2387,7 @@ html, body {
   <div class="sidebar-divider"></div>
   
   <!-- Group 3: Settings & Tools -->
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="settings-section">
+  <li><a href="#" class="sidebar-btn" data-target="settings-section">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-cog"></i>
@@ -2391,7 +2395,7 @@ html, body {
       </div>
     </div>
   </a></li>
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="insights-section">
+  <li><a href="#" class="sidebar-btn" data-target="insights-section">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-chart-line"></i>
@@ -2399,7 +2403,7 @@ html, body {
       </div>
     </div>
   </a></li>
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="ai-tips">
+  <li><a href="#" class="sidebar-btn" data-target="ai-tips">
     <div class="btn-label">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-lightbulb"></i>
@@ -2828,6 +2832,22 @@ html, body {
 
 
    <div class="analyzer-wrapper">
+      <!-- Live Data Indicator -->
+  <div id="liveApiBadge" style="
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #00ff00;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  ">
+    🔴 LIVE API
+  </div>
 
 
 
@@ -4502,7 +4522,6 @@ function displayGeminiResultsSafe() {
 
 
 
-
 .user-info {
   display: flex;
   flex-direction: column;
@@ -6093,8 +6112,6 @@ a:hover {
     .main-wrapper {
       flex: 1;
       padding-bottom: 0 !important; /* Removed - was causing overscroll */
-      overflow-y: auto;
-      overflow-x: hidden;
     }
     
     /* Mobile-specific footer clearance - Analyzer page only */
@@ -6272,20 +6289,20 @@ a:hover {
   <div class="footer-container">
     <!-- Social Media Icons -->
     <div class="social-icons">
-      <a href="https://twitter.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Twitter">
-        <i class="fa-brands fa-x-twitter"></i>
+      <a href="https://twitter.com/copybosshq" target="_blank" class="social-link" aria-label="Twitter">
+        <i class="fab fa-twitter"></i>
       </a>
-      <a href="https://facebook.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
-        <i class="fa-brands fa-facebook"></i>
+      <a href="https://facebook.com/copybosshq" target="_blank" class="social-link" aria-label="Facebook">
+        <i class="fab fa-facebook"></i>
       </a>
-      <a href="https://instagram.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
-        <i class="fa-brands fa-instagram"></i>
+      <a href="https://instagram.com/copybosshq" target="_blank" class="social-link" aria-label="Instagram">
+        <i class="fab fa-instagram"></i>
       </a>
-      <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="TikTok">
-        <i class="fa-brands fa-tiktok"></i>
+      <a href="https://www.tiktok.com/@copybosspro?lang=en-GB" target="_blank" class="social-link" aria-label="TikTok">
+        <i class="fab fa-tiktok"></i>
       </a>
-      <a href="https://youtube.com/copybosshq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="YouTube">
-        <i class="fa-brands fa-youtube"></i>
+      <a href="https://youtube.com/copybosshq" target="_blank" class="social-link" aria-label="YouTube">
+        <i class="fab fa-youtube"></i>
       </a>
     </div>
 
@@ -6362,16 +6379,13 @@ a:hover {
   justify-content: center;
   padding: 10px;
   border-radius: 50%;
-  text-decoration: none !important;
+  text-decoration: none;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   width: 44px;
   height: 44px;
   position: relative;
   overflow: hidden;
-  outline: none !important;
-  border-bottom: none !important;
-  box-shadow: none;
 }
 
 .social-link::before {
@@ -6383,65 +6397,18 @@ a:hover {
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s;
-  z-index: 1;
-  border-radius: 50%;
 }
 
-.social-link:hover,
-.social-link:focus,
-.social-link:focus-visible {
+.social-link:hover {
   color: #ffffff;
-  transform: scale(1.05);
+  transform: translateY(-2px) scale(1.05);
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  outline: none !important;
-  text-decoration: none !important;
-  border-bottom: none !important;
 }
 
-.social-link:hover::before,
-.social-link:focus::before,
-.social-link:focus-visible::before {
+.social-link:hover::before {
   left: 100%;
-}
-
-.social-link:active {
-  transform: scale(0.98);
-  outline: none !important;
-  text-decoration: none !important;
-  border-bottom: none !important;
-}
-
-/* Ensure Font Awesome icons inside social links are visible and properly styled */
-.social-link i {
-  color: inherit !important;
-  font-size: inherit !important;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  z-index: 2 !important;
-  line-height: 1 !important;
-  font-style: normal !important;
-  width: auto !important;
-  height: auto !important;
-  text-decoration: none !important;
-  outline: none !important;
-  border: none !important;
-}
-
-/* Ensure Font Awesome brand icons render correctly */
-.social-link .fa-brands,
-.social-link .fa {
-  font-family: "Font Awesome 6 Brands" !important;
-  font-weight: 400 !important;
-  -webkit-font-smoothing: antialiased !important;
-  display: inline-block !important;
-  font-style: normal !important;
-  font-variant: normal !important;
-  text-rendering: auto !important;
-  line-height: 1 !important;
 }
 
 /* Footer Links */
@@ -6755,120 +6722,6 @@ a:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 50px rgba(59, 130, 246, 0.6), 0 0 70px rgba(59, 130, 246, 0.4);
 }
-
-/* ===== STRONG BLUR & LOCK OVERLAY FOR PRO GAUGES AND RESULT CARDS ===== */
-/* This only affects cards with .pro-locked class - free cards remain clear */
-
-/* Base locked state - ensure cards are positioned relatively for overlay */
-.gauge-box.pro-locked,
-.pro-locked-results.report-card {
-  position: relative;
-  overflow: hidden;
-}
-
-/* Strong blur overlay using ::before pseudo-element - creates heavy blur behind overlay */
-.gauge-box.pro-locked::before,
-.pro-locked-results.report-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  background: linear-gradient(
-    135deg,
-    rgba(2, 8, 32, 0.88),
-    rgba(4, 18, 64, 0.92)
-  );
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) inset;
-  z-index: 2;
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* Blur the actual card content underneath to make it unreadable */
-.gauge-box.pro-locked > *:not(.locked-overlay),
-.pro-locked-results.report-card > *:not(.locked-overlay) {
-  position: relative;
-  z-index: 1;
-  filter: blur(6px);
-}
-
-/* Enhance existing locked-overlay to have stronger blur and darker background */
-.gauge-box.pro-locked .locked-overlay,
-.pro-locked-results.report-card .locked-overlay {
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  background: rgba(2, 8, 32, 0.85) !important;
-  z-index: 10 !important;
-  pointer-events: auto;
-}
-
-/* Ensure locked cards content is not interactive (but overlay buttons are) */
-.gauge-box.pro-locked > *:not(.locked-overlay),
-.pro-locked-results.report-card > *:not(.locked-overlay) {
-  pointer-events: none;
-}
-
-/* Ensure free cards stay completely clear - no blur at all */
-/* Target by ID for Sound Match and Viewer Understanding gauge boxes */
-#soundGaugeCard,
-#viewerGaugeCard,
-.gauge-box[data-metric="sound-match"],
-.gauge-box[data-metric="viewer-understanding"],
-#soundmatch-card.report-card:not(.pro-locked-results),
-#viewerunderstanding-card.report-card:not(.pro-locked-results) {
-  filter: none !important;
-  pointer-events: auto !important;
-  position: relative !important;
-}
-
-#soundGaugeCard > *,
-#viewerGaugeCard > *,
-.gauge-box[data-metric="sound-match"] > *,
-.gauge-box[data-metric="viewer-understanding"] > *,
-#soundmatch-card.report-card:not(.pro-locked-results) > *,
-#viewerunderstanding-card.report-card:not(.pro-locked-results) > * {
-  filter: none !important;
-  pointer-events: auto !important;
-}
-
-/* Prevent any pseudo-elements from appearing on free cards */
-#soundGaugeCard::before,
-#soundGaugeCard::after,
-#viewerGaugeCard::before,
-#viewerGaugeCard::after,
-.gauge-box[data-metric="sound-match"]::before,
-.gauge-box[data-metric="sound-match"]::after,
-.gauge-box[data-metric="viewer-understanding"]::before,
-.gauge-box[data-metric="viewer-understanding"]::after,
-#soundmatch-card.report-card:not(.pro-locked-results)::before,
-#soundmatch-card.report-card:not(.pro-locked-results)::after,
-#viewerunderstanding-card.report-card:not(.pro-locked-results)::before,
-#viewerunderstanding-card.report-card:not(.pro-locked-results)::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* Explicitly ensure these free gauge boxes never get blurred, even if pro-locked class is accidentally added */
-#soundGaugeCard.pro-locked,
-#viewerGaugeCard.pro-locked {
-  filter: none !important;
-  pointer-events: auto !important;
-}
-
-#soundGaugeCard.pro-locked::before,
-#soundGaugeCard.pro-locked::after,
-#viewerGaugeCard.pro-locked::before,
-#viewerGaugeCard.pro-locked::after {
-  display: none !important;
-  content: none !important;
-}
-
-#soundGaugeCard.pro-locked > *,
-#viewerGaugeCard.pro-locked > * {
-  filter: none !important;
-  pointer-events: auto !important;
-}
 </style>
 
 
@@ -6932,6 +6785,18 @@ a:hover {
   });
 </script>
 
+<script>
+  document.querySelectorAll('.sidebar-btn').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('data-target');
+      const targetSection = document.getElementById(targetId);
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
 
 
 <script>
@@ -6959,8 +6824,18 @@ a:hover {
 
 
 
-<!-- SweetAlert2 - loaded from local file for reliability -->
-<script src="/js/sweetalert2.local.min.js"></script>
+<!-- SweetAlert2 loader - ensures it's loaded once -->
+<script>
+(function ensureSwal(){
+  if (window.Swal && typeof window.Swal.fire === 'function') return;
+  var s = document.querySelector('script[data-swal11]');
+  if (s) return;
+  s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+  s.setAttribute('data-swal11','1');
+  document.head.appendChild(s);
+})();
+</script>
 
 
 
@@ -7524,16 +7399,10 @@ a:hover {
     }
   };
 
-  // Debug: Check if SweetAlert2 is loaded
-  console.log("SweetAlert2 check:", typeof Swal, typeof window.Swal);
-  
   document.querySelectorAll('.sidebar-btn').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = link.dataset.target;
-      
-      // Debug: Log sidebar click
-      console.log("Sidebar click:", target);
 
       if (target === "analyzer-history") {
         const history = JSON.parse(localStorage.getItem("analysisHistory")) || [];
@@ -7830,6 +7699,43 @@ else if (modalContentMap[target]) {
         popup: 'swal2-popup-custom'
       }
     });
+  } else if (target === "download-results") {
+    // Check Pro access for download results
+    if (!checkProAccess('download-results')) {
+      return;
+    }
+    // Handle download results (existing logic)
+    console.log('[downloadPDF] Current feedback in window:', window.feedback);
+    console.log('[downloadPDF] Feedback type:', typeof window.feedback);
+    console.log('[downloadPDF] Feedback keys:', Object.keys(window.feedback || {}));
+    
+    // Check if we have current feedback from live analysis
+    if (!window.feedback || !window.feedback.feedback) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Analysis Results",
+        text: "Please analyze a video first to generate a report.",
+      });
+      return;
+    }
+    
+    // Continue with existing download logic...
+    const feedback = window.feedback.feedback;
+    
+    Swal.fire({
+      title: "Download Report?",
+      text: "Do you want to download your latest analysis as a PDF?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, download it",
+      cancelButtonText: "Cancel"
+    }).then(result => {
+      if (result.isConfirmed) {
+        // Existing download logic...
+        console.log('[downloadPDF] User confirmed download. Starting PDF generation...');
+        // ... rest of the download logic
+      }
+    });
   } else if (target === "upgrade-pro") {
     // Handle upgrade to Pro based on system status
     if (UPGRADE_SYSTEM_ACTIVE) {
@@ -7918,6 +7824,10 @@ else if (modalContentMap[target]) {
         initializeVideoComparison();
       }, 200);
     }
+  } else {
+    modalBody.innerHTML = content.html;
+    modal.classList.add("show");
+    overlay.classList.add("show");
   }
 }
     }); // end of link.addEventListener
@@ -9149,10 +9059,6 @@ async function redirectToStripeCheckout(plan) {
 
 // Unlock Logic Functions
 function unlockPro() {
-  if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) {
-    // If the utility modal is open, do not alter scroll or body overflow.
-    return;
-  }
   console.log('🔓 unlockPro() called - setting Pro status');
   localStorage.setItem('isPro', 'true');
   localStorage.removeItem('reportCredits'); // Clear credits when Pro is active
@@ -9226,10 +9132,6 @@ function removeLocks() {
 
 // Comprehensive lock removal function
 function removeAllLocks() {
-  if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) {
-    // If the utility modal is open, do not alter scroll or body overflow.
-    return;
-  }
   console.log('🔓 removeAllLocks() called - removing ALL lock elements');
   console.log('Document body exists:', !!document.body);
   console.log('Document ready state:', document.readyState);
@@ -10454,6 +10356,75 @@ async function saveAnalysisResult(score) {
   <button onclick="window.location.href='/pricing.html'" style="background:#7f5af0;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">Upgrade Now</button>
 </div>
 
+<script>
+// === Safari Visibility Fallback ===
+// Detect Safari and show a static preview instead of invisible charts.
+(function handleSafariFallback() {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) return;
+
+  console.log("🧩 Safari detected — enabling static analyzer fallback.");
+
+  // Hide the dynamic chart containers
+  document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
+    el.style.display = "none";
+  });
+
+  // Show static replacement (image or message)
+  const fallback = document.createElement("div");
+  fallback.style.cssText = `
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;padding:80px 20px;
+    color:#fff;font-size:18px;background:rgba(0,0,0,0.4);
+    border-radius:20px;backdrop-filter:blur(10px);
+  `;
+  fallback.innerHTML = `
+    <img src="/assets/analyzer-preview.png" 
+         alt="CopyBoss Analyzer Preview" 
+         style="max-width:600px;width:100%;border-radius:12px;margin-bottom:20px;">
+    <p>Your full interactive charts are available in Chrome, Edge, or Firefox.<br>
+       Safari currently displays a preview image for performance compatibility.</p>
+  `;
+  document.querySelector(".page-analyzer")?.prepend(fallback);
+
+  console.log("✅ Safari static analyzer fallback loaded.");
+})();
+</script>
+
+<script>
+// === Safari Static Analyzer Fallback ===
+(function() {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) return;
+
+  console.log("🧩 Safari detected – showing static analyzer preview.");
+
+  // Hide invisible live charts
+  document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
+    el.style.display = "none";
+  });
+
+  // Create replacement container
+  const fallback = document.createElement("div");
+  fallback.style.cssText = `
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;
+    background:rgba(0,0,0,0.45);backdrop-filter:blur(10px);
+    border-radius:20px;margin:60px auto;max-width:800px;
+    padding:60px 20px;color:#fff;font-size:18px;
+  `;
+  fallback.innerHTML = `
+    <img src="/assets/analyzer-preview.png"
+         alt="Analyzer preview"
+         style="max-width:650px;width:100%;border-radius:14px;margin-bottom:20px;">
+    <p>Interactive charts are available in Chrome, Edge, or Firefox.<br>
+       Safari currently displays this optimized static preview.</p>
+  `;
+  document.querySelector(".page-analyzer")?.prepend(fallback);
+
+  console.log("✅ Safari fallback image shown.");
+})();
+</script>
 
 <style id="final-ui-fix">
 /* Sidebar layout */
@@ -10493,14 +10464,12 @@ body.pro-active .cb-gauge, body.pro-active .cb-gauge * {
 footer {padding:8px 16px!important;min-height:auto!important;height:auto!important;gap:6px!important;}
 footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor:pointer!important;}
 
-/* Allow normal page scrolling - main content and sidebar both scroll */
+/* Prevent double scrollbars - sidebar handles its own scrolling */
 html,
 body {
-  height: auto !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  height: 100% !important;
+  overflow-y: hidden !important;
 }
-
 
 /* 🔒 LOCKED STRUCTURE - DO NOT MODIFY OR DELETE */
 /* Sidebar and footer structure protection - prevents accidental deletion/modification */
@@ -10572,30 +10541,17 @@ body {
   overflow: hidden !important;
 }
 
-/* CRITICAL FIX: Sidebar scrollable wrapper - use flex: 1 for proper scrolling */
+/* CRITICAL FIX: Remove the 100px padding-bottom from SCSS that creates overscroll */
 .sidebar .sidebar-wrapper,
 .sidebar-wrapper,
-.off-canvas-sidebar .sidebar-wrapper,
-#sidebar-wrapper {
-  flex: 1 !important;
+.off-canvas-sidebar .sidebar-wrapper {
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
-  padding: 12px 0 0 0 !important;
-  min-height: 0 !important;
+  padding: 12px 0 0 0 !important; /* Top padding only, no bottom */
+  height: 100vh !important;
+  max-height: 100vh !important;
   box-sizing: border-box !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scrollbar-width: thin;
-  scrollbar-color: #2e4cff transparent;
-  /* Remove fixed height - use flex instead */
-  height: auto !important;
-  max-height: none !important;
-}
-
-/* Push analyzer content to the right to account for fixed sidebar */
-.analyzer-wrapper {
-  padding-left: 260px !important; /* Sidebar width */
-  box-sizing: border-box !important;
+  /* Remove the calc(100vh - 75px) from SCSS and use exact 100vh */
 }
 
 /* Also ensure no child elements add extra space */
@@ -10708,59 +10664,6 @@ footer .social-link {
   z-index: 10001 !important;
   visibility: visible !important;
   opacity: 1 !important;
-}
-
-/* Ensure Font Awesome icons in footer social links are visible and styled */
-footer .social-link i,
-footer .social-link .fab,
-footer .social-link .fa,
-footer .social-link .fa-brands {
-  color: inherit !important;
-  font-size: inherit !important;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  z-index: 2 !important;
-  line-height: 1 !important;
-  font-style: normal !important;
-  font-family: "Font Awesome 6 Brands", "Font Awesome 6 Free" !important;
-  font-weight: 400 !important;
-  -webkit-font-smoothing: antialiased !important;
-  text-rendering: auto !important;
-}
-
-/* Hide the thin black mobile-drawer bar on desktop only */
-@media (min-width: 1025px) {
-  body.page-analyzer nav.cb-drawer-scroll {
-    display: none !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    visibility: hidden !important;
-  }
-}
-
-@media (min-width: 1200px) {
-
-  body.page-analyzer .analyzer-wrapper {
-    margin-top: -213px !important;
-
-    padding-left: 307px !important;   /* was 299px, now +8px */
-    padding-right: 50px !important;
-
-    padding-top: 10px;
-    box-sizing: border-box;
-  }
-
-  body.page-analyzer .analyzer-wrapper > .analyzer-main,
-  body.page-analyzer .analyzer-wrapper > .chart-card,
-  body.page-analyzer .analyzer-wrapper > .analyzer-content {
-    max-width: 1500px;
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
 </style>
 <script>
@@ -11123,90 +11026,7 @@ footer .social-link .fa-brands {
     const apply = () => { /* recall this function */ window.__CB_HOTFIX_ONCE = undefined; (()=>{})(); };
     setTimeout(() => window.__CB_HOTFIX_ONCE = undefined, 1500);
   })());
-  })();
-</script>
-
-<script>
-// === CLEAN ANALYZER GAP FIX ===
-// Desktop-only. No wrapper collapsing. No sidebar breaking.
-// Simply measures the gap and gently shifts the analyzer content.
-
-window.addEventListener('load', function () {
-  try {
-    var header = document.getElementById('cb-header');
-    var main = document.querySelector('.analyzer-wrapper');
-
-    if (!header || !main) {
-      console.warn('[ANALYZER GAP FIX] Cannot find header or analyzer-wrapper.');
-      return;
-    }
-
-    // Desktop only
-    if (window.innerWidth < 1025) {
-      console.log('[ANALYZER GAP FIX] Mobile view — no adjustment.');
-      return;
-    }
-
-    // Reset any previous adjustments
-    main.style.transform = '';
-    main.style.paddingTop = '';
-
-    window.requestAnimationFrame(function () {
-      var headerRect = header.getBoundingClientRect();
-      var mainRect = main.getBoundingClientRect();
-
-      var headerBottom = headerRect.bottom;
-      var mainTop = mainRect.top;
-      var rawGap = mainTop - headerBottom;
-
-      console.log('[ANALYZER GAP FIX] Raw gap:', rawGap);
-
-      if (rawGap <= 0 || rawGap > 2000) {
-        console.log('[ANALYZER GAP FIX] Gap outside expected range — no shift.');
-        return;
-      }
-
-      var desiredOffset = 64; // space under navbar
-      var shiftAmount = rawGap - desiredOffset;
-
-      if (shiftAmount < 0) shiftAmount = 0;
-      if (shiftAmount > 800) shiftAmount = 800;
-
-      if (shiftAmount > 0) {
-        var offset = -shiftAmount;
-        main.style.transform = 'translateY(' + offset + 'px)';
-        main.style.willChange = 'transform';
-        main.style.paddingTop = desiredOffset + 'px';
-
-        console.log('[ANALYZER GAP FIX] translateY applied:', offset + 'px');
-      } else {
-        console.log('[ANALYZER GAP FIX] No shift needed.');
-      }
-    });
-
-  } catch (e) {
-    console.warn('[ANALYZER GAP FIX] Error:', e);
-  }
-});
-</script>
-
-<!-- vbSimpleModalIsOpen stub for nav compatibility - checks SweetAlert2 instead -->
-<script>
-  (function() {
-    // Helper to check if a SweetAlert2 modal is open (for nav compatibility)
-    function vbSimpleModalIsOpen() {
-      // Check if SweetAlert2 popup is visible
-      const swalPopup = document.querySelector('.swal2-popup');
-      if (swalPopup) {
-        const style = window.getComputedStyle(swalPopup);
-        return style.display !== 'none' && style.visibility !== 'hidden';
-      }
-      return false;
-    }
-
-    // Expose helper globally for nav fixes
-    window.vbSimpleModalIsOpen = vbSimpleModalIsOpen;
-  })();
+})();
 </script>
 
 </body>
