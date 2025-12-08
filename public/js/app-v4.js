@@ -692,14 +692,14 @@ document.addEventListener("DOMContentLoaded", () => {
     meta2.content = "same-origin";
     document.head.appendChild(meta2);
 
-    // Step 3: Trigger forced reflow + repaint
+    // Step 3: Trigger forced reflow + repaint (without hiding charts)
     setTimeout(() => {
       document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(chart => {
-        chart.style.display = "none";
+        // Force reflow without hiding - just trigger repaint
         void chart.offsetHeight;
-        chart.style.display = "block";
+        chart.style.transform = "translateZ(0)"; // Force GPU layer
       });
-      console.log("✅ Safari repaint and origin fix applied.");
+      console.log("✅ Safari repaint and origin fix applied (charts remain visible).");
     }, 2500);
   } catch (err) {
     console.error("❌ Safari origin unification failed:", err);
@@ -747,45 +747,9 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
   } catch(e) { /* no-op */ }
 })();
 
-// === Safari Static Analyzer Fallback (Layout Safe) ===
-(function() {
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  if (!isSafari) return;
-
-  console.log("🧩 Safari detected – showing static analyzer preview.");
-
-  // Target main analyzer section only
-  const mainContainer = document.querySelector("#analyzerWrapper") 
-                     || document.querySelector(".analyzer-page") 
-                     || document.body;
-
-  // Hide invisible live charts (keep wrapper layout intact)
-  mainContainer.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
-    el.style.visibility = "hidden";
-    el.style.position = "absolute";
-  });
-
-  // Create centered replacement
-  const fallback = document.createElement("div");
-  fallback.style.cssText = `
-    display:flex;flex-direction:column;align-items:center;
-    justify-content:center;text-align:center;
-    background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);
-    border-radius:20px;margin:auto;padding:60px 20px;
-    max-width:700px;color:#fff;font-size:18px;
-  `;
-  fallback.innerHTML = `
-    <h2 style="margin-bottom:20px;font-size:22px;">CopyBoss Analyzer Preview</h2>
-    <img src="/assets/analyzer-preview.png"
-         alt="Analyzer preview"
-         style="max-width:600px;width:100%;border-radius:12px;margin-bottom:20px;">
-    <p>Your full interactive charts are available in Chrome, Edge, or Firefox.<br>
-       Safari currently displays a static preview for compatibility.</p>
-  `;
-  mainContainer.appendChild(fallback);
-
-  console.log("✅ Safari fallback loaded safely inside layout.");
-})();
+// === Safari Static Analyzer Fallback REMOVED ===
+// This preview card has been completely removed.
+// Charts now render normally in Safari using canvas mode.
 
 // === ApexCharts Safari Fallback: Force Canvas Rendering ===
 // Safari sometimes fails to paint SVG charts properly due to GPU compositing bugs.

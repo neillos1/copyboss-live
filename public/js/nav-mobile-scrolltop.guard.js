@@ -12,17 +12,29 @@
     return y;
   }
   function restoreY(){
+    if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) return;
     var y = +(document.documentElement.dataset.cbNavSavedY || 0);
     // minor delay so close animation finishes
-    setTimeout(function(){ window.scrollTo(0, y); }, 60);
+    setTimeout(function(){ 
+      if (!window.vbSimpleModalIsOpen || !window.vbSimpleModalIsOpen()) {
+        window.scrollTo(0, y); 
+      }
+    }, 60);
   }
 
   // Ensure page is at top before drawer becomes visible
   function preOpen(){
+    if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) return;
     saveY();
     // do it twice to beat frameworks that open async
-    window.scrollTo(0, 0);
-    setTimeout(function(){ window.scrollTo(0, 0); }, 0);
+    if (!window.vbSimpleModalIsOpen || !window.vbSimpleModalIsOpen()) {
+      window.scrollTo(0, 0);
+      setTimeout(function(){ 
+        if (!window.vbSimpleModalIsOpen || !window.vbSimpleModalIsOpen()) {
+          window.scrollTo(0, 0); 
+        }
+      }, 0);
+    }
   }
 
   // Wire clicks (capture so nothing cancels us)

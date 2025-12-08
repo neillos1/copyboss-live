@@ -39,7 +39,9 @@
       target.setAttribute('data-fix-shift', shift);
 
       // snap page back to absolute left in case it had scrolled sideways
-      try { document.scrollingElement.scrollLeft = 0; } catch {}
+      if (!window.vbSimpleModalIsOpen || !window.vbSimpleModalIsOpen()) {
+        try { document.scrollingElement.scrollLeft = 0; } catch {}
+      }
     }
   }
 

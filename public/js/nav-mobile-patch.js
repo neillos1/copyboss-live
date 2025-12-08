@@ -39,6 +39,7 @@
   }
   function unlockBody(){
     if (document.body.dataset._navLocked !== '1') return;
+    if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) return;
     document.body.dataset._navLocked = '';
     document.body.style.position = '';
     document.body.style.top = '';
@@ -46,7 +47,9 @@
     document.body.style.right = '';
     document.body.style.width = '';
     document.body.style.overflow = '';
-    if (typeof lastLockY === 'number') window.scrollTo(0, lastLockY);
+    if (typeof lastLockY === 'number' && (!window.vbSimpleModalIsOpen || !window.vbSimpleModalIsOpen())) {
+      window.scrollTo(0, lastLockY);
+    }
   }
 
   function sync(){

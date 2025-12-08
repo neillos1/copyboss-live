@@ -26,6 +26,7 @@
   }
   function unlockBody(){
     if (!document.documentElement.classList.contains('cb-nav-open')) return;
+    if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) return;
     var y = +(document.body.dataset._lockY || 0);
     document.documentElement.classList.remove('cb-nav-open');
     document.body.style.position = '';
@@ -33,7 +34,9 @@
     document.body.style.left = '';
     document.body.style.right = '';
     document.body.style.width = '';
-    window.scrollTo(0, y);
+    if (!window.vbSimpleModalIsOpen || !window.vbSimpleModalIsOpen()) {
+      window.scrollTo(0, y);
+    }
   }
 
   function portalize(el, overlay){

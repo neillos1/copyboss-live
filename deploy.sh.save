@@ -1,0 +1,52 @@
+#!/bin/bash
+# === CopyBoss Live Redeploy Script ===
+# Prerequisite: export RENDER_API_KEY="your_render_api_key_here"
+
+set -e
+SERVICE_NAME="copyboss-live"
+COMMIT_ID="ad6c1bce"
+BASE_URL="https://www.copy-boss.com"
+
+echo "🔍 Fetching service ID for $SERVICE_NAME..."
+SERVICE_ID=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
+  https://api.render.com/v1/services | jq -r ".[] | select(.name==\"$SERVICE_NAME\") | .id")
+
+if [ -z "$SERVICE_ID" ]; then
+  echo "❌ Service ID not found. Check service name or API key."
+  exit 1
+fi
+
+echo "✅ Service ID found: $SERVICE_ID"
+echo "🚀 Triggering cache-cleared deploy for commit $COMMIT_ID..."
+DEPLOY_RESPONSE=$(curl -s -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+  -H "Authorization: Bearer $RENDER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"clearCache\": true, \"commitId\": \"$COMMIT_ID\"}")
+
+DEPLOY_ID=$(echo "$DEPLOY_RESPONSE" | jq -r ".id")
+echo "🆕 Deploy started — ID: $DEPLOY_ID"
+
+echo "⏳ Waiting for deployment to go live..."
+while true; do
+  STATUS=$(curl -s -H "Authorization: Bearer $RENDER_API_KEY" \
+    "https://api.render.com/v1/deploys/$DEPLOY_ID" | jq -r ".status")
+  echo "Current status: $STATUS"
+  if [[ "$STATUS" == "live" ]]; then
+    echo "✅ Deployment is LIVE!"
+    break
+  fi
+  sleep 10
+done
+
+echo "🧠 Verifying asset freshness (cache-busting check)..."
+for asset in "js/gate-logic.js" "js/app-v4.js" "css/style.css"; do
+  echo "Checking $asset"
+  curl -I "$BASE_URL/$asset?v=$(date +%s)" | grep -E "HTTP|Last-Modified"
+done
+
+echo "🎯 Deployment complete. Now open Chrome → DevTools console on:"
+echo "👉 $BASE_URL/analyzer.html?v=$(date +%s)"
+echo "and confirm log: ✅ Analyzer gating + Stripe unlock system finalized"
+
+
+
