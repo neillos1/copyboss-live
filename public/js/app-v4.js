@@ -1,5 +1,158 @@
 // --- TEMP: disable popups so unlock flow can complete without errors ---
 window.__DISABLE_POPUPS__ = true;
+
+// ===== ANALYZING OVERLAY CONTROLLER =====
+(function() {
+  let overlayEl = null;
+  let startTime = 0;
+  let minMs = 26000;
+  let finished = false;
+  let finishCallback = null;
+
+  window.cbOverlay = {
+    show: function(minMsOverride) {
+      minMs = minMsOverride || 26000;
+      finished = false;
+      startTime = Date.now();
+      
+      // Remove existing overlay if present
+      if (overlayEl && overlayEl.parentNode) {
+        overlayEl.parentNode.removeChild(overlayEl);
+      }
+
+      // Create overlay element
+      overlayEl = document.createElement('div');
+      overlayEl.id = 'cb-analyzing-overlay';
+      overlayEl.style.cssText = `
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 99999 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 !important;
+        padding: 0 !important;
+      `;
+
+      const card = document.createElement('div');
+      card.style.cssText = `
+        background: rgba(12, 12, 18, 0.98);
+        border-radius: 20px;
+        padding: 48px 40px;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+      `;
+
+      const spinner = document.createElement('div');
+      spinner.style.cssText = `
+        width: 64px;
+        height: 64px;
+        border: 4px solid rgba(30, 136, 229, 0.2);
+        border-top-color: #1E88E5;
+        border-radius: 50%;
+        margin: 0 auto 24px;
+        animation: cbv-spin 1s linear infinite;
+      `;
+
+      const headline = document.createElement('h2');
+      headline.textContent = 'Analyzing your video…';
+      headline.style.cssText = `
+        color: #fff;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 8px;
+        font-family: 'Poppins', sans-serif;
+      `;
+
+      const subtext = document.createElement('p');
+      subtext.textContent = 'Please wait — usually 5–15 seconds.';
+      subtext.style.cssText = `
+        color: #aaa;
+        font-size: 14px;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+      `;
+
+      card.appendChild(spinner);
+      card.appendChild(headline);
+      card.appendChild(subtext);
+      overlayEl.appendChild(card);
+      document.body.appendChild(overlayEl);
+
+      // Play blurb sound if available
+      const uploadSound = document.getElementById('analyze-sound');
+      if (uploadSound) {
+        uploadSound.currentTime = 0;
+        uploadSound.play().catch(e => console.log("Upload sound autoplay blocked:", e));
+      }
+
+      console.log('[OVERLAY] show');
+    },
+
+    finish: function() {
+      finished = true;
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minMs - elapsed);
+      
+      console.log('[OVERLAY] analysis finished, waiting min time...', { elapsed, remaining });
+      
+      return new Promise((resolve) => {
+        if (remaining > 0) {
+          setTimeout(() => {
+            this.hideNow();
+            resolve();
+          }, remaining);
+        } else {
+          this.hideNow();
+          resolve();
+        }
+      });
+    },
+
+    hideNow: function() {
+      if (!overlayEl) return;
+      
+      console.log('[OVERLAY] hide');
+      
+      overlayEl.style.opacity = '0';
+      overlayEl.style.transition = 'opacity 0.3s ease';
+      
+      setTimeout(() => {
+        if (overlayEl && overlayEl.parentNode) {
+          overlayEl.parentNode.removeChild(overlayEl);
+        }
+        overlayEl = null;
+      }, 300);
+    }
+  };
+
+  // Add spinner animation if not already present
+  if (!document.getElementById('cb-overlay-styles')) {
+    const style = document.createElement('style');
+    style.id = 'cb-overlay-styles';
+    style.textContent = `
+      @keyframes cbv-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      /* Ensure upload button is always clickable */
+      #uploadBtn, label[for="file-upload"], #file-upload {
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 1000;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
 (function ensureSwalNoop(){
   // Create a safe shim that works for BOTH usages: Swal.fire(...) and new Swal(...)
   if (window.Swal) return; // if the real one loads later, fine

@@ -8,6 +8,33 @@ const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 const urlParams = new URLSearchParams(window.location.search);
 const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true";
 
+// Gate check function for analysis
+window.cbCanAnalyze = function() {
+  // DEV ONLY: Localhost override for testing (does not affect production)
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
+  }
+  
+  const isProActive = localStorage.getItem('isPro') === 'true';
+  const credits = parseInt(localStorage.getItem('reportCredits') || '0');
+  const hasCredits = credits > 0;
+  const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
+  
+  if (isProActive) {
+    return { allowed: true, reason: 'Pro user' };
+  }
+  
+  if (hasCredits) {
+    return { allowed: true, reason: `Has ${credits} credits` };
+  }
+  
+  if (!freeUploadUsed) {
+    return { allowed: true, reason: 'Free upload available' };
+  }
+  
+  return { allowed: false, reason: 'No credits, free upload used, not Pro' };
+};
+
 console.log("🔍 Gating detection:", {
   successParam: urlParams.get("success"),
   localStorageIsPro: localStorage.getItem("isPro")
@@ -38,6 +65,8 @@ function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
     targets.forEach(el => {
       el.style.filter = "blur(6px)";
       el.style.opacity = "0.7";
+      // Keep pointer-events: none for blurred elements (they shouldn't be clickable)
+      // But ensure upload button/file picker are NOT inside these blurred elements
       el.style.pointerEvents = "none";
       el.style.transition = "filter 0.3s ease, opacity 0.3s ease";
     });

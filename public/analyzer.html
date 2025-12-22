@@ -53,6 +53,30 @@
       gtag('config', 'G-6WMZL614NV');
     </script>
 
+    <!-- ✅ FIRST PAINT: Hard-hide legacy upgrade popup (prevents flash on page load) -->
+    <style id="legacy-upgrade-kill">
+      /* Hide ONLY specific legacy upgrade popup IDs at first paint */
+      /* These are static HTML elements that gate-logic.js/app-v4.js may toggle */
+      #proUnlockPopup,
+      #proPopup {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      
+      /* Hide any legacy upgradeModal (not the real injected one) */
+      #upgradeModal:not(#cb-upgrade-modal) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      
+      /* PROTECT: Real injected modal must NOT be hidden */
+      /* #cb-upgrade-modal and .cb-upgrade-modal are the real modal - do NOT target them above */
+    </style>
+
     <!-- 🚀 IMMEDIATE PRO UNLOCK - RUNS FIRST -->
     <script>
       console.log('🔥 ANALYZER SCRIPT LOADING - IMMEDIATE UNLOCK CHECK');
@@ -4041,10 +4065,14 @@ function previewVideo() {
 
 // Analyze video using Gemini backend
 async function runAnalysis() {
-  console.log('[runAnalysis] Started video analysis...');
+  console.log('[runAnalysis] start');
 
-  // Check if user has access (Pro, credits, or free upload)
-  if (!isProActive() && !hasCredits() && hasUsedFreeUpload()) {
+  // Gate check
+  const gate = typeof window.cbCanAnalyze === 'function' ? window.cbCanAnalyze() : { allowed: true, reason: 'Gate check not available' };
+  console.log('[runAnalysis] gate decision:', gate);
+
+  if (!gate.allowed) {
+    console.log('[runAnalysis] blocked by gate, showing upgrade modal');
     showUpgradeModal();
     return;
   }
@@ -4061,11 +4089,9 @@ async function runAnalysis() {
   }
 
   const fileInputEl = document.getElementById("file-upload");
-  const loader = document.getElementById("loadingIndicator");
-  const timerEl = document.getElementById("analysisTimer");
 
-  if (!fileInputEl || !loader) {
-    alert("⚠️ Missing file input or loading element.");
+  if (!fileInputEl) {
+    alert("⚠️ Missing file input element.");
     return;
   }
 
@@ -4075,30 +4101,17 @@ async function runAnalysis() {
     return;
   }
 
-  // ✅ Show animated overlay
-  loader.style.display = "flex";
-  
-  // Start timer
-  let seconds = 0;
-  const timerInterval = setInterval(() => {
-    seconds++;
-    if (timerEl) {
-      if (seconds < 10) {
-        timerEl.textContent = `Processing... ${seconds}s`;
-      } else if (seconds < 20) {
-        timerEl.textContent = `Analyzing content... ${seconds}s`;
-      } else {
-        timerEl.textContent = `Finalizing results... ${seconds}s`;
-      }
-    }
-  }, 1000);
+  // Show overlay immediately (before fetch)
+  if (typeof window.cbOverlay !== 'undefined' && window.cbOverlay.show) {
+    window.cbOverlay.show(26000);
+  }
 
   try {
+    console.log('[runAnalysis] about to fetch /upload');
+    
     // Use live Gemini API instead of dummy data
     const formData = new FormData();
     formData.append("video", file);
-
-    console.log("📤 Sending file to /upload for live Gemini analysis...");
 
     // Play the upload sound
     const uploadSound = document.getElementById('analyze-sound');
@@ -4112,6 +4125,8 @@ async function runAnalysis() {
       body: formData,
     });
 
+    console.log('[runAnalysis] upload response received', response.status);
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
@@ -4123,10 +4138,6 @@ async function runAnalysis() {
     if (!validateFeedback(result.feedback)) {
       throw new Error("Invalid feedback structure received from API");
     }
-
-    // Clear timer
-    clearInterval(timerInterval);
-    if (timerEl) timerEl.textContent = "Analysis complete!";
 
     // Store feedback globally for PDF generation
     window.feedback = result;
@@ -4160,27 +4171,35 @@ async function runAnalysis() {
     displayGeminiResultsSafe();
     syncGaugesFromGemini(result.feedback);
 
-    // ✅ Hide overlay after done
-    setTimeout(() => {
-      loader.style.display = "none";
-      
-      // ✅ Show results
-      document.querySelectorAll(".result-content").forEach(el => el.style.opacity = 1);
-      document.querySelectorAll(".analyzing").forEach(el => el.style.display = "none");
-      console.log("✅ Analysis complete - loader hidden and results shown");
-    }, 1000);
+    // ✅ Show results
+    document.querySelectorAll(".result-content").forEach(el => el.style.opacity = 1);
+    document.querySelectorAll(".analyzing").forEach(el => el.style.display = "none");
+    console.log("✅ Analysis complete - results shown");
 
   } catch (error) {
     console.error("❌ Analysis failed:", error);
-    clearInterval(timerInterval);
     
-    // Show error in timer
-    if (timerEl) timerEl.textContent = "Analysis failed - please try again";
+    // Use error message from backend if available
+    const errorMessage = (error && error.message) || 'Video analysis failed due to an unknown error. Please try again.';
     
-    setTimeout(() => {
-      loader.style.display = "none";
-      alert("❌ Analysis failed: " + error.message);
-    }, 2000);
+    // Show Toastify notification if available
+    if (typeof Toastify !== 'undefined') {
+      Toastify({
+        text: "❌ Analysis failed: " + errorMessage,
+        duration: 5000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "linear-gradient(to right, #ff6b6b, #ee5a6f)",
+        stopOnFocus: true
+      }).showToast();
+    } else {
+      alert("❌ Analysis failed: " + errorMessage);
+    }
+  } finally {
+    // Always wait for minimum time before hiding overlay
+    if (typeof window.cbOverlay !== 'undefined' && window.cbOverlay.finish) {
+      await window.cbOverlay.finish();
+    }
   }
 }
 
@@ -8339,7 +8358,7 @@ function closeComparisonSection() {
 }
 
 // Function to show upgrade modal for Free users
-function showUpgradeModal() {
+function showUpgradeModalSwal() {
   Swal.fire({
     title: "Upgrade to Pro to Compare Videos",
     html: `
@@ -9604,110 +9623,175 @@ function canAnalyze() {
   return isProActive() || hasCredits() || !hasUsedFreeUpload();
 }
 
-// Upgrade Modal
-function showUpgradeModal() {
+// Upgrade Modal - Create on demand, persistent until user closes
+(function() {
+  window.showUpgradeModal = function() {
+    // Remove existing modal if present (prevent duplicates)
+    const existing = document.getElementById('cb-upgrade-modal');
+    if (existing) {
+      existing.remove();
+    }
+
   const modal = document.createElement('div');
-  modal.id = 'upgradeModal';
+  modal.id = 'cb-upgrade-modal';
+  modal.className = 'cb-upgrade-modal';
   modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 100000 !important;
     backdrop-filter: blur(5px);
+    pointer-events: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
   `;
   
-  modal.innerHTML = `
-    <div style="
-      background: linear-gradient(135deg, #0d0d1a, #1a1a2e);
-      border: 1px solid #333;
-      border-radius: 15px;
-      padding: 30px;
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    ">
-      <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🚀 Upgrade to VideoBoss Pro</h2>
-      <p style="color: #ccc; margin-bottom: 30px; line-height: 1.6;">
-        You've used your free analysis. Upgrade now to unlock unlimited video analysis and advanced features!
-      </p>
-      
-      <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px;">
-        <button onclick="redirectToStripeCheckout('pro')" style="
-          background: linear-gradient(135deg, #6c63ff, #8e7cff);
-          color: white;
-          border: none;
-          padding: 15px 25px;
-          border-radius: 10px;
-          font-weight: 600;
-          font-size: 16px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
-        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(108, 99, 255, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(108, 99, 255, 0.3)'">
-          💎 Upgrade to Pro - £4.99/month
-        </button>
-        
-        <button onclick="redirectToStripeCheckout('2reports')" aria-label="Buy 2 Reports for £1.99" style="
-          background: linear-gradient(135deg, #4CAF50, #45a049);
-          color: white;
-          border: none;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
-        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(76, 175, 80, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(76, 175, 80, 0.3)'">
-          📊 Buy 2 Reports - £1.99
-        </button>
-        
-        <button onclick="redirectToStripeCheckout('15reports')" aria-label="Buy 15 Reports for £9.99" style="
-          background: linear-gradient(135deg, #FF9800, #F57C00);
-          color: white;
-          border: none;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
-        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(255, 152, 0, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(255, 152, 0, 0.3)'">
-          📈 Buy 15 Reports - £9.99
-        </button>
-      </div>
-      
-      <button onclick="closeUpgradeModal()" style="
-        background: transparent;
-        color: #888;
-        border: 1px solid #444;
-        padding: 8px 16px;
-        border-radius: 6px;
+  // Modal card (stops click propagation)
+  const card = document.createElement('div');
+  card.style.cssText = `
+    background: linear-gradient(135deg, #0d0d1a, #1a1a2e);
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
+  `;
+  
+  // Stop clicks on card from bubbling to backdrop
+  card.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+  
+  card.innerHTML = `
+    <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🚀 Upgrade to VideoBoss Pro</h2>
+    <p style="color: #ccc; margin-bottom: 30px; line-height: 1.6;">
+      You've used your free analysis. Upgrade now to unlock unlimited video analysis and advanced features!
+    </p>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px;">
+      <button onclick="redirectToStripeCheckout('pro')" style="
+        background: linear-gradient(135deg, #6c63ff, #8e7cff);
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
         cursor: pointer;
         transition: all 0.3s ease;
-      " onmouseover="this.style.borderColor='#666'; this.style.color='#aaa'" onmouseout="this.style.borderColor='#444'; this.style.color='#888'">
-        Maybe Later
+        box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        pointer-events: auto !important;
+      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(108, 99, 255, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(108, 99, 255, 0.3)'">
+        💎 Upgrade to Pro - £4.99/month
+      </button>
+      
+      <button onclick="redirectToStripeCheckout('2reports')" aria-label="Buy 2 Reports for £1.99" style="
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        pointer-events: auto !important;
+      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(76, 175, 80, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(76, 175, 80, 0.3)'">
+        📊 Buy 2 Reports - £1.99
+      </button>
+      
+      <button onclick="redirectToStripeCheckout('15reports')" aria-label="Buy 15 Reports for £9.99" style="
+        background: linear-gradient(135deg, #FF9800, #F57C00);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+        pointer-events: auto !important;
+      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(255, 152, 0, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(255, 152, 0, 0.3)'">
+        📈 Buy 15 Reports - £9.99
       </button>
     </div>
+    
+    <button onclick="closeUpgradeModal()" style="
+      background: transparent;
+      color: #888;
+      border: 1px solid #444;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      pointer-events: auto !important;
+    " onmouseover="this.style.borderColor='#666'; this.style.color='#aaa'" onmouseout="this.style.borderColor='#444'; this.style.color='#888'">
+      Maybe Later
+    </button>
   `;
   
+  modal.appendChild(card);
+  
+  // Click outside to close (only fires on backdrop, not card)
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeUpgradeModal();
+    }
+  });
+  
+  // Escape key to close
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape' && document.getElementById('cb-upgrade-modal')) {
+      closeUpgradeModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+  
+  // Append to body (not inside any container)
   document.body.appendChild(modal);
-}
+  
+    console.log('[UPGRADE MODAL] opened (persistent)');
+  };
+  
+  window.closeUpgradeModal = function() {
+    const modal = document.getElementById('cb-upgrade-modal');
+    if (modal) {
+      modal.remove();
+      console.log('[UPGRADE MODAL] closed by user');
+    }
+  };
+})();
 
-function closeUpgradeModal() {
-  const modal = document.getElementById('upgradeModal');
-  if (modal) {
-    modal.remove();
+// Verification logs on page load
+(function() {
+  function checkElements() {
+    const legacyUpgrade = !!document.querySelector('#upgradeModal:not(#cb-upgrade-modal)');
+    const legacyProPopup = !!document.querySelector('#proUnlockPopup');
+    const realModal = !!document.querySelector('#cb-upgrade-modal');
+    console.log('[UPGRADE] legacy flash element (#upgradeModal) present:', legacyUpgrade);
+    console.log('[UPGRADE] legacy proUnlockPopup present:', legacyProPopup);
+    console.log('[UPGRADE] real modal wrapper (#cb-upgrade-modal) present:', realModal);
   }
-}
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkElements);
+  } else {
+    checkElements();
+  }
+})();
 
 // Update all upgrade buttons to show modal first
 document.addEventListener('DOMContentLoaded', function() {
@@ -10448,7 +10532,7 @@ async function saveAnalysisResult(score) {
 <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
 
 <!-- ✅ Fallback Pro Popup -->
-<div id="proUnlockPopup" class="pro-upgrade-popup" style="display:flex;flex-direction:column;align-items:center;justify-content:center;position:fixed;inset:0;background:rgba(0,0,0,0.85);color:#fff;z-index:9999;opacity:1;visibility:visible;">
+<div id="proUnlockPopup" class="pro-upgrade-popup" style="display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;">
   <h2 style="margin-bottom:10px;">Upgrade to CopyBoss Pro</h2>
   <p style="margin-bottom:20px;">Unlock all viral analysis metrics instantly.</p>
   <button onclick="window.location.href='/pricing.html'" style="background:#7f5af0;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">Upgrade Now</button>

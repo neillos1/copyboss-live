@@ -109,6 +109,25 @@ app.get('/debug-unlock', (req, res) => {
   });
 });
 
+// --- Debug endpoints (dev safe) ---
+app.get('/debug/gemini', (_req, res) => {
+  const geminiModel = (process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash").replace(/^models\//, '');
+  res.json({
+    ok: true,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY ? 'SET' : 'MISSING',
+    GEMINI_MODEL: process.env.GEMINI_MODEL ? process.env.GEMINI_MODEL : `(default: ${geminiModel})`,
+    modelUsed: geminiModel
+  });
+});
+
+app.get('/debug/where-am-i', (_req, res) => {
+  res.json({
+    ok: true,
+    cwd: process.cwd(),
+    __dirname: typeof __dirname !== 'undefined' ? __dirname : null
+  });
+});
+
 // --- Additional API endpoints for analyzer functionality ---
 app.get('/api/user/status/:userId', (req, res) => {
   // Enhanced user status endpoint with Pro plan support
