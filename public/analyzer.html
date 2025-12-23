@@ -8078,7 +8078,7 @@ window.cbPdf.generate = function(snapshot) {
   // Clean CB logo mark - centered and optimized for PDF rendering
   const mascotSVG = `<svg viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
     <rect width="120" height="120" fill="#1D4ED8" rx="14"/>
-    <text x="60" y="76" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle" letter-spacing="1">CB</text>
+    <text x="60" y="60" dy="18" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="white" text-anchor="middle" letter-spacing="1">CB</text>
   </svg>`;
   const mascotDataURI = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(mascotSVG)));
   
