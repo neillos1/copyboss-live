@@ -4110,6 +4110,10 @@ async function runAnalysis() {
     return;
   }
 
+  // Store filename for PDF generation
+  window.cbLastUploadedFilename = file?.name || null;
+  console.log('[PDF] Stored filename:', window.cbLastUploadedFilename);
+
   // Hide any existing fallback indicator (will be shown again if needed)
   const existingIndicator = document.getElementById('cb-fallback-indicator');
   if (existingIndicator) {
@@ -7134,6 +7138,10 @@ a:hover {
   const file = event.target.files[0];
   if (!file) return;
   
+  // Store filename for PDF generation
+  window.cbLastUploadedFilename = file?.name || null;
+  console.log('[PDF] Stored filename:', window.cbLastUploadedFilename);
+  
   // Trigger the analysis process
   runAnalysis();
 }
@@ -7736,68 +7744,151 @@ a:hover {
         }, 100);
   } else if (target === "download-results") {
   // ✅ PDF Generation - Standalone, no API calls
-  // Check if we have feedback from analysis
-  if (!window.feedback || !window.feedback.feedback) {
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        icon: "warning",
-        title: "No Analysis Results",
-        text: "Run an analysis first",
-        confirmButtonText: "OK"
-      });
-    } else {
+  (async () => {
+    console.log('[PDF] download-results clicked');
+    console.log('[PDF] window.feedback present?', !!window.feedback);
+    
+    // Check if we have feedback from analysis
+    if (!window.feedback || !window.feedback.feedback) {
+      console.warn('[PDF] No feedback available');
       alert("Run an analysis first");
+      return;
     }
-    return;
-  }
 
-  // Show confirmation dialog first
-  if (typeof Swal !== 'undefined') {
-    Swal.fire({
-      title: "Download Report?",
-      text: "Do you want to download your latest analysis as a PDF?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, download it",
-      cancelButtonText: "Cancel"
-    }).then(result => {
-      if (result.isConfirmed) {
-        // Create snapshot to avoid mutations
-        const snapshot = (typeof structuredClone !== 'undefined' && structuredClone) 
-          ? structuredClone(window.feedback) 
-          : JSON.parse(JSON.stringify(window.feedback));
-        
-        // Generate PDF from snapshot
-        if (typeof window.cbPdf !== 'undefined' && window.cbPdf.generate) {
-          console.log('[PDF] generating from snapshot');
-          window.cbPdf.generate(snapshot);
-        } else {
-          console.error('[PDF] window.cbPdf.generate not available');
-          Swal.fire({
-            icon: "error",
-            title: "PDF Generator Not Available",
-            text: "Please refresh the page and try again.",
-            confirmButtonText: "OK"
-          });
+    // Validate html2pdf is available
+    if (typeof html2pdf === 'undefined') {
+      console.error('[PDF] html2pdf library not loaded');
+      alert("PDF library not loaded. Please refresh the page.");
+      return;
+    }
+
+    // Build complete snapshot with title from history if available
+    let snapshot = (typeof structuredClone !== 'undefined' && structuredClone) 
+      ? structuredClone(window.feedback) 
+      : JSON.parse(JSON.stringify(window.feedback));
+    
+    // Get title in priority order: stored filename > history > fallback
+    let pdfTitle = null;
+    
+    // Priority 1: Use stored uploaded filename
+    if (window.cbLastUploadedFilename) {
+      pdfTitle = window.cbLastUploadedFilename;
+    } else {
+      // Priority 2: Try to get title from history (latest entry)
+      try {
+        const history = JSON.parse(localStorage.getItem("analysisHistory")) || [];
+        if (history.length > 0 && history[0].title) {
+          pdfTitle = history[0].title;
+        }
+      } catch (e) {
+        console.warn('[PDF] Could not read history for title:', e);
+      }
+    }
+    
+    // Priority 3: Use snapshot.title if available and not a long hex string
+    if (!pdfTitle && snapshot.title) {
+      // Check if title looks like a long hex string (32+ chars, mostly hex)
+      const isHexString = /^[0-9a-f]{32,}$/i.test(snapshot.title);
+      if (!isHexString) {
+        pdfTitle = snapshot.title;
+      }
+    }
+    
+    // Final fallback
+    if (!pdfTitle) {
+      pdfTitle = 'CopyBoss Report';
+    }
+    
+    // Clean title: remove extension if present, limit length
+    pdfTitle = pdfTitle.replace(/\.[^/.]+$/, ''); // Remove file extension
+    if (pdfTitle.length > 50) {
+      pdfTitle = pdfTitle.substring(0, 47) + '...';
+    }
+    
+    snapshot.title = pdfTitle;
+    
+    // Ensure feedback structure exists with defaults
+    if (!snapshot.feedback) {
+      snapshot.feedback = {};
+    }
+    
+    // Ensure all required feedback keys exist with defaults
+    const requiredKeys = ['viralScore', 'hookStrength', 'captionClarity', 'soundMatch', 'viewerUnderstanding', 'engagementForecast'];
+    requiredKeys.forEach(key => {
+      if (!snapshot.feedback[key]) {
+        snapshot.feedback[key] = {
+          score: 0,
+          detail: 'No data available',
+          label: 'N/A',
+          short: 'No data'
+        };
+      } else {
+        // Ensure nested properties exist
+        if (typeof snapshot.feedback[key].score !== 'number') {
+          snapshot.feedback[key].score = snapshot.feedback[key].score || 0;
+        }
+        if (!snapshot.feedback[key].detail) {
+          snapshot.feedback[key].detail = 'No feedback available';
+        }
+        if (!snapshot.feedback[key].label) {
+          snapshot.feedback[key].label = 'N/A';
+        }
+        if (!snapshot.feedback[key].short) {
+          snapshot.feedback[key].short = 'No data';
         }
       }
     });
-  } else {
-    // Fallback if Swal not available
-    if (confirm("Do you want to download your latest analysis as a PDF?")) {
-      // Create snapshot to avoid mutations
-      const snapshot = (typeof structuredClone !== 'undefined' && structuredClone) 
-        ? structuredClone(window.feedback) 
-        : JSON.parse(JSON.stringify(window.feedback));
+    
+    // Ensure summary exists
+    if (!snapshot.summary) {
+      snapshot.summary = snapshot.feedback.summary || 'Analysis completed successfully.';
+    }
+    
+    // Safe confirmation with Swal fallback to confirm()
+    let confirmed = false;
+    
+    // Try Swal first if available
+    if (window.Swal && typeof window.Swal.fire === 'function') {
+      try {
+        const result = await window.Swal.fire({
+          title: "Download Report?",
+          text: "Do you want to download your latest analysis as a PDF?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Yes, download it",
+          cancelButtonText: "Cancel"
+        });
+        confirmed = result && result.isConfirmed === true;
+      } catch (err) {
+        console.warn('[PDF] Swal.fire failed, falling back to confirm:', err);
+        // Fall through to confirm() fallback
+      }
+    }
+    
+    // Fallback to window.confirm if Swal failed or is missing
+    if (!confirmed) {
+      confirmed = window.confirm("Download your report PDF now?");
+    }
+    
+    // Only generate PDF if confirmed
+    if (confirmed) {
+      console.log('[PDF] generate start', snapshot);
       
-      console.log('[PDF] generating from snapshot');
+      // Generate PDF from snapshot
       if (typeof window.cbPdf !== 'undefined' && window.cbPdf.generate) {
-        window.cbPdf.generate(snapshot);
+        try {
+          window.cbPdf.generate(snapshot);
+          console.log('[PDF] generate complete');
+        } catch (err) {
+          console.error('[PDF] generate failed', err);
+          alert("PDF failed – check console");
+        }
       } else {
+        console.error('[PDF] window.cbPdf.generate not available');
         alert("PDF generator not available. Please refresh the page.");
       }
     }
-  }
+  })();
 }
 // ✅ Continue your modalContentMap logic below
 else if (modalContentMap[target]) {
@@ -7937,6 +8028,23 @@ window.cbPdf = window.cbPdf || {};
 window.cbPdf.generate = function(snapshot) {
   console.log('[PDF] generating from snapshot');
   
+  // Validate html2pdf is available
+  if (typeof html2pdf === 'undefined') {
+    console.error('[PDF] html2pdf library not available');
+    const errorMsg = "PDF library not loaded. Please refresh the page.";
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: "error",
+        title: "PDF Library Missing",
+        text: errorMsg,
+        confirmButtonText: "OK"
+      });
+    } else {
+      alert(errorMsg);
+    }
+    return;
+  }
+  
   // Helper to safely get nested properties
   const safeGet = (obj, path, def = '') => {
     if (!obj || typeof obj !== 'object') return def;
@@ -7954,8 +8062,25 @@ window.cbPdf.generate = function(snapshot) {
   const feedback = safeGet(fb, 'feedback', {});
   
   // Get title and timestamp
-  const title = safeGet(fb, 'title', 'Video Analysis Report');
+  let title = safeGet(fb, 'title', 'Video Analysis Report');
+  // Clean title: remove extension if present, limit length, replace hex strings
+  title = title.replace(/\.[^/.]+$/, ''); // Remove file extension
+  if (/^[0-9a-f]{32,}$/i.test(title)) {
+    // If title is a long hex string, use fallback
+    title = 'CopyBoss Report';
+  }
+  if (title.length > 50) {
+    title = title.substring(0, 47) + '...';
+  }
   const timestamp = new Date().toLocaleString();
+  
+  // Load mascot as base64 data URI (inline, no external fetch)
+  // Using a simple SVG placeholder that looks like a logo
+  const mascotSVG = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#2248bc" rx="12"/>
+    <text x="50" y="60" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">CB</text>
+  </svg>`;
+  const mascotDataURI = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(mascotSVG)));
   
   // Check for fallback mode
   const isFallback = safeGet(fb, 'fallback', false) === true;
@@ -8087,6 +8212,14 @@ window.cbPdf.generate = function(snapshot) {
       margin-bottom: 12px;
       border-bottom: 1px solid #ccc;
       padding-bottom: 5px;
+      page-break-after: avoid;
+    }
+    h1, h2, h3 {
+      page-break-after: avoid;
+    }
+    .pdf-card, .pdf-block, .score-grid, .ai-feedback-grid {
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .score-grid {
       display: grid;
@@ -8100,6 +8233,8 @@ window.cbPdf.generate = function(snapshot) {
       border-radius: 10px;
       padding: 14px 16px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .score-block.good { border-left-color: #28a745; }
     .score-block.warn { border-left-color: #ffc107; }
@@ -8124,6 +8259,8 @@ window.cbPdf.generate = function(snapshot) {
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
       font-size: 14px;
       line-height: 1.5;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .ai-feedback-block strong {
       display: block;
@@ -8155,6 +8292,7 @@ window.cbPdf.generate = function(snapshot) {
 <body>
   <header>
     <div>
+      <img src="${mascotDataURI}" alt="CopyBoss Logo" style="width: 80px; height: 80px; object-fit: contain;" />
       <div class="timestamp">Created: ${timestamp}</div>
     </div>
     <div class="report-title">
@@ -8165,17 +8303,17 @@ window.cbPdf.generate = function(snapshot) {
 
   ${fallbackNotice}
 
-  <div class="section">
+  <div class="section pdf-block">
     <h2>🧠 AI Summary</h2>
-    <div class="score-block good">${summary}</div>
+    <div class="score-block good pdf-card">${summary}</div>
   </div>
 
-  <div class="section">
+  <div class="section pdf-block">
     <h2>🔥 Score Breakdown</h2>
     <div class="score-grid">${scoreHTML}</div>
   </div>
 
-  <div class="section">
+  <div class="section pdf-block">
     <h2>🧠 Full AI Feedback</h2>
     <div class="ai-feedback-grid">${feedbackHTML}</div>
   </div>
@@ -8204,41 +8342,66 @@ window.cbPdf.generate = function(snapshot) {
   document.body.appendChild(tempDiv);
   
   // Generate PDF
-  html2pdf()
-    .from(tempDiv)
-    .set({ 
-      filename: `${title || 'VideoBoss_Report'}.pdf`,
-      margin: 10,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    })
-    .save()
-    .then(() => {
+  try {
+    html2pdf()
+      .from(tempDiv)
+      .set({ 
+        filename: `${title || 'VideoBoss_Report'}.pdf`,
+        margin: [12, 12, 14, 12],
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        pagebreak: { mode: ['css', 'legacy'] },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      })
+      .save()
+      .then(() => {
+        console.log('[PDF] generate complete');
+        if (tempDiv.parentNode) {
+          document.body.removeChild(tempDiv);
+        }
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: "success",
+            title: "PDF Downloaded! 🎉",
+            text: "Your report has been saved successfully.",
+            confirmButtonText: "Done"
+          });
+        }
+      })
+      .catch(err => {
+        console.error('[PDF] generate failed', err);
+        if (tempDiv.parentNode) {
+          document.body.removeChild(tempDiv);
+        }
+        const errorMsg = "PDF failed – check console";
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: "error",
+            title: "PDF Generation Failed",
+            text: errorMsg,
+            confirmButtonText: "OK"
+          });
+        } else {
+          alert(errorMsg);
+        }
+      });
+  } catch (err) {
+    console.error('[PDF] generate failed', err);
+    if (tempDiv.parentNode) {
       document.body.removeChild(tempDiv);
-      if (typeof Swal !== 'undefined') {
-        Swal.fire({
-          icon: "success",
-          title: "PDF Downloaded! 🎉",
-          text: "Your report has been saved successfully.",
-          confirmButtonText: "Done"
-        });
-      }
-    })
-    .catch(err => {
-      console.error('❌ PDF generation failed:', err);
-      if (tempDiv.parentNode) {
-        document.body.removeChild(tempDiv);
-      }
-      if (typeof Swal !== 'undefined') {
-        Swal.fire({
-          icon: "error",
-          title: "PDF Generation Failed",
-          text: "Something went wrong. Please try again.",
-          confirmButtonText: "OK"
-        });
-      }
-    });
+    }
+    const errorMsg = "PDF failed – check console";
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: "error",
+        title: "PDF Generation Failed",
+        text: errorMsg,
+        confirmButtonText: "OK"
+      });
+    } else {
+      alert(errorMsg);
+    }
+  }
 };
 
 // Function to validate feedback structure
