@@ -8075,10 +8075,16 @@ window.cbPdf.generate = function(snapshot) {
   const timestamp = new Date().toLocaleString();
   
   // Load mascot as base64 data URI (inline, no external fetch)
-  // Using a simple SVG placeholder that looks like a logo
-  const mascotSVG = `<svg viewBox="0 0 128 128" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <rect width="128" height="128" fill="#2248bc" rx="15"/>
-    <text x="64" y="80" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">CB</text>
+  // Clean CB logo mark
+  const mascotSVG = `<svg viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#1D4ED8;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <rect width="120" height="120" fill="url(#cbGrad)" rx="14"/>
+    <text x="60" y="74" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="1">CB</text>
   </svg>`;
   const mascotDataURI = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(mascotSVG)));
   
