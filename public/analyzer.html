@@ -8204,6 +8204,21 @@ window.cbPdf.generate = function(snapshot) {
       font-size: 13px;
       color: #555;
     }
+    .pdf-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: #1D4ED8;
+      color: #fff;
+      font-weight: 800;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
     .section {
       margin-top: 30px;
     }
@@ -8300,7 +8315,7 @@ window.cbPdf.generate = function(snapshot) {
 <body>
   <header>
     <div>
-      <img src="${mascotDataURI}" alt="CopyBoss Logo" style="width: 56px; height: 56px; object-fit: contain; display: block;" />
+      <div class="pdf-logo">CB</div>
       <div class="timestamp">Created: ${timestamp}</div>
     </div>
     <div class="report-title">
