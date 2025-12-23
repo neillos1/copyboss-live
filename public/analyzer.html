@@ -7735,188 +7735,69 @@ a:hover {
           }
         }, 100);
   } else if (target === "download-results") {
-  console.log('[downloadPDF] Current feedback in window:', window.feedback);
-  console.log('[downloadPDF] Feedback type:', typeof window.feedback);
-  console.log('[downloadPDF] Feedback keys:', Object.keys(window.feedback || {}));
-  
-  // Check if we have current feedback from live analysis
+  // ✅ PDF Generation - Standalone, no API calls
+  // Check if we have feedback from analysis
   if (!window.feedback || !window.feedback.feedback) {
-    Swal.fire({
-      icon: "warning",
-      title: "No Analysis Results",
-      text: "Please analyze a video first to generate a report.",
-    });
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: "warning",
+        title: "No Analysis Results",
+        text: "Run an analysis first",
+        confirmButtonText: "OK"
+      });
+    } else {
+      alert("Run an analysis first");
+    }
     return;
   }
 
-  const feedback = window.feedback.feedback;
-
-  Swal.fire({
-    title: "Download Report?",
-    text: "Do you want to download your latest analysis as a PDF?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Yes, download it",
-    cancelButtonText: "Cancel"
-  }).then(result => {
-    if (result.isConfirmed) {
-      console.log('[downloadPDF] User confirmed download. Starting PDF generation...');
-      console.log('[downloadPDF] Template fetch starting...');
-      
-      // Fetch the template and inject dynamic data
-      fetch('analyzer-report-template.html')
-        .then(res => res.text())
-        .then(template => {
-          console.log('[downloadPDF] Template loaded successfully');
-                      // Access live Gemini results from window.feedback with comprehensive safety checks
-            const fb = window.feedback || {};
-            const feedback = fb.feedback || {};
-
-            // Debug logging to console
-            console.log('🔍 PDF Generation Debug Info:');
-            console.log('Full window.feedback:', fb);
-            console.log('Feedback object:', feedback);
-            console.log('Feedback keys:', Object.keys(feedback));
-            console.log('ViralScore exists:', !!feedback.viralScore);
-            console.log('ViralScore value:', feedback.viralScore);
-            console.log('ViralScore score:', feedback.viralScore?.score);
-          
-          // Comprehensive check if Gemini results are available
-          if (!feedback || typeof feedback !== 'object') {
-            console.warn('❌ No feedback object found');
-            Swal.fire({
-              icon: "warning",
-              title: "No Analysis Results",
-              text: "Please analyze a video first to generate Gemini feedback for the PDF.",
-              confirmButtonText: "OK"
-            });
-            return;
-          }
-          
-          if (!feedback.viralScore) {
-            console.warn('❌ No viralScore found in feedback object');
-            Swal.fire({
-              icon: "warning",
-              title: "No Analysis Results",
-              text: "Please analyze a video first to generate Gemini feedback for the PDF.",
-              confirmButtonText: "OK"
-            });
-            return;
-          }
-          
-          // Prepare dynamic content for template with live Gemini data
-          const summaryHTML = fb.summary || 'Analysis completed successfully.';
-          
-          // Build score grid with actual Gemini feedback and safe fallbacks
-          const scoreHTML = `
-            <div class="score-block ${getScoreQuality(feedback.viralScore?.score || 0)}">
-              <span class="label">🔥 Viral Score</span>
-              ${feedback.viralScore?.score || "N/A"}
-            </div>
-            <div class="score-block ${getScoreQuality(feedback.hookStrength?.score || 0)}">
-              <span class="label">⚡ Hook Strength</span>
-              ${feedback.hookStrength?.score || "N/A"}
-            </div>
-            <div class="score-block ${getScoreQuality(feedback.captionClarity?.score || 0)}">
-              <span class="label">💬 Caption Clarity</span>
-              ${feedback.captionClarity?.score || "N/A"}
-            </div>
-            <div class="score-block ${getScoreQuality(feedback.soundMatch?.score || 0)}">
-              <span class="label">🎵 Audio Match</span>
-              ${feedback.soundMatch?.score || "N/A"}
-            </div>
-            <div class="score-block ${getScoreQuality(feedback.viewerUnderstanding?.score || 0)}">
-              <span class="label">👁️ Viewer Understanding</span>
-              ${feedback.viewerUnderstanding?.score || "N/A"}
-            </div>
-            <div class="score-block ${getScoreQuality(feedback.engagementForecast?.score || 0)}">
-              <span class="label">📈 Engagement Forecast</span>
-              ${feedback.engagementForecast?.score || "N/A"}
-            </div>
-          `;
-          
-          // Build feedback grid with detailed Gemini feedback and safe fallbacks
-          const feedbackHTML = `
-            <div class="ai-feedback-block">
-              <strong>Viral Score:</strong>
-              ${feedback.viralScore?.detail || 'No feedback available'}
-            </div>
-            <div class="ai-feedback-block">
-              <strong>Hook Strength:</strong>
-              ${feedback.hookStrength?.detail || 'No feedback available'}
-            </div>
-            <div class="ai-feedback-block">
-              <strong>Caption Clarity:</strong>
-              ${feedback.captionClarity?.detail || 'No feedback available'}
-            </div>
-            <div class="ai-feedback-block">
-              <strong>Audio Match:</strong>
-              ${feedback.soundMatch?.detail || 'No feedback available'}
-            </div>
-            <div class="ai-feedback-block">
-              <strong>Viewer Understanding:</strong>
-              ${feedback.viewerUnderstanding?.detail || 'No feedback available'}
-            </div>
-            <div class="ai-feedback-block">
-              <strong>Engagement Forecast:</strong>
-              ${feedback.engagementForecast?.detail || 'No feedback available'}
-            </div>
-          `;
-
-          // Replace placeholders in template
-          let filled = template;
-          filled = filled.replace("{{summaryBlock}}", summaryHTML);
-          filled = filled.replace("{{scoreGrid}}", scoreHTML);
-          filled = filled.replace("{{feedbackGrid}}", feedbackHTML);
-          filled = filled.replace("[Will auto-fill]", new Date().toLocaleString());
-
-          // Create temp div for PDF generation
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = filled;
-          document.body.appendChild(tempDiv);
-          
-          // Generate PDF
-          html2pdf()
-            .from(tempDiv)
-            .set({ 
-              filename: 'VideoBoss_Report.pdf',
-              margin: 10,
-              image: { type: 'jpeg', quality: 0.98 },
-              html2canvas: { scale: 2 },
-              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            })
-            .save()
-            .then(() => {
-              document.body.removeChild(tempDiv);
-              Swal.fire({
-                icon: "success",
-                title: "PDF Downloaded! 🎉",
-                text: "Your report has been saved successfully.",
-                confirmButtonText: "Done"
-              });
-            })
-            .catch(err => {
-              console.error('❌ PDF generation failed:', err);
-              document.body.removeChild(tempDiv);
-              Swal.fire({
-                icon: "error",
-                title: "PDF Generation Failed",
-                text: "Something went wrong. Please try again.",
-                confirmButtonText: "OK"
-              });
-            });
-        })
-        .catch(err => {
-          console.error('❌ Failed to load template or render PDF:', err);
+  // Show confirmation dialog first
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: "Download Report?",
+      text: "Do you want to download your latest analysis as a PDF?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, download it",
+      cancelButtonText: "Cancel"
+    }).then(result => {
+      if (result.isConfirmed) {
+        // Create snapshot to avoid mutations
+        const snapshot = (typeof structuredClone !== 'undefined' && structuredClone) 
+          ? structuredClone(window.feedback) 
+          : JSON.parse(JSON.stringify(window.feedback));
+        
+        // Generate PDF from snapshot
+        if (typeof window.cbPdf !== 'undefined' && window.cbPdf.generate) {
+          console.log('[PDF] generating from snapshot');
+          window.cbPdf.generate(snapshot);
+        } else {
+          console.error('[PDF] window.cbPdf.generate not available');
           Swal.fire({
             icon: "error",
-            title: "Template Loading Failed",
-            text: "Something went wrong. Check the console for errors.",
+            title: "PDF Generator Not Available",
+            text: "Please refresh the page and try again.",
             confirmButtonText: "OK"
           });
-        });
+        }
+      }
+    });
+  } else {
+    // Fallback if Swal not available
+    if (confirm("Do you want to download your latest analysis as a PDF?")) {
+      // Create snapshot to avoid mutations
+      const snapshot = (typeof structuredClone !== 'undefined' && structuredClone) 
+        ? structuredClone(window.feedback) 
+        : JSON.parse(JSON.stringify(window.feedback));
+      
+      console.log('[PDF] generating from snapshot');
+      if (typeof window.cbPdf !== 'undefined' && window.cbPdf.generate) {
+        window.cbPdf.generate(snapshot);
+      } else {
+        alert("PDF generator not available. Please refresh the page.");
+      }
     }
-  });
+  }
 }
 // ✅ Continue your modalContentMap logic below
 else if (modalContentMap[target]) {
@@ -8037,6 +7918,328 @@ function getScoreQuality(score) {
   if (score >= 50) return 'warn';
   return 'poor';
 }
+
+// ✅ Helper function for safe property access with defaults
+function get(obj, path, defaultValue = '') {
+  if (!obj || typeof obj !== 'object') return defaultValue;
+  const keys = path.split('.');
+  let current = obj;
+  for (const key of keys) {
+    if (current == null || typeof current !== 'object') return defaultValue;
+    current = current[key];
+    if (current === undefined || current === null) return defaultValue;
+  }
+  return current;
+}
+
+// ✅ PDF Generator - Standalone, no fetch calls, uses only window.feedback snapshot
+window.cbPdf = window.cbPdf || {};
+window.cbPdf.generate = function(snapshot) {
+  console.log('[PDF] generating from snapshot');
+  
+  // Helper to safely get nested properties
+  const safeGet = (obj, path, def = '') => {
+    if (!obj || typeof obj !== 'object') return def;
+    const keys = path.split('.');
+    let current = obj;
+    for (const key of keys) {
+      if (current == null || typeof current !== 'object') return def;
+      current = current[key];
+      if (current === undefined || current === null) return def;
+    }
+    return current;
+  };
+
+  const fb = snapshot || {};
+  const feedback = safeGet(fb, 'feedback', {});
+  
+  // Get title and timestamp
+  const title = safeGet(fb, 'title', 'Video Analysis Report');
+  const timestamp = new Date().toLocaleString();
+  
+  // Check for fallback mode
+  const isFallback = safeGet(fb, 'fallback', false) === true;
+  const fallbackNotice = isFallback ? '<div style="background:#ffc107;color:#000;padding:12px;border-radius:8px;margin-bottom:20px;font-weight:bold;">⚠️ Limited Analysis Mode</div>' : '';
+  
+  // Get summary
+  const summary = safeGet(fb, 'summary', 'Analysis completed successfully.');
+  
+  // Get scores with defensive defaults
+  const viralScore = safeGet(feedback, 'viralScore.score', 0);
+  const hookScore = safeGet(feedback, 'hookStrength.score', 0);
+  const captionScore = safeGet(feedback, 'captionClarity.score', 0);
+  const soundScore = safeGet(feedback, 'soundMatch.score', 0);
+  const viewerScore = safeGet(feedback, 'viewerUnderstanding.score', 0);
+  const engagementScore = safeGet(feedback, 'engagementForecast.score', 0);
+  
+  // Get details with defensive defaults
+  const viralDetail = safeGet(feedback, 'viralScore.detail', 'No feedback available');
+  const hookDetail = safeGet(feedback, 'hookStrength.detail', 'No feedback available');
+  const captionDetail = safeGet(feedback, 'captionClarity.detail', 'No feedback available');
+  const soundDetail = safeGet(feedback, 'soundMatch.detail', 'No feedback available');
+  const viewerDetail = safeGet(feedback, 'viewerUnderstanding.detail', 'No feedback available');
+  const engagementDetail = safeGet(feedback, 'engagementForecast.detail', 'No feedback available');
+  
+  // Build score grid HTML
+  const scoreHTML = `
+    <div class="score-block ${getScoreQuality(viralScore)}">
+      <span class="label">🔥 Viral Score</span>
+      ${viralScore || "N/A"}
+    </div>
+    <div class="score-block ${getScoreQuality(hookScore)}">
+      <span class="label">⚡ Hook Strength</span>
+      ${hookScore || "N/A"}
+    </div>
+    <div class="score-block ${getScoreQuality(captionScore)}">
+      <span class="label">💬 Caption Clarity</span>
+      ${captionScore || "N/A"}
+    </div>
+    <div class="score-block ${getScoreQuality(soundScore)}">
+      <span class="label">🎵 Audio Match</span>
+      ${soundScore || "N/A"}
+    </div>
+    <div class="score-block ${getScoreQuality(viewerScore)}">
+      <span class="label">👁️ Viewer Understanding</span>
+      ${viewerScore || "N/A"}
+    </div>
+    <div class="score-block ${getScoreQuality(engagementScore)}">
+      <span class="label">📈 Engagement Forecast</span>
+      ${engagementScore || "N/A"}
+    </div>
+  `;
+  
+  // Build feedback grid HTML
+  const feedbackHTML = `
+    <div class="ai-feedback-block">
+      <strong>Viral Score:</strong>
+      ${viralDetail}
+    </div>
+    <div class="ai-feedback-block">
+      <strong>Hook Strength:</strong>
+      ${hookDetail}
+    </div>
+    <div class="ai-feedback-block">
+      <strong>Caption Clarity:</strong>
+      ${captionDetail}
+    </div>
+    <div class="ai-feedback-block">
+      <strong>Audio Match:</strong>
+      ${soundDetail}
+    </div>
+    <div class="ai-feedback-block">
+      <strong>Viewer Understanding:</strong>
+      ${viewerDetail}
+    </div>
+    <div class="ai-feedback-block">
+      <strong>Engagement Forecast:</strong>
+      ${engagementDetail}
+    </div>
+  `;
+  
+  // Generate full PDF HTML inline (no template fetch)
+  const pdfHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VideoBoss Analyzer Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fff;
+      color: #111;
+      margin: 40px;
+      padding: 0;
+      font-size: 15px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+    }
+    .report-title {
+      font-size: 24px;
+      font-weight: 800;
+      text-align: center;
+      flex-grow: 1;
+      margin: 0 20px;
+    }
+    .pro-badge {
+      font-size: 12px;
+      background: #222;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      display: inline-block;
+    }
+    .timestamp {
+      font-size: 13px;
+      color: #555;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .section h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .score-block {
+      background: #fefefe;
+      border: 1px solid #ddd;
+      border-left: 6px solid #555;
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .score-block.good { border-left-color: #28a745; }
+    .score-block.warn { border-left-color: #ffc107; }
+    .score-block.poor { border-left-color: #dc3545; }
+    .score-block .label {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .ai-feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+    .ai-feedback-block {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .ai-feedback-block strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .tip-card {
+      background: #fffefc;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="timestamp">Created: ${timestamp}</div>
+    </div>
+    <div class="report-title">
+      ${title} <span class="pro-badge">PRO</span>
+    </div>
+    <div></div>
+  </header>
+
+  ${fallbackNotice}
+
+  <div class="section">
+    <h2>🧠 AI Summary</h2>
+    <div class="score-block good">${summary}</div>
+  </div>
+
+  <div class="section">
+    <h2>🔥 Score Breakdown</h2>
+    <div class="score-grid">${scoreHTML}</div>
+  </div>
+
+  <div class="section">
+    <h2>🧠 Full AI Feedback</h2>
+    <div class="ai-feedback-grid">${feedbackHTML}</div>
+  </div>
+
+  <div class="section">
+    <h2>🚀 Performance Tips</h2>
+    <div class="tips-grid">
+      <div class="tip-card">🕒 <strong>Optimal Posting Time:</strong><br> Post between 6 PM – 9 PM for max visibility.</div>
+      <div class="tip-card">🔖 <strong>Hashtag Suggestions:</strong><br> #FYP #ViralVideo #TikTokTips #ContentCreator</div>
+      <div class="tip-card">🎶 <strong>Sound Track Ideas:</strong><br> Use trending upbeat audio with 80–120 BPM.</div>
+      <div class="tip-card">🖼️ <strong>Thumbnail Concept:</strong><br> Freeze-frame of bold facial expression or product zoom-in.</div>
+      <div class="tip-card">🚀 <strong>Boost Strategy:</strong><br> Pin a comment with CTA & share to IG Stories within 10 mins.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Report generated by VideoBoss Analyzer – All insights powered by AI.
+  </div>
+</body>
+</html>
+  `;
+  
+  // Create temp div for PDF generation
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = pdfHTML;
+  document.body.appendChild(tempDiv);
+  
+  // Generate PDF
+  html2pdf()
+    .from(tempDiv)
+    .set({ 
+      filename: `${title || 'VideoBoss_Report'}.pdf`,
+      margin: 10,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    })
+    .save()
+    .then(() => {
+      document.body.removeChild(tempDiv);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: "success",
+          title: "PDF Downloaded! 🎉",
+          text: "Your report has been saved successfully.",
+          confirmButtonText: "Done"
+        });
+      }
+    })
+    .catch(err => {
+      console.error('❌ PDF generation failed:', err);
+      if (tempDiv.parentNode) {
+        document.body.removeChild(tempDiv);
+      }
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: "error",
+          title: "PDF Generation Failed",
+          text: "Something went wrong. Please try again.",
+          confirmButtonText: "OK"
+        });
+      }
+    });
+};
 
 // Function to validate feedback structure
 function validateFeedback(feedback) {
