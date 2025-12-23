@@ -8267,11 +8267,17 @@ window.cbPdf.generate = function(snapshot) {
       margin-bottom: 5px;
       font-size: 15px;
     }
+    .pdf-page-break-before {
+      break-before: page;
+      page-break-before: always;
+    }
     .tips-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
       margin-top: 20px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .tip-card {
       background: #fffefc;
@@ -8280,6 +8286,8 @@ window.cbPdf.generate = function(snapshot) {
       padding: 14px 16px;
       font-size: 14px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .footer {
       margin-top: 40px;
@@ -8318,7 +8326,7 @@ window.cbPdf.generate = function(snapshot) {
     <div class="ai-feedback-grid">${feedbackHTML}</div>
   </div>
 
-  <div class="section">
+  <div class="section pdf-page-break-before">
     <h2>🚀 Performance Tips</h2>
     <div class="tips-grid">
       <div class="tip-card">🕒 <strong>Optimal Posting Time:</strong><br> Post between 6 PM – 9 PM for max visibility.</div>
