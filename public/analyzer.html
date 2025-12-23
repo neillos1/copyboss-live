@@ -75,6 +75,15 @@
       
       /* PROTECT: Real injected modal must NOT be hidden */
       /* #cb-upgrade-modal and .cb-upgrade-modal are the real modal - do NOT target them above */
+      
+      /* ✅ DISABLE LEGACY LOADING INDICATOR - Only cbOverlay should be used */
+      #loadingIndicator {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
+      }
     </style>
 
     <!-- 🚀 IMMEDIATE PRO UNLOCK - RUNS FIRST -->
@@ -4101,10 +4110,28 @@ async function runAnalysis() {
     return;
   }
 
-  // Show overlay immediately (before fetch)
+  // Hide any existing fallback indicator (will be shown again if needed)
+  const existingIndicator = document.getElementById('cb-fallback-indicator');
+  if (existingIndicator) {
+    existingIndicator.style.display = 'none';
+  }
+
+  // Show overlay immediately (before fetch) - ONLY use cbOverlay
+  console.log('[runAnalysis] About to show overlay', {
+    timestamp: new Date().toISOString(),
+    cbOverlayExists: typeof window.cbOverlay !== 'undefined',
+    showExists: typeof window.cbOverlay !== 'undefined' && typeof window.cbOverlay.show === 'function'
+  });
+  
   if (typeof window.cbOverlay !== 'undefined' && window.cbOverlay.show) {
     window.cbOverlay.show(26000);
+    console.log('[runAnalysis] cbOverlay.show(26000) called');
+  } else {
+    console.error('[runAnalysis] ERROR: cbOverlay or show() not available!');
   }
+
+  // ✅ Variable to store analysis result (will be rendered after overlay finishes)
+  var analysisResult = null;
 
   try {
     console.log('[runAnalysis] about to fetch /upload');
@@ -4139,15 +4166,55 @@ async function runAnalysis() {
       throw new Error("Invalid feedback structure received from API");
     }
 
+    // ✅ Store result but DO NOT render yet - wait for overlay to finish
+    analysisResult = result;
+    
     // Store feedback globally for PDF generation
-    window.feedback = result;
+    window.feedback = analysisResult;
     console.log('💾 Stored live feedback in window.feedback:', window.feedback);
+    
+    // Handle fallback mode indicator (can show this immediately)
+    const isFallback = analysisResult.fallback === true;
+    console.log('[FALLBACK] mode:', isFallback);
+    
+    // Show/hide fallback indicator
+    let fallbackIndicator = document.getElementById('cb-fallback-indicator');
+    if (isFallback) {
+      // Create indicator if it doesn't exist
+      if (!fallbackIndicator) {
+        fallbackIndicator = document.createElement('div');
+        fallbackIndicator.id = 'cb-fallback-indicator';
+        fallbackIndicator.style.cssText = `
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          background: rgba(255, 152, 0, 0.9);
+          color: #fff;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          pointer-events: none;
+        `;
+        fallbackIndicator.textContent = '⚠️ Limited Analysis Mode';
+        document.body.appendChild(fallbackIndicator);
+      } else {
+        fallbackIndicator.style.display = 'block';
+      }
+    } else {
+      // Hide indicator if not fallback
+      if (fallbackIndicator) {
+        fallbackIndicator.style.display = 'none';
+      }
+    }
 
-    // Save analysis to history
-    saveAnalysisToHistory(result, file.name);
+    // Save analysis to history (non-visual, can do immediately)
+    saveAnalysisToHistory(analysisResult, file.name);
 
-    // Save score to leaderboard
-    const f = result?.feedback;
+    // Save score to leaderboard (non-visual, can do immediately)
+    const f = analysisResult?.feedback;
     const scores = [
       f?.viralScore?.score,
       f?.hookStrength?.score,
@@ -4166,15 +4233,8 @@ async function runAnalysis() {
       saveAnalysisResult(overallScore);
     }
 
-    // Update UI with live results
-    displayGeminiResults(result);
-    displayGeminiResultsSafe();
-    syncGaugesFromGemini(result.feedback);
-
-    // ✅ Show results
-    document.querySelectorAll(".result-content").forEach(el => el.style.opacity = 1);
-    document.querySelectorAll(".analyzing").forEach(el => el.style.display = "none");
-    console.log("✅ Analysis complete - results shown");
+    // ✅ DO NOT render results yet - store for after overlay finishes
+    console.log("✅ Analysis data stored, waiting for overlay to finish before rendering");
 
   } catch (error) {
     console.error("❌ Analysis failed:", error);
@@ -4195,10 +4255,38 @@ async function runAnalysis() {
     } else {
       alert("❌ Analysis failed: " + errorMessage);
     }
+    
+    // Clear result on error
+    analysisResult = null;
   } finally {
     // Always wait for minimum time before hiding overlay
+    console.log('[runAnalysis] finally block entered', {
+      timestamp: new Date().toISOString(),
+      cbOverlayExists: typeof window.cbOverlay !== 'undefined',
+      finishExists: typeof window.cbOverlay !== 'undefined' && typeof window.cbOverlay.finish === 'function'
+    });
+    
     if (typeof window.cbOverlay !== 'undefined' && window.cbOverlay.finish) {
+      console.log('[runAnalysis] Calling cbOverlay.finish()');
       await window.cbOverlay.finish();
+      console.log('[runAnalysis] cbOverlay.finish() completed');
+    } else {
+      console.warn('[runAnalysis] cbOverlay or finish() not available in finally block');
+    }
+    
+    // ✅ NOW render results after overlay has finished (26s minimum)
+    if (typeof analysisResult !== 'undefined' && analysisResult !== null) {
+      console.log('[runAnalysis] Rendering results after overlay finished');
+      
+      // Update UI with live results
+      displayGeminiResults(analysisResult);
+      displayGeminiResultsSafe();
+      syncGaugesFromGemini(analysisResult.feedback);
+
+      // ✅ Show results
+      document.querySelectorAll(".result-content").forEach(el => el.style.opacity = 1);
+      document.querySelectorAll(".analyzing").forEach(el => el.style.display = "none");
+      console.log("✅ Analysis complete - results shown after overlay finished");
     }
   }
 }
@@ -6598,9 +6686,9 @@ a:hover {
 }
 </style>
 
-<!-- Animated Analysis Overlay -->
+<!-- Animated Analysis Overlay - DISABLED: Only cbOverlay is used now -->
 <div id="loadingIndicator" style="
-  display: none;
+  display: none !important;
   position: fixed;
   top: 0;
   left: 0;
@@ -10852,9 +10940,10 @@ footer .social-link .fa-brands {
   // 0) Stop any duplicate runtime patches from re-running
   (window.__CB_HOTFIX_ONCE ||= (() => {
     // 1) Kill any overlay that steals clicks (particles / analyzing / stray backdrops)
+    // NOTE: Do NOT disable .cb-analyzing-overlay - it's the active analyzer overlay
     const OFF = el => el && (el.style.pointerEvents = 'none', el.style.zIndex = '0');
     OFF(document.querySelector('#particles'));
-    OFF(document.querySelector('.cb-analyzing-overlay'));
+    // OFF(document.querySelector('.cb-analyzing-overlay')); // DISABLED - this is the active analyzer overlay
     // SweetAlert container can exist but shouldn't block footer/socials
     document.querySelectorAll('.swal2-container').forEach(c => { c.style.pointerEvents = 'none'; c.style.zIndex = '0'; });
 

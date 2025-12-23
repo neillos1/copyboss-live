@@ -178,12 +178,13 @@ body.pro-active * {
 }
 
 /* 2. Kill any overlay layers that sit on blurred cards */
-.cb-card > div[class*="overlay"],
-.cb-gauge > div[class*="overlay"],
-.cb-report > div[class*="overlay"],
-.cb-result > div[class*="overlay"],
-.blurred > div[class*="overlay"],
-[data-pro="true"] > div[class*="overlay"] {
+/* ✅ PROTECT: Do NOT affect the main analyzing overlay */
+.cb-card > div[class*="overlay"]:not(#cb-analyzing-overlay),
+.cb-gauge > div[class*="overlay"]:not(#cb-analyzing-overlay),
+.cb-report > div[class*="overlay"]:not(#cb-analyzing-overlay),
+.cb-result > div[class*="overlay"]:not(#cb-analyzing-overlay),
+.blurred > div[class*="overlay"]:not(#cb-analyzing-overlay),
+[data-pro="true"] > div[class*="overlay"]:not(#cb-analyzing-overlay) {
   display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;

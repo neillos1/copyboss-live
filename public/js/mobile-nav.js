@@ -87,7 +87,8 @@
     if (existing) return { el: existing, show(){ existing.style.display='flex'; }, hide(){ existing.style.display='none'; } };
 
     // Build fallback
-    let el = document.querySelector('.cb-analyzing-overlay');
+    // ✅ Skip main overlay by id to avoid conflicts
+    let el = document.querySelector('.cb-analyzing-overlay:not(#cb-analyzing-overlay)');
     if (!el){
       el = document.createElement('div');
       el.className = 'cb-analyzing-overlay';

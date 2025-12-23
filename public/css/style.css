@@ -272,6 +272,23 @@ nav, .navbar, header {
   background: rgba(2,6,23,.55);
 }
 .cb-analyzing-overlay.show{ display:flex; }
+#cb-analyzing-overlay{
+  position:fixed !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  background:rgba(2,6,23,.55) !important;
+  backdrop-filter:blur(8px) !important;
+  display:flex !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  z-index:99999 !important;
+  pointer-events:auto !important;
+  animation:none !important;
+  transition:none !important;
+  transform:none !important;
+  filter:none !important;
+}
 .cb-analyzing-box{
   min-width: 240px; padding: 18px 20px; border-radius: 14px;
   background: #0b0f1a; color:#e5e7eb; text-align:center;

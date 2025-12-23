@@ -8,36 +8,189 @@ window.__DISABLE_POPUPS__ = true;
   let minMs = 26000;
   let finished = false;
   let finishCallback = null;
+  let isLocked = false; // Lock flag to prevent early hiding
+  let keepAliveInterval = null; // Interval for keepAlive loop
+  let isRemoving = false; // Flag to track intentional removal
+  let removalObserver = null; // MutationObserver for detecting removals (stored for cleanup)
+
+  // ✅ SELF-HEALING: Helper to recreate overlay if missing while locked
+  function ensureOverlayPresent() {
+    // Only recreate if locked and overlay is actually missing
+    if (!isLocked) {
+      return; // Not locked, no need to ensure presence
+    }
+    
+    const existing = document.getElementById('cb-analyzing-overlay');
+    if (existing) {
+      // Overlay exists, update reference if needed
+      if (overlayEl !== existing) {
+        overlayEl = existing;
+      }
+      return;
+    }
+    
+    // Overlay is missing while locked - recreate it
+    console.error('[OVERLAY] overlay was removed while locked - restoring');
+    
+    // Recreate overlay element (same markup/styles as show())
+    overlayEl = document.createElement('div');
+    overlayEl.id = 'cb-analyzing-overlay';
+    overlayEl.className = 'cb-analyzing-overlay-v4';
+    overlayEl.style.cssText = `
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 99999 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      margin: 0 !important;
+      padding: 0 !important;
+      pointer-events: auto !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      filter: none !important;
+    `;
+
+    // ✅ Performance optimization: GPU acceleration
+    overlayEl.style.setProperty('will-change', 'opacity, transform', 'important');
+    overlayEl.style.setProperty('transform', 'translateZ(0)', 'important');
+
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: rgba(12, 12, 18, 0.98);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    `;
+
+    const spinner = document.createElement('div');
+    spinner.style.cssText = `
+      width: 64px;
+      height: 64px;
+      border: 4px solid rgba(30, 136, 229, 0.2);
+      border-top-color: #1E88E5;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: cbv-spin 1s linear infinite;
+    `;
+
+    const headline = document.createElement('h2');
+    headline.textContent = 'Analyzing your video…';
+    headline.style.cssText = `
+      color: #fff;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      font-family: 'Poppins', sans-serif;
+    `;
+
+    const subtext = document.createElement('p');
+    subtext.textContent = 'Please wait — usually 5–15 seconds.';
+    subtext.style.cssText = `
+      color: #aaa;
+      font-size: 14px;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    `;
+
+    card.appendChild(spinner);
+    card.appendChild(headline);
+    card.appendChild(subtext);
+    overlayEl.appendChild(card);
+    document.body.appendChild(overlayEl);
+    
+    console.log('[OVERLAY] Overlay restored while locked');
+  }
 
   window.cbOverlay = {
     show: function(minMsOverride) {
+      const timestamp = Date.now();
       minMs = minMsOverride || 26000;
       finished = false;
-      startTime = Date.now();
+      isLocked = true; // Lock overlay during analysis
+      startTime = timestamp;
       
-      // Remove existing overlay if present
-      if (overlayEl && overlayEl.parentNode) {
-        overlayEl.parentNode.removeChild(overlayEl);
+      console.log('[OVERLAY] show() called', {
+        timestamp: new Date(timestamp).toISOString(),
+        minMs: minMs,
+        startTime: startTime,
+        isLocked: isLocked
+      });
+      
+      // ✅ Remove ALL existing overlays (by ID and by class)
+      // Remove element with id #cb-analyzing-overlay if present
+      const existingById = document.getElementById('cb-analyzing-overlay');
+      if (existingById && existingById.parentNode) {
+        console.log('[OVERLAY] Removing existing overlay by ID');
+        existingById.parentNode.removeChild(existingById);
+      }
+      
+      // Remove any elements with class .cb-analyzing-overlay (legacy/fallback)
+      // BUT skip the main overlay by id to avoid conflicts
+      document.querySelectorAll('.cb-analyzing-overlay').forEach(el => {
+        if (el.id === 'cb-analyzing-overlay') {
+          // Skip main overlay - it will be managed separately
+          return;
+        }
+        if (el.parentNode) {
+          console.log('[OVERLAY] Removing legacy overlay by class');
+          el.parentNode.removeChild(el);
+        }
+      });
+      
+      // Clear any existing keepAlive interval and observer
+      if (keepAliveInterval) {
+        clearInterval(keepAliveInterval);
+        keepAliveInterval = null;
+      }
+      if (removalObserver) {
+        removalObserver.disconnect();
+        removalObserver = null;
       }
 
       // Create overlay element
       overlayEl = document.createElement('div');
       overlayEl.id = 'cb-analyzing-overlay';
-      overlayEl.style.cssText = `
-        position: fixed !important;
-        inset: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 99999 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 !important;
-        padding: 0 !important;
-      `;
+      // ✅ Use unique class to avoid conflicts with legacy .cb-analyzing-overlay
+      overlayEl.className = 'cb-analyzing-overlay-v4';
+    overlayEl.style.cssText = `
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 99999 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      margin: 0 !important;
+      padding: 0 !important;
+      pointer-events: auto !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      filter: none !important;
+    `;
+
+      // ✅ Performance optimization: GPU acceleration
+      overlayEl.style.setProperty('will-change', 'opacity, transform', 'important');
+      overlayEl.style.setProperty('transform', 'translateZ(0)', 'important');
 
       const card = document.createElement('div');
       card.style.cssText = `
@@ -87,6 +240,76 @@ window.__DISABLE_POPUPS__ = true;
       overlayEl.appendChild(card);
       document.body.appendChild(overlayEl);
 
+      // ✅ KEEPALIVE: Re-apply critical styles every 200ms while locked
+      keepAliveInterval = setInterval(() => {
+        // Only run keepAlive while locked (analysis running)
+        if (!isLocked) {
+          // Unlocked, stop keepAlive
+          if (keepAliveInterval) {
+            clearInterval(keepAliveInterval);
+            keepAliveInterval = null;
+          }
+          return;
+        }
+        
+        // ✅ SELF-HEALING: Ensure overlay exists first
+        ensureOverlayPresent();
+        
+        // If overlay still doesn't exist after ensure, skip style re-application
+        if (!overlayEl || !overlayEl.parentNode) {
+          return;
+        }
+        
+        // Re-apply critical inline styles (geometry + z-index + visibility only)
+        // Note: background/backdrop-filter set once in show() and ensureOverlayPresent(), not here (avoids flicker)
+        overlayEl.style.setProperty('position', 'fixed', 'important');
+        overlayEl.style.setProperty('inset', '0', 'important');
+        overlayEl.style.setProperty('width', '100%', 'important');
+        overlayEl.style.setProperty('height', '100%', 'important');
+        overlayEl.style.setProperty('display', 'flex', 'important');
+        overlayEl.style.setProperty('align-items', 'center', 'important');
+        overlayEl.style.setProperty('justify-content', 'center', 'important');
+        overlayEl.style.setProperty('z-index', '99999', 'important');
+        overlayEl.style.setProperty('opacity', '1', 'important');
+        overlayEl.style.setProperty('visibility', 'visible', 'important');
+        overlayEl.style.setProperty('pointer-events', 'auto', 'important');
+        overlayEl.style.setProperty('animation', 'none', 'important');
+        overlayEl.style.setProperty('transition', 'none', 'important');
+        overlayEl.style.setProperty('transform', 'translateZ(0)', 'important');
+        overlayEl.style.setProperty('filter', 'none', 'important');
+        
+        // Ensure it has the unique class (not needed for functionality, but for consistency)
+        if (!overlayEl.classList.contains('cb-analyzing-overlay-v4')) {
+          overlayEl.classList.add('cb-analyzing-overlay-v4');
+        }
+      }, 200);
+
+      // ✅ SELF-HEALING: Watch for removal and restore if locked
+      removalObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.removedNodes.forEach((node) => {
+            if (node.nodeType === 1 && (node.id === 'cb-analyzing-overlay' || node.querySelector && node.querySelector('#cb-analyzing-overlay'))) {
+              // Only act if removal was NOT intentional (our own hideNow())
+              if (!isRemoving) {
+                if (isLocked) {
+                  // Overlay removed while locked - restore immediately
+                  console.error('[OVERLAY] overlay was removed while locked - restoring');
+                  ensureOverlayPresent();
+                } else {
+                  // Overlay removed but not locked - just log
+                  console.error('[OVERLAY] ELEMENT REMOVED - overlay was unexpectedly removed from DOM!');
+                  console.trace('[OVERLAY] Call stack for element removal:');
+                }
+              }
+            }
+          });
+        });
+      });
+      removalObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
       // Play blurb sound if available
       const uploadSound = document.getElementById('analyze-sound');
       if (uploadSound) {
@@ -94,42 +317,159 @@ window.__DISABLE_POPUPS__ = true;
         uploadSound.play().catch(e => console.log("Upload sound autoplay blocked:", e));
       }
 
-      console.log('[OVERLAY] show');
+      console.log('[OVERLAY] CB overlay created', {
+        overlayId: overlayEl.id,
+        overlayClass: overlayEl.className,
+        isLocked: isLocked,
+        expectedMinDuration: minMs + 'ms'
+      });
+      console.log('[OVERLAY] show() complete - overlay created and appended to DOM', {
+        overlayId: overlayEl.id,
+        isLocked: isLocked,
+        expectedMinDuration: minMs + 'ms'
+      });
     },
 
     finish: function() {
-      finished = true;
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, minMs - elapsed);
+      const finishTimestamp = Date.now();
       
-      console.log('[OVERLAY] analysis finished, waiting min time...', { elapsed, remaining });
+      // Guard: If show() was never called or startTime is invalid, use full minMs
+      if (!startTime || startTime === 0) {
+        console.warn('[OVERLAY] finish() called but startTime is invalid, using full minMs', {
+          startTime: startTime,
+          timestamp: new Date(finishTimestamp).toISOString()
+        });
+        startTime = finishTimestamp;
+      }
+      
+      // ✅ BUG FIX: Ensure minMs is numeric (not string)
+      const minMsNum = Number(minMs) || 26000;
+      
+      finished = true;
+      // ✅ BUG FIX: Compute elapsed/remaining as NUMBERS ONLY
+      const elapsedMs = finishTimestamp - startTime;
+      const remainingMs = Math.max(0, minMsNum - elapsedMs);
+      
+      console.log('[OVERLAY] finish() called', {
+        timestamp: new Date(finishTimestamp).toISOString(),
+        startTime: new Date(startTime).toISOString(),
+        elapsed: elapsedMs + 'ms',
+        minMs: minMsNum + 'ms',
+        remaining: remainingMs + 'ms',
+        willWait: remainingMs > 0
+      });
       
       return new Promise((resolve) => {
-        if (remaining > 0) {
+        if (remainingMs > 0) {
+          console.log('[OVERLAY] Setting timeout to hide after', remainingMs + 'ms');
           setTimeout(() => {
+            console.log('[OVERLAY] Timeout fired - stopping keepAlive and hiding overlay');
+            // Stop keepAlive and observer before unlocking and hiding
+            if (keepAliveInterval) {
+              clearInterval(keepAliveInterval);
+              keepAliveInterval = null;
+            }
+            if (removalObserver) {
+              removalObserver.disconnect();
+              removalObserver = null;
+            }
+            isLocked = false; // Unlock before hiding (only finish() can unlock)
             this.hideNow();
             resolve();
-          }, remaining);
+          }, remainingMs);
         } else {
-          this.hideNow();
-          resolve();
+          // If remaining is 0 or negative, still wait at least 1 second to prevent instant hide
+          console.warn('[OVERLAY] WARNING: remaining time is', remainingMs + 'ms, enforcing 1s minimum');
+          setTimeout(() => {
+            console.log('[OVERLAY] Minimum timeout fired - stopping keepAlive and hiding overlay');
+            // Stop keepAlive and observer before unlocking and hiding
+            if (keepAliveInterval) {
+              clearInterval(keepAliveInterval);
+              keepAliveInterval = null;
+            }
+            if (removalObserver) {
+              removalObserver.disconnect();
+              removalObserver = null;
+            }
+            isLocked = false; // Unlock before hiding (only finish() can unlock)
+            this.hideNow();
+            resolve();
+          }, 1000);
         }
       });
     },
 
     hideNow: function() {
-      if (!overlayEl) return;
+      // ✅ Clear keepAlive interval and observer immediately
+      if (keepAliveInterval) {
+        clearInterval(keepAliveInterval);
+        keepAliveInterval = null;
+        console.log('[OVERLAY] keepAlive interval cleared');
+      }
+      if (removalObserver) {
+        removalObserver.disconnect();
+        removalObserver = null;
+        console.log('[OVERLAY] removalObserver disconnected');
+      }
       
-      console.log('[OVERLAY] hide');
+      // ✅ INSTRUMENTATION: Trace every hideNow() call immediately
+      console.trace('[OVERLAY] hideNow() called - stack trace:');
+      
+      const hideTimestamp = Date.now();
+      
+      // STRICT LOCK: If locked, only allow hiding if explicitly unlocked by finish()
+      // This prevents ANY early hide calls from other code paths
+      if (isLocked) {
+        const minMsNum = Number(minMs) || 26000;
+        const elapsedMs = startTime > 0 ? hideTimestamp - startTime : 0;
+        const remainingMs = Math.max(0, minMsNum - elapsedMs);
+        
+        console.error('[OVERLAY] hideNow() BLOCKED - overlay is LOCKED', {
+          timestamp: new Date(hideTimestamp).toISOString(),
+          isLocked: isLocked,
+          finished: finished,
+          elapsed: elapsedMs + 'ms',
+          remaining: remainingMs + 'ms',
+          minMs: minMsNum + 'ms',
+          message: 'Overlay must be unlocked by finish() before hiding. This call is being ignored.'
+        });
+        console.trace('[OVERLAY] Call stack for BLOCKED hideNow():');
+        return; // BLOCK early hiding - only finish() can unlock
+      }
+      
+      if (!overlayEl) {
+        console.warn('[OVERLAY] hideNow() called but overlayEl is null');
+        return;
+      }
+      
+      const elapsedMs = startTime > 0 ? hideTimestamp - startTime : 0;
+      const minMsNum = Number(minMs) || 26000;
+      console.log('[OVERLAY] hideNow() called', {
+        timestamp: new Date(hideTimestamp).toISOString(),
+        elapsed: elapsedMs + 'ms',
+        minMs: minMsNum + 'ms',
+        isLocked: isLocked,
+        finished: finished
+      });
+      console.trace('[OVERLAY] Call stack for hideNow():');
       
       overlayEl.style.opacity = '0';
       overlayEl.style.transition = 'opacity 0.3s ease';
       
       setTimeout(() => {
+        // ✅ Set flag to indicate intentional removal
+        isRemoving = true;
+        
         if (overlayEl && overlayEl.parentNode) {
+          console.log('[OVERLAY] Removing overlay from DOM');
           overlayEl.parentNode.removeChild(overlayEl);
         }
         overlayEl = null;
+        isLocked = false; // Reset lock
+        finished = false; // Reset finished flag
+        startTime = 0; // Reset startTime
+        isRemoving = false; // Reset flag after removal
+        console.log('[OVERLAY] hideNow() complete - overlay removed and state reset');
       }, 300);
     }
   };
