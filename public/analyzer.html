@@ -7651,7 +7651,12 @@ a:hover {
       console.log("Sidebar click:", target);
 
       if (target === "analyzer-history") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log("[HISTORY_PANEL] sidebar click handled once");
         toggleHistoryPanel();
+        return;
   } else if (target === "download-results") {
   // ✅ PDF Generation - Standalone, no API calls
   (async () => {
