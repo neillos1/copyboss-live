@@ -11691,46 +11691,47 @@ window.addEventListener('load', function () {
   // History Panel Functions
   function openHistoryPanel() {
     console.log('[HISTORY_PANEL] open');
-    const panel = document.getElementById('cbHistoryPanel');
+    
+    // Ensure panel exists and is in body
+    let panel = document.getElementById('cbHistoryPanel');
     if (!panel) {
+      // Re-run init to create panel
+      const initFn = document.querySelector('script').textContent.match(/function initHistoryPanel\(\)/);
+      if (initFn) {
+        // Panel will be created by init, try again
+        setTimeout(openHistoryPanel, 10);
+        return;
+      }
       console.error('[HISTORY_PANEL] Panel element not found');
       return;
     }
+    
+    // Ensure panel is directly in body (portal it)
+    if (panel.parentNode !== document.body) {
+      document.body.appendChild(panel);
+    }
+    
+    // Prevent scrollbar layout shift
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    
     panel.classList.add('open');
     document.body.classList.add('cb-history-open');
-    
-    // DEBUG: Log computed styles to verify visibility
-    setTimeout(() => {
-      const styles = window.getComputedStyle(panel);
-      const rect = panel.getBoundingClientRect();
-      console.log('[HISTORY_PANEL] VIS', {
-        className: panel.className,
-        right: styles.right,
-        display: styles.display,
-        visibility: styles.visibility,
-        zIndex: styles.zIndex,
-        position: styles.position,
-        boundingRect: {
-          x: rect.x,
-          y: rect.y,
-          width: rect.width,
-          height: rect.height,
-          right: rect.right
-        }
-      });
-    }, 10);
     
     renderHistoryContent();
   }
   
   function closeHistoryPanel() {
     console.log('[HISTORY_PANEL] close');
-    console.trace('[HISTORY_PANEL] close called from');
     const panel = document.getElementById('cbHistoryPanel');
     if (panel) {
       panel.classList.remove('open');
     }
     document.body.classList.remove('cb-history-open');
+    // Restore scrollbar space
+    document.body.style.paddingRight = '';
   }
   
   function toggleHistoryPanel() {
@@ -11800,28 +11801,63 @@ window.addEventListener('load', function () {
     }
   }
   
-  // Initialize panel close button and ESC handler
+  // Initialize panel: portal to body and attach handlers
   (function initHistoryPanel() {
+    function ensurePanelInBody() {
+      let panel = document.getElementById('cbHistoryPanel');
+      
+      // Create panel if it doesn't exist
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'cbHistoryPanel';
+        panel.className = 'cb-history-panel';
+        panel.innerHTML = `
+          <div class="cb-history-panel-header">
+            <h2>📁 Analyzer History</h2>
+            <button id="cbHistoryPanelClose" class="cb-history-panel-close" aria-label="Close panel">×</button>
+          </div>
+          <div id="cbHistoryPanelContent" class="cb-history-panel-content">
+            <!-- History entries will be rendered here -->
+          </div>
+        `;
+      }
+      
+      // Ensure panel is directly in body (not inside transformed containers)
+      if (panel.parentNode !== document.body) {
+        document.body.appendChild(panel);
+      }
+      
+      return panel;
+    }
+    
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initHistoryPanel);
+      document.addEventListener('DOMContentLoaded', () => {
+        ensurePanelInBody();
+        attachPanelHandlers();
+      });
       return;
     }
     
-    const closeBtn = document.getElementById('cbHistoryPanelClose');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', closeHistoryPanel);
-    }
+    ensurePanelInBody();
+    attachPanelHandlers();
     
-    // ESC key handler
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const panel = document.getElementById('cbHistoryPanel');
-        if (panel && panel.classList.contains('open')) {
-          closeHistoryPanel();
-        }
+    function attachPanelHandlers() {
+      const closeBtn = document.getElementById('cbHistoryPanelClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeHistoryPanel);
       }
-    });
+      
+      // ESC key handler
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const panel = document.getElementById('cbHistoryPanel');
+          if (panel && panel.classList.contains('open')) {
+            closeHistoryPanel();
+          }
+        }
+      });
+    }
   })();
   
   // Expose functions globally
@@ -11830,16 +11866,7 @@ window.addEventListener('load', function () {
   window.toggleHistoryPanel = toggleHistoryPanel;
 </script>
 
-<!-- Analyzer History Side Panel -->
-<div id="cbHistoryPanel" class="cb-history-panel">
-  <div class="cb-history-panel-header">
-    <h2>📁 Analyzer History</h2>
-    <button id="cbHistoryPanelClose" class="cb-history-panel-close" aria-label="Close panel">×</button>
-  </div>
-  <div id="cbHistoryPanelContent" class="cb-history-panel-content">
-    <!-- History entries will be rendered here -->
-  </div>
-</div>
+<!-- Analyzer History Side Panel (will be portaled to body) -->
 
 <style id="cbHistoryPanelStyles">
   .cb-history-panel {
@@ -11868,6 +11895,10 @@ window.addEventListener('load', function () {
       width: 100vw;
       right: -100vw;
     }
+  }
+  
+  html, body {
+    overflow-x: hidden;
   }
   
   body.cb-history-open {
