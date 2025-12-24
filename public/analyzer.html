@@ -11697,6 +11697,7 @@ window.addEventListener('load', function () {
       return;
     }
     panel.classList.add('open');
+    document.body.classList.add('cb-history-open');
     
     // DEBUG: Log computed styles to verify visibility
     setTimeout(() => {
@@ -11704,7 +11705,6 @@ window.addEventListener('load', function () {
       const rect = panel.getBoundingClientRect();
       console.log('[HISTORY_PANEL] VIS', {
         className: panel.className,
-        transform: styles.transform,
         right: styles.right,
         display: styles.display,
         visibility: styles.visibility,
@@ -11730,6 +11730,7 @@ window.addEventListener('load', function () {
     if (panel) {
       panel.classList.remove('open');
     }
+    document.body.classList.remove('cb-history-open');
   }
   
   function toggleHistoryPanel() {
@@ -11844,14 +11845,13 @@ window.addEventListener('load', function () {
   .cb-history-panel {
     position: fixed !important;
     top: 0 !important;
-    right: 0 !important;
+    right: -440px;
     height: 100vh !important;
     width: 420px;
     max-width: 100vw;
     background: #fff;
     box-shadow: -2px 0 12px rgba(0, 0, 0, 0.15);
-    transform: translateX(100%);
-    transition: transform 0.2s ease;
+    transition: right 0.2s ease;
     z-index: 99999 !important;
     display: flex !important;
     flex-direction: column;
@@ -11860,13 +11860,18 @@ window.addEventListener('load', function () {
   }
   
   .cb-history-panel.open {
-    transform: translateX(0) !important;
+    right: 0 !important;
   }
   
   @media (max-width: 768px) {
     .cb-history-panel {
       width: 100vw;
+      right: -100vw;
     }
+  }
+  
+  body.cb-history-open {
+    overflow-x: hidden !important;
   }
   
   .cb-history-panel-header {
