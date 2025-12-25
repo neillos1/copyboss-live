@@ -12512,8 +12512,25 @@ window.addEventListener('load', function () {
         return null;
       }
       
-      const extractedStrengths = extractStrengths(latestData);
-      const extractedImprovements = extractImprovements(latestData);
+      // Prefer strengths/improvements from history if available (they're persisted there)
+      let extractedStrengths = null;
+      let extractedImprovements = null;
+      
+      // First try direct fields (from history entry)
+      if (latestData.strengths && Array.isArray(latestData.strengths) && latestData.strengths.length > 0) {
+        extractedStrengths = latestData.strengths;
+      }
+      if (latestData.improvements && Array.isArray(latestData.improvements) && latestData.improvements.length > 0) {
+        extractedImprovements = latestData.improvements;
+      }
+      
+      // If not found in direct fields, try extraction functions
+      if (!extractedStrengths || extractedStrengths.length === 0) {
+        extractedStrengths = extractStrengths(latestData);
+      }
+      if (!extractedImprovements || extractedImprovements.length === 0) {
+        extractedImprovements = extractImprovements(latestData);
+      }
       
       // Ensure we have 3 items each, with fallbacks
       const strengthsList = extractedStrengths && extractedStrengths.length > 0
