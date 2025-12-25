@@ -7667,8 +7667,8 @@ a:hover {
     if (!window.feedback || !window.feedback.feedback) {
       console.warn('[PDF] No feedback available');
       alert("Run an analysis first");
-      return;
-    }
+          return;
+        }
 
     // Validate html2pdf is available
     if (typeof html2pdf === 'undefined') {
@@ -7766,12 +7766,12 @@ a:hover {
     if (window.Swal && typeof window.Swal.fire === 'function') {
       try {
         const result = await window.Swal.fire({
-          title: "Download Report?",
-          text: "Do you want to download your latest analysis as a PDF?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: "Yes, download it",
-          cancelButtonText: "Cancel"
+    title: "Download Report?",
+    text: "Do you want to download your latest analysis as a PDF?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, download it",
+    cancelButtonText: "Cancel"
         });
         confirmed = result && result.isConfirmed === true;
       } catch (err) {
@@ -7811,19 +7811,13 @@ else if (modalContentMap[target]) {
   
   if (target === "share-report") {
     // Check Pro access for share report
-    if (!checkProAccess('share-report')) {
+    if (!isProActive()) {
+      // Free user - show upgrade modal
+      checkProAccess('share-report');
       return;
     }
-    Swal.fire({
-      title: content.title,
-      html: content.html,
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: 500,
-      customClass: {
-        popup: 'swal2-popup-custom'
-      }
-    });
+    // Pro user - show share UI
+    openShareReportModal();
   } else if (target === "upgrade-pro") {
     // Handle upgrade to Pro based on system status
     if (UPGRADE_SYSTEM_ACTIVE) {
@@ -8953,7 +8947,8 @@ function shareViaEmail() {
 
 // Function to check if user has Pro access for specific features
 function checkProAccess(feature) {
-  if (!userIsPro) {
+  // Use isProActive() instead of hardcoded userIsPro
+  if (!isProActive()) {
     showShareDownloadUpgradeModal();
     return false;
   }
