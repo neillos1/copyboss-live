@@ -12232,6 +12232,227 @@ window.addEventListener('load', function () {
   window.toggleSettingsPanel = toggleSettingsPanel;
 </script>
 
+<!-- Insights Panel Functions -->
+<script>
+  // Insights Panel Functions
+  function openInsightsPanel() {
+    console.log('[INSIGHTS_PANEL] open');
+    
+    // Ensure panel exists and is in body
+    let panel = document.getElementById('cbInsightsPanel');
+    if (!panel) {
+      // Panel will be created by init, try again
+      setTimeout(openInsightsPanel, 10);
+      return;
+    }
+    
+    // Ensure panel is directly in body (portal it)
+    if (panel.parentNode !== document.body) {
+      document.body.appendChild(panel);
+    }
+    
+    // Prevent scrollbar layout shift
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    
+    panel.classList.add('open');
+    document.body.classList.add('cb-insights-open');
+    
+    renderInsightsContent();
+  }
+  
+  function closeInsightsPanel() {
+    console.log('[INSIGHTS_PANEL] close');
+    const panel = document.getElementById('cbInsightsPanel');
+    if (panel) {
+      panel.classList.remove('open');
+    }
+    document.body.classList.remove('cb-insights-open');
+    // Restore scrollbar space
+    document.body.style.paddingRight = '';
+  }
+  
+  function toggleInsightsPanel() {
+    console.log('[INSIGHTS_PANEL] toggle');
+    const panel = document.getElementById('cbInsightsPanel');
+    if (!panel) {
+      console.error('[INSIGHTS_PANEL] Panel element not found');
+      return;
+    }
+    if (panel.classList.contains('open')) {
+      closeInsightsPanel();
+    } else {
+      openInsightsPanel();
+    }
+  }
+  
+  function renderInsightsContent() {
+    const content = document.getElementById('cbInsightsPanelContent');
+    if (!content) {
+      console.error('[INSIGHTS_PANEL] Content element not found');
+      return;
+    }
+    
+    // Get latest analysis data
+    const latestData = window.lastAnalysis || window.analysisResult || window.feedback;
+    
+    // Get history for stats
+    const history = JSON.parse(localStorage.getItem("analysisHistory")) || [];
+    
+    // Check if we have any data
+    if (!latestData && history.length === 0) {
+      content.innerHTML = `
+        <div class="cb-insights-empty">
+          <p>No insights available yet.</p>
+          <p>Run an analysis to see your insights here.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    let html = '';
+    
+    // Latest Analysis Card
+    if (latestData) {
+      const viralScore = latestData.feedback?.viralScore?.score || latestData.viralScore || 'N/A';
+      const date = latestData.date || new Date().toLocaleString();
+      
+      // Extract strengths and improvements (fallback to defaults)
+      const strengths = latestData.strengths || latestData.feedback?.strengths || ['Not available yet', 'Not available yet', 'Not available yet'];
+      const improvements = latestData.improvements || latestData.feedback?.improvements || ['Not available yet', 'Not available yet', 'Not available yet'];
+      
+      // Ensure we have 3 items each
+      const strengthsList = Array.isArray(strengths) ? strengths.slice(0, 3) : ['Not available yet', 'Not available yet', 'Not available yet'];
+      const improvementsList = Array.isArray(improvements) ? improvements.slice(0, 3) : ['Not available yet', 'Not available yet', 'Not available yet'];
+      
+      html += `
+        <div class="cb-insights-card">
+          <h3>📊 Latest Analysis</h3>
+          <div class="cb-insights-stat">
+            <span class="cb-insights-stat-label">Viral Score</span>
+            <span class="cb-insights-stat-value">${viralScore}</span>
+          </div>
+          <div class="cb-insights-stat">
+            <span class="cb-insights-stat-label">Date</span>
+            <span class="cb-insights-stat-value">${date}</span>
+          </div>
+          <div style="margin-top: 16px;">
+            <strong style="font-size: 14px; color: #333; display: block; margin-bottom: 8px;">Strengths:</strong>
+            <ul class="cb-insights-list">
+              ${strengthsList.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="margin-top: 16px;">
+            <strong style="font-size: 14px; color: #333; display: block; margin-bottom: 8px;">Improvements:</strong>
+            <ul class="cb-insights-list">
+              ${improvementsList.map(i => `<li>${i}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+    
+    // History Stats Card
+    if (history.length > 0) {
+      const scores = history.map(h => parseInt(h.score) || 0).filter(s => s > 0);
+      const totalAnalyses = history.length;
+      const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const bestScore = scores.length > 0 ? Math.max(...scores) : 0;
+      const mostRecentScore = scores.length > 0 ? scores[scores.length - 1] : 0;
+      
+      html += `
+        <div class="cb-insights-card">
+          <h3>📈 History Stats</h3>
+          <div class="cb-insights-stat">
+            <span class="cb-insights-stat-label">Total Analyses</span>
+            <span class="cb-insights-stat-value">${totalAnalyses}</span>
+          </div>
+          <div class="cb-insights-stat">
+            <span class="cb-insights-stat-label">Average Score</span>
+            <span class="cb-insights-stat-value">${averageScore || 'N/A'}</span>
+          </div>
+          <div class="cb-insights-stat">
+            <span class="cb-insights-stat-label">Best Score</span>
+            <span class="cb-insights-stat-value">${bestScore || 'N/A'}</span>
+          </div>
+          <div class="cb-insights-stat">
+            <span class="cb-insights-stat-label">Most Recent</span>
+            <span class="cb-insights-stat-value">${mostRecentScore || 'N/A'}</span>
+          </div>
+        </div>
+      `;
+    }
+    
+    content.innerHTML = html;
+  }
+  
+  // Initialize insights panel: portal to body and attach handlers
+  (function initInsightsPanel() {
+    function ensurePanelInBody() {
+      let panel = document.getElementById('cbInsightsPanel');
+      
+      // Create panel if it doesn't exist
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'cbInsightsPanel';
+        panel.className = 'cb-insights-panel';
+        panel.innerHTML = `
+          <div class="cb-insights-panel-header">
+            <h2>💡 Insights</h2>
+            <button id="cbInsightsPanelClose" class="cb-insights-panel-close" aria-label="Close panel">×</button>
+          </div>
+          <div id="cbInsightsPanelContent" class="cb-insights-panel-content">
+            <!-- Insights content will be rendered here -->
+          </div>
+        `;
+      }
+      
+      // Ensure panel is directly in body (not inside transformed containers)
+      if (panel.parentNode !== document.body) {
+        document.body.appendChild(panel);
+      }
+      
+      return panel;
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        ensurePanelInBody();
+        attachInsightsHandlers();
+      });
+      return;
+    }
+    
+    ensurePanelInBody();
+    attachInsightsHandlers();
+    
+    function attachInsightsHandlers() {
+      const closeBtn = document.getElementById('cbInsightsPanelClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeInsightsPanel);
+      }
+      
+      // ESC key handler (shared with other panels, but check insights)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const insightsPanel = document.getElementById('cbInsightsPanel');
+          if (insightsPanel && insightsPanel.classList.contains('open')) {
+            closeInsightsPanel();
+          }
+        }
+      });
+    }
+  })();
+  
+  // Expose functions globally
+  window.openInsightsPanel = openInsightsPanel;
+  window.closeInsightsPanel = closeInsightsPanel;
+  window.toggleInsightsPanel = toggleInsightsPanel;
+</script>
+
 <!-- Analyzer History Side Panel (will be portaled to body) -->
 
 <style id="cbHistoryPanelStyles">
