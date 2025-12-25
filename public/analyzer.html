@@ -8013,7 +8013,14 @@ else if (modalContentMap[target]) {
     e.stopImmediatePropagation();
     toggleInsightsPanel();
     return;
-  } else if (target === "ai-tips" || target === "refer-section" || target === "compare-videos") {
+  } else if (target === "ai-tips") {
+    // AI Tips panel - use side drawer
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    toggleAiTipsPanel();
+    return;
+  } else if (target === "refer-section" || target === "compare-videos") {
     Swal.fire({
       title: content.title,
       html: content.html,
@@ -8026,11 +8033,7 @@ else if (modalContentMap[target]) {
     });
     
     // Initialize modals after they are shown (not when closed)
-    if (target === "ai-tips") {
-      setTimeout(() => {
-        initializeAITips();
-      }, 100);
-    } else if (target === "compare-videos") {
+    if (target === "compare-videos") {
       setTimeout(() => {
         initializeVideoComparison();
       }, 200);
@@ -13188,6 +13191,129 @@ window.addEventListener('load', function () {
     text-align: center;
     padding: 40px 20px;
     color: #666;
+  }
+  
+  /* AI Tips Panel Styles */
+  .cb-ai-tips-panel {
+    position: fixed !important;
+    top: 0 !important;
+    right: -440px;
+    height: 100vh !important;
+    width: 420px;
+    max-width: 100vw;
+    background: #fff;
+    box-shadow: -2px 0 12px rgba(0, 0, 0, 0.15);
+    transition: right 0.2s ease;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+    visibility: visible !important;
+  }
+  
+  .cb-ai-tips-panel.open {
+    right: 0 !important;
+  }
+  
+  @media (max-width: 768px) {
+    .cb-ai-tips-panel {
+      width: 100vw;
+      right: -100vw;
+    }
+  }
+  
+  .cb-ai-tips-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f8f9fa;
+  }
+  
+  .cb-ai-tips-panel-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .cb-ai-tips-panel-close {
+    background: none;
+    border: none;
+    font-size: 32px;
+    line-height: 1;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  
+  .cb-ai-tips-panel-close:hover {
+    background: #e0e0e0;
+    color: #333;
+  }
+  
+  .cb-ai-tips-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  
+  .cb-ai-tips-section {
+    margin-bottom: 24px;
+  }
+  
+  .cb-ai-tips-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .cb-ai-tips-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid #2248bc;
+  }
+  
+  .cb-ai-tips-item-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .cb-ai-tips-item-text {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+  }
+  
+  .cb-ai-tips-copy-btn {
+    width: 100%;
+    padding: 12px 20px;
+    margin-top: 12px;
+    background: #2248bc;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+  
+  .cb-ai-tips-copy-btn:hover {
+    background: #1a3a9e;
   }
 </style>
 
