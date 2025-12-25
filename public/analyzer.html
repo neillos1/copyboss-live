@@ -12009,6 +12009,222 @@ window.addEventListener('load', function () {
   window.toggleHistoryPanel = toggleHistoryPanel;
 </script>
 
+<!-- Settings Panel Functions -->
+<script>
+  // Settings Panel Functions
+  function openSettingsPanel() {
+    console.log('[SETTINGS_PANEL] open');
+    
+    // Ensure panel exists and is in body
+    let panel = document.getElementById('cbSettingsPanel');
+    if (!panel) {
+      // Panel will be created by init, try again
+      setTimeout(openSettingsPanel, 10);
+      return;
+    }
+    
+    // Ensure panel is directly in body (portal it)
+    if (panel.parentNode !== document.body) {
+      document.body.appendChild(panel);
+    }
+    
+    // Prevent scrollbar layout shift
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    
+    panel.classList.add('open');
+    document.body.classList.add('cb-settings-open');
+    
+    renderSettingsContent();
+  }
+  
+  function closeSettingsPanel() {
+    console.log('[SETTINGS_PANEL] close');
+    const panel = document.getElementById('cbSettingsPanel');
+    if (panel) {
+      panel.classList.remove('open');
+    }
+    document.body.classList.remove('cb-settings-open');
+    // Restore scrollbar space
+    document.body.style.paddingRight = '';
+  }
+  
+  function toggleSettingsPanel() {
+    console.log('[SETTINGS_PANEL] toggle');
+    const panel = document.getElementById('cbSettingsPanel');
+    if (!panel) {
+      console.error('[SETTINGS_PANEL] Panel element not found');
+      return;
+    }
+    if (panel.classList.contains('open')) {
+      closeSettingsPanel();
+    } else {
+      openSettingsPanel();
+    }
+  }
+  
+  function renderSettingsContent() {
+    const content = document.getElementById('cbSettingsPanelContent');
+    if (!content) {
+      console.error('[SETTINGS_PANEL] Content element not found');
+      return;
+    }
+    
+    const isPro = isProActive();
+    const reduceMotion = localStorage.getItem('reduceMotion') === 'true';
+    const compactUI = localStorage.getItem('compactUI') === 'true';
+    
+    const html = `
+      <div class="cb-settings-section">
+        <h3>Account</h3>
+        <div class="cb-settings-item">
+          <label>Plan Status</label>
+          <span class="cb-settings-plan-badge ${isPro ? 'pro' : ''}">${isPro ? 'Pro' : 'Free'}</span>
+        </div>
+      </div>
+      
+      <div class="cb-settings-section">
+        <h3>Preferences</h3>
+        <div class="cb-settings-item">
+          <label for="reduceMotionToggle">Reduce Motion</label>
+          <div class="cb-settings-toggle ${reduceMotion ? 'active' : ''}" id="reduceMotionToggle" onclick="toggleSetting('reduceMotion')"></div>
+        </div>
+        <div class="cb-settings-item">
+          <label for="compactUIToggle">Compact Mode</label>
+          <div class="cb-settings-toggle ${compactUI ? 'active' : ''}" id="compactUIToggle" onclick="toggleSetting('compactUI')"></div>
+        </div>
+      </div>
+      
+      <div class="cb-settings-section">
+        <h3>Data</h3>
+        <button class="cb-settings-btn secondary" onclick="clearAnalyzerHistory()">Clear Local History</button>
+        <button class="cb-settings-btn secondary" onclick="resetUIPreferences()">Reset UI Preferences</button>
+      </div>
+    `;
+    
+    content.innerHTML = html;
+  }
+  
+  function toggleSetting(key) {
+    const current = localStorage.getItem(key) === 'true';
+    const newValue = !current;
+    localStorage.setItem(key, newValue.toString());
+    
+    // Update toggle visual state
+    const toggle = document.getElementById(key + 'Toggle');
+    if (toggle) {
+      if (newValue) {
+        toggle.classList.add('active');
+      } else {
+        toggle.classList.remove('active');
+      }
+    }
+    
+    // Apply body classes for immediate effect
+    if (key === 'reduceMotion') {
+      if (newValue) {
+        document.body.classList.add('reduce-motion');
+      } else {
+        document.body.classList.remove('reduce-motion');
+      }
+    }
+    if (key === 'compactUI') {
+      if (newValue) {
+        document.body.classList.add('compact-ui');
+      } else {
+        document.body.classList.remove('compact-ui');
+      }
+    }
+  }
+  
+  function clearAnalyzerHistory() {
+    if (confirm('Are you sure you want to clear all analyzer history? This cannot be undone.')) {
+      localStorage.removeItem('analysisHistory');
+      alert('History cleared successfully!');
+      // Refresh history panel if open
+      if (typeof renderHistoryContent === 'function') {
+        renderHistoryContent();
+      }
+    }
+  }
+  
+  function resetUIPreferences() {
+    if (confirm('Reset all UI preferences to defaults?')) {
+      localStorage.removeItem('reduceMotion');
+      localStorage.removeItem('compactUI');
+      document.body.classList.remove('reduce-motion', 'compact-ui');
+      renderSettingsContent(); // Refresh to show updated toggles
+      alert('UI preferences reset!');
+    }
+  }
+  
+  // Initialize settings panel: portal to body and attach handlers
+  (function initSettingsPanel() {
+    function ensurePanelInBody() {
+      let panel = document.getElementById('cbSettingsPanel');
+      
+      // Create panel if it doesn't exist
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'cbSettingsPanel';
+        panel.className = 'cb-settings-panel';
+        panel.innerHTML = `
+          <div class="cb-settings-panel-header">
+            <h2>⚙️ Settings</h2>
+            <button id="cbSettingsPanelClose" class="cb-settings-panel-close" aria-label="Close panel">×</button>
+          </div>
+          <div id="cbSettingsPanelContent" class="cb-settings-panel-content">
+            <!-- Settings content will be rendered here -->
+          </div>
+        `;
+      }
+      
+      // Ensure panel is directly in body (not inside transformed containers)
+      if (panel.parentNode !== document.body) {
+        document.body.appendChild(panel);
+      }
+      
+      return panel;
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        ensurePanelInBody();
+        attachSettingsHandlers();
+      });
+      return;
+    }
+    
+    ensurePanelInBody();
+    attachSettingsHandlers();
+    
+    function attachSettingsHandlers() {
+      const closeBtn = document.getElementById('cbSettingsPanelClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeSettingsPanel);
+      }
+      
+      // ESC key handler (shared with history panel, but check both)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const settingsPanel = document.getElementById('cbSettingsPanel');
+          if (settingsPanel && settingsPanel.classList.contains('open')) {
+            closeSettingsPanel();
+          }
+        }
+      });
+    }
+  })();
+  
+  // Expose functions globally
+  window.openSettingsPanel = openSettingsPanel;
+  window.closeSettingsPanel = closeSettingsPanel;
+  window.toggleSettingsPanel = toggleSettingsPanel;
+</script>
+
 <!-- Analyzer History Side Panel (will be portaled to body) -->
 
 <style id="cbHistoryPanelStyles">
