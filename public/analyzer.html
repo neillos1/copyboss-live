@@ -13035,6 +13035,295 @@ window.addEventListener('load', function () {
   window.toggleAiTipsPanel = toggleAiTipsPanel;
 </script>
 
+<!-- Compare Panel Functions -->
+<script>
+  // Compare Panel Functions
+  function openComparePanel() {
+    console.log('[COMPARE_PANEL] open');
+    
+    // Ensure panel exists and is in body
+    let panel = document.getElementById('cbComparePanel');
+    if (!panel) {
+      // Panel will be created by init, try again
+      setTimeout(openComparePanel, 10);
+      return;
+    }
+    
+    // Ensure panel is directly in body (portal it)
+    if (panel.parentNode !== document.body) {
+      document.body.appendChild(panel);
+    }
+    
+    // Prevent scrollbar layout shift
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    
+    panel.classList.add('open');
+    document.body.classList.add('cb-compare-open');
+    
+    renderComparePanelContent();
+  }
+  
+  function closeComparePanel() {
+    console.log('[COMPARE_PANEL] close');
+    const panel = document.getElementById('cbComparePanel');
+    if (panel) {
+      panel.classList.remove('open');
+    }
+    document.body.classList.remove('cb-compare-open');
+    // Restore scrollbar space
+    document.body.style.paddingRight = '';
+  }
+  
+  function toggleComparePanel() {
+    console.log('[COMPARE_PANEL] toggle');
+    const panel = document.getElementById('cbComparePanel');
+    if (!panel) {
+      console.error('[COMPARE_PANEL] Panel element not found');
+      return;
+    }
+    if (panel.classList.contains('open')) {
+      closeComparePanel();
+    } else {
+      openComparePanel();
+    }
+  }
+  
+  // Load history array from localStorage (tries multiple keys)
+  function loadHistoryArray() {
+    const keys = ['analysisHistory', 'analysisHistoryLast', 'lastAnalysisHistory', 'history'];
+    
+    for (const key of keys) {
+      try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn(`[COMPARE] Failed to parse ${key}:`, e);
+      }
+    }
+    
+    return [];
+  }
+  
+  // Truncate filename (middle truncation)
+  function truncateFilename(filename, maxLength = 30) {
+    if (!filename || filename.length <= maxLength) {
+      return filename || 'Untitled Video';
+    }
+    const start = Math.floor(maxLength / 2) - 3;
+    const end = filename.length - (maxLength - start - 6);
+    return filename.substring(0, start) + '...' + filename.substring(end);
+  }
+  
+  function renderComparePanelContent() {
+    const content = document.getElementById('cbComparePanelContent');
+    if (!content) {
+      console.error('[COMPARE_PANEL] Content element not found');
+      return;
+    }
+    
+    // Load history
+    const history = loadHistoryArray();
+    const items = history.slice(0, 10); // Last 10 entries
+    
+    console.log('[COMPARE_PANEL] opened', { count: items.length });
+    
+    // Get selected ID from memory or localStorage
+    const selectedId = window.cbCompareSelected || localStorage.getItem('cbCompareSelectedId') || null;
+    const selectedEntry = selectedId ? items.find(item => item.id === selectedId) : null;
+    
+    let html = '';
+    
+    // Selection info box
+    if (selectedEntry) {
+      const filename = truncateFilename(selectedEntry.title || selectedEntry.filename || 'Untitled Video');
+      const score = selectedEntry.score || 'N/A';
+      html += `
+        <div class="cb-compare-selection-info" id="cbCompareSelectionInfo">
+          Selected for comparison: <strong>${filename}</strong> (Score ${score})
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="cb-compare-selection-info hidden" id="cbCompareSelectionInfo"></div>
+      `;
+    }
+    
+    // History list
+    if (items.length === 0) {
+      html += `
+        <div style="text-align: center; padding: 40px 20px; color: #666;">
+          <p>No analysis history found.</p>
+          <p>Run an analysis to compare videos.</p>
+        </div>
+      `;
+    } else {
+      html += `<ul class="cb-compare-list">`;
+      items.forEach(item => {
+        const filename = truncateFilename(item.title || item.filename || 'Untitled Video');
+        const score = item.score || 'N/A';
+        const date = item.date || (item.timestamp ? new Date(item.timestamp).toLocaleString() : 'Unknown date');
+        const isSelected = item.id === selectedId;
+        
+        html += `
+          <li class="cb-compare-item ${isSelected ? 'selected' : ''}" 
+              data-id="${item.id || ''}" 
+              onclick="selectCompareItem('${item.id || ''}')">
+            <div class="cb-compare-item-title">${filename}</div>
+            <div class="cb-compare-item-meta">
+              <span>${date}</span>
+              <span class="cb-compare-item-score">Score: ${score}</span>
+            </div>
+          </li>
+        `;
+      });
+      html += `</ul>`;
+    }
+    
+    // Clear selection button
+    html += `
+      <button class="cb-compare-clear-btn ${selectedId ? '' : 'hidden'}" 
+              id="cbCompareClearBtn" 
+              onclick="clearCompareSelection()">
+        Clear Selection
+      </button>
+    `;
+    
+    content.innerHTML = html;
+  }
+  
+  function selectCompareItem(itemId) {
+    if (!itemId) return;
+    
+    // Store selection in memory and localStorage
+    window.cbCompareSelected = itemId;
+    localStorage.setItem('cbCompareSelectedId', itemId);
+    
+    // Update UI
+    const items = document.querySelectorAll('.cb-compare-item');
+    items.forEach(item => {
+      if (item.dataset.id === itemId) {
+        item.classList.add('selected');
+      } else {
+        item.classList.remove('selected');
+      }
+    });
+    
+    // Update selection info
+    const history = loadHistoryArray();
+    const selectedEntry = history.find(item => item.id === itemId);
+    
+    const infoBox = document.getElementById('cbCompareSelectionInfo');
+    const clearBtn = document.getElementById('cbCompareClearBtn');
+    
+    if (selectedEntry && infoBox) {
+      const filename = truncateFilename(selectedEntry.title || selectedEntry.filename || 'Untitled Video');
+      const score = selectedEntry.score || 'N/A';
+      infoBox.innerHTML = `Selected for comparison: <strong>${filename}</strong> (Score ${score})`;
+      infoBox.classList.remove('hidden');
+    }
+    
+    if (clearBtn) {
+      clearBtn.classList.remove('hidden');
+    }
+  }
+  
+  function clearCompareSelection() {
+    window.cbCompareSelected = null;
+    localStorage.removeItem('cbCompareSelectedId');
+    
+    // Update UI
+    const items = document.querySelectorAll('.cb-compare-item');
+    items.forEach(item => {
+      item.classList.remove('selected');
+    });
+    
+    const infoBox = document.getElementById('cbCompareSelectionInfo');
+    const clearBtn = document.getElementById('cbCompareClearBtn');
+    
+    if (infoBox) {
+      infoBox.classList.add('hidden');
+    }
+    
+    if (clearBtn) {
+      clearBtn.classList.add('hidden');
+    }
+  }
+  
+  // Initialize Compare panel: portal to body and attach handlers
+  (function initComparePanel() {
+    function ensurePanelInBody() {
+      let panel = document.getElementById('cbComparePanel');
+      
+      // Create panel if it doesn't exist
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'cbComparePanel';
+        panel.className = 'cb-compare-panel';
+        panel.innerHTML = `
+          <div class="cb-compare-panel-header">
+            <h2>📊 Compare With Past Videos</h2>
+            <button id="cbComparePanelClose" class="cb-compare-panel-close" aria-label="Close panel">×</button>
+          </div>
+          <div id="cbComparePanelContent" class="cb-compare-panel-content">
+            <!-- Compare content will be rendered here -->
+          </div>
+        `;
+      }
+      
+      // Ensure panel is directly in body (not inside transformed containers)
+      if (panel.parentNode !== document.body) {
+        document.body.appendChild(panel);
+      }
+      
+      return panel;
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        ensurePanelInBody();
+        attachCompareHandlers();
+      });
+      return;
+    }
+    
+    ensurePanelInBody();
+    attachCompareHandlers();
+    
+    function attachCompareHandlers() {
+      const closeBtn = document.getElementById('cbComparePanelClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeComparePanel);
+      }
+      
+      // ESC key handler (shared with other panels, but check Compare)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const comparePanel = document.getElementById('cbComparePanel');
+          if (comparePanel && comparePanel.classList.contains('open')) {
+            closeComparePanel();
+          }
+        }
+      });
+    }
+  })();
+  
+  // Expose functions globally
+  window.openComparePanel = openComparePanel;
+  window.closeComparePanel = closeComparePanel;
+  window.toggleComparePanel = toggleComparePanel;
+  window.selectCompareItem = selectCompareItem;
+  window.clearCompareSelection = clearCompareSelection;
+</script>
+
 <!-- Analyzer History Side Panel (will be portaled to body) -->
 
 <style id="cbHistoryPanelStyles">
