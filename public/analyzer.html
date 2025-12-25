@@ -13313,6 +13313,225 @@ window.addEventListener('load', function () {
   window.clearCompareSelection = clearCompareSelection;
 </script>
 
+<!-- Graph Share Functions -->
+<script>
+  // Handle Share Graph click (PRO feature)
+  function handleShareGraphClick() {
+    console.log('[GRAPH_SHARE] pro=', isProActive());
+    
+    // If NOT Pro, show upgrade modal
+    if (!isProActive()) {
+      showUpgradeModal();
+      return;
+    }
+    
+    // Pro user - show share options modal
+    Swal.fire({
+      title: 'Share This Graph',
+      html: `
+        <div style="text-align: center; padding: 20px 0;">
+          <p style="margin-bottom: 20px; color: #666;">Choose how you want to share your graph:</p>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button id="downloadGraphBtn" style="
+              background: #2248bc;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 600;
+              transition: background 0.2s ease;
+            " onmouseover="this.style.background='#1a3a9e'" onmouseout="this.style.background='#2248bc'">
+              📥 Download PNG
+            </button>
+            <button id="copyGraphBtn" style="
+              background: #28a745;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 600;
+              transition: background 0.2s ease;
+            " onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+              📋 Copy Image
+            </button>
+          </div>
+        </div>
+      `,
+      showCloseButton: true,
+      showConfirmButton: false,
+      width: 400,
+      customClass: {
+        popup: 'swal2-popup-custom'
+      },
+      didOpen: () => {
+        // Attach handlers after modal opens
+        document.getElementById('downloadGraphBtn')?.addEventListener('click', async () => {
+          try {
+            const result = await getMainChartDataUri();
+            if (result && result.imgURI) {
+              const date = new Date().toISOString().split('T')[0];
+              downloadDataUriAsPng(result.imgURI, `copyboss-graph-${date}.png`);
+              Swal.close();
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Could not export chart. Please try again.',
+                confirmButtonColor: '#2248bc'
+              });
+            }
+          } catch (err) {
+            console.error('[GRAPH_SHARE] Download failed:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Export Failed',
+              text: 'An error occurred while exporting the chart.',
+              confirmButtonColor: '#2248bc'
+            });
+          }
+        });
+        
+        document.getElementById('copyGraphBtn')?.addEventListener('click', async () => {
+          try {
+            const result = await getMainChartDataUri();
+            if (result && result.imgURI) {
+              const copied = await copyDataUriToClipboard(result.imgURI);
+              if (copied) {
+                Swal.close();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Copied!',
+                  text: 'Graph image copied to clipboard.',
+                  timer: 2000,
+                  showConfirmButton: false,
+                  confirmButtonColor: '#2248bc'
+                });
+              } else {
+                Swal.fire({
+                  icon: 'info',
+                  title: 'Copy Not Supported',
+                  html: 'Your browser does not support copying images to clipboard.<br><br>Please use "Download PNG" instead.',
+                  confirmButtonColor: '#2248bc'
+                });
+              }
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Could not export chart. Please try again.',
+                confirmButtonColor: '#2248bc'
+              });
+            }
+          } catch (err) {
+            console.error('[GRAPH_SHARE] Copy failed:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Export Failed',
+              text: 'An error occurred while exporting the chart.',
+              confirmButtonColor: '#2248bc'
+            });
+          }
+        });
+      }
+    });
+  }
+  
+  // Get main chart data URI (Chart.js or html2canvas fallback)
+  async function getMainChartDataUri() {
+    try {
+      // Try Chart.js built-in export first
+      if (window.copyBossChart && typeof window.copyBossChart.toBase64Image === 'function') {
+        const dataUri = window.copyBossChart.toBase64Image('image/png', 1.0);
+        if (dataUri && dataUri.startsWith('data:image')) {
+          return { imgURI: dataUri };
+        }
+      }
+      
+      // Fallback: Use html2canvas on chart container
+      const chartCanvas = document.getElementById('copyBossChart');
+      if (chartCanvas && typeof html2canvas !== 'undefined') {
+        // Find the chart container (parent element)
+        const chartContainer = chartCanvas.closest('.chart-container, .graph-container, [class*="chart"]') || chartCanvas.parentElement;
+        
+        const canvas = await html2canvas(chartContainer || chartCanvas, {
+          backgroundColor: '#1a233a', // Match chart background
+          scale: 2,
+          useCORS: true,
+          logging: false
+        });
+        
+        const dataUri = canvas.toDataURL('image/png');
+        return { imgURI: dataUri };
+      }
+      
+      // Last resort: try canvas directly
+      if (chartCanvas && chartCanvas.tagName === 'CANVAS') {
+        const dataUri = chartCanvas.toDataURL('image/png');
+        if (dataUri && dataUri !== 'data:,') {
+          return { imgURI: dataUri };
+        }
+      }
+      
+      return null;
+    } catch (err) {
+      console.error('[GRAPH_SHARE] getMainChartDataUri error:', err);
+      return null;
+    }
+  }
+  
+  // Download data URI as PNG file
+  function downloadDataUriAsPng(dataUri, filename) {
+    try {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('[GRAPH_SHARE] downloadDataUriAsPng error:', err);
+      throw err;
+    }
+  }
+  
+  // Copy data URI to clipboard (best effort)
+  async function copyDataUriToClipboard(dataUri) {
+    try {
+      // Convert data URI to blob
+      const response = await fetch(dataUri);
+      const blob = await response.blob();
+      
+      // Try Clipboard API
+      if (navigator.clipboard && navigator.clipboard.write) {
+        const clipboardItem = new ClipboardItem({ 'image/png': blob });
+        await navigator.clipboard.write([clipboardItem]);
+        return true;
+      }
+      
+      // Fallback: try older clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        // This won't work for images, but we'll try
+        return false;
+      }
+      
+      return false;
+    } catch (err) {
+      console.error('[GRAPH_SHARE] copyDataUriToClipboard error:', err);
+      return false;
+    }
+  }
+  
+  // Expose functions globally
+  window.handleShareGraphClick = handleShareGraphClick;
+  window.getMainChartDataUri = getMainChartDataUri;
+  window.downloadDataUriAsPng = downloadDataUriAsPng;
+  window.copyDataUriToClipboard = copyDataUriToClipboard;
+</script>
+
 <!-- Analyzer History Side Panel (will be portaled to body) -->
 
 <style id="cbHistoryPanelStyles">
