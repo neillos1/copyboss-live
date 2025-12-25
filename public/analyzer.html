@@ -12551,18 +12551,22 @@ window.addEventListener('load', function () {
             <span class="cb-insights-stat-label">Date</span>
             <span class="cb-insights-stat-value">${date}</span>
           </div>
+          ${strengthsList ? `
           <div style="margin-top: 16px;">
             <strong style="font-size: 14px; color: #333; display: block; margin-bottom: 8px;">Strengths:</strong>
             <ul class="cb-insights-list">
               ${strengthsList.map(s => `<li>${s}</li>`).join('')}
             </ul>
           </div>
+          ` : ''}
+          ${improvementsList ? `
           <div style="margin-top: 16px;">
             <strong style="font-size: 14px; color: #333; display: block; margin-bottom: 8px;">Improvements:</strong>
             <ul class="cb-insights-list">
               ${improvementsList.map(i => `<li>${i}</li>`).join('')}
             </ul>
           </div>
+          ` : ''}
         </div>
       `;
     }
