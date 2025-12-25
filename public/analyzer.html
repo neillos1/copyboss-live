@@ -4173,8 +4173,10 @@ async function runAnalysis() {
     // ✅ Store result but DO NOT render yet - wait for overlay to finish
     analysisResult = result;
     
-    // Store feedback globally for PDF generation
+    // Store feedback globally for PDF generation and Insights panel
     window.feedback = analysisResult;
+    window.analysisResult = analysisResult;
+    window.lastAnalysis = analysisResult;
     console.log('💾 Stored live feedback in window.feedback:', window.feedback);
     
     // Handle fallback mode indicator (can show this immediately)
