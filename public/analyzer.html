@@ -7658,13 +7658,20 @@ a:hover {
         toggleHistoryPanel();
         return;
   } else if (target === "download-results") {
-  // ✅ PDF Generation - Standalone, no API calls
-  (async () => {
-    console.log('[PDF] download-results clicked');
-    console.log('[PDF] window.feedback present?', !!window.feedback);
-    
-    // Check if we have feedback from analysis
-    if (!window.feedback || !window.feedback.feedback) {
+    // Check Pro access for download
+    if (!isProActive()) {
+      // Free user - show upgrade modal
+      checkProAccess('download-results');
+      return;
+    }
+    // Pro user - proceed with download
+    // ✅ PDF Generation - Standalone, no API calls
+    (async () => {
+      console.log('[PDF] download-results clicked');
+      console.log('[PDF] window.feedback present?', !!window.feedback);
+      
+      // Check if we have feedback from analysis
+      if (!window.feedback || !window.feedback.feedback) {
       console.warn('[PDF] No feedback available');
       alert("Run an analysis first");
           return;
