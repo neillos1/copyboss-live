@@ -3117,19 +3117,8 @@ document.addEventListener("click", function (e) {
       menu.style.display = "none";
     }
     
-    // Check user access (Pro or credits)
-    if (isProActive()) {
-      // Pro user - allow sharing
-      showShareOptions();
-    } else if (hasCredits()) {
-      // Credit user - allow sharing and optionally decrement credit
-      showShareOptions();
-      // Optionally decrement a credit
-      useReportCredit();
-    } else {
-      // Free user - show upgrade modal
-      showUpgradeModal();
-    }
+    // Handle share graph (PRO feature)
+    handleShareGraphClick();
   });
 
   document.getElementById("graphHelpBtn")?.addEventListener("click", () => {
