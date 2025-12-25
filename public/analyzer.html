@@ -12743,6 +12743,308 @@ window.addEventListener('load', function () {
   window.toggleInsightsPanel = toggleInsightsPanel;
 </script>
 
+<!-- AI Tips Panel Functions -->
+<script>
+  // AI Tips Panel Functions
+  function openAiTipsPanel() {
+    console.log('[AI_TIPS_PANEL] open');
+    
+    // Ensure panel exists and is in body
+    let panel = document.getElementById('cbAiTipsPanel');
+    if (!panel) {
+      // Panel will be created by init, try again
+      setTimeout(openAiTipsPanel, 10);
+      return;
+    }
+    
+    // Ensure panel is directly in body (portal it)
+    if (panel.parentNode !== document.body) {
+      document.body.appendChild(panel);
+    }
+    
+    // Prevent scrollbar layout shift
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    
+    panel.classList.add('open');
+    document.body.classList.add('cb-ai-tips-open');
+    
+    renderAiTipsContent();
+  }
+  
+  function closeAiTipsPanel() {
+    console.log('[AI_TIPS_PANEL] close');
+    const panel = document.getElementById('cbAiTipsPanel');
+    if (panel) {
+      panel.classList.remove('open');
+    }
+    document.body.classList.remove('cb-ai-tips-open');
+    // Restore scrollbar space
+    document.body.style.paddingRight = '';
+  }
+  
+  function toggleAiTipsPanel() {
+    console.log('[AI_TIPS_PANEL] toggle');
+    const panel = document.getElementById('cbAiTipsPanel');
+    if (!panel) {
+      console.error('[AI_TIPS_PANEL] Panel element not found');
+      return;
+    }
+    if (panel.classList.contains('open')) {
+      closeAiTipsPanel();
+    } else {
+      openAiTipsPanel();
+    }
+  }
+  
+  function renderAiTipsContent() {
+    const content = document.getElementById('cbAiTipsPanelContent');
+    if (!content) {
+      console.error('[AI_TIPS_PANEL] Content element not found');
+      return;
+    }
+    
+    // Get latest analysis data
+    const latestData = window.lastAnalysis || window.analysisResult || window.feedback;
+    const history = JSON.parse(localStorage.getItem("analysisHistory")) || [];
+    
+    let html = '';
+    
+    // Quick Tips Section (always show 8-12 static tips)
+    const quickTips = [
+      { title: "🎯 Hook in 2 Seconds", tip: "Start every video with a bold, unexpected visual or question." },
+      { title: "📈 Use Trending Sounds", tip: "Trending audio gives your content an instant boost on TikTok and Instagram." },
+      { title: "🔥 Add On-Screen Text", tip: "Even silent scrollers will stop if your message is clear visually." },
+      { title: "🕒 Shorter = Better", tip: "Keep your videos under 15s for higher completion and retention rates." },
+      { title: "👀 Use Open Loops", tip: "Tease something big but don't reveal it until the end." },
+      { title: "⚡ Energy Sells", tip: "Talk faster, cut quicker, move more — speed keeps attention." },
+      { title: "🎬 Cut the First 2 Seconds", tip: "Most videos start too slow — cut the intro fluff." },
+      { title: "📲 Vertical Always", tip: "Horizontal videos tank on TikTok and Reels — keep it mobile-first." },
+      { title: "🎨 Add Captions", tip: "Auto-captions increase watch time for 80% of users." },
+      { title: "🧲 First Frame Matters", tip: "Your first second should be your most interesting moment." },
+      { title: "💬 Pin a Comment", tip: "Direct conversation by pinning a call-to-action comment." },
+      { title: "🏁 Always End Strong", tip: "Close with an unexpected twist or punchline." }
+    ];
+    
+    html += `
+      <div class="cb-ai-tips-section">
+        <h3>💡 Quick Tips</h3>
+        ${quickTips.map(tip => `
+          <div class="cb-ai-tips-item">
+            <div class="cb-ai-tips-item-title">${tip.title}</div>
+            <div class="cb-ai-tips-item-text">${tip.tip}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    
+    // Analysis-Based Tips Section (if analysis exists)
+    if (latestData || history.length > 0) {
+      const data = latestData || (history.length > 0 ? { feedback: history[0].feedback } : null);
+      
+      if (data && data.feedback) {
+        const f = data.feedback;
+        const viralScore = f.viralScore?.score || 0;
+        const hookScore = f.hookStrength?.score || 0;
+        const captionScore = f.captionClarity?.score || 0;
+        const soundScore = f.soundMatch?.score || 0;
+        const viewerScore = f.viewerUnderstanding?.score || 0;
+        const engagementScore = f.engagementForecast?.score || 0;
+        
+        const analysisTips = [];
+        
+        // Generate tips based on weakest metrics
+        if (hookScore < 50) {
+          analysisTips.push({ title: "⚡ Strengthen Your Hook", tip: "Your hook needs work. Start with a bold question, unexpected visual, or immediate value statement in the first 2 seconds." });
+        }
+        if (captionScore < 50) {
+          analysisTips.push({ title: "💬 Improve Captions", tip: "Add clear on-screen text and auto-captions. Make your message readable even with sound off." });
+        }
+        if (soundScore < 50) {
+          analysisTips.push({ title: "🎵 Match Audio Better", tip: "Choose trending sounds that match your content's energy. Sync cuts to the beat for better engagement." });
+        }
+        if (viewerScore < 50) {
+          analysisTips.push({ title: "👁️ Increase Clarity", tip: "Simplify your message. Use clear visuals, remove clutter, and ensure your point is obvious within 3 seconds." });
+        }
+        if (engagementScore < 50) {
+          analysisTips.push({ title: "📢 Add Strong CTAs", tip: "End with a clear call-to-action. Ask a question, request engagement, or create a reason to comment." });
+        }
+        
+        // Fallback to viral score-based tips if no specific weak metrics
+        if (analysisTips.length === 0) {
+          if (viralScore < 50) {
+            analysisTips.push(
+              { title: "🎯 Strengthen Your Hook", tip: "Your overall score suggests the opening needs work. Start with a bold, unexpected moment that stops the scroll." },
+              { title: "⚡ Increase Pacing", tip: "Cut faster, remove pauses, and keep the energy high throughout. Every second counts." },
+              { title: "🔥 Add Visual Interest", tip: "Use on-screen text, bold colors, and dynamic cuts to maintain attention." }
+            );
+          } else if (viralScore < 70) {
+            analysisTips.push(
+              { title: "✂️ Tighten First 2 Seconds", tip: "Your opening is decent but could be stronger. Cut any intro fluff and jump straight into value." },
+              { title: "📢 Clearer CTA", tip: "End with a specific ask. 'Double tap if you agree' works better than generic 'follow for more'." }
+            );
+          } else {
+            analysisTips.push(
+              { title: "🔄 Iterate & Test", tip: "You're doing well! Test variations: different hooks, CTAs, or posting times to find what works best." },
+              { title: "📊 Study Your Best", tip: "Analyze your top performers and replicate the elements that made them successful." }
+            );
+          }
+        }
+        
+        if (analysisTips.length > 0) {
+          html += `
+            <div class="cb-ai-tips-section">
+              <h3>📊 Based on Your Latest Analysis</h3>
+              ${analysisTips.slice(0, 5).map(tip => `
+                <div class="cb-ai-tips-item">
+                  <div class="cb-ai-tips-item-title">${tip.title}</div>
+                  <div class="cb-ai-tips-item-text">${tip.tip}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      }
+    }
+    
+    // Copy button
+    html += `
+      <button class="cb-ai-tips-copy-btn" onclick="copyAiTipsToClipboard()">📋 Copy All Tips</button>
+    `;
+    
+    content.innerHTML = html;
+  }
+  
+  function copyAiTipsToClipboard() {
+    const content = document.getElementById('cbAiTipsPanelContent');
+    if (!content) return;
+    
+    // Extract all tip text
+    const tips = [];
+    const quickTipsSection = content.querySelector('.cb-ai-tips-section');
+    if (quickTipsSection) {
+      const items = quickTipsSection.querySelectorAll('.cb-ai-tips-item');
+      items.forEach(item => {
+        const title = item.querySelector('.cb-ai-tips-item-title')?.textContent || '';
+        const text = item.querySelector('.cb-ai-tips-item-text')?.textContent || '';
+        if (title && text) {
+          tips.push(`${title}\n${text}`);
+        }
+      });
+    }
+    
+    const analysisSection = content.querySelectorAll('.cb-ai-tips-section')[1];
+    if (analysisSection) {
+      const items = analysisSection.querySelectorAll('.cb-ai-tips-item');
+      items.forEach(item => {
+        const title = item.querySelector('.cb-ai-tips-item-title')?.textContent || '';
+        const text = item.querySelector('.cb-ai-tips-item-text')?.textContent || '';
+        if (title && text) {
+          tips.push(`${title}\n${text}`);
+        }
+      });
+    }
+    
+    const tipsText = tips.join('\n\n');
+    
+    navigator.clipboard.writeText(tipsText).then(() => {
+      const btn = event?.target || document.querySelector('.cb-ai-tips-copy-btn');
+      if (btn) {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        btn.style.background = '#28a745';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '#2248bc';
+        }, 2000);
+      }
+    }).catch(err => {
+      console.error('Failed to copy tips:', err);
+      // Fallback
+      const textarea = document.createElement('textarea');
+      textarea.value = tipsText;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('Tips copied to clipboard!');
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+        alert('Failed to copy. Please select and copy manually.');
+      }
+      document.body.removeChild(textarea);
+    });
+  }
+  
+  // Initialize AI Tips panel: portal to body and attach handlers
+  (function initAiTipsPanel() {
+    function ensurePanelInBody() {
+      let panel = document.getElementById('cbAiTipsPanel');
+      
+      // Create panel if it doesn't exist
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'cbAiTipsPanel';
+        panel.className = 'cb-ai-tips-panel';
+        panel.innerHTML = `
+          <div class="cb-ai-tips-panel-header">
+            <h2>💡 AI Tips</h2>
+            <button id="cbAiTipsPanelClose" class="cb-ai-tips-panel-close" aria-label="Close panel">×</button>
+          </div>
+          <div id="cbAiTipsPanelContent" class="cb-ai-tips-panel-content">
+            <!-- AI Tips content will be rendered here -->
+          </div>
+        `;
+      }
+      
+      // Ensure panel is directly in body (not inside transformed containers)
+      if (panel.parentNode !== document.body) {
+        document.body.appendChild(panel);
+      }
+      
+      return panel;
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        ensurePanelInBody();
+        attachAiTipsHandlers();
+      });
+      return;
+    }
+    
+    ensurePanelInBody();
+    attachAiTipsHandlers();
+    
+    function attachAiTipsHandlers() {
+      const closeBtn = document.getElementById('cbAiTipsPanelClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeAiTipsPanel);
+      }
+      
+      // ESC key handler (shared with other panels, but check AI Tips)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const aiTipsPanel = document.getElementById('cbAiTipsPanel');
+          if (aiTipsPanel && aiTipsPanel.classList.contains('open')) {
+            closeAiTipsPanel();
+          }
+        }
+      });
+    }
+  })();
+  
+  // Expose functions globally
+  window.openAiTipsPanel = openAiTipsPanel;
+  window.closeAiTipsPanel = closeAiTipsPanel;
+  window.toggleAiTipsPanel = toggleAiTipsPanel;
+</script>
+
 <!-- Analyzer History Side Panel (will be portaled to body) -->
 
 <style id="cbHistoryPanelStyles">
