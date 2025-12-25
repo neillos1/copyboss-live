@@ -12396,6 +12396,171 @@ window.addEventListener('load', function () {
     }
   }
   
+  // Helper function to extract strengths and improvements from rendered DOM
+  function getInsightsBulletsFromDOM() {
+    const strengths = [];
+    const improvements = [];
+    
+    // Find report container
+    let rootContainer = document.getElementById('reportContainer') || 
+                       document.getElementById('results') ||
+                       document.getElementById('report') ||
+                       document.getElementById('analysisResults') ||
+                       document.getElementById('resultCards') ||
+                       document.getElementById('cb-reports') ||
+                       document.querySelector('.results') ||
+                       document.querySelector('.report') ||
+                       document.querySelector('.cb-report') ||
+                       document.querySelector('.results-container');
+    
+    if (!rootContainer) {
+      rootContainer = document.body; // Fallback to body but restrict searches
+    }
+    
+    // Find all headings (h1-h6) and text nodes that might contain section titles
+    const allElements = rootContainer.querySelectorAll('h1, h2, h3, h4, h5, h6, p, div, span');
+    
+    // Look for strengths heading
+    let strengthsHeading = null;
+    const strengthPatterns = /strength|what worked|what works|strong points/i;
+    
+    for (const el of allElements) {
+      const text = el.textContent || '';
+      if (strengthPatterns.test(text) && text.length < 100) { // Short heading-like text
+        strengthsHeading = el;
+        break;
+      }
+    }
+    
+    // Look for improvements heading
+    let improvementsHeading = null;
+    const improvementPatterns = /improvement|fix|needs work|weakness|suggestions|what to improve/i;
+    
+    for (const el of allElements) {
+      const text = el.textContent || '';
+      if (improvementPatterns.test(text) && text.length < 100) { // Short heading-like text
+        improvementsHeading = el;
+        break;
+      }
+    }
+    
+    // Extract bullets after strengths heading
+    if (strengthsHeading) {
+      // Try to find nearest <ul> or <ol>
+      let list = strengthsHeading.nextElementSibling;
+      let attempts = 0;
+      while (list && attempts < 5) {
+        if (list.tagName === 'UL' || list.tagName === 'OL') {
+          const items = list.querySelectorAll('li');
+          for (const item of items) {
+            const text = item.textContent.trim().replace(/^[•\-\s]+/, '').replace(/\s+/g, ' ');
+            if (text.length > 10 && !text.toLowerCase().includes('not available')) {
+              strengths.push(text);
+              if (strengths.length >= 3) break;
+            }
+          }
+          break;
+        }
+        list = list.nextElementSibling;
+        attempts++;
+      }
+      
+      // If no list found, try to extract from nearby paragraphs/divs
+      if (strengths.length === 0) {
+        let nextEl = strengthsHeading.nextElementSibling;
+        attempts = 0;
+        while (nextEl && attempts < 10 && strengths.length < 3) {
+          const text = nextEl.textContent.trim().replace(/^[•\-\s]+/, '').replace(/\s+/g, ' ');
+          if (text.length > 10 && !text.toLowerCase().includes('not available')) {
+            // Split by line breaks or bullets
+            const lines = text.split(/[\n•\-]/).map(l => l.trim()).filter(l => l.length > 10);
+            for (const line of lines) {
+              if (strengths.length < 3 && !line.toLowerCase().includes('not available')) {
+                strengths.push(line);
+              }
+            }
+          }
+          nextEl = nextEl.nextElementSibling;
+          attempts++;
+        }
+      }
+    }
+    
+    // Extract bullets after improvements heading
+    if (improvementsHeading) {
+      // Try to find nearest <ul> or <ol>
+      let list = improvementsHeading.nextElementSibling;
+      let attempts = 0;
+      while (list && attempts < 5) {
+        if (list.tagName === 'UL' || list.tagName === 'OL') {
+          const items = list.querySelectorAll('li');
+          for (const item of items) {
+            const text = item.textContent.trim().replace(/^[•\-\s]+/, '').replace(/\s+/g, ' ');
+            if (text.length > 10 && !text.toLowerCase().includes('not available')) {
+              improvements.push(text);
+              if (improvements.length >= 3) break;
+            }
+          }
+          break;
+        }
+        list = list.nextElementSibling;
+        attempts++;
+      }
+      
+      // If no list found, try to extract from nearby paragraphs/divs
+      if (improvements.length === 0) {
+        let nextEl = improvementsHeading.nextElementSibling;
+        attempts = 0;
+        while (nextEl && attempts < 10 && improvements.length < 3) {
+          const text = nextEl.textContent.trim().replace(/^[•\-\s]+/, '').replace(/\s+/g, ' ');
+          if (text.length > 10 && !text.toLowerCase().includes('not available')) {
+            // Split by line breaks or bullets
+            const lines = text.split(/[\n•\-]/).map(l => l.trim()).filter(l => l.length > 10);
+            for (const line of lines) {
+              if (improvements.length < 3 && !line.toLowerCase().includes('not available')) {
+                improvements.push(line);
+              }
+            }
+          }
+          nextEl = nextEl.nextElementSibling;
+          attempts++;
+        }
+      }
+    }
+    
+    // Also try to extract from detailed Gemini feedback elements
+    if (strengths.length === 0 || improvements.length === 0) {
+      const detailElements = rootContainer.querySelectorAll('[id*="DetailedGemini"], [id*="detailed"], [id*="Feedback"]');
+      for (const el of detailElements) {
+        const text = el.textContent || '';
+        if (text.length > 50) {
+          // Look for strengths section
+          if (strengths.length < 3) {
+            const strengthMatch = text.match(/(?:strengths?|what worked|what works):\s*([^⚠️❌]*?)(?=improvements?:|⚠️|❌|$)/i);
+            if (strengthMatch) {
+              const items = strengthMatch[1].split(/[•\-\n]/).map(s => s.trim().replace(/^[✅•\-\s]+/, '')).filter(s => s.length > 10 && !s.toLowerCase().includes('not available'));
+              strengths.push(...items.slice(0, 3 - strengths.length));
+            }
+          }
+          
+          // Look for improvements section
+          if (improvements.length < 3) {
+            const improvementMatch = text.match(/(?:improvements?|fix|suggestions):\s*([^✅]*?)(?=strengths?:|✅|$)/i);
+            if (improvementMatch) {
+              const items = improvementMatch[1].split(/[•\-\n]/).map(s => s.trim().replace(/^[⚠️❌•\-\s]+/, '')).filter(s => s.length > 10 && !s.toLowerCase().includes('not available'));
+              improvements.push(...items.slice(0, 3 - improvements.length));
+            }
+          }
+        }
+      }
+    }
+    
+    return {
+      strengths: strengths.slice(0, 3),
+      improvements: improvements.slice(0, 3)
+    };
+  }
+  
   function renderInsightsContent() {
     const content = document.getElementById('cbInsightsPanelContent');
     if (!content) {
@@ -12419,14 +12584,6 @@ window.addEventListener('load', function () {
       }
     }
     
-    // Debug: log what keys we found
-    if (latestData) {
-      console.log('[INSIGHTS] source keys:', Object.keys(latestData));
-      if (latestData.feedback) {
-        console.log('[INSIGHTS] feedback keys:', Object.keys(latestData.feedback));
-      }
-    }
-    
     // Check if we have any data
     if (!latestData && history.length === 0) {
       content.innerHTML = `
@@ -12438,6 +12595,10 @@ window.addEventListener('load', function () {
       return;
     }
     
+    // Extract strengths and improvements from DOM first
+    const { strengths, improvements } = getInsightsBulletsFromDOM();
+    console.log('[INSIGHTS_DOM]', { strengths, improvements });
+    
     let html = '';
     
     // Latest Analysis Card
@@ -12445,100 +12606,9 @@ window.addEventListener('load', function () {
       const viralScore = latestData.feedback?.viralScore?.score || latestData.viralScore || 'N/A';
       const date = latestData.date || new Date().toLocaleString();
       
-      // Robust extraction of strengths and improvements
-      function extractStrengths(data) {
-        // Try multiple paths - prefer direct fields first
-        if (data.strengths && Array.isArray(data.strengths) && data.strengths.length > 0) return data.strengths;
-        if (data.feedback?.strengths && Array.isArray(data.feedback.strengths) && data.feedback.strengths.length > 0) return data.feedback.strengths;
-        if (data.aiFeedback?.strengths && Array.isArray(data.aiFeedback.strengths) && data.aiFeedback.strengths.length > 0) return data.aiFeedback.strengths;
-        if (data.tips?.strengths && Array.isArray(data.tips.strengths) && data.tips.strengths.length > 0) return data.tips.strengths;
-        
-        // Try to parse from text feedback
-        const summary = data.summary || data.feedback?.summary || '';
-        if (summary) {
-          const strengthsMatch = summary.match(/Strengths?:?\s*([^⚠️❌]*?)(?=Improvements?:|⚠️|❌|$)/i);
-          if (strengthsMatch) {
-            const text = strengthsMatch[1];
-            const items = text.split(/[•\-\n]/).filter(s => s.trim().length > 0).map(s => s.trim());
-            if (items.length > 0) return items;
-          }
-        }
-        
-        // Try to find bullet points starting with ✅
-        const allText = JSON.stringify(data).toLowerCase();
-        if (allText.includes('✅') || allText.includes('strength')) {
-          const feedbackText = data.feedback?.summary || data.summary || '';
-          const lines = feedbackText.split('\n').filter(line => 
-            line.includes('✅') || line.toLowerCase().includes('strength')
-          );
-          if (lines.length > 0) {
-            return lines.map(l => l.replace(/^[✅•\-\s]+/, '').trim()).filter(l => l.length > 0);
-          }
-        }
-        
-        return null;
-      }
-      
-      function extractImprovements(data) {
-        // Try multiple paths - prefer direct fields first
-        if (data.improvements && Array.isArray(data.improvements) && data.improvements.length > 0) return data.improvements;
-        if (data.feedback?.improvements && Array.isArray(data.feedback.improvements) && data.feedback.improvements.length > 0) return data.feedback.improvements;
-        if (data.aiFeedback?.improvements && Array.isArray(data.aiFeedback.improvements) && data.aiFeedback.improvements.length > 0) return data.aiFeedback.improvements;
-        if (data.tips?.improvements && Array.isArray(data.tips.improvements) && data.tips.improvements.length > 0) return data.tips.improvements;
-        
-        // Try to parse from text feedback
-        const summary = data.summary || data.feedback?.summary || '';
-        if (summary) {
-          const improvementsMatch = summary.match(/Improvements?:?\s*([^✅]*?)(?=Strengths?:|✅|$)/i);
-          if (improvementsMatch) {
-            const text = improvementsMatch[1];
-            const items = text.split(/[•\-\n]/).filter(s => s.trim().length > 0).map(s => s.trim());
-            if (items.length > 0) return items;
-          }
-        }
-        
-        // Try to find bullet points starting with ⚠️ or ❌
-        const allText = JSON.stringify(data).toLowerCase();
-        if (allText.includes('⚠️') || allText.includes('❌') || allText.includes('improve')) {
-          const feedbackText = data.feedback?.summary || data.summary || '';
-          const lines = feedbackText.split('\n').filter(line => 
-            line.includes('⚠️') || line.includes('❌') || line.toLowerCase().includes('improve')
-          );
-          if (lines.length > 0) {
-            return lines.map(l => l.replace(/^[⚠️❌•\-\s]+/, '').trim()).filter(l => l.length > 0);
-          }
-        }
-        
-        return null;
-      }
-      
-      // Prefer strengths/improvements from history if available (they're persisted there)
-      let extractedStrengths = null;
-      let extractedImprovements = null;
-      
-      // First try direct fields (from history entry)
-      if (latestData.strengths && Array.isArray(latestData.strengths) && latestData.strengths.length > 0) {
-        extractedStrengths = latestData.strengths;
-      }
-      if (latestData.improvements && Array.isArray(latestData.improvements) && latestData.improvements.length > 0) {
-        extractedImprovements = latestData.improvements;
-      }
-      
-      // If not found in direct fields, try extraction functions
-      if (!extractedStrengths || extractedStrengths.length === 0) {
-        extractedStrengths = extractStrengths(latestData);
-      }
-      if (!extractedImprovements || extractedImprovements.length === 0) {
-        extractedImprovements = extractImprovements(latestData);
-      }
-      
-      // Ensure we have 3 items each, with fallbacks
-      const strengthsList = extractedStrengths && extractedStrengths.length > 0
-        ? extractedStrengths.slice(0, 3)
-        : ['Not available yet', 'Not available yet', 'Not available yet'];
-      const improvementsList = extractedImprovements && extractedImprovements.length > 0
-        ? extractedImprovements.slice(0, 3)
-        : ['Not available yet', 'Not available yet', 'Not available yet'];
+      // Only show strengths/improvements if we found them in DOM
+      const strengthsList = strengths.length > 0 ? strengths : null;
+      const improvementsList = improvements.length > 0 ? improvements : null;
       
       html += `
         <div class="cb-insights-card">
