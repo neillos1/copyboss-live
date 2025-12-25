@@ -8485,10 +8485,10 @@ function copyShareLink() {
         copyBtn.style.background = '#2248bc';
       }, 2000);
     }
-  }).catch(err => {
-    console.error('Failed to copy link:', err);
-    // Fallback for older browsers
-    shareLink.select();
+    }).catch(err => {
+      console.error('Failed to copy link:', err);
+      // Fallback for older browsers
+      shareLink.select();
     try {
       document.execCommand('copy');
       if (copyBtn) {
@@ -13317,10 +13317,12 @@ window.addEventListener('load', function () {
 <script>
   // Handle Share Graph click (PRO feature)
   function handleShareGraphClick() {
-    console.log('[GRAPH_SHARE] pro=', isProActive());
+    const isPro = isProActive();
+    const localStoragePro = localStorage.getItem('isPro');
+    console.log(`[GRAPH_SHARE] isProActive=${isPro} (localStorage isPro="${localStoragePro}")`);
     
     // If NOT Pro, show upgrade modal
-    if (!isProActive()) {
+    if (!isPro) {
       showUpgradeModal();
       return;
     }
