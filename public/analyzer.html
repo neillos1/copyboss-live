@@ -4297,6 +4297,106 @@ async function runAnalysis() {
   }
 }
 
+// Function to extract strengths and improvements from Gemini feedback
+function extractStrengthsAndImprovements(result) {
+  const f = result?.feedback || {};
+  let strengths = [];
+  let improvements = [];
+  
+  // Try explicit fields first
+  if (Array.isArray(f.strengths)) {
+    strengths = f.strengths.slice(0, 3);
+  }
+  if (Array.isArray(f.improvements)) {
+    improvements = f.improvements.slice(0, 3);
+  }
+  
+  // If not found, try to extract from feedback sections
+  if (strengths.length === 0 || improvements.length === 0) {
+    const feedbackSections = [
+      f.viralScore,
+      f.hookStrength,
+      f.captionClarity,
+      f.soundMatch,
+      f.viewerUnderstanding,
+      f.engagementForecast
+    ].filter(s => s && typeof s === 'object');
+    
+    // Extract from sections with "strong" or "good" labels
+    feedbackSections.forEach(section => {
+      const label = (section.label || '').toLowerCase();
+      const detail = section.detail || section.short || '';
+      
+      if ((label.includes('strong') || label.includes('good') || label.includes('excellent')) && detail) {
+        if (strengths.length < 3) {
+          // Extract first sentence or bullet point
+          const firstPoint = detail.split(/[\.\n•]/)[0].trim();
+          if (firstPoint.length > 10) {
+            strengths.push(firstPoint);
+          }
+        }
+      } else if ((label.includes('weak') || label.includes('poor') || label.includes('bad')) && detail) {
+        if (improvements.length < 3) {
+          const firstPoint = detail.split(/[\.\n•]/)[0].trim();
+          if (firstPoint.length > 10) {
+            improvements.push(firstPoint);
+          }
+        }
+      }
+    });
+  }
+  
+  // If still not found, try parsing from summary text
+  if (strengths.length === 0 || improvements.length === 0) {
+    const summary = f.summary || '';
+    
+    // Look for "Strengths:" or "What works:" section
+    if (strengths.length === 0) {
+      const strengthsMatch = summary.match(/(?:Strengths?|What works?|Strong points?):\s*([^⚠️❌]*?)(?=Improvements?:|⚠️|❌|$)/i);
+      if (strengthsMatch) {
+        const text = strengthsMatch[1];
+        const items = text.split(/[•\-\n]/).filter(s => s.trim().length > 10).map(s => s.trim());
+        strengths = items.slice(0, 3);
+      }
+    }
+    
+    // Look for "Improvements:" or "Suggestions:" section
+    if (improvements.length === 0) {
+      const improvementsMatch = summary.match(/(?:Improvements?|Suggestions?|Fix|Weaknesses?):\s*([^✅]*?)(?=Strengths?:|✅|$)/i);
+      if (improvementsMatch) {
+        const text = improvementsMatch[1];
+        const items = text.split(/[•\-\n]/).filter(s => s.trim().length > 10).map(s => s.trim());
+        improvements = items.slice(0, 3);
+      }
+    }
+    
+    // Try to find bullet points with ✅ (strengths) or ⚠️/❌ (improvements)
+    if (strengths.length === 0) {
+      const strengthLines = summary.split('\n').filter(line => 
+        line.includes('✅') || line.toLowerCase().includes('strength')
+      );
+      if (strengthLines.length > 0) {
+        strengths = strengthLines.slice(0, 3).map(l => l.replace(/^[✅•\-\s]+/, '').trim()).filter(l => l.length > 10);
+      }
+    }
+    
+    if (improvements.length === 0) {
+      const improvementLines = summary.split('\n').filter(line => 
+        line.includes('⚠️') || line.includes('❌') || line.toLowerCase().includes('improve')
+      );
+      if (improvementLines.length > 0) {
+        improvements = improvementLines.slice(0, 3).map(l => l.replace(/^[⚠️❌•\-\s]+/, '').trim()).filter(l => l.length > 10);
+      }
+    }
+  }
+  
+  // Normalize to exactly 3 items each (pad if needed, but prefer empty over filler)
+  return {
+    strengths: strengths.slice(0, 3),
+    improvements: improvements.slice(0, 3)
+  };
+}
+
 // Function to save analysis results to history
 function saveAnalysisToHistory(result, fileName) {
   try {
@@ -4318,6 +4418,10 @@ function saveAnalysisToHistory(result, fileName) {
       ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
       : 0;
 
+    // Extract strengths and improvements
+    const { strengths, improvements } = extractStrengthsAndImprovements(result);
+    console.log('[HISTORY_SAVE] strengths:', strengths, 'improvements:', improvements);
+
     // Create history entry
     const historyEntry = {
       id: Date.now().toString(),
@@ -4326,6 +4430,8 @@ function saveAnalysisToHistory(result, fileName) {
       score: overallScore,
       summary: result?.feedback?.summary || 'No summary available',
       feedback: result?.feedback || {},
+      strengths: strengths,
+      improvements: improvements,
       timestamp: Date.now()
     };
 
@@ -12341,11 +12447,11 @@ window.addEventListener('load', function () {
       
       // Robust extraction of strengths and improvements
       function extractStrengths(data) {
-        // Try multiple paths
-        if (data.strengths && Array.isArray(data.strengths)) return data.strengths;
-        if (data.feedback?.strengths && Array.isArray(data.feedback.strengths)) return data.feedback.strengths;
-        if (data.aiFeedback?.strengths && Array.isArray(data.aiFeedback.strengths)) return data.aiFeedback.strengths;
-        if (data.tips?.strengths && Array.isArray(data.tips.strengths)) return data.tips.strengths;
+        // Try multiple paths - prefer direct fields first
+        if (data.strengths && Array.isArray(data.strengths) && data.strengths.length > 0) return data.strengths;
+        if (data.feedback?.strengths && Array.isArray(data.feedback.strengths) && data.feedback.strengths.length > 0) return data.feedback.strengths;
+        if (data.aiFeedback?.strengths && Array.isArray(data.aiFeedback.strengths) && data.aiFeedback.strengths.length > 0) return data.aiFeedback.strengths;
+        if (data.tips?.strengths && Array.isArray(data.tips.strengths) && data.tips.strengths.length > 0) return data.tips.strengths;
         
         // Try to parse from text feedback
         const summary = data.summary || data.feedback?.summary || '';
@@ -12374,11 +12480,11 @@ window.addEventListener('load', function () {
       }
       
       function extractImprovements(data) {
-        // Try multiple paths
-        if (data.improvements && Array.isArray(data.improvements)) return data.improvements;
-        if (data.feedback?.improvements && Array.isArray(data.feedback.improvements)) return data.feedback.improvements;
-        if (data.aiFeedback?.improvements && Array.isArray(data.aiFeedback.improvements)) return data.aiFeedback.improvements;
-        if (data.tips?.improvements && Array.isArray(data.tips.improvements)) return data.tips.improvements;
+        // Try multiple paths - prefer direct fields first
+        if (data.improvements && Array.isArray(data.improvements) && data.improvements.length > 0) return data.improvements;
+        if (data.feedback?.improvements && Array.isArray(data.feedback.improvements) && data.feedback.improvements.length > 0) return data.feedback.improvements;
+        if (data.aiFeedback?.improvements && Array.isArray(data.aiFeedback.improvements) && data.aiFeedback.improvements.length > 0) return data.aiFeedback.improvements;
+        if (data.tips?.improvements && Array.isArray(data.tips.improvements) && data.tips.improvements.length > 0) return data.tips.improvements;
         
         // Try to parse from text feedback
         const summary = data.summary || data.feedback?.summary || '';
