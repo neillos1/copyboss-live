@@ -8681,7 +8681,11 @@ function saveSettings() {
     stopOnFocus: true
   }).showToast();
   
-  // Close modal
+  // Close modal (but not if upgrade modal is open)
+  if (window.__upgradeModalOpen) {
+    console.warn('[UPGRADE MODAL] prevented Swal.close() - upgrade modal is open');
+    return;
+  }
   Swal.close();
 }
 
@@ -8991,6 +8995,10 @@ function closeComparisonSection() {
 
 // Function to show upgrade modal for Free users
 function showUpgradeModalSwal() {
+  // Set global flag to prevent auto-close
+  window.__upgradeModalOpen = true;
+  console.log('[UPGRADE MODAL] opening (Swal) - setting __upgradeModalOpen = true');
+  
   Swal.fire({
     title: "Upgrade to Pro to Compare Videos",
     html: `
@@ -9023,10 +9031,20 @@ function showUpgradeModalSwal() {
     cancelButtonText: "Maybe Later",
     cancelButtonColor: "#6c757d",
     width: 500,
+    allowOutsideClick: false, // PERSISTENT: Prevent closing by clicking outside
+    allowEscapeKey: false, // PERSISTENT: Prevent closing by ESC key
+    timer: null, // PERSISTENT: No auto-close timer
     customClass: {
       popup: 'swal2-popup-custom'
+    },
+    didClose: () => {
+      // Clear global flag when explicitly closed by user
+      window.__upgradeModalOpen = false;
+      console.log('[UPGRADE MODAL] closed (Swal) - setting __upgradeModalOpen = false');
     }
   }).then((result) => {
+    // Clear flag when modal closes
+    window.__upgradeModalOpen = false;
     if (result.isConfirmed) {
       // Use the proper Stripe checkout function with success URLs
       redirectToStripeCheckout('pro');
@@ -9878,6 +9896,12 @@ function removeLocks() {
 
 // Comprehensive lock removal function
 function removeAllLocks() {
+  // Guard: Do not run if upgrade modal is open
+  if (window.__upgradeModalOpen) {
+    console.warn('[UPGRADE MODAL] prevented removeAllLocks() - upgrade modal is open');
+    return;
+  }
+  
   if (window.vbSimpleModalIsOpen && window.vbSimpleModalIsOpen()) {
     // If the utility modal is open, do not alter scroll or body overflow.
     return;
@@ -10259,6 +10283,10 @@ function canAnalyze() {
 // Upgrade Modal - Create on demand, persistent until user closes
 (function() {
   window.showUpgradeModal = function() {
+    // Set global flag to prevent auto-close
+    window.__upgradeModalOpen = true;
+    console.log('[UPGRADE MODAL] opening - setting __upgradeModalOpen = true');
+    
     // Remove existing modal if present (prevent duplicates)
     const existing = document.getElementById('cb-upgrade-modal');
     if (existing) {
@@ -10268,6 +10296,7 @@ function canAnalyze() {
   const modal = document.createElement('div');
   modal.id = 'cb-upgrade-modal';
   modal.className = 'cb-upgrade-modal';
+  modal.setAttribute('data-upgrade-modal', 'true'); // Marker for cleanup guards
   modal.style.cssText = `
     position: fixed !important;
     inset: 0 !important;
@@ -10377,29 +10406,23 @@ function canAnalyze() {
   
   modal.appendChild(card);
   
-  // Click outside to close (only fires on backdrop, not card)
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeUpgradeModal();
-    }
-  });
+  // PERSISTENT: Do NOT allow click outside to close
+  // Removed: modal.addEventListener('click', function(e) { ... });
   
-  // Escape key to close
-  const escapeHandler = function(e) {
-    if (e.key === 'Escape' && document.getElementById('cb-upgrade-modal')) {
-      closeUpgradeModal();
-      document.removeEventListener('keydown', escapeHandler);
-    }
-  };
-  document.addEventListener('keydown', escapeHandler);
+  // PERSISTENT: Do NOT allow Escape key to close
+  // Removed: escapeHandler
   
   // Append to body (not inside any container)
   document.body.appendChild(modal);
   
-    console.log('[UPGRADE MODAL] opened (persistent)');
+    console.log('[UPGRADE MODAL] opened (persistent, no auto-close)');
   };
   
   window.closeUpgradeModal = function() {
+    // Clear global flag when explicitly closed by user
+    window.__upgradeModalOpen = false;
+    console.log('[UPGRADE MODAL] closing - setting __upgradeModalOpen = false');
+    
     const modal = document.getElementById('cb-upgrade-modal');
     if (modal) {
       modal.remove();
