@@ -8804,117 +8804,7 @@ function showGraphShareProModal() {
 }
 
 // Function to show share options for Pro users
-function showShareOptions() {
-  Swal.fire({
-    title: "Share Graph",
-    html: `
-      <div style="text-align: left;">
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <button onclick="copyGraphLink()" style="
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            text-align: left;
-            width: 100%;
-          " onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
-            <i class="fa-sharp fa-light fa-link" style="font-size: 16px; color: #2248bc;"></i>
-            <div>
-              <div style="font-weight: 600; color: #333;">Copy Link</div>
-              <div style="font-size: 12px; color: #666;">Copy a shareable link to your graph</div>
-            </div>
-          </button>
-          
-          <button onclick="downloadGraphImage()" style="
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            text-align: left;
-            width: 100%;
-          " onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
-            <i class="fa-sharp fa-light fa-download" style="font-size: 16px; color: #2248bc;"></i>
-            <div>
-              <div style="font-weight: 600; color: #333;">Download Graph Image</div>
-              <div style="font-size: 12px; color: #666;">Save your graph as a PNG image</div>
-            </div>
-          </button>
-          
-          <button onclick="shareViaEmail()" style="
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            text-align: left;
-            width: 100%;
-          " onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
-            <i class="fa-sharp fa-light fa-envelope" style="font-size: 16px; color: #2248bc;"></i>
-            <div>
-              <div style="font-weight: 600; color: #333;">Share via Email</div>
-              <div style="font-size: 12px; color: #666;">Send graph link via email</div>
-            </div>
-          </button>
-        </div>
-      </div>
-    `,
-    showConfirmButton: false,
-    showCloseButton: true,
-    width: 400,
-    customClass: {
-      popup: 'swal2-popup-custom'
-    }
-  });
-}
-
-// Function to copy graph link
-function copyGraphLink() {
-  const graphLink = `${window.location.origin}/graph/${Date.now()}`;
-  navigator.clipboard.writeText(graphLink).then(() => {
-    // Guard: Do not close if upgrade modal is open
-    if (!window.__upgradeModalOpen) {
-      Swal.close();
-    }
-    Toastify({
-      text: "Graph link copied to clipboard!",
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "#28a745",
-      stopOnFocus: true
-    }).showToast();
-  }).catch(err => {
-    console.error('Failed to copy link:', err);
-    // Guard: Do not close if upgrade modal is open
-    if (!window.__upgradeModalOpen) {
-      Swal.close();
-    }
-    Toastify({
-      text: "Failed to copy link",
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "#dc3545",
-      stopOnFocus: true
-    }).showToast();
-  });
-}
-
-// Function to download graph image
+// Function to download graph image (used by Export feature, not Share)
 function downloadGraphImage() {
   const canvas = document.getElementById("copyBossChart");
   if (canvas) {
@@ -8935,29 +8825,6 @@ function downloadGraphImage() {
       stopOnFocus: true
     }).showToast();
   }
-}
-
-// Function to share via email
-function shareViaEmail() {
-  const graphLink = `${window.location.origin}/graph/${Date.now()}`;
-  const subject = "Check out my Viral Score Graph!";
-  const body = `Hi! I wanted to share my viral score graph with you. You can view it here: ${graphLink}`;
-  
-  const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.open(mailtoLink);
-  
-  // Guard: Do not close if upgrade modal is open
-  if (!window.__upgradeModalOpen) {
-    Swal.close();
-  }
-  Toastify({
-    text: "Email client opened!",
-    duration: 3000,
-    gravity: "top",
-    position: "right",
-    backgroundColor: "#28a745",
-    stopOnFocus: true
-  }).showToast();
 }
 
 // Function to check if user has Pro access for specific features
