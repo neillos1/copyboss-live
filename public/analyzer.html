@@ -9146,7 +9146,10 @@ function showShareOptions() {
 function copyGraphLink() {
   const graphLink = `${window.location.origin}/graph/${Date.now()}`;
   navigator.clipboard.writeText(graphLink).then(() => {
-    Swal.close();
+    // Guard: Do not close if upgrade modal is open
+    if (!window.__upgradeModalOpen) {
+      Swal.close();
+    }
     Toastify({
       text: "Graph link copied to clipboard!",
       duration: 3000,
@@ -9157,7 +9160,10 @@ function copyGraphLink() {
     }).showToast();
   }).catch(err => {
     console.error('Failed to copy link:', err);
-    Swal.close();
+    // Guard: Do not close if upgrade modal is open
+    if (!window.__upgradeModalOpen) {
+      Swal.close();
+    }
     Toastify({
       text: "Failed to copy link",
       duration: 3000,
@@ -9177,7 +9183,10 @@ function downloadGraphImage() {
     link.href = canvas.toDataURL("image/png");
     link.download = "viral-score-graph.png";
     link.click();
-    Swal.close();
+    // Guard: Do not close if upgrade modal is open
+    if (!window.__upgradeModalOpen) {
+      Swal.close();
+    }
     Toastify({
       text: "Graph image downloaded!",
       duration: 3000,
@@ -9198,7 +9207,10 @@ function shareViaEmail() {
   const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.open(mailtoLink);
   
-  Swal.close();
+  // Guard: Do not close if upgrade modal is open
+  if (!window.__upgradeModalOpen) {
+    Swal.close();
+  }
   Toastify({
     text: "Email client opened!",
     duration: 3000,
