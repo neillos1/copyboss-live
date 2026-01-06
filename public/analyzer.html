@@ -4445,14 +4445,21 @@ async function runAnalysis() {
       f?.engagementForecast?.score
     ].filter(score => typeof score === 'number');
 
-    const overallScore = scores.length
+    const overallScoreInt = scores.length
       ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
       : 0;
 
+    console.log('[SCORE] overallScoreInt calculated in runAnalysis', overallScoreInt);
+
     // Save to leaderboard
     if (typeof saveAnalysisResult === 'function') {
-      saveAnalysisResult(overallScore);
+      saveAnalysisResult(overallScoreInt);
     }
+    
+    // Clear forceDemoChart flag when new analysis starts (so chart can update)
+    window.__forceDemoChart = false;
+    localStorage.removeItem('forceDemoChart');
+    console.log('[CHART] forceDemoChart cleared (new analysis starting)');
 
     // ✅ DO NOT render results yet - store for after overlay finishes
     console.log("✅ Analysis data stored, waiting for overlay to finish before rendering");
@@ -4758,7 +4765,7 @@ function displayGeminiResults(result) {
 
   syncGaugesFromGemini(result?.feedback);
 
-  // ✅ OVERALL SCORE CIRCLE ANIMATION
+  // ✅ OVERALL SCORE CALCULATION (single source of truth)
   const f = result?.feedback;
   const scores = [
     f?.viralScore?.score,
@@ -4769,25 +4776,42 @@ function displayGeminiResults(result) {
     f?.engagementForecast?.score
   ].filter(score => typeof score === 'number');
 
-  const overallScore = scores.length
+  const overallScoreInt = scores.length
     ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
     : 0;
 
-  console.log("🎯 Gemini says overall score is:", overallScore);
+  console.log("🎯 Gemini says overall score is:", overallScoreInt);
   
-  // ✅ Update the overall score circle with the calculated score
+  // ✅ Apply to both UI and chart using unified function
+  applyOverallScoreToUIAndChart(overallScoreInt);
+}
+
+// Unified function to apply overall score to both UI and chart
+function applyOverallScoreToUIAndChart(overallScoreInt) {
+  // Validate score
+  if (typeof overallScoreInt !== "number" || isNaN(overallScoreInt)) {
+    console.warn("⚠️ Invalid overallScoreInt:", overallScoreInt);
+    return;
+  }
+  
+  // Ensure it's an integer (0-100)
+  const score = Math.round(Math.max(0, Math.min(100, overallScoreInt)));
+  
+  console.log('[SCORE] overallScoreInt used for UI and chart', score);
+  
+  // Update UI (overall score circle)
   const scoreEl = document.getElementById("overallScoreCircle");
-  if (scoreEl && typeof overallScore === "number" && !isNaN(overallScore)) {
+  if (scoreEl) {
     // Animate the score from 0 to the final value
     let current = 0;
     const steps = 30;
     const stepTime = 1500 / steps;
-    const increment = overallScore / steps;
+    const increment = score / steps;
     
     const counter = setInterval(() => {
       current += increment;
-      if (current >= overallScore) {
-        current = overallScore;
+      if (current >= score) {
+        current = score;
         clearInterval(counter);
       }
       scoreEl.textContent = Math.round(current);
@@ -4796,12 +4820,9 @@ function displayGeminiResults(result) {
     scoreEl.style.opacity = 1;
   }
   
-  // ✅ Send the same overall score to the chart for consistency
-  if (typeof overallScore === "number" && !isNaN(overallScore)) {
-    syncViralChartFromGemini(overallScore);
-  } else {
-    console.warn("⚠️ Invalid overallScore for chart sync:", overallScore);
-  }
+  // Update chart with the SAME value
+  console.log('[SCORE] overallScoreInt used for chart', score);
+  syncViralChartFromGemini(score);
 }
 
 // ✅ Safe version of displayGeminiResults that uses window.feedback
