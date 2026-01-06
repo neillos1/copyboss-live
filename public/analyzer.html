@@ -116,6 +116,13 @@
               // If the utility modal is open, do not alter scroll or body overflow.
               return;
             }
+            
+            // Protect graph help modal from cleanup
+            if (window.__graphHelpOpen) {
+              console.log('[CLEANUP] skipped because graph help modal is open');
+              return;
+            }
+            
             console.log('🔓 removeAllLocks() called - removing ALL lock elements');
             console.log('Document body exists:', !!document.body);
             console.log('Document ready state:', document.readyState);
@@ -132,6 +139,10 @@
             const lockedOverlays = document.querySelectorAll('.locked-overlay');
             console.log('Found', lockedOverlays.length, 'locked overlays');
             lockedOverlays.forEach((overlay, index) => {
+              // Protect graph help modal
+              if (overlay?.getAttribute('data-protected-modal') === 'graph-help') {
+                return;
+              }
               overlay.style.display = 'none';
               console.log(`[${index}] Hidden locked overlay:`, overlay.tagName, overlay.className);
             });
@@ -172,6 +183,10 @@
             // 7. Remove any "Please upgrade" messages
             let upgradeMessages = 0;
             document.querySelectorAll('*').forEach(element => {
+              // Protect graph help modal
+              if (element?.getAttribute('data-protected-modal') === 'graph-help' || element?.closest?.('[data-protected-modal="graph-help"]')) {
+                return;
+              }
               if (element.textContent && element.textContent.includes('Please upgrade')) {
                 element.style.display = 'none';
                 upgradeMessages++;
@@ -185,6 +200,10 @@
             
             // Remove any blur effects from all elements
             document.querySelectorAll('*').forEach(element => {
+              // Protect graph help modal
+              if (element?.getAttribute('data-protected-modal') === 'graph-help' || element?.closest?.('[data-protected-modal="graph-help"]')) {
+                return;
+              }
               if (element.style.filter && element.style.filter.includes('blur')) {
                 element.style.filter = 'none';
                 console.log('Removed blur from element:', element.tagName, element.className);
@@ -193,6 +212,10 @@
             
             // Remove any locked classes
             document.querySelectorAll('[class*="lock"]').forEach(element => {
+              // Protect graph help modal
+              if (element?.getAttribute('data-protected-modal') === 'graph-help' || element?.closest?.('[data-protected-modal="graph-help"]')) {
+                return;
+              }
               element.classList.remove('locked', 'pro-locked', 'lock');
               console.log('Removed lock classes from:', element.tagName, element.className);
             });
@@ -3114,6 +3137,11 @@ document.addEventListener("click", function (e) {
       });
       
       console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
+      
+      // Set flag to prevent chart updates from overwriting demo data
+      localStorage.setItem('forceDemoChart', 'true');
+      window.__forceDemoChart = true;
+      console.log('[RESET_CHART] forceDemoChart enabled');
     }
   }
 });
@@ -3168,6 +3196,7 @@ document.addEventListener("click", function (e) {
       // Create modal backdrop
       const backdrop = document.createElement('div');
       backdrop.id = 'cb-graph-help-modal';
+      backdrop.setAttribute('data-protected-modal', 'graph-help');
       backdrop.style.cssText = `
         position: fixed !important;
         inset: 0 !important;
@@ -3179,8 +3208,12 @@ document.addEventListener("click", function (e) {
         pointer-events: auto !important;
       `;
       
+      // Set global flag while modal is open
+      window.__graphHelpOpen = true;
+      
       // Create modal card
       const card = document.createElement('div');
+      card.setAttribute('data-protected-modal', 'graph-help');
       card.style.cssText = `
         background: #fff;
         border-radius: 12px;
@@ -3246,26 +3279,40 @@ document.addEventListener("click", function (e) {
       backdrop.appendChild(card);
       document.body.appendChild(backdrop);
       
+      // Helper function to close modal and clear flag
+      const closeModal = function() {
+        window.__graphHelpOpen = false;
+        backdrop.remove();
+      };
+      
       // Close on backdrop click
       backdrop.addEventListener('click', function(e) {
         if (e.target === backdrop) {
-          backdrop.remove();
+          closeModal();
         }
       });
       
       // Close on X button
       document.getElementById('cb-graph-help-close')?.addEventListener('click', () => {
-        backdrop.remove();
+        closeModal();
       });
       
       // Close on ESC key
       const escHandler = function(e) {
         if (e.key === 'Escape' && document.getElementById('cb-graph-help-modal')) {
-          backdrop.remove();
+          closeModal();
           document.removeEventListener('keydown', escHandler);
         }
       };
       document.addEventListener('keydown', escHandler);
+      
+      // Update "Got it" button to use closeModal
+      setTimeout(() => {
+        const gotItBtn = card.querySelector('button[onclick*="cb-graph-help-modal"]');
+        if (gotItBtn) {
+          gotItBtn.onclick = closeModal;
+        }
+      }, 0);
     }
     
     // Show modal
@@ -4201,6 +4248,11 @@ function previewVideo() {
 // Analyze video using Gemini backend
 async function runAnalysis() {
   console.log('[runAnalysis] start');
+  
+  // Clear forceDemoChart flag so real charts can update again
+  window.__forceDemoChart = false;
+  localStorage.removeItem('forceDemoChart');
+  console.log('[CHART] forceDemoChart cleared (new analysis starting)');
 
   // Gate check
   const gate = typeof window.cbCanAnalyze === 'function' ? window.cbCanAnalyze() : { allowed: true, reason: 'Gate check not available' };
@@ -9487,6 +9539,12 @@ function updateSidebarRank(average) {
 
 
  window.syncViralChartFromGemini = function (score) {
+  // Check if demo chart is forced (prevent overwrite after reset)
+  if (window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true') {
+    console.log('[CHART] update skipped due to forceDemoChart');
+    return;
+  }
+  
   if (typeof score !== "number" || !window.copyBossChart) {
     console.warn("⚠️ Invalid score or chart missing");
     return;
