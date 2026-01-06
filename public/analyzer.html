@@ -117,9 +117,9 @@
               return;
             }
             
-            // Protect graph help modal from cleanup
+            // HARD BLOCK if Graph Help is open
             if (window.__graphHelpOpen) {
-              console.log('[CLEANUP] skipped because graph help modal is open');
+              console.log("[removeAllLocks] blocked — graph help open");
               return;
             }
             
@@ -3059,7 +3059,13 @@ document.addEventListener("click", function (e) {
   if (resetBtn) {
     e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
     console.log('[RESET_CHART] reset-chart clicked');
+    
+    // Set flags IMMEDIATELY (before confirm dialog)
+    window.__forceDemoChart = true;
+    localStorage.setItem("forceDemoChart", "true");
+    console.log("[RESET_CHART] flags set", {ls: localStorage.getItem("forceDemoChart"), win: window.__forceDemoChart});
     
     // Close dropdown if open
     const menu = document.getElementById("dropdownMenu");
@@ -3143,13 +3149,11 @@ document.addEventListener("click", function (e) {
       });
       
       console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
-      
-      // Set flag to prevent chart updates from overwriting demo data
-      window.__forceDemoChart = true;
-      localStorage.setItem('forceDemoChart', 'true');
-      console.log('[RESET_CHART] forceDemoChart enabled');
-      console.log('[RESET_CHART] verify flags:', localStorage.getItem('forceDemoChart'), window.__forceDemoChart);
+      console.log("[RESET_CHART] demo chart forced");
     }
+    
+    // Verify flags after handler completes
+    console.log("[RESET_CHART] verify after", {ls: localStorage.getItem("forceDemoChart"), win: window.__forceDemoChart});
   }
 });
 
@@ -3184,6 +3188,7 @@ document.addEventListener("click", function (e) {
   document.getElementById("graphHelpBtn")?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
     console.log('[GRAPH_HELP] graph-help clicked');
     
     // Close dropdown if open

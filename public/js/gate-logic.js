@@ -88,10 +88,20 @@ if (!isPro) {
   localStorage.setItem("isPro", "true");
 
   const unlockAll = () => {
+    // HARD BLOCK if Graph Help is open
+    if (window.__graphHelpOpen) {
+      console.log("[unlockAll] blocked — graph help open");
+      return;
+    }
+    
     // Select both the locked containers and any elements inside them that might have filters
     const elements = document.querySelectorAll("[data-pro='true'], .blurred, .cb-card, .cb-gauge, .cb-report, .cb-result, .apexcharts-canvas, .apexcharts-inner, .apexcharts-svg, .apexcharts-radialbar, .apexcharts-radialbar path, .apexcharts-text");
 
     elements.forEach(el => {
+      // Protect graph help modal
+      if (el?.getAttribute?.('data-protected-modal') === 'graph-help' || el?.closest?.('[data-protected-modal="graph-help"]')) {
+        return;
+      }
       // Remove blur/brightness/opacity filters at every level
       el.classList.remove("blurred");
       el.style.filter = "none";
@@ -247,6 +257,12 @@ window.addEventListener("load", () => {
 
 (function forceScrollUnlock() {
   function unlockAll() {
+    // HARD BLOCK if Graph Help is open
+    if (window.__graphHelpOpen) {
+      console.log("[unlockAll] blocked — graph help open");
+      return;
+    }
+    
     document.documentElement.style.overflow = "auto";
     document.documentElement.style.position = "relative";
     document.documentElement.style.height = "auto";
@@ -255,6 +271,10 @@ window.addEventListener("load", () => {
     document.body.style.height = "auto";
 
     document.querySelectorAll("*").forEach(el => {
+      // Protect graph help modal
+      if (el?.getAttribute?.('data-protected-modal') === 'graph-help' || el?.closest?.('[data-protected-modal="graph-help"]')) {
+        return;
+      }
       const cs = getComputedStyle(el);
       if (cs.overflow === "hidden" || cs.position === "fixed" || cs.height === "100vh") {
         el.style.overflow = "auto";
