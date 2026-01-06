@@ -2373,16 +2373,6 @@ html, body {
       <span class="pro-badge">PRO</span>
     </div>
   </a></li>
-  <li><a href="javascript:void(0)" class="sidebar-btn" data-target="share-report">
-    <div class="btn-label">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-share-alt"></i>
-        <span>Share Report</span>
-      </div>
-      <span class="pro-badge">PRO</span>
-    </div>
-  </a></li>
-  
   <!-- Divider -->
   <div class="sidebar-divider"></div>
   
@@ -2917,10 +2907,6 @@ html, body {
       </button>
     <div id="dropdownMenu" style="display: none; position: absolute; right: 0; top: 44px; background: #2e3b5e; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); min-width: 180px; max-width: 200px; z-index: 1000;">
   <a href="#" id="compareBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">Compare With Past Videos</a>
-  <a href="#" id="shareBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">
-    Share This Graph
-    <span class="pro-tag-dropdown" style="background: #8e7cff; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold; vertical-align: middle;">PRO</span>
-  </a>
   <a href="#" id="exportBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">
     Export as Image
     <span class="pro-tag-dropdown" style="background: #8e7cff; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold; vertical-align: middle;">PRO</span>
@@ -3108,18 +3094,6 @@ document.addEventListener("click", function (e) {
     }
   });
 
-  document.getElementById("shareBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    
-    // Close dropdown first
-    const menu = document.getElementById("dropdownMenu");
-    if (menu) {
-      menu.style.display = "none";
-    }
-    
-    // Handle share graph (PRO feature)
-    handleShareGraphClick();
-  });
 
   document.getElementById("graphHelpBtn")?.addEventListener("click", () => {
     alert("📘 This graph shows your viral score history from previous reports.");
@@ -7165,29 +7139,6 @@ a:hover {
 
 
 <script>
-  document.getElementById('shareBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    
-    // Close dropdown first
-    const menu = document.getElementById("dropdownMenu");
-    if (menu) {
-      menu.style.display = "none";
-    }
-    
-    // Check user access (Pro or credits)
-    if (isProActive()) {
-      // Pro user - allow sharing
-      showShareOptions();
-    } else if (hasCredits()) {
-      // Credit user - allow sharing and optionally decrement credit
-      showShareOptions();
-      // Optionally decrement a credit
-      useReportCredit();
-    } else {
-      // Free user - show upgrade modal
-      showUpgradeModal();
-    }
-  });
 </script>
 
 
@@ -7300,42 +7251,6 @@ a:hover {
 </script>
 <script>
   const modalContentMap = {
-    "share-report": {
-      title: "Share Your Report 📤",
-      html: `
-        <div style='text-align:left; font-size:15px;'>
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Shareable Link:</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="text" id="shareLink" value="https://videoboss.app/report/XYZ123" readonly style="
-                flex: 1;
-                padding: 10px 12px;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                background: #f8f9fa;
-                font-size: 14px;
-                color: #666;
-                cursor: text;
-              ">
-              <button onclick="copyShareLink()" style="
-                padding: 10px 16px;
-                background: #2248bc;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.2s ease;
-              ">Copy Link</button>
-            </div>
-          </div>
-          <p style="margin: 0; color: #666; font-size: 14px;">
-            Share this link with others to let them view your report.
-          </p>
-        </div>`
-    },
     "upgrade-pro": {
       title: "Upgrade to Pro 💎",
       html: `
@@ -7903,16 +7818,7 @@ a:hover {
 else if (modalContentMap[target]) {
   const content = modalContentMap[target];
   
-  if (target === "share-report") {
-    // Check Pro access for share report
-    if (!isProActive()) {
-      // Free user - show upgrade modal
-      checkProAccess('share-report');
-      return;
-    }
-    // Pro user - show share UI
-    openShareReportModal();
-  } else if (target === "upgrade-pro") {
+  if (target === "upgrade-pro") {
     // Handle upgrade to Pro based on system status
     if (UPGRADE_SYSTEM_ACTIVE) {
       // Show existing upgrade modal with benefits
@@ -8467,173 +8373,6 @@ function validateFeedback(feedback) {
 }
 
 // Function to copy share link to clipboard
-function copyShareLink() {
-  const shareLink = document.getElementById('shareLink');
-  if (!shareLink) return;
-  
-  const textToCopy = shareLink.value;
-  const copyBtn = event?.target || document.querySelector('#copyLinkBtn');
-  
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    if (copyBtn) {
-      const originalText = copyBtn.textContent;
-      copyBtn.textContent = 'Copied!';
-      copyBtn.style.background = '#28a745';
-      
-      setTimeout(() => {
-        copyBtn.textContent = originalText;
-        copyBtn.style.background = '#2248bc';
-      }, 2000);
-    }
-    }).catch(err => {
-      console.error('Failed to copy link:', err);
-      // Fallback for older browsers
-      shareLink.select();
-    try {
-      document.execCommand('copy');
-      if (copyBtn) {
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied!';
-        copyBtn.style.background = '#28a745';
-        setTimeout(() => {
-          copyBtn.textContent = originalText;
-          copyBtn.style.background = '#2248bc';
-        }, 2000);
-      }
-    } catch (fallbackErr) {
-      console.error('Fallback copy failed:', fallbackErr);
-    }
-  });
-}
-
-function copyShareSummary() {
-  const data = window.feedback || window.analysisResult || window.lastAnalysis;
-  if (!data) {
-    alert('No report data available to share.');
-    return;
-  }
-  
-  const summary = data.summary || 'No summary available.';
-  const viralScore = data.feedback?.viralScore?.score || data.viralScore || 'N/A';
-  const title = data.title || window.cbLastUploadedFilename || 'Video Analysis Report';
-  
-  const shareText = `📊 ${title}\n\nViral Score: ${viralScore}\n\n${summary}\n\nGenerated by VideoBoss Analyzer`;
-  
-  navigator.clipboard.writeText(shareText).then(() => {
-    const copyBtn = event?.target || document.getElementById('copySummaryBtn');
-    if (copyBtn) {
-      const originalText = copyBtn.textContent;
-      copyBtn.textContent = 'Copied!';
-      copyBtn.style.background = '#28a745';
-      
-      setTimeout(() => {
-        copyBtn.textContent = originalText;
-        copyBtn.style.background = '#2248bc';
-      }, 2000);
-    } else {
-      alert('Summary copied to clipboard!');
-    }
-  }).catch(err => {
-    console.error('Failed to copy summary:', err);
-    // Fallback
-    const textarea = document.createElement('textarea');
-    textarea.value = shareText;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      document.execCommand('copy');
-      alert('Summary copied to clipboard!');
-    } catch (fallbackErr) {
-      console.error('Fallback copy failed:', fallbackErr);
-      alert('Failed to copy. Please select and copy manually.');
-    }
-    document.body.removeChild(textarea);
-  });
-}
-
-function openShareReportModal() {
-  // Get current report data
-  const data = window.feedback || window.analysisResult || window.lastAnalysis;
-  
-  // Try to get or generate share link
-  let shareLink = null;
-  let shareLinkText = 'Share link coming soon';
-  
-  // Check if report has an ID that could be used for sharing
-  if (data?.id || data?.reportId || data?.shareId) {
-    const reportId = data.id || data.reportId || data.shareId;
-    shareLink = `${window.location.origin}/share/${reportId}`;
-    shareLinkText = shareLink;
-  } else {
-    // No share link available yet
-    shareLinkText = 'Share link coming soon';
-  }
-  
-  const shareHTML = `
-    <div style='text-align:left; font-size:15px;'>
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Shareable Link:</label>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <input type="text" id="shareLink" value="${shareLinkText}" readonly style="
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: #f8f9fa;
-            font-size: 14px;
-            color: #666;
-            cursor: text;
-          ">
-          <button onclick="copyShareLink()" id="copyLinkBtn" style="
-            padding: 10px 16px;
-            background: #2248bc;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.2s ease;
-          ">Copy Link</button>
-        </div>
-      </div>
-      ${shareLink ? '<p style="margin: 0 0 20px 0; color: #666; font-size: 14px;">Share this link with others to let them view your report.</p>' : '<p style="margin: 0 0 20px 0; color: #999; font-size: 13px; font-style: italic;">Share links will be available soon.</p>'}
-      
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Copy Summary:</label>
-        <button onclick="copyShareSummary()" id="copySummaryBtn" style="
-          width: 100%;
-          padding: 12px 16px;
-          background: #2248bc;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.2s ease;
-        ">Copy Summary Text</button>
-        <p style="margin: 8px 0 0 0; color: #666; font-size: 13px;">
-          Copy a formatted summary of your report to share.
-        </p>
-      </div>
-    </div>
-  `;
-  
-  Swal.fire({
-    title: "Share Your Report 📤",
-    html: shareHTML,
-    showCloseButton: true,
-    showConfirmButton: false,
-    width: 500,
-    customClass: {
-      popup: 'swal2-popup-custom'
-    }
-  });
-}
 
 // Function to toggle settings
 function toggleSetting(settingName) {
@@ -13350,223 +13089,6 @@ window.addEventListener('load', function () {
 
 <!-- Graph Share Functions -->
 <script>
-  // Handle Share Graph click (PRO feature)
-  function handleShareGraphClick() {
-    const isPro = isProActive();
-    const localStoragePro = localStorage.getItem('isPro');
-    console.log(`[GRAPH_SHARE] isProActive=${isPro} (localStorage isPro="${localStoragePro}")`);
-    
-    // If NOT Pro, show upgrade modal
-    if (!isPro) {
-      showUpgradeModal();
-      return;
-    }
-    
-    // Pro user - show share options modal
-    Swal.fire({
-      title: 'Share This Graph',
-      html: `
-        <div style="text-align: center; padding: 20px 0;">
-          <p style="margin-bottom: 20px; color: #666;">Choose how you want to share your graph:</p>
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <button id="downloadGraphBtn" style="
-              background: #2248bc;
-              color: white;
-              border: none;
-              padding: 12px 24px;
-              border-radius: 6px;
-              cursor: pointer;
-              font-size: 14px;
-              font-weight: 600;
-              transition: background 0.2s ease;
-            " onmouseover="this.style.background='#1a3a9e'" onmouseout="this.style.background='#2248bc'">
-              📥 Download PNG
-            </button>
-            <button id="copyGraphBtn" style="
-              background: #28a745;
-              color: white;
-              border: none;
-              padding: 12px 24px;
-              border-radius: 6px;
-              cursor: pointer;
-              font-size: 14px;
-              font-weight: 600;
-              transition: background 0.2s ease;
-            " onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
-              📋 Copy Image
-            </button>
-          </div>
-        </div>
-      `,
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: 400,
-      customClass: {
-        popup: 'swal2-popup-custom'
-      },
-      didOpen: () => {
-        // Attach handlers after modal opens
-        document.getElementById('downloadGraphBtn')?.addEventListener('click', async () => {
-          try {
-            const result = await getMainChartDataUri();
-            if (result && result.imgURI) {
-              const date = new Date().toISOString().split('T')[0];
-              downloadDataUriAsPng(result.imgURI, `copyboss-graph-${date}.png`);
-              Swal.close();
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Export Failed',
-                text: 'Could not export chart. Please try again.',
-                confirmButtonColor: '#2248bc'
-              });
-            }
-          } catch (err) {
-            console.error('[GRAPH_SHARE] Download failed:', err);
-            Swal.fire({
-              icon: 'error',
-              title: 'Export Failed',
-              text: 'An error occurred while exporting the chart.',
-              confirmButtonColor: '#2248bc'
-            });
-          }
-        });
-        
-        document.getElementById('copyGraphBtn')?.addEventListener('click', async () => {
-          try {
-            const result = await getMainChartDataUri();
-            if (result && result.imgURI) {
-              const copied = await copyDataUriToClipboard(result.imgURI);
-              if (copied) {
-                Swal.close();
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Copied!',
-                  text: 'Graph image copied to clipboard.',
-                  timer: 2000,
-                  showConfirmButton: false,
-                  confirmButtonColor: '#2248bc'
-                });
-              } else {
-                Swal.fire({
-                  icon: 'info',
-                  title: 'Copy Not Supported',
-                  html: 'Your browser does not support copying images to clipboard.<br><br>Please use "Download PNG" instead.',
-                  confirmButtonColor: '#2248bc'
-                });
-              }
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Export Failed',
-                text: 'Could not export chart. Please try again.',
-                confirmButtonColor: '#2248bc'
-              });
-            }
-          } catch (err) {
-            console.error('[GRAPH_SHARE] Copy failed:', err);
-            Swal.fire({
-              icon: 'error',
-              title: 'Export Failed',
-              text: 'An error occurred while exporting the chart.',
-              confirmButtonColor: '#2248bc'
-            });
-          }
-        });
-      }
-    });
-  }
-  
-  // Get main chart data URI (Chart.js or html2canvas fallback)
-  async function getMainChartDataUri() {
-    try {
-      // Try Chart.js built-in export first
-      if (window.copyBossChart && typeof window.copyBossChart.toBase64Image === 'function') {
-        const dataUri = window.copyBossChart.toBase64Image('image/png', 1.0);
-        if (dataUri && dataUri.startsWith('data:image')) {
-          return { imgURI: dataUri };
-        }
-      }
-      
-      // Fallback: Use html2canvas on chart container
-      const chartCanvas = document.getElementById('copyBossChart');
-      if (chartCanvas && typeof html2canvas !== 'undefined') {
-        // Find the chart container (parent element)
-        const chartContainer = chartCanvas.closest('.chart-container, .graph-container, [class*="chart"]') || chartCanvas.parentElement;
-        
-        const canvas = await html2canvas(chartContainer || chartCanvas, {
-          backgroundColor: '#1a233a', // Match chart background
-          scale: 2,
-          useCORS: true,
-          logging: false
-        });
-        
-        const dataUri = canvas.toDataURL('image/png');
-        return { imgURI: dataUri };
-      }
-      
-      // Last resort: try canvas directly
-      if (chartCanvas && chartCanvas.tagName === 'CANVAS') {
-        const dataUri = chartCanvas.toDataURL('image/png');
-        if (dataUri && dataUri !== 'data:,') {
-          return { imgURI: dataUri };
-        }
-      }
-      
-      return null;
-    } catch (err) {
-      console.error('[GRAPH_SHARE] getMainChartDataUri error:', err);
-      return null;
-    }
-  }
-  
-  // Download data URI as PNG file
-  function downloadDataUriAsPng(dataUri, filename) {
-    try {
-      const link = document.createElement('a');
-      link.download = filename;
-      link.href = dataUri;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error('[GRAPH_SHARE] downloadDataUriAsPng error:', err);
-      throw err;
-    }
-  }
-  
-  // Copy data URI to clipboard (best effort)
-  async function copyDataUriToClipboard(dataUri) {
-    try {
-      // Convert data URI to blob
-      const response = await fetch(dataUri);
-      const blob = await response.blob();
-      
-      // Try Clipboard API
-      if (navigator.clipboard && navigator.clipboard.write) {
-        const clipboardItem = new ClipboardItem({ 'image/png': blob });
-        await navigator.clipboard.write([clipboardItem]);
-        return true;
-      }
-      
-      // Fallback: try older clipboard API
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        // This won't work for images, but we'll try
-        return false;
-      }
-      
-      return false;
-    } catch (err) {
-      console.error('[GRAPH_SHARE] copyDataUriToClipboard error:', err);
-      return false;
-    }
-  }
-  
-  // Expose functions globally
-  window.handleShareGraphClick = handleShareGraphClick;
-  window.getMainChartDataUri = getMainChartDataUri;
-  window.downloadDataUriAsPng = downloadDataUriAsPng;
-  window.copyDataUriToClipboard = copyDataUriToClipboard;
 </script>
 
 <!-- Analyzer History Side Panel (will be portaled to body) -->
