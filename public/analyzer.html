@@ -2907,13 +2907,8 @@ html, body {
       </button>
     <div id="dropdownMenu" style="display: none; position: absolute; right: 0; top: 44px; background: #2e3b5e; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); min-width: 180px; max-width: 200px; z-index: 1000;">
   <a href="#" id="compareBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">Compare With Past Videos</a>
-  <a href="#" id="exportBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">
-    Export as Image
-    <span class="pro-tag-dropdown" style="background: #8e7cff; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold; vertical-align: middle;">PRO</span>
-  </a>
-<a href="#" id="resetChartBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">🔁 Reset Chart</a>
-
-<a href="#" id="graphHelpBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">📘 Graph Help</a>
+  <a href="#" id="resetChartBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">🔁 Reset Chart</a>
+  <a href="#" id="graphHelpBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">📘 Graph Help</a>
 
 
 </div>
@@ -3044,30 +3039,6 @@ document.addEventListener("click", function (e) {
 });
 
 
-  // 📸 Export chart as image (Pro users only)
-  document.getElementById("exportBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    
-    // Close dropdown first
-    const menu = document.getElementById("dropdownMenu");
-    if (menu) {
-      menu.style.display = "none";
-    }
-    
-    // Check user access (Pro or credits)
-    if (isProActive()) {
-      // Pro user - allow export
-      downloadGraphImage();
-    } else if (hasCredits()) {
-      // Credit user - allow export and optionally decrement credit
-      downloadGraphImage();
-      // Optionally decrement a credit
-      useReportCredit();
-    } else {
-      // Free user - show upgrade modal
-      showUpgradeModal();
-    }
-  });
 
   // ☰ Dropdown toggle
   window.toggleDropdown = () => {
@@ -3095,8 +3066,43 @@ document.addEventListener("click", function (e) {
   });
 
 
-  document.getElementById("graphHelpBtn")?.addEventListener("click", () => {
-    alert("📘 This graph shows your viral score history from previous reports.");
+  document.getElementById("graphHelpBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log('[GRAPH_HELP] graph-help clicked');
+    
+    // Close dropdown if open
+    const menu = document.getElementById("dropdownMenu");
+    if (menu) {
+      menu.style.display = "none";
+    }
+    
+    Swal.fire({
+      title: "📘 Graph Help",
+      html: `
+        <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+          <p style="margin-bottom: 12px;"><strong>What this graph shows:</strong></p>
+          <p style="margin-bottom: 16px; color: #666;">
+            This graph displays your viral score trend over time. Each point represents an analysis you've run, showing how your content's viral potential has changed.
+          </p>
+          
+          <p style="margin-bottom: 12px;"><strong>Compare Mode:</strong></p>
+          <p style="margin-bottom: 16px; color: #666;">
+            Use "Compare With Past Videos" to overlay a previous analysis on the chart. This helps you see how your current video compares to past performances.
+          </p>
+          
+          <p style="margin-bottom: 12px;"><strong>Reset Chart:</strong></p>
+          <p style="margin-bottom: 0; color: #666;">
+            Click "Reset Chart" to clear the chart and restore it to the default demo data. This will also clear any active compare mode.
+          </p>
+        </div>
+      `,
+      confirmButtonText: "Got it",
+      confirmButtonColor: "#2248bc",
+      width: 500,
+      customClass: {
+        popup: 'swal2-popup-custom'
+      }
+    });
   });
 });
 
