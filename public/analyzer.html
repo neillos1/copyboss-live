@@ -3024,16 +3024,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
   
 
-// ✅ RESET CHART — safe version with timeout to ensure button is in DOM
+// ✅ RESET CHART — free feature, resets to default demo state
 document.addEventListener("click", function (e) {
-  if (e.target && e.target.id === "resetChartBtn") {
-    if (confirm("Reset chart data?")) {
-      copyBossChart.data.labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      copyBossChart.data.datasets[0].data = [35, 50, 60, 45, 70, 55, 65];
-      localStorage.removeItem("copyBossLabels");
-      localStorage.removeItem("copyBossScores");
-      copyBossChart.update();
-      console.log("🔄 Chart reset to default");
+  const resetBtn = e.target.closest('#resetChartBtn');
+  if (resetBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('[RESET_CHART] reset-chart clicked');
+    
+    // Close dropdown if open
+    const menu = document.getElementById("dropdownMenu");
+    if (menu) {
+      menu.style.display = "none";
+    }
+    
+    if (confirm("Reset chart to default demo data?")) {
+      // Clear compare mode if active
+      if (window.cbCompareSelected) {
+        window.cbCompareSelected = null;
+        localStorage.removeItem('cbCompareSelectedId');
+      }
+      
+      // Clear any compare overlays/extra series
+      if (window.copyBossChart && window.copyBossChart.data) {
+        // Reset to single dataset
+        const defaultLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        const defaultScores = [35, 50, 60, 45, 70, 55, 65];
+        
+        window.copyBossChart.data.labels = defaultLabels;
+        window.copyBossChart.data.datasets = [{
+          label: "Viral Score",
+          data: defaultScores,
+          borderColor: "#1E88E5",
+          backgroundColor: window.copyBossChart.data.datasets[0]?.backgroundColor || "rgba(30,136,229,0.2)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: "#1E88E5",
+        }];
+        
+        // Clear localStorage
+        localStorage.removeItem("copyBossLabels");
+        localStorage.removeItem("copyBossScores");
+        
+        // Update chart
+        window.copyBossChart.update();
+        console.log("🔄 Chart reset to default");
+      }
     }
   }
 });
@@ -7113,21 +7150,7 @@ a:hover {
 
 
 <script>
-  document.getElementById("graphHelpBtn")?.addEventListener("click", () => {
-    Swal.fire({
-      icon: "info",
-      title: "How the Graph Works 📈",
-      html: `
-        <p style='text-align:left; font-size: 15px;'>
-          This graph shows your <b>Viral Score over the last 7 uploads</b>.
-          It updates automatically whenever you analyze a new video.<br><br>
-          Hover over each dot to see the score for that day. 
-          Use the dropdown to <b>reset</b>, <b>export</b>, or <b>compare</b> your latest scores.
-        </p>
-      `,
-      confirmButtonText: "Got it!"
-    });
-  });
+  // Duplicate graphHelpBtn handler removed - using the improved one in DOMContentLoaded above
 </script>
 
 
