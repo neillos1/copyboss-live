@@ -2946,8 +2946,8 @@ html, body {
   <!-- Graph Area -->
   
 <!-- Graph Area -->
-<div style="width: 100%; padding: 60px 40px; display: flex; justify-content: center;">
-  <canvas id="copyBossChart" height="300" style="display: block; width: 100%; max-width: 1350px;"></canvas>
+<div id="chartWrapper" style="width: 100%; padding: 60px 40px; display: flex; justify-content: center; height: 420px; min-height: 420px; box-sizing: border-box;">
+  <canvas id="copyBossChart" style="display: block; width: 100%; height: 100%; max-width: 1350px;"></canvas>
 </div>
 
 
@@ -3001,22 +3001,36 @@ function buildCopyBossChart(labels, scores) {
     return null;
   }
   
-  // Ensure canvas fills its container
+  // Get wrapper container (single source of truth for sizing)
+  const wrapper = canvas.parentElement;
+  if (!wrapper) {
+    console.error('[buildCopyBossChart] Wrapper not found');
+    return null;
+  }
+  
+  // Remove any hardcoded canvas dimensions (let container control size)
+  try {
+    canvas.removeAttribute("width");
+    canvas.removeAttribute("height");
+  } catch (e) {}
+  
+  // Ensure canvas fills container (container controls the size)
   canvas.style.width = '100%';
   canvas.style.height = '100%';
+  canvas.style.display = 'block';
+  canvas.style.maxWidth = '1350px';
   
-  // Handle parent container sizing
-  const parent = canvas.parentElement;
-  if (parent) {
-    // Get current computed height or use safe default
-    const rect = parent.getBoundingClientRect();
-    const h = rect?.height;
-    if (!h || h < 150) {
-      // Use the original chart height (300px from canvas height attribute + padding)
-      parent.style.height = '420px'; // 300px canvas + 60px top + 60px bottom padding
-      parent.style.minHeight = '420px';
-    }
-  }
+  // Ensure wrapper has fixed height (single source of truth)
+  // 420px = 300px chart area + 60px top padding + 60px bottom padding
+  wrapper.style.height = '420px';
+  wrapper.style.minHeight = '420px';
+  wrapper.style.boxSizing = 'border-box';
+  
+  // Debug logs
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  console.log('[CHART_SIZE] wrapper rect', { width: wrapperRect.width, height: wrapperRect.height });
+  console.log('[CHART_SIZE] canvas rect', { width: canvasRect.width, height: canvasRect.height });
   
   // Get canvas context
   const ctx = canvas.getContext("2d");
@@ -3025,8 +3039,9 @@ function buildCopyBossChart(labels, scores) {
     return null;
   }
   
-  // Create gradient for fill
-  const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+  // Create gradient for fill (use wrapper height minus padding for gradient)
+  const chartHeight = wrapperRect.height - 120; // subtract top + bottom padding
+  const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight || 300);
   gradient.addColorStop(0, "rgba(30,136,229,0.4)");
   gradient.addColorStop(1, "rgba(30,136,229,0)");
   
@@ -3034,6 +3049,7 @@ function buildCopyBossChart(labels, scores) {
   const existingChart = Chart.getChart(canvas) || Chart.getChart("copyBossChart");
   if (existingChart) {
     existingChart.destroy();
+    console.log('[buildCopyBossChart] destroyed existing chart', existingChart.id);
   }
   if (window.copyBossChart && typeof window.copyBossChart.destroy === 'function') {
     try {
@@ -3081,12 +3097,16 @@ function buildCopyBossChart(labels, scores) {
     }
   });
   
-  // Resize chart to ensure proper rendering
-  try {
-    chart.resize();
-  } catch (e) {
-    // Ignore resize errors
-  }
+  // Resize chart after creation to ensure proper rendering
+  requestAnimationFrame(() => {
+    try {
+      if (chart && typeof chart.resize === 'function') {
+        chart.resize();
+      }
+    } catch (e) {
+      // Ignore resize errors
+    }
+  });
   
   return chart;
 }
