@@ -3006,8 +3006,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const defaultLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const defaultScores = [35, 50, 60, 45, 70, 55, 65];
 
-  const savedLabels = JSON.parse(localStorage.getItem("copyBossLabels")) || defaultLabels;
-  const savedScores = JSON.parse(localStorage.getItem("copyBossScores")) || defaultScores;
+  // Check if demo chart is forced (use demo data, ignore saved data)
+  const forceDemo = window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true';
+  const savedLabels = forceDemo ? defaultLabels : (JSON.parse(localStorage.getItem("copyBossLabels")) || defaultLabels);
+  const savedScores = forceDemo ? defaultScores : (JSON.parse(localStorage.getItem("copyBossScores")) || defaultScores);
+  
+  if (forceDemo) {
+    console.log('[CHART] initial load using demo data (forceDemoChart enabled)');
+  }
 
   copyBossChart = new Chart(ctx, {
     type: "line",
@@ -3139,9 +3145,10 @@ document.addEventListener("click", function (e) {
       console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
       
       // Set flag to prevent chart updates from overwriting demo data
-      localStorage.setItem('forceDemoChart', 'true');
       window.__forceDemoChart = true;
+      localStorage.setItem('forceDemoChart', 'true');
       console.log('[RESET_CHART] forceDemoChart enabled');
+      console.log('[RESET_CHART] verify flags:', localStorage.getItem('forceDemoChart'), window.__forceDemoChart);
     }
   }
 });
@@ -3187,6 +3194,10 @@ document.addEventListener("click", function (e) {
     
     // Create simple custom modal (no SweetAlert dependency)
     function showGraphHelpModal() {
+      // Set global flag IMMEDIATELY (before creating elements)
+      window.__graphHelpOpen = true;
+      console.log('[GRAPH_HELP] opened, __graphHelpOpen=true');
+      
       // Remove existing modal if present
       const existing = document.getElementById('cb-graph-help-modal');
       if (existing) {
@@ -3207,9 +3218,6 @@ document.addEventListener("click", function (e) {
         z-index: 100000 !important;
         pointer-events: auto !important;
       `;
-      
-      // Set global flag while modal is open
-      window.__graphHelpOpen = true;
       
       // Create modal card
       const card = document.createElement('div');
@@ -3282,6 +3290,7 @@ document.addEventListener("click", function (e) {
       // Helper function to close modal and clear flag
       const closeModal = function() {
         window.__graphHelpOpen = false;
+        console.log('[GRAPH_HELP] closed, __graphHelpOpen=false');
         backdrop.remove();
       };
       
@@ -9541,7 +9550,7 @@ function updateSidebarRank(average) {
  window.syncViralChartFromGemini = function (score) {
   // Check if demo chart is forced (prevent overwrite after reset)
   if (window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true') {
-    console.log('[CHART] update skipped due to forceDemoChart');
+    console.log('[CHART] update skipped due to forceDemoChart', 'fn=syncViralChartFromGemini');
     return;
   }
   
@@ -9573,11 +9582,14 @@ function updateSidebarRank(average) {
 
   copyBossChart.update();
 
-  try {
-    localStorage.setItem("copyBossLabels", JSON.stringify(labels));
-    localStorage.setItem("copyBossScores", JSON.stringify(data));
-  } catch (err) {
-    console.warn("⚠️ Failed to save chart data", err);
+  // Only save to localStorage if forceDemoChart is NOT enabled
+  if (!window.__forceDemoChart && localStorage.getItem('forceDemoChart') !== 'true') {
+    try {
+      localStorage.setItem("copyBossLabels", JSON.stringify(labels));
+      localStorage.setItem("copyBossScores", JSON.stringify(data));
+    } catch (err) {
+      console.warn("⚠️ Failed to save chart data", err);
+    }
   }
 
   const avg = Math.round(data.reduce((a, b) => a + b, 0) / data.length);
