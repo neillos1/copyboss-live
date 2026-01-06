@@ -2993,35 +2993,65 @@ function syncGaugesFromGemini() {
   // For now, just log for debug
   console.log('Syncing gauges from Gemini:', fb);
 }
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize gauge visibility based on user plan
-  initializeGaugeVisibility();
+// Unified chart builder function - used by both initial load and reset
+function buildCopyBossChart(labels, scores) {
+  const canvas = document.getElementById('copyBossChart');
+  if (!canvas) {
+    console.error('[buildCopyBossChart] Canvas not found');
+    return null;
+  }
   
-  const ctx = document.getElementById("copyBossChart")?.getContext("2d");
-
+  // Ensure canvas fills its container
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  
+  // Handle parent container sizing
+  const parent = canvas.parentElement;
+  if (parent) {
+    // Get current computed height or use safe default
+    const rect = parent.getBoundingClientRect();
+    const h = rect?.height;
+    if (!h || h < 150) {
+      // Use the original chart height (300px from canvas height attribute + padding)
+      parent.style.height = '420px'; // 300px canvas + 60px top + 60px bottom padding
+      parent.style.minHeight = '420px';
+    }
+  }
+  
+  // Get canvas context
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.error('[buildCopyBossChart] Could not get canvas context');
+    return null;
+  }
+  
+  // Create gradient for fill
   const gradient = ctx.createLinearGradient(0, 0, 0, 300);
   gradient.addColorStop(0, "rgba(30,136,229,0.4)");
   gradient.addColorStop(1, "rgba(30,136,229,0)");
-
-  const defaultLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const defaultScores = [35, 50, 60, 45, 70, 55, 65];
-
-  // Check if demo chart is forced (use demo data, ignore saved data)
-  const forceDemo = window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true';
-  const savedLabels = forceDemo ? defaultLabels : (JSON.parse(localStorage.getItem("copyBossLabels")) || defaultLabels);
-  const savedScores = forceDemo ? defaultScores : (JSON.parse(localStorage.getItem("copyBossScores")) || defaultScores);
   
-  if (forceDemo) {
-    console.log('[CHART] initial load using demo data (forceDemoChart enabled)');
+  // Destroy any existing chart instance first
+  const existingChart = Chart.getChart(canvas) || Chart.getChart("copyBossChart");
+  if (existingChart) {
+    existingChart.destroy();
   }
-
-  copyBossChart = new Chart(ctx, {
+  if (window.copyBossChart && typeof window.copyBossChart.destroy === 'function') {
+    try {
+      window.copyBossChart.destroy();
+    } catch (e) {
+      // Chart may already be destroyed, ignore
+    }
+  }
+  window.copyBossChart = null;
+  
+  // Create new chart
+  const chart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: savedLabels,
+      labels: labels,
       datasets: [{
         label: "Viral Score",
-        data: savedScores,
+        data: scores,
         borderColor: "#1E88E5",
         backgroundColor: gradient,
         fill: true,
@@ -3050,6 +3080,34 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+  
+  // Resize chart to ensure proper rendering
+  try {
+    chart.resize();
+  } catch (e) {
+    // Ignore resize errors
+  }
+  
+  return chart;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize gauge visibility based on user plan
+  initializeGaugeVisibility();
+  
+  const defaultLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const defaultScores = [35, 50, 60, 45, 70, 55, 65];
+
+  // Check if demo chart is forced (use demo data, ignore saved data)
+  const forceDemo = window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true';
+  const savedLabels = forceDemo ? defaultLabels : (JSON.parse(localStorage.getItem("copyBossLabels")) || defaultLabels);
+  const savedScores = forceDemo ? defaultScores : (JSON.parse(localStorage.getItem("copyBossScores")) || defaultScores);
+  
+  if (forceDemo) {
+    console.log('[CHART] initial load using demo data (forceDemoChart enabled)');
+  }
+
+  copyBossChart = buildCopyBossChart(savedLabels, savedScores);
 
   
 
@@ -3086,102 +3144,15 @@ document.addEventListener("click", function (e) {
       const demoLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const demoScores = [48, 55, 60, 52, 70, 58, 62];
       
-      // Find the canvas
-      const canvas = document.getElementById('copyBossChart');
-      if (!canvas) {
-        console.error('[RESET_CHART] Canvas not found');
-        return;
+      // Rebuild chart using unified builder function
+      window.copyBossChart = buildCopyBossChart(demoLabels, demoScores);
+      
+      if (window.copyBossChart) {
+        console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
+        console.log("[RESET_CHART] created new demo chart", window.copyBossChart.id);
+      } else {
+        console.error('[RESET_CHART] Failed to rebuild chart');
       }
-      
-      // Destroy ANY existing chart instance from Chart.js registry
-      // This prevents "Canvas is already in use" error
-      const existingChart = Chart.getChart(canvas) || Chart.getChart("copyBossChart");
-      if (existingChart) {
-        existingChart.destroy();
-        console.log("[RESET_CHART] destroyed existing chart", existingChart.id);
-      }
-      
-      // Also destroy window global reference if it exists
-      if (window.copyBossChart && typeof window.copyBossChart.destroy === 'function') {
-        try {
-          window.copyBossChart.destroy();
-        } catch (e) {
-          // Chart may already be destroyed, ignore
-        }
-      }
-      window.copyBossChart = null;
-      
-      // Reset canvas sizing to prevent chart expansion
-      try {
-        canvas.removeAttribute("width");
-        canvas.removeAttribute("height");
-      } catch (e) {}
-      
-      canvas.style.width = "100%";
-      canvas.style.height = "300px";
-      canvas.style.maxHeight = "300px";
-      canvas.style.display = "block";
-      canvas.style.maxWidth = "1350px";
-      
-      // Lock parent container so it can't expand
-      const wrap = canvas.closest(".chart-container") || canvas.closest(".chart-box") || canvas.parentElement;
-      if (wrap) {
-        wrap.style.height = "300px";
-        wrap.style.maxHeight = "300px";
-        wrap.style.overflow = "hidden";
-      }
-      
-      // Get canvas context
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        console.error('[RESET_CHART] Could not get canvas context');
-        return;
-      }
-      
-      // Create gradient for fill
-      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-      gradient.addColorStop(0, "rgba(30,136,229,0.4)");
-      gradient.addColorStop(1, "rgba(30,136,229,0)");
-      
-      // Rebuild chart with demo data
-      window.copyBossChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: demoLabels,
-          datasets: [{
-            label: "Viral Score",
-            data: demoScores,
-            borderColor: "#1E88E5",
-            backgroundColor: gradient,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 4,
-            pointBackgroundColor: "#1E88E5",
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#fff" },
-              grid: { display: false }
-            },
-            y: {
-              ticks: { color: "#fff" },
-              grid: { color: "rgba(255,255,255,0.1)" },
-              beginAtZero: true,
-              max: 100
-            }
-          }
-        }
-      });
-      
-      console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
-      console.log("[RESET_CHART] created new demo chart", window.copyBossChart?.id);
     }
     
     // Verify flags after handler completes
