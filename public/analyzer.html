@@ -3111,6 +3111,26 @@ document.addEventListener("click", function (e) {
       }
       window.copyBossChart = null;
       
+      // Reset canvas sizing to prevent chart expansion
+      try {
+        canvas.removeAttribute("width");
+        canvas.removeAttribute("height");
+      } catch (e) {}
+      
+      canvas.style.width = "100%";
+      canvas.style.height = "300px";
+      canvas.style.maxHeight = "300px";
+      canvas.style.display = "block";
+      canvas.style.maxWidth = "1350px";
+      
+      // Lock parent container so it can't expand
+      const wrap = canvas.closest(".chart-container") || canvas.closest(".chart-box") || canvas.parentElement;
+      if (wrap) {
+        wrap.style.height = "300px";
+        wrap.style.maxHeight = "300px";
+        wrap.style.overflow = "hidden";
+      }
+      
       // Get canvas context
       const ctx = canvas.getContext("2d");
       if (!ctx) {
