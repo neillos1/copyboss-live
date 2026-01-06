@@ -3040,37 +3040,80 @@ document.addEventListener("click", function (e) {
     
     if (confirm("Reset chart to default demo data?")) {
       // Clear compare mode if active
-      if (window.cbCompareSelected) {
-        window.cbCompareSelected = null;
-        localStorage.removeItem('cbCompareSelectedId');
+      window.cbCompareSelected = null;
+      localStorage.removeItem('cbCompareSelectedId');
+      
+      // Clear stored graph data
+      localStorage.removeItem("copyBossLabels");
+      localStorage.removeItem("copyBossScores");
+      
+      // Define default demo data
+      const demoLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const demoScores = [48, 55, 60, 52, 70, 58, 62];
+      
+      // Find the canvas
+      const canvas = document.getElementById('copyBossChart');
+      if (!canvas) {
+        console.error('[RESET_CHART] Canvas not found');
+        return;
       }
       
-      // Clear any compare overlays/extra series
-      if (window.copyBossChart && window.copyBossChart.data) {
-        // Reset to single dataset
-        const defaultLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        const defaultScores = [35, 50, 60, 45, 70, 55, 65];
-        
-        window.copyBossChart.data.labels = defaultLabels;
-        window.copyBossChart.data.datasets = [{
-          label: "Viral Score",
-          data: defaultScores,
-          borderColor: "#1E88E5",
-          backgroundColor: window.copyBossChart.data.datasets[0]?.backgroundColor || "rgba(30,136,229,0.2)",
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: "#1E88E5",
-        }];
-        
-        // Clear localStorage
-        localStorage.removeItem("copyBossLabels");
-        localStorage.removeItem("copyBossScores");
-        
-        // Update chart
-        window.copyBossChart.update();
-        console.log("🔄 Chart reset to default");
+      // Destroy existing chart instance if it exists
+      if (window.copyBossChart && typeof window.copyBossChart.destroy === 'function') {
+        window.copyBossChart.destroy();
+        window.copyBossChart = null;
       }
+      
+      // Get canvas context
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.error('[RESET_CHART] Could not get canvas context');
+        return;
+      }
+      
+      // Create gradient for fill
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, "rgba(30,136,229,0.4)");
+      gradient.addColorStop(1, "rgba(30,136,229,0)");
+      
+      // Rebuild chart with demo data
+      window.copyBossChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: demoLabels,
+          datasets: [{
+            label: "Viral Score",
+            data: demoScores,
+            borderColor: "#1E88E5",
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#1E88E5",
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#fff" },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: "#fff" },
+              grid: { color: "rgba(255,255,255,0.1)" },
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+      
+      console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
     }
   }
 });
@@ -3105,6 +3148,7 @@ document.addEventListener("click", function (e) {
 
   document.getElementById("graphHelpBtn")?.addEventListener("click", (e) => {
     e.preventDefault();
+    e.stopPropagation();
     console.log('[GRAPH_HELP] graph-help clicked');
     
     // Close dropdown if open
@@ -3113,33 +3157,119 @@ document.addEventListener("click", function (e) {
       menu.style.display = "none";
     }
     
-    Swal.fire({
-      title: "📘 Graph Help",
-      html: `
-        <div style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <p style="margin-bottom: 12px;"><strong>What this graph shows:</strong></p>
-          <p style="margin-bottom: 16px; color: #666;">
-            This graph displays your viral score trend over time. Each point represents an analysis you've run, showing how your content's viral potential has changed.
+    // Create simple custom modal (no SweetAlert dependency)
+    function showGraphHelpModal() {
+      // Remove existing modal if present
+      const existing = document.getElementById('cb-graph-help-modal');
+      if (existing) {
+        existing.remove();
+      }
+      
+      // Create modal backdrop
+      const backdrop = document.createElement('div');
+      backdrop.id = 'cb-graph-help-modal';
+      backdrop.style.cssText = `
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 100000 !important;
+        pointer-events: auto !important;
+      `;
+      
+      // Create modal card
+      const card = document.createElement('div');
+      card.style.cssText = `
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        pointer-events: auto !important;
+      `;
+      
+      card.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #333;">📘 Graph Help</h2>
+          <button id="cb-graph-help-close" style="
+            background: none;
+            border: none;
+            font-size: 28px;
+            line-height: 1;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+          " onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='none'">×</button>
+        </div>
+        <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #333;">
+          <p style="margin-bottom: 16px;"><strong>What this graph shows:</strong></p>
+          <p style="margin-bottom: 20px; color: #666;">
+            This chart shows your Viral Score trend over time. Each point represents an analysis you've run, showing how your content's viral potential has changed.
           </p>
           
-          <p style="margin-bottom: 12px;"><strong>Compare Mode:</strong></p>
-          <p style="margin-bottom: 16px; color: #666;">
+          <p style="margin-bottom: 16px;"><strong>Compare Mode:</strong></p>
+          <p style="margin-bottom: 20px; color: #666;">
             Use "Compare With Past Videos" to overlay a previous analysis on the chart. This helps you see how your current video compares to past performances.
           </p>
           
-          <p style="margin-bottom: 12px;"><strong>Reset Chart:</strong></p>
+          <p style="margin-bottom: 16px;"><strong>Reset Chart:</strong></p>
           <p style="margin-bottom: 0; color: #666;">
-            Click "Reset Chart" to clear the chart and restore it to the default demo data. This will also clear any active compare mode.
+            Use "Reset Chart" to return to the demo view if the chart gets messy. This will also clear any active compare mode.
           </p>
         </div>
-      `,
-      confirmButtonText: "Got it",
-      confirmButtonColor: "#2248bc",
-      width: 500,
-      customClass: {
-        popup: 'swal2-popup-custom'
-      }
-    });
+        <div style="margin-top: 24px; text-align: center;">
+          <button onclick="document.getElementById('cb-graph-help-modal')?.remove()" style="
+            background: #2248bc;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+          " onmouseover="this.style.background='#1a3a9e'" onmouseout="this.style.background='#2248bc'">Got it</button>
+        </div>
+      `;
+      
+      backdrop.appendChild(card);
+      document.body.appendChild(backdrop);
+      
+      // Close on backdrop click
+      backdrop.addEventListener('click', function(e) {
+        if (e.target === backdrop) {
+          backdrop.remove();
+        }
+      });
+      
+      // Close on X button
+      document.getElementById('cb-graph-help-close')?.addEventListener('click', () => {
+        backdrop.remove();
+      });
+      
+      // Close on ESC key
+      const escHandler = function(e) {
+        if (e.key === 'Escape' && document.getElementById('cb-graph-help-modal')) {
+          backdrop.remove();
+          document.removeEventListener('keydown', escHandler);
+        }
+      };
+      document.addEventListener('keydown', escHandler);
+    }
+    
+    // Show modal
+    showGraphHelpModal();
   });
 });
 
