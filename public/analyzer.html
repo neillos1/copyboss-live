@@ -3093,11 +3093,23 @@ document.addEventListener("click", function (e) {
         return;
       }
       
-      // Destroy existing chart instance if it exists
-      if (window.copyBossChart && typeof window.copyBossChart.destroy === 'function') {
-        window.copyBossChart.destroy();
-        window.copyBossChart = null;
+      // Destroy ANY existing chart instance from Chart.js registry
+      // This prevents "Canvas is already in use" error
+      const existingChart = Chart.getChart(canvas) || Chart.getChart("copyBossChart");
+      if (existingChart) {
+        existingChart.destroy();
+        console.log("[RESET_CHART] destroyed existing chart", existingChart.id);
       }
+      
+      // Also destroy window global reference if it exists
+      if (window.copyBossChart && typeof window.copyBossChart.destroy === 'function') {
+        try {
+          window.copyBossChart.destroy();
+        } catch (e) {
+          // Chart may already be destroyed, ignore
+        }
+      }
+      window.copyBossChart = null;
       
       // Get canvas context
       const ctx = canvas.getContext("2d");
@@ -3149,7 +3161,7 @@ document.addEventListener("click", function (e) {
       });
       
       console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
-      console.log("[RESET_CHART] demo chart forced");
+      console.log("[RESET_CHART] created new demo chart", window.copyBossChart?.id);
     }
     
     // Verify flags after handler completes
