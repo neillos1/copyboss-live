@@ -7149,29 +7149,6 @@ a:hover {
 
 
 <script>
-  document.getElementById('exportBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    
-    // Close dropdown first
-    const menu = document.getElementById("dropdownMenu");
-    if (menu) {
-      menu.style.display = "none";
-    }
-    
-    // Check user access (Pro or credits)
-    if (isProActive()) {
-      // Pro user - allow export
-      downloadGraphImage();
-    } else if (hasCredits()) {
-      // Credit user - allow export and optionally decrement credit
-      downloadGraphImage();
-      // Optionally decrement a credit
-      useReportCredit();
-    } else {
-      // Free user - show upgrade modal
-      showUpgradeModal();
-    }
-  });
 </script>
 
 
