@@ -3066,7 +3066,7 @@ function buildCopyBossChart(labels, scores) {
     data: {
       labels: labels,
       datasets: [{
-        label: "Viral Score",
+        label: "Overall Score",
         data: scores,
         borderColor: "#1E88E5",
         backgroundColor: gradient,
@@ -4445,9 +4445,12 @@ async function runAnalysis() {
       f?.engagementForecast?.score
     ].filter(score => typeof score === 'number');
 
-    const overallScoreInt = scores.length
-      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+    const overallScoreRaw = scores.length
+      ? scores.reduce((a, b) => a + b, 0) / scores.length
       : 0;
+    
+    // Use normalizeScoreInt for consistent rounding
+    const overallScoreInt = normalizeScoreInt(overallScoreRaw);
 
     console.log('[SCORE] overallScoreInt calculated in runAnalysis', overallScoreInt);
 
@@ -4636,9 +4639,13 @@ function saveAnalysisToHistory(result, fileName) {
       f?.engagementForecast?.score
     ].filter(score => typeof score === 'number');
 
-    const overallScore = scores.length
-      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+    const overallScoreRaw = scores.length
+      ? scores.reduce((a, b) => a + b, 0) / scores.length
       : 0;
+    
+    // Use normalizeScoreInt for consistent rounding (same as UI/chart)
+    const overallScoreInt = normalizeScoreInt(overallScoreRaw);
+    console.log('[HISTORY] saving overallScoreInt', overallScoreInt);
 
     // Extract strengths and improvements
     const { strengths, improvements } = extractStrengthsAndImprovements(result);
@@ -4649,7 +4656,7 @@ function saveAnalysisToHistory(result, fileName) {
       id: Date.now().toString(),
       title: fileName || 'Untitled Video',
       date: new Date().toLocaleDateString(),
-      score: overallScore,
+      score: overallScoreInt,
       summary: result?.feedback?.summary || 'No summary available',
       feedback: result?.feedback || {},
       strengths: strengths,
@@ -4776,9 +4783,12 @@ function displayGeminiResults(result) {
     f?.engagementForecast?.score
   ].filter(score => typeof score === 'number');
 
-  const overallScoreInt = scores.length
-    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+  const overallScoreRaw = scores.length
+    ? scores.reduce((a, b) => a + b, 0) / scores.length
     : 0;
+  
+  // Use normalizeScoreInt for consistent rounding
+  const overallScoreInt = normalizeScoreInt(overallScoreRaw);
 
   console.log("🎯 Gemini says overall score is:", overallScoreInt);
   
@@ -4789,13 +4799,20 @@ function displayGeminiResults(result) {
   });
 }
 
+// Normalize score to integer 0-100 (single source of truth for normalization)
+function normalizeScoreInt(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return null;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
 // Single source of truth: cbSetFinalViralScore
 // Updates Overall Score UI, viral gauge, and chart from the same value
 window.cbSetFinalViralScore = function(score, meta = {}) {
-  // Validate and coerce to integer 0-100
-  const finalScore = Math.round(Math.max(0, Math.min(100, Number(score))));
+  // Use normalized score helper
+  const finalScore = normalizeScoreInt(score);
   
-  if (isNaN(finalScore)) {
+  if (finalScore === null) {
     console.warn('[SCORE] Invalid score provided to cbSetFinalViralScore:', score);
     return;
   }
@@ -4805,6 +4822,8 @@ window.cbSetFinalViralScore = function(score, meta = {}) {
     source: meta.source || 'analysis',
     raw: score
   });
+  
+  console.log('[UI] overallScoreInt used', finalScore);
   
   // A) Update Overall Score UI element
   const scoreEl = document.getElementById("overallScoreCircle");
@@ -4850,6 +4869,7 @@ window.cbSetFinalViralScore = function(score, meta = {}) {
       return `${day} ${time}`;
     })();
     
+    console.log('[CHART] using overallScoreInt for point', finalScore);
     syncViralChartFromGemini(finalScore, label);
   }
 };
