@@ -387,6 +387,12 @@ body.pro-active .pro-blur {
    These rules must be at the VERY BOTTOM to win CSS cascade
    ============================================================ */
 
+/* Fix wrapper height to prevent huge blank gap under navbar */
+.wrapper {
+  min-height: 100vh !important;
+  height: auto !important;
+}
+
 /* 1️⃣ Force all wrappers/containers to allow full scroll when Pro active */
 body.pro-active [class*="wrapper"],
 body.pro-active [class*="container"],
