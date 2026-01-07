@@ -4782,36 +4782,43 @@ function displayGeminiResults(result) {
 
   console.log("🎯 Gemini says overall score is:", overallScoreInt);
   
-  // ✅ Apply to both UI and chart using unified function
-  applyOverallScoreToUIAndChart(overallScoreInt);
+  // ✅ Apply to both UI and chart using single source of truth
+  window.cbSetFinalViralScore(overallScoreInt, {
+    source: 'displayGeminiResults',
+    label: undefined // will be auto-generated
+  });
 }
 
-// Unified function to apply overall score to both UI and chart
-function applyOverallScoreToUIAndChart(overallScoreInt) {
-  // Validate score
-  if (typeof overallScoreInt !== "number" || isNaN(overallScoreInt)) {
-    console.warn("⚠️ Invalid overallScoreInt:", overallScoreInt);
+// Single source of truth: cbSetFinalViralScore
+// Updates Overall Score UI, viral gauge, and chart from the same value
+window.cbSetFinalViralScore = function(score, meta = {}) {
+  // Validate and coerce to integer 0-100
+  const finalScore = Math.round(Math.max(0, Math.min(100, Number(score))));
+  
+  if (isNaN(finalScore)) {
+    console.warn('[SCORE] Invalid score provided to cbSetFinalViralScore:', score);
     return;
   }
   
-  // Ensure it's an integer (0-100)
-  const score = Math.round(Math.max(0, Math.min(100, overallScoreInt)));
+  console.log('[SCORE] finalScore selected', {
+    score: finalScore,
+    source: meta.source || 'analysis',
+    raw: score
+  });
   
-  console.log('[SCORE] overallScoreInt used for UI and chart', score);
-  
-  // Update UI (overall score circle)
+  // A) Update Overall Score UI element
   const scoreEl = document.getElementById("overallScoreCircle");
   if (scoreEl) {
     // Animate the score from 0 to the final value
     let current = 0;
     const steps = 30;
     const stepTime = 1500 / steps;
-    const increment = score / steps;
+    const increment = finalScore / steps;
     
     const counter = setInterval(() => {
       current += increment;
-      if (current >= score) {
-        current = score;
+      if (current >= finalScore) {
+        current = finalScore;
         clearInterval(counter);
       }
       scoreEl.textContent = Math.round(current);
@@ -4820,10 +4827,32 @@ function applyOverallScoreToUIAndChart(overallScoreInt) {
     scoreEl.style.opacity = 1;
   }
   
-  // Update chart with the SAME value
-  console.log('[SCORE] overallScoreInt used for chart', score);
-  syncViralChartFromGemini(score);
-}
+  // B) Update viral gauge if present (use same value)
+  if (typeof updateGaugeAndFeedback === 'function') {
+    try {
+      updateGaugeAndFeedback('viralGauge', 'viralFeedback', finalScore);
+    } catch (e) {
+      console.warn('[SCORE] Failed to update viral gauge:', e);
+    }
+  }
+  
+  // C) Update Chart.js line chart (respects forceDemoChart)
+  const forceDemo = window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true';
+  if (forceDemo) {
+    console.log('[CHART] skipped update (forceDemoChart)');
+    // Still update UI/gauge above, just skip chart
+  } else {
+    // Use provided label/timestamp or generate default
+    const label = meta.label || (() => {
+      const now = new Date();
+      const day = now.toLocaleDateString("en-GB", { weekday: "short" });
+      const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+      return `${day} ${time}`;
+    })();
+    
+    syncViralChartFromGemini(finalScore, label);
+  }
+};
 
 // ✅ Safe version of displayGeminiResults that uses window.feedback
 // This prevents crashes when called without parameters
@@ -9596,7 +9625,9 @@ function updateSidebarRank(average) {
   }
 
 
- window.syncViralChartFromGemini = function (score) {
+ // Internal chart update function (called by cbSetFinalViralScore)
+ // Do not call directly - use cbSetFinalViralScore instead
+ window.syncViralChartFromGemini = function (score, label) {
   // Check if demo chart is forced (prevent overwrite after reset)
   if (window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true') {
     console.log('[CHART] update skipped due to forceDemoChart', 'fn=syncViralChartFromGemini');
@@ -9608,22 +9639,34 @@ function updateSidebarRank(average) {
     return;
   }
 
-  const now = new Date();
-  const day = now.toLocaleDateString("en-GB", { weekday: "short" });
-  const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  const label = `${day} ${time}`;
+  // Use provided label or generate default
+  if (!label) {
+    const now = new Date();
+    const day = now.toLocaleDateString("en-GB", { weekday: "short" });
+    const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    label = `${day} ${time}`;
+  }
 
   const labels = copyBossChart.data.labels;
   const data = copyBossChart.data.datasets[0].data;
 
+  // Check for duplicate (same label and score)
   if (labels[labels.length - 1] === label && data[data.length - 1] === score) {
     console.log("⚠️ Duplicate score/timestamp skipped");
     return;
   }
 
-  labels.push(label);
-  data.push(score);
+  // Replace last point if same timestamp (update in place) or push new
+  if (labels[labels.length - 1] === label) {
+    // Same timestamp, replace last point
+    data[data.length - 1] = score;
+  } else {
+    // New timestamp, push new point
+    labels.push(label);
+    data.push(score);
+  }
 
+  // Keep only last 7 points
   if (labels.length > 7) {
     labels.shift();
     data.shift();
