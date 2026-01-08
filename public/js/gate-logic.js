@@ -8,34 +8,28 @@ if (window.__gatingInitialized) {
 }
 
 // ============================================================
-// SINGLE SOURCE OF TRUTH: window.__isProActive()
+// SINGLE SOURCE OF TRUTH: getUserTier()
 // ============================================================
-// Unified Pro check: success=1 OR localStorage.isPro OR (dev=1 && pro=1)
-window.__isProActive = function() {
+// Returns 'pro' if: URL has pro=1 OR localStorage tier indicates pro OR window.isProUser() exists and returns true
+window.getUserTier = function() {
   const params = new URLSearchParams(window.location.search);
-  const success = params.get("success") === "1";
-  const isProLS = localStorage.getItem("isPro") === "true";
-  const dev = params.get("dev") === "1";
-  const proParam = params.get("pro") === "1";
+  const urlPro = params.get("pro") === "1";
+  const storedTier = localStorage.getItem("userTier");
+  const isProUser = window.isProUser && typeof window.isProUser === "function" && window.isProUser();
   
-  // Dev mode: treat pro=1 as Pro ONLY when dev=1 is present
-  const devPro = dev && proParam;
-  
-  // Production: success=1 OR localStorage.isPro
-  const productionPro = success || isProLS;
-  
-  const proActive = devPro || productionPro;
-  
-  // Set localStorage early if dev=1&pro=1 (for persistence while testing)
-  if (devPro) {
-    localStorage.setItem("isPro", "true");
-    localStorage.setItem("vbProUnlocked", "true");
+  // Check all sources
+  if (urlPro || storedTier === "pro" || isProUser) {
+    return "pro";
   }
   
-  // Console log (minimal)
-  console.log("[GATING] proActive=", proActive, {success, isProLS, dev, proParam});
-  
-  return proActive;
+  return storedTier || "free";
+};
+
+// ============================================================
+// BACKWARD COMPATIBILITY: window.__isProActive()
+// ============================================================
+window.__isProActive = function() {
+  return window.getUserTier() === "pro";
 };
 
 // Initialize entitlements (for backward compatibility)
@@ -99,33 +93,14 @@ const stripeLinks = {
   "pro": "https://buy.stripe.com/3cI00idzK9vD8oacqo5os02"
 };
 
-const BLUR_TARGET_SELECTOR = "#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card";
-
+// DEPRECATED: Use refreshGatingUI() instead
+// Keeping for backward compatibility but will be removed
 function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
   if (window.__isProActive()) return;
-
-  document.body.style.overflow = "auto";
-  document.documentElement.style.overflow = "auto";
-  document.body.style.position = "relative";
-  document.body.style.height = "auto";
-
-  setTimeout(() => {
-    const targets = document.querySelectorAll(BLUR_TARGET_SELECTOR);
-    if (!targets.length) return;
-
-    targets.forEach(el => {
-      el.style.filter = "blur(6px)";
-      el.style.opacity = "0.7";
-      // Keep pointer-events: none for blurred elements (they shouldn't be clickable)
-      // But ensure upload button/file picker are NOT inside these blurred elements
-      el.style.pointerEvents = "none";
-      el.style.transition = "filter 0.3s ease, opacity 0.3s ease";
-    });
-
-    if (logMessage) {
-      console.log("🎯 Final blur applied after chart render");
-    }
-  }, delay);
+  // Delegate to unified gating system
+  if (window.refreshGatingUI) {
+    setTimeout(() => window.refreshGatingUI(), delay);
+  }
 }
 
 // ============================================================

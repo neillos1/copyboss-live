@@ -11164,6 +11164,7 @@ async function saveAnalysisResult(score) {
   }
 }
 </style>
+<script src="/js/gating-unified.js?v=1"></script>
 <script src="/js/gate-logic.js?v=probuild"></script>
 <script src="/js/app-v4.js?v=final"></script>
 <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
@@ -11850,16 +11851,17 @@ footer .social-link .fa-brands {
 
 <script>
 // === CLEAN ANALYZER GAP FIX ===
+// Fixed: Use padding-top instead of transform to prevent layout issues
 // Desktop-only. No wrapper collapsing. No sidebar breaking.
-// Simply measures the gap and gently shifts the analyzer content.
 
-window.addEventListener('load', function () {
+window.addEventListener('DOMContentLoaded', function () {
   try {
     var header = document.getElementById('cb-header');
     var main = document.querySelector('.analyzer-wrapper');
+    var nav = document.querySelector('nav, .navbar, #cb-header');
 
-    if (!header || !main) {
-      console.warn('[ANALYZER GAP FIX] Cannot find header or analyzer-wrapper.');
+    if (!nav || !main) {
+      console.warn('[ANALYZER GAP FIX] Cannot find nav or analyzer-wrapper.');
       return;
     }
 
@@ -11869,41 +11871,17 @@ window.addEventListener('load', function () {
       return;
     }
 
-    // Reset any previous adjustments
-    main.style.transform = '';
-    main.style.paddingTop = '';
-
+    // Measure navbar height and set CSS variable + padding-top (no transform)
     window.requestAnimationFrame(function () {
-      var headerRect = header.getBoundingClientRect();
-      var mainRect = main.getBoundingClientRect();
-
-      var headerBottom = headerRect.bottom;
-      var mainTop = mainRect.top;
-      var rawGap = mainTop - headerBottom;
-
-      console.log('[ANALYZER GAP FIX] Raw gap:', rawGap);
-
-      if (rawGap <= 0 || rawGap > 2000) {
-        console.log('[ANALYZER GAP FIX] Gap outside expected range — no shift.');
-        return;
-      }
-
-      var desiredOffset = 64; // space under navbar
-      var shiftAmount = rawGap - desiredOffset;
-
-      if (shiftAmount < 0) shiftAmount = 0;
-      if (shiftAmount > 800) shiftAmount = 800;
-
-      if (shiftAmount > 0) {
-        var offset = -shiftAmount;
-        main.style.transform = 'translateY(' + offset + 'px)';
-        main.style.willChange = 'transform';
-        main.style.paddingTop = desiredOffset + 'px';
-
-        console.log('[ANALYZER GAP FIX] translateY applied:', offset + 'px');
-      } else {
-        console.log('[ANALYZER GAP FIX] No shift needed.');
-      }
+      var navHeight = nav.offsetHeight || 64;
+      document.documentElement.style.setProperty('--nav-h', navHeight + 'px');
+      
+      // Apply padding-top to main content wrapper (no transform)
+      main.style.paddingTop = navHeight + 'px';
+      main.style.marginTop = '0';
+      main.style.transform = 'none';
+      
+      console.log('[ANALYZER GAP FIX] Applied padding-top:', navHeight + 'px');
     });
 
   } catch (e) {

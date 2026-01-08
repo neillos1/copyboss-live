@@ -393,6 +393,22 @@ body.pro-active .pro-blur {
   height: auto !important;
 }
 
+/* Fix analyzer wrapper gap - use CSS variable for nav height */
+.analyzer-wrapper {
+  padding-top: var(--nav-h, 64px) !important;
+  margin-top: 0 !important;
+  transform: none !important;
+}
+
+/* Ensure no extra spacing from hidden elements */
+.analyzer-wrapper > [style*="display: none"],
+.analyzer-wrapper > [style*="visibility: hidden"] {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 /* 1️⃣ Force all wrappers/containers to allow full scroll when Pro active */
 body.pro-active [class*="wrapper"],
 body.pro-active [class*="container"],

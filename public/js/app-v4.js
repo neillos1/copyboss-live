@@ -517,98 +517,16 @@ console.log("🧩 Analyzer gating logic active");
   const isPro = window.__isProActive ? window.__isProActive() : false;
   
   // Function to apply blur to locked elements
-  const applyBlurToLocked = () => {
-    if (isPro) return; // Skip if Pro user
-    
-    const lockedGaugeIds = ['#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard'];
-    const lockedCardIds = ['#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card'];
-    
-    let blurredCount = 0;
-    
-    // Apply blur to locked gauges
-    lockedGaugeIds.forEach(id => {
-      const el = document.querySelector(id);
-      if (el && !el.style.filter.includes('blur(6px)')) {
-        el.style.filter = 'blur(6px)';
-        el.style.opacity = '0.7';
-        el.style.pointerEvents = 'none';
-        el.style.transition = 'all 0.3s ease';
-        blurredCount++;
-      }
-    });
-    
-    // Apply blur to locked result cards
-    lockedCardIds.forEach(id => {
-      const el = document.querySelector(id);
-      if (el && !el.style.filter.includes('blur(6px)')) {
-        el.style.filter = 'blur(6px)';
-        el.style.opacity = '0.7';
-        el.style.pointerEvents = 'none';
-        el.style.transition = 'all 0.3s ease';
-        blurredCount++;
-      }
-    });
-    
-    if (blurredCount > 0) {
-      console.log(`🎯 Gating blur active — ${blurredCount} elements blurred`);
-    }
-  };
-  
-  // Run immediately if DOM is ready, otherwise wait
-  const runBlurEnforcement = () => {
-    if (isPro) {
-      console.log("✅ Blur removed for Pro user");
-      return;
-    }
-    
-    applyBlurToLocked();
-    
-    // MutationObserver to reapply blur if elements appear late
-    if (!window.__blurObserverActive) {
-      window.__blurObserverActive = true;
-      const observer = new MutationObserver(() => {
-        if (!isPro) {
-          applyBlurToLocked();
-        }
+  // DISABLED: Old blur enforcement replaced by unified gating system
+  // Delegate to refreshGatingUI() from gating-unified.js
+  if (window.refreshGatingUI) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        window.refreshGatingUI();
       });
-      
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: false
-      });
-      
-      // Check every 500ms for late-rendered elements
-      const intervalId = setInterval(() => {
-        if (isPro) {
-          clearInterval(intervalId);
-          observer.disconnect();
-          window.__blurObserverActive = false;
-        } else {
-          applyBlurToLocked();
-        }
-      }, 500);
-      
-      // Defensive fallback: reapply after 1.5s if blur is missing
-      setTimeout(() => {
-        if (!isPro) {
-          const allLocked = document.querySelectorAll('#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card');
-          const needsBlur = Array.from(allLocked).filter(el => !el.style.filter.includes('blur(6px)'));
-          if (needsBlur.length > 0) {
-            console.log(`🔄 Defensive blur reapply — ${needsBlur.length} elements missing blur`);
-            applyBlurToLocked();
-          }
-        }
-      }, 1500);
+    } else {
+      window.refreshGatingUI();
     }
-  };
-  
-  // Execute immediately if DOM is ready, otherwise wait for DOMContentLoaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runBlurEnforcement);
-  } else {
-    // DOM is already ready (interactive or complete)
-    runBlurEnforcement();
   }
 })();
 
@@ -2390,11 +2308,7 @@ setTimeout(() => {
 setTimeout(() => {
   console.log("🚀 Forcing full analyzer render for production build...");
 
-  // Check if user is Pro before removing any locks
-  const proActive = window.__isProActive ? window.__isProActive() : false;
-
   // Remove only bad global blockers (NOT gating overlays)
-  // DO NOT remove .locked-overlay (that's gating, not a blocker)
   const overlays = document.querySelectorAll(
     ".pro-upgrade-popup, .global-lock-overlay"
   );
@@ -2407,23 +2321,9 @@ setTimeout(() => {
     el.style.display = "block";
   });
 
-  // DO NOT override gating styles unless user is Pro
-  // Only remove locks/blur if user is Pro
-  if (proActive) {
-    // User is Pro: remove locks and blur
-    document.querySelectorAll(".locked-overlay").forEach(el => {
-      el.style.display = "none";
-      el.style.visibility = "hidden";
-    });
-    document.querySelectorAll(".report-card, .gauge-container, .pro-locked-results").forEach(el => {
-      el.style.filter = "none";
-      el.style.pointerEvents = "auto";
-      el.style.opacity = "1";
-    });
-    console.log("✅ Pro user: locks and blur removed");
-  } else {
-    // Free user: preserve locks and blur (DO NOT override)
-    console.log("✅ Free user: gating preserved (locks/blur intact)");
+  // Gating is handled by unified refreshGatingUI() - do not interfere
+  if (window.refreshGatingUI) {
+    window.refreshGatingUI();
   }
 
   console.log("✅ All charts forced visible for production.");
