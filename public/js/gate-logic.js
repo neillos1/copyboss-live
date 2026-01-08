@@ -3,10 +3,25 @@ console.log("🔐 Gate logic loaded:", {});
 // 🚫 TEMPORARILY DISABLE LEGACY BLUR UNLOCK (GT FIX)
 const __GT_DISABLE_BLUR_UNLOCK = true;
 
-const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
-// Strict Pro check: only treat as Pro when success=1 or localStorage.isPro === "true"
+// DEV-ONLY Pro simulation (only active when ?dev=1 is present)
 const urlParams = new URLSearchParams(window.location.search);
-const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true";
+const devMode = urlParams.get("dev") === "1";
+const devForcePro = devMode && urlParams.get("pro") === "1";
+
+// If devForcePro is true, set localStorage so it persists while testing
+if (devForcePro) {
+  localStorage.setItem("isPro", "true");
+}
+
+// Single boolean for Pro user check (dev mode OR production)
+const isProUser = devForcePro || localStorage.getItem("isPro") === "true";
+
+// Legacy isPro variable (for backward compatibility with existing code)
+const isPro = urlParams.get("success") === "1" || isProUser;
+
+console.log("[DEV] devMode:", devMode, "devForcePro:", devForcePro, "isPro:", localStorage.getItem("isPro"));
+
+const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 
 // Gate check function for analysis
 window.cbCanAnalyze = function() {
@@ -15,7 +30,7 @@ window.cbCanAnalyze = function() {
     return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
   }
   
-  const isProActive = localStorage.getItem('isPro') === 'true';
+  const isProActive = devForcePro || localStorage.getItem('isPro') === 'true';
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   const hasCredits = credits > 0;
   const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
@@ -37,8 +52,17 @@ window.cbCanAnalyze = function() {
 
 console.log("🔍 Gating detection:", {
   successParam: urlParams.get("success"),
-  localStorageIsPro: localStorage.getItem("isPro")
+  localStorageIsPro: localStorage.getItem("isPro"),
+  devMode: devMode,
+  devForcePro: devForcePro
 });
+
+// DEV helper for manual toggling in console
+window.setDevPro = (on) => {
+  localStorage.setItem("isPro", on ? "true" : "false");
+  console.log("isPro now:", localStorage.getItem("isPro"));
+  console.log("⚠️ Reload page for changes to take effect");
+};
 
 const stripeLinks = {
   "2reports": "https://buy.stripe.com/3cI6oG1R25fn5bY6205os01",
@@ -49,8 +73,7 @@ const stripeLinks = {
 const BLUR_TARGET_SELECTOR = "#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card";
 
 function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
-  const params = new URLSearchParams(window.location.search);
-  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
+  const proActive = urlParams.get("success") === "1" || isProUser;
   if (proActive) return;
 
   document.body.style.overflow = "auto";
@@ -154,8 +177,7 @@ if (!isPro) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ Gate logic initialized");
 
-  const params = new URLSearchParams(window.location.search);
-  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
+  const proActive = urlParams.get("success") === "1" || isProUser;
   const proElements = document.querySelectorAll("[data-pro='true']");
 
   // 🧠 For non-Pro users - apply blur to locked elements
