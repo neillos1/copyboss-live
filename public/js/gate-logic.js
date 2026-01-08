@@ -24,14 +24,21 @@ if (window.__gatingInitialized) {
     
     if (devPro && !devFree) {
       window.__entitlements = { isPro: true, source: "dev" };
+      // Optional: set localStorage for persistence while testing
+      localStorage.setItem("isPro", "true");
     } else {
       window.__entitlements = { isPro: false, source: "dev" };
     }
   } else {
-    // Production-like (no dev=1): Default to Free
-    // Do NOT treat success=1 or localStorage as Pro
-    // Do NOT set localStorage.isPro anywhere
-    window.__entitlements = { isPro: false, source: "production" };
+    // Production: Check success=1 and localStorage.isPro (real Stripe logic)
+    const successPro = params.get("success") === "1";
+    const localStoragePro = localStorage.getItem("isPro") === "true";
+    
+    if (successPro || localStoragePro) {
+      window.__entitlements = { isPro: true, source: "production" };
+    } else {
+      window.__entitlements = { isPro: false, source: "production" };
+    }
   }
   
   // Dev-only logs

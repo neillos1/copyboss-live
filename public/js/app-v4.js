@@ -2392,26 +2392,24 @@ setTimeout(() => {
 setTimeout(() => {
   console.log("🚀 Forcing full analyzer render for production build...");
 
-  // Remove any global overlay that blocks clicks
+  // Remove only bad global blockers (NOT gating overlays)
+  // DO NOT remove .locked-overlay (that's gating, not a blocker)
   const overlays = document.querySelectorAll(
-    ".pro-upgrade-popup, .global-lock-overlay, .locked-overlay"
+    ".pro-upgrade-popup, .global-lock-overlay"
   );
   overlays.forEach(el => el.remove());
 
-  // Force all ApexCharts to display
+  // Force all ApexCharts to display (keep chart visibility forcing intact)
   document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
     el.style.opacity = "1";
     el.style.visibility = "visible";
     el.style.display = "block";
   });
 
-  // Ensure gauge boxes and results cards show normally
-  document.querySelectorAll(".report-card, .gauge-container").forEach(el => {
-    el.style.filter = "none";
-    el.style.pointerEvents = "auto";
-  });
+  // DO NOT override gating styles on .report-card/.gauge-container
+  // Gating logic controls filter/pointer-events, not this reset
 
-  console.log("✅ All charts and gauges forced visible for production.");
+  console.log("✅ All charts forced visible for production (gating preserved).");
 }, 1500);
 
 // ✅ FINAL FALLBACK: Manually inject ApexCharts CSS if missing
