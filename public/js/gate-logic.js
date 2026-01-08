@@ -1,12 +1,55 @@
 console.log("🔐 Gate logic loaded:", {});
 
+// Init guard: prevent multiple initializations
+if (window.__gatingInitialized) {
+  console.warn("[GATING] Already initialized, skipping");
+} else {
+  window.__gatingInitialized = true;
+}
+
+// ============================================================
+// SINGLE SOURCE OF TRUTH: window.__entitlements
+// ============================================================
+(function initEntitlements() {
+  const params = new URLSearchParams(window.location.search);
+  const devMode = params.get("dev") === "1";
+  
+  // Initialize entitlements object
+  window.__entitlements = { isPro: false, source: "none" };
+  
+  if (devMode) {
+    // Dev-only rules
+    const devPro = params.get("pro") === "1";
+    const devFree = params.get("free") === "1";
+    
+    if (devPro && !devFree) {
+      window.__entitlements = { isPro: true, source: "dev" };
+    } else {
+      window.__entitlements = { isPro: false, source: "dev" };
+    }
+  } else {
+    // Production-like (no dev=1): Default to Free
+    // Do NOT treat success=1 or localStorage as Pro
+    // Do NOT set localStorage.isPro anywhere
+    window.__entitlements = { isPro: false, source: "production" };
+  }
+  
+  // Dev-only logs
+  if (devMode) {
+    console.log("[ENTITLEMENTS]", window.__entitlements);
+    console.log("[GATING] isPro", window.isPro());
+  }
+})();
+
+// Expose helper function
+window.isPro = function() {
+  return Boolean(window.__entitlements?.isPro);
+};
+
 // 🚫 TEMPORARILY DISABLE LEGACY BLUR UNLOCK (GT FIX)
 const __GT_DISABLE_BLUR_UNLOCK = true;
 
 const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
-// Strict Pro check: only treat as Pro when success=1 or localStorage.isPro === "true"
-const urlParams = new URLSearchParams(window.location.search);
-const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true";
 
 // Gate check function for analysis
 window.cbCanAnalyze = function() {
@@ -15,7 +58,7 @@ window.cbCanAnalyze = function() {
     return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
   }
   
-  const isProActive = localStorage.getItem('isPro') === 'true';
+  const isProActive = window.isPro();
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   const hasCredits = credits > 0;
   const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
@@ -35,10 +78,14 @@ window.cbCanAnalyze = function() {
   return { allowed: false, reason: 'No credits, free upload used, not Pro' };
 };
 
-console.log("🔍 Gating detection:", {
-  successParam: urlParams.get("success"),
-  localStorageIsPro: localStorage.getItem("isPro")
-});
+// Gating detection log (dev-only)
+const params = new URLSearchParams(window.location.search);
+if (params.get("dev") === "1") {
+  console.log("🔍 Gating detection:", {
+    entitlements: window.__entitlements,
+    isPro: window.isPro()
+  });
+}
 
 const stripeLinks = {
   "2reports": "https://buy.stripe.com/3cI6oG1R25fn5bY6205os01",
@@ -49,9 +96,7 @@ const stripeLinks = {
 const BLUR_TARGET_SELECTOR = "#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card";
 
 function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
-  const params = new URLSearchParams(window.location.search);
-  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
-  if (proActive) return;
+  if (window.isPro()) return;
 
   document.body.style.overflow = "auto";
   document.documentElement.style.overflow = "auto";
@@ -80,12 +125,11 @@ function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
 // ============================================================
 // ✅ FINAL PRO UNLOCK FIX — removes all blur permanently
 // ============================================================
-if (!isPro) {
+if (!window.isPro()) {
   console.log("🚫 Free user — blur removal blocked (final global guard)");
 } else if (!__GT_DISABLE_BLUR_UNLOCK) {
-  console.log("🎉 Stripe success detected — unlocking Pro...");
-  localStorage.setItem("vbProUnlocked", "true");
-  localStorage.setItem("isPro", "true");
+  console.log("🎉 Pro user detected — unlocking...");
+  // DO NOT set localStorage.isPro (entitlements are source of truth)
 
   const unlockAll = () => {
     // HARD BLOCK if Graph Help is open
@@ -154,8 +198,7 @@ if (!isPro) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ Gate logic initialized");
 
-  const params = new URLSearchParams(window.location.search);
-  const proActive = params.get("success") === "1" || localStorage.getItem("isPro") === "true";
+  const proActive = window.isPro();
   const proElements = document.querySelectorAll("[data-pro='true']");
 
   // 🧠 For non-Pro users - apply blur to locked elements

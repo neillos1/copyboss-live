@@ -513,8 +513,8 @@ console.log("🧩 Analyzer gating logic active");
 // Only removes blur when success=1 is detected
 // ============================================================
 (function enforceGatingBlur() {
-  // Check if user is Pro (only success=1 unlocks, not localStorage alone)
-  const isPro = window.location.search.includes("success=1");
+  // Use single source of truth for Pro check
+  const isPro = window.isPro ? window.isPro() : false;
   
   // Function to apply blur to locked elements
   const applyBlurToLocked = () => {
@@ -620,7 +620,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     try {
       // Check if user is Pro - only run cleanup for Pro users
       const urlParams = new URLSearchParams(window.location.search);
-      const isPro = urlParams.get("success") === "1" || localStorage.getItem("isPro") === "true" || localStorage.getItem("vbProUnlocked") === "true";
+      const isPro = window.isPro ? window.isPro() : false;
       
       if (!isPro) {
         console.log("🚫 Free user — skipping inline cleanup");
@@ -652,19 +652,14 @@ document.addEventListener("DOMContentLoaded",()=>{
 // AUTOMATIC PRO UNLOCK ON SUCCESS
 // ========================
 window.addEventListener("DOMContentLoaded", ()=>{
-  // Force Pro unlock if success=1 is in URL
-  if (window.location.search.includes("success=1")) {
-    console.log("💎 Forced Pro preview mode active");
-    localStorage.setItem("isPro","true");
-  }
+  // Use single source of truth for Pro check
+  // DO NOT set localStorage.isPro (entitlements are source of truth)
+  const isPro = window.isPro ? window.isPro() : false;
   
-  const params = new URLSearchParams(window.location.search);
-  
-  // ONLY run blur removal when success=1 is explicitly present
-  if(params.get("success")==="1"){
-    console.log("🎉 Stripe success detected — unlocking Pro...");
-    localStorage.setItem("vbProUnlocked","true");
-    localStorage.setItem("isPro","true");
+  // ONLY run blur removal when Pro is true
+  if (isPro) {
+    console.log("🎉 Pro user detected — unlocking...");
+    // DO NOT set localStorage.isPro (entitlements are source of truth)
     
     // ============================================================
     // 🧼 FINAL BLUR CLEANER — ONLY RUNS WHEN success=1
@@ -720,7 +715,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
     // NOTE: Final Blur Cleaner already ran above (immediately after success detection).
     // The delayed blur removal passes below are supplementary cleanup for late-rendered elements.
     (function cbDelayedBlurCleanup(){
-      if (!location.search.includes('success=1')) return;
+      if (!window.isPro || !window.isPro()) return;
       console.log('🧼 Delayed Blur Cleanup: Running supplementary passes for late renders');
       try {
         function removeAllBlur(){
@@ -1483,7 +1478,7 @@ let userTier = 'free'; // Default tier: free, reports2, reports15, pro
 function initializeUserTier() {
   try {
     const storedTier = localStorage.getItem('userTier');
-    const isPro = localStorage.getItem('isPro') === 'true';
+    const isPro = window.isPro ? window.isPro() : false;
     
     if (isPro) {
       userTier = 'pro';
@@ -1513,11 +1508,8 @@ function updateUserTier(newTier) {
     userTier = newTier;
     localStorage.setItem('userTier', newTier);
     
-    if (newTier === 'pro') {
-      localStorage.setItem('isPro', 'true');
-    } else {
-      localStorage.setItem('isPro', 'false');
-    }
+    // DO NOT set localStorage.isPro (entitlements are source of truth)
+    // Entitlements are managed by gate-logic.js
     
     console.log("User Tier Updated:", userTier);
     
