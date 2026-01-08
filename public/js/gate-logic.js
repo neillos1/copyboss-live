@@ -8,49 +8,48 @@ if (window.__gatingInitialized) {
 }
 
 // ============================================================
-// SINGLE SOURCE OF TRUTH: window.__entitlements
+// SINGLE SOURCE OF TRUTH: window.__isProActive()
 // ============================================================
-(function initEntitlements() {
+// Unified Pro check: success=1 OR localStorage.isPro OR (dev=1 && pro=1)
+window.__isProActive = function() {
   const params = new URLSearchParams(window.location.search);
-  const devMode = params.get("dev") === "1";
+  const success = params.get("success") === "1";
+  const isProLS = localStorage.getItem("isPro") === "true";
+  const dev = params.get("dev") === "1";
+  const proParam = params.get("pro") === "1";
   
-  // Initialize entitlements object
-  window.__entitlements = { isPro: false, source: "none" };
+  // Dev mode: treat pro=1 as Pro ONLY when dev=1 is present
+  const devPro = dev && proParam;
   
-  if (devMode) {
-    // Dev-only rules
-    const devPro = params.get("pro") === "1";
-    const devFree = params.get("free") === "1";
-    
-    if (devPro && !devFree) {
-      window.__entitlements = { isPro: true, source: "dev" };
-      // Optional: set localStorage for persistence while testing
-      localStorage.setItem("isPro", "true");
-    } else {
-      window.__entitlements = { isPro: false, source: "dev" };
-    }
-  } else {
-    // Production: Check success=1 and localStorage.isPro (real Stripe logic)
-    const successPro = params.get("success") === "1";
-    const localStoragePro = localStorage.getItem("isPro") === "true";
-    
-    if (successPro || localStoragePro) {
-      window.__entitlements = { isPro: true, source: "production" };
-    } else {
-      window.__entitlements = { isPro: false, source: "production" };
-    }
+  // Production: success=1 OR localStorage.isPro
+  const productionPro = success || isProLS;
+  
+  const proActive = devPro || productionPro;
+  
+  // Set localStorage early if dev=1&pro=1 (for persistence while testing)
+  if (devPro) {
+    localStorage.setItem("isPro", "true");
+    localStorage.setItem("vbProUnlocked", "true");
   }
   
-  // Dev-only logs
-  if (devMode) {
-    console.log("[ENTITLEMENTS]", window.__entitlements);
-    console.log("[GATING] isPro", window.isPro());
-  }
+  // Console log (minimal)
+  console.log("[GATING] proActive=", proActive, {success, isProLS, dev, proParam});
+  
+  return proActive;
+};
+
+// Initialize entitlements (for backward compatibility)
+(function initEntitlements() {
+  const proActive = window.__isProActive();
+  window.__entitlements = { 
+    isPro: proActive, 
+    source: proActive ? "active" : "none" 
+  };
 })();
 
-// Expose helper function
+// Expose helper function (for backward compatibility)
 window.isPro = function() {
-  return Boolean(window.__entitlements?.isPro);
+  return window.__isProActive();
 };
 
 // 🚫 TEMPORARILY DISABLE LEGACY BLUR UNLOCK (GT FIX)
@@ -65,7 +64,7 @@ window.cbCanAnalyze = function() {
     return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
   }
   
-  const isProActive = window.isPro();
+  const isProActive = window.__isProActive();
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   const hasCredits = credits > 0;
   const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
@@ -103,7 +102,7 @@ const stripeLinks = {
 const BLUR_TARGET_SELECTOR = "#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card";
 
 function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
-  if (window.isPro()) return;
+  if (window.__isProActive()) return;
 
   document.body.style.overflow = "auto";
   document.documentElement.style.overflow = "auto";
@@ -132,7 +131,7 @@ function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
 // ============================================================
 // ✅ FINAL PRO UNLOCK FIX — removes all blur permanently
 // ============================================================
-if (!window.isPro()) {
+if (!window.__isProActive()) {
   console.log("🚫 Free user — blur removal blocked (final global guard)");
 } else if (!__GT_DISABLE_BLUR_UNLOCK) {
   console.log("🎉 Pro user detected — unlocking...");
@@ -205,7 +204,7 @@ if (!window.isPro()) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ Gate logic initialized");
 
-  const proActive = window.isPro();
+  const proActive = window.__isProActive();
   const proElements = document.querySelectorAll("[data-pro='true']");
 
   // 🧠 For non-Pro users - apply blur to locked elements

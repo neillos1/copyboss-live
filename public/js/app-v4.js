@@ -514,7 +514,7 @@ console.log("🧩 Analyzer gating logic active");
 // ============================================================
 (function enforceGatingBlur() {
   // Use single source of truth for Pro check
-  const isPro = window.isPro ? window.isPro() : false;
+  const isPro = window.__isProActive ? window.__isProActive() : false;
   
   // Function to apply blur to locked elements
   const applyBlurToLocked = () => {
@@ -619,8 +619,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   (() => {
     try {
       // Check if user is Pro - only run cleanup for Pro users
-      const urlParams = new URLSearchParams(window.location.search);
-      const isPro = window.isPro ? window.isPro() : false;
+      const isPro = window.__isProActive ? window.__isProActive() : false;
       
       if (!isPro) {
         console.log("🚫 Free user — skipping inline cleanup");
@@ -653,8 +652,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 // ========================
 window.addEventListener("DOMContentLoaded", ()=>{
   // Use single source of truth for Pro check
-  // DO NOT set localStorage.isPro (entitlements are source of truth)
-  const isPro = window.isPro ? window.isPro() : false;
+  const isPro = window.__isProActive ? window.__isProActive() : false;
   
   // ONLY run blur removal when Pro is true
   if (isPro) {
@@ -715,7 +713,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
     // NOTE: Final Blur Cleaner already ran above (immediately after success detection).
     // The delayed blur removal passes below are supplementary cleanup for late-rendered elements.
     (function cbDelayedBlurCleanup(){
-      if (!window.isPro || !window.isPro()) return;
+      if (!window.__isProActive || !window.__isProActive()) return;
       console.log('🧼 Delayed Blur Cleanup: Running supplementary passes for late renders');
       try {
         function removeAllBlur(){
@@ -1478,7 +1476,7 @@ let userTier = 'free'; // Default tier: free, reports2, reports15, pro
 function initializeUserTier() {
   try {
     const storedTier = localStorage.getItem('userTier');
-    const isPro = window.isPro ? window.isPro() : false;
+    const isPro = window.__isProActive ? window.__isProActive() : false;
     
     if (isPro) {
       userTier = 'pro';
@@ -2392,6 +2390,9 @@ setTimeout(() => {
 setTimeout(() => {
   console.log("🚀 Forcing full analyzer render for production build...");
 
+  // Check if user is Pro before removing any locks
+  const proActive = window.__isProActive ? window.__isProActive() : false;
+
   // Remove only bad global blockers (NOT gating overlays)
   // DO NOT remove .locked-overlay (that's gating, not a blocker)
   const overlays = document.querySelectorAll(
@@ -2406,10 +2407,26 @@ setTimeout(() => {
     el.style.display = "block";
   });
 
-  // DO NOT override gating styles on .report-card/.gauge-container
-  // Gating logic controls filter/pointer-events, not this reset
+  // DO NOT override gating styles unless user is Pro
+  // Only remove locks/blur if user is Pro
+  if (proActive) {
+    // User is Pro: remove locks and blur
+    document.querySelectorAll(".locked-overlay").forEach(el => {
+      el.style.display = "none";
+      el.style.visibility = "hidden";
+    });
+    document.querySelectorAll(".report-card, .gauge-container, .pro-locked-results").forEach(el => {
+      el.style.filter = "none";
+      el.style.pointerEvents = "auto";
+      el.style.opacity = "1";
+    });
+    console.log("✅ Pro user: locks and blur removed");
+  } else {
+    // Free user: preserve locks and blur (DO NOT override)
+    console.log("✅ Free user: gating preserved (locks/blur intact)");
+  }
 
-  console.log("✅ All charts forced visible for production (gating preserved).");
+  console.log("✅ All charts forced visible for production.");
 }, 1500);
 
 // ✅ FINAL FALLBACK: Manually inject ApexCharts CSS if missing
