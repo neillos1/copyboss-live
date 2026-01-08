@@ -800,61 +800,8 @@ function sanitizeSeries(series) {
 
 function qs(sel) { return document.querySelector(sel); }
 
-// Create fallback Pro popup if missing
-function createFallbackProPopup() {
-  let popup = document.querySelector("#proUnlockPopup, #proPopup, .pro-popup, .upgrade-modal, .pro-upgrade-modal, .pro-upgrade-popup");
-  
-  if (!popup) {
-    console.log("💎 Creating fallback Pro popup...");
-    popup = document.createElement('div');
-    popup.id = 'proUnlockPopup';
-    popup.className = 'pro-upgrade-popup';
-    popup.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        opacity: 1;
-        visibility: visible;
-      ">
-        <div style="
-          background: white;
-          padding: 2rem;
-          border-radius: 12px;
-          text-align: center;
-          max-width: 400px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        ">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
-          <h2 style="color: #10b981; margin-bottom: 1rem;">You've unlocked Pro!</h2>
-          <p style="color: #666; margin-bottom: 1.5rem;">All features are now available.</p>
-          <button onclick="this.closest('#proUnlockPopup').remove()" style="
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-          ">Got it!</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(popup);
-    console.log("💎 Fallback Pro popup displayed");
-  } else {
-    console.log("💎 Pro popup element successfully detected.");
-  }
-  
-  return popup;
-}
+// DISABLED: Legacy fallback popup removed - using SweetAlert only
+// function createFallbackProPopup() { ... }
 
 // ========================
 // PERSISTENT DOM MUTATION OBSERVER
@@ -1047,18 +994,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🌑 Remove any dark overlay layers (but NOT upgrade modals)
   const overlays = document.querySelectorAll("div[style*='background-color: rgba'], .apexcharts-css, .dark-overlay, .overlay");
   overlays.forEach(el => {
-    // Skip upgrade modals - never remove active upgrade modals
-    if (el.id === 'proUnlockPopup' || el.id === 'proPopup' || 
-        el.classList.contains('pro-upgrade-popup') || 
+    // Skip upgrade modals - never remove active upgrade modals (SweetAlert or injected)
+    if (el.id === 'proPopup' || 
         el.classList.contains('pro-upgrade-modal') ||
-        el.classList.contains('cb-upgrade-modal')) {
-      // Only remove if hidden/legacy
-      const computed = getComputedStyle(el);
-      if (computed.display === 'none' || computed.visibility === 'hidden') {
-        el.remove();
-        console.log("✅ Removed hidden legacy upgrade modal:", el.id || el.className);
-      }
+        el.classList.contains('cb-upgrade-modal') ||
+        el.classList.contains('swal2-container')) {
       return; // Skip active modals
+    }
+    // Remove any legacy pro-upgrade-popup elements (deprecated)
+    if (el.id === 'proUnlockPopup' || el.classList.contains('pro-upgrade-popup')) {
+      el.remove();
+      console.log("✅ Removed legacy upgrade popup:", el.id || el.className);
+      return;
     }
     el.remove();
   });
@@ -1217,148 +1164,8 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
   }
 })();
 
-// ========================
-// PRO UNLOCK POPUP FUNCTION (needed by immediate check)
-// ========================
-function showProUnlockPopup() {
-  try {
-    // Check if popup was already shown this session
-    if (localStorage.getItem('proPopupShown') === 'true') {
-      return;
-    }
-    
-    // Temporarily allow Pro popup logic to show even if __analyzerRendered is true
-    if (document.querySelector('.pro-upgrade-modal')) {
-      const popup = document.querySelector('.pro-upgrade-modal');
-      popup.style.display = 'flex';
-      popup.style.opacity = '1';
-      console.log('✅ Pro popup visible');
-      return;
-    }
-    
-    console.log("🎉 Pro Unlock Popup Shown");
-    
-    // Mark popup as shown
-    localStorage.setItem('proPopupShown', 'true');
-    
-    // ✅ Disabled default overlay creation to prevent permanent dark layer.
-    // // Create overlay
-    // const overlay = document.createElement('div');
-    // overlay.style.cssText = `
-    //   position: fixed;
-    //   top: 0;
-    //   left: 0;
-    //   width: 100%;
-    //   height: 100%;
-    //   background: rgba(0, 0, 0, 0.7);
-    //   z-index: 10000;
-    //   display: flex;
-    //   align-items: center;
-    //   justify-content: center;
-    //   opacity: 0;
-    //   transition: opacity 0.3s ease;
-    // `;
-    
-    // Create popup card
-    const popup = document.createElement('div');
-    popup.style.cssText = `
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 2px solid #00D4FF;
-      border-radius: 20px;
-      padding: 40px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 
-        0 20px 40px rgba(0, 212, 255, 0.3),
-        0 0 0 1px rgba(0, 212, 255, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transform: scale(1.1);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    `;
-    
-    // Add glow effect
-    const glow = document.createElement('div');
-    glow.style.cssText = `
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, #00D4FF, #0099CC, #00D4FF);
-      border-radius: 22px;
-      z-index: -1;
-      opacity: 0.6;
-      animation: glow 2s ease-in-out infinite alternate;
-    `;
-    
-    // Add glow animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes glow {
-        0% { opacity: 0.6; }
-        100% { opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-    
-    // Popup content
-    popup.innerHTML = `
-      <div style="font-size: 4rem; margin-bottom: 20px; animation: bounce 0.6s ease;">🎉</div>
-      <h2 style="color: #00D4FF; font-size: 1.8rem; font-weight: 700; margin: 0 0 15px 0; text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);">
-        You've unlocked Pro!
-      </h2>
-      <p style="color: #e5e7eb; font-size: 1.1rem; margin: 0; line-height: 1.5;">
-        All features are now available.
-      </p>
-    `;
-    
-    // Add bounce animation
-    const bounceStyle = document.createElement('style');
-    bounceStyle.textContent = `
-      @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0) scale(1.1); }
-        40% { transform: translateY(-10px) scale(1.1); }
-        60% { transform: translateY(-5px) scale(1.1); }
-      }
-    `;
-    document.head.appendChild(bounceStyle);
-    
-    // Assemble popup (overlay disabled)
-    popup.appendChild(glow);
-    // overlay.appendChild(popup);
-    // document.body.appendChild(overlay);
-    
-    // Animate in (overlay disabled)
-    setTimeout(() => {
-      // overlay.style.opacity = '1';
-      // popup.style.transform = 'scale(1)';
-    }, 50);
-    
-    // Auto-close after 4 seconds (overlay disabled)
-    setTimeout(() => {
-      // overlay.style.opacity = '0';
-      // popup.style.transform = 'scale(0.9)';
-      
-      setTimeout(() => {
-        // if (overlay.parentNode) {
-        //   overlay.parentNode.removeChild(overlay);
-        // }
-        if (style.parentNode) {
-          style.parentNode.removeChild(style);
-        }
-        if (bounceStyle.parentNode) {
-          bounceStyle.parentNode.removeChild(bounceStyle);
-        }
-      }, 300);
-    }, 4000);
-    
-  } catch (error) {
-    console.error('❌ Error showing Pro unlock popup:', error);
-  }
-}
+// DISABLED: Legacy popup function removed - using SweetAlert only
+// function showProUnlockPopup() { ... }
 
 // ========================
 // IMMEDIATE PRO URL CHECK
@@ -1389,7 +1196,7 @@ function showProUnlockPopup() {
         console.log('✅ Pro popup visible again');
       }
       
-      setTimeout(() => showProUnlockPopup(), 300);
+      // Legacy popup removed - using SweetAlert only
     }
   } catch (err) {
     console.error("Immediate Pro Unlock Error:", err);
@@ -2260,7 +2067,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         
         // Show success popup for Pro upgrades
         setTimeout(() => {
-          showProUnlockPopup();
+          // Legacy popup removed - using SweetAlert only
         }, 1000);
       } else if (plan === 'reports2') {
         updateUserTier('reports2');
@@ -2334,15 +2141,11 @@ setTimeout(() => {
     }
   });
   
-  // Remove hidden legacy proUnlockPopup (only if it's hidden/legacy)
-  const legacyPopup = document.getElementById('proUnlockPopup');
-  if (legacyPopup) {
-    const computed = getComputedStyle(legacyPopup);
-    if (computed.display === 'none' || computed.visibility === 'hidden') {
-      legacyPopup.remove();
-      console.log("✅ Removed hidden legacy proUnlockPopup");
-    }
-  }
+  // Remove any legacy proUnlockPopup elements (deprecated - using SweetAlert only)
+  document.querySelectorAll('#proUnlockPopup, .pro-upgrade-popup').forEach(el => {
+    el.remove();
+    console.log("✅ Removed legacy upgrade popup:", el.id || el.className);
+  });
 
   // Force all ApexCharts to display (keep chart visibility forcing intact)
   document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {

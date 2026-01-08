@@ -55,15 +55,7 @@
 
     <!-- ✅ FIRST PAINT: Hard-hide legacy upgrade popup (prevents flash on page load) -->
     <style id="legacy-upgrade-kill">
-      /* Hide ONLY specific legacy upgrade popup IDs at first paint */
-      /* These are static HTML elements that gate-logic.js/app-v4.js may toggle */
-      #proUnlockPopup,
-      #proPopup {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-      }
+      /* Legacy upgrade popup removed - using SweetAlert only */
       
       /* Hide any legacy upgradeModal (not the real injected one) */
       #upgradeModal:not(#cb-upgrade-modal) {
@@ -10416,10 +10408,8 @@ function canAnalyze() {
 (function() {
   function checkElements() {
     const legacyUpgrade = !!document.querySelector('#upgradeModal:not(#cb-upgrade-modal)');
-    const legacyProPopup = !!document.querySelector('#proUnlockPopup');
     const realModal = !!document.querySelector('#cb-upgrade-modal');
     console.log('[UPGRADE] legacy flash element (#upgradeModal) present:', legacyUpgrade);
-    console.log('[UPGRADE] legacy proUnlockPopup present:', legacyProPopup);
     console.log('[UPGRADE] real modal wrapper (#cb-upgrade-modal) present:', realModal);
   }
   
@@ -11169,12 +11159,7 @@ async function saveAnalysisResult(score) {
 <script src="/js/app-v4.js?v=final"></script>
 <audio id="mascotSound" src="/assets/audio/glass-shatter.mp3" preload="auto" hidden></audio>
 
-<!-- ✅ Fallback Pro Popup -->
-<div id="proUnlockPopup" class="pro-upgrade-popup" style="display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;">
-  <h2 style="margin-bottom:10px;">Upgrade to CopyBoss Pro</h2>
-  <p style="margin-bottom:20px;">Unlock all viral analysis metrics instantly.</p>
-  <button onclick="window.location.href='/pricing.html'" style="background:#7f5af0;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">Upgrade Now</button>
-</div>
+<!-- Legacy upgrade popup removed - using SweetAlert only -->
 
 
 <style id="final-ui-fix">
