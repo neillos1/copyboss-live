@@ -3127,7 +3127,8 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('[CHART] initial load using demo data (forceDemoChart enabled)');
   }
 
-  copyBossChart = buildCopyBossChart(savedLabels, savedScores);
+  window.copyBossChart = buildCopyBossChart(savedLabels, savedScores);
+  copyBossChart = window.copyBossChart; // Legacy reference for backward compatibility
 
   
 
@@ -9645,6 +9646,36 @@ function updateSidebarRank(average) {
   }
 
 
+ // Ensure chart is ready (creates/rebuilds if missing)
+ function ensureChartReady() {
+   // Check if chart instance exists
+   if (window.copyBossChart && typeof window.copyBossChart.update === 'function') {
+     return true;
+   }
+   
+   // Chart missing - rebuild it using same builder as page load
+   console.log('[CHART] Chart missing, rebuilding...');
+   
+   const defaultLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+   const defaultScores = [35, 50, 60, 45, 70, 55, 65];
+   
+   // Check if demo chart is forced
+   const forceDemo = window.__forceDemoChart || localStorage.getItem('forceDemoChart') === 'true';
+   const savedLabels = forceDemo ? defaultLabels : (JSON.parse(localStorage.getItem("copyBossLabels")) || defaultLabels);
+   const savedScores = forceDemo ? defaultScores : (JSON.parse(localStorage.getItem("copyBossScores")) || defaultScores);
+   
+   // Rebuild chart using unified builder
+   window.copyBossChart = buildCopyBossChart(savedLabels, savedScores);
+   
+   if (!window.copyBossChart) {
+     console.error('[CHART] Failed to rebuild chart');
+     return false;
+   }
+   
+   console.log('[CHART] Chart rebuilt successfully');
+   return true;
+ }
+
  // Internal chart update function (called by cbSetFinalViralScore)
  // Do not call directly - use cbSetFinalViralScore instead
  window.syncViralChartFromGemini = function (score, label) {
@@ -9654,8 +9685,15 @@ function updateSidebarRank(average) {
     return;
   }
   
-  if (typeof score !== "number" || !window.copyBossChart) {
-    console.warn("⚠️ Invalid score or chart missing");
+  // Validate score
+  if (typeof score !== "number" || !Number.isFinite(score)) {
+    console.warn("⚠️ Invalid score provided:", score);
+    return;
+  }
+  
+  // Ensure chart is ready (creates/rebuilds if missing)
+  if (!ensureChartReady()) {
+    console.warn("⚠️ Chart could not be created");
     return;
   }
 
@@ -9667,8 +9705,8 @@ function updateSidebarRank(average) {
     label = `${day} ${time}`;
   }
 
-  const labels = copyBossChart.data.labels;
-  const data = copyBossChart.data.datasets[0].data;
+  const labels = window.copyBossChart.data.labels;
+  const data = window.copyBossChart.data.datasets[0].data;
 
   // Check for duplicate (same label and score)
   if (labels[labels.length - 1] === label && data[data.length - 1] === score) {
@@ -9692,7 +9730,7 @@ function updateSidebarRank(average) {
     data.shift();
   }
 
-  copyBossChart.update();
+  window.copyBossChart.update();
 
   // Only save to localStorage if forceDemoChart is NOT enabled
   if (!window.__forceDemoChart && localStorage.getItem('forceDemoChart') !== 'true') {
@@ -9706,6 +9744,13 @@ function updateSidebarRank(average) {
 
   const avg = Math.round(data.reduce((a, b) => a + b, 0) / data.length);
   updateSidebarRank(avg);
+
+  // Dev-only logs (?dev=1)
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("dev") === "1") {
+    const latestPoint = data[data.length - 1];
+    console.log("[CHART_DEV] chartExists:", !!window.copyBossChart, "overallScoreInt:", score, "latestChartPointAfterUpdate:", latestPoint);
+  }
 
   console.log("📊 Viral chart updated:", score, "→", label);
 };
