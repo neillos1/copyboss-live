@@ -3,23 +3,143 @@ console.log("🔐 Gate logic loaded:", {});
 // 🚫 TEMPORARILY DISABLE LEGACY BLUR UNLOCK (GT FIX)
 const __GT_DISABLE_BLUR_UNLOCK = true;
 
-// DEV-ONLY Pro simulation (only active when ?dev=1 is present)
-const urlParams = new URLSearchParams(window.location.search);
-const devMode = urlParams.get("dev") === "1";
-const devForcePro = devMode && urlParams.get("pro") === "1";
+// Fix ReferenceError: ensure urlParams is defined
+const params = new URLSearchParams(window.location.search);
 
-// If devForcePro is true, set localStorage so it persists while testing
-if (devForcePro) {
-  localStorage.setItem("isPro", "true");
+// ============================================================
+// SINGLE SOURCE OF TRUTH: getEntitlements()
+// ============================================================
+function getEntitlements() {
+  // Dev mode rules (only active when ?dev=1 is present)
+  const devMode = params.get("dev") === "1";
+  
+  if (devMode) {
+    // Dev mode: check URL params
+    const devPro = params.get("pro") === "1";
+    const devFree = params.get("free") === "1";
+    const devCredits = params.get("credits");
+    
+    const isPro = devPro && !devFree; // pro=1 overrides free=1
+    const credits = devCredits ? Math.max(0, parseInt(devCredits)) : 0;
+    
+    // If devPro is true, set localStorage so it persists while testing
+    if (isPro) {
+      localStorage.setItem("isPro", "true");
+    } else if (devFree) {
+      localStorage.setItem("isPro", "false");
+    }
+    
+    return { isPro, credits };
+  }
+  
+  // Non-dev rules: read from backend user status if present, else localStorage
+  // Check for backend user status (if available)
+  const backendIsPro = window.userStatus?.isPro || window.userStatus?.tier === "pro" || window.userStatus?.plan === "pro";
+  const backendCredits = window.userStatus?.credits || window.userStatus?.reportCredits;
+  
+  if (backendIsPro !== undefined || backendCredits !== undefined) {
+    return {
+      isPro: backendIsPro === true,
+      credits: backendCredits ? Math.max(0, parseInt(backendCredits)) : 0
+    };
+  }
+  
+  // Fallback to localStorage keys
+  const isPro = localStorage.getItem("isPro") === "true" || params.get("success") === "1";
+  const credits = Math.max(0, parseInt(localStorage.getItem("reportCredits") || "0"));
+  
+  return { isPro, credits };
 }
 
-// Single boolean for Pro user check (dev mode OR production)
-const isProUser = devForcePro || localStorage.getItem("isPro") === "true";
+// ============================================================
+// APPLY ENTITLEMENTS: applyEntitlements(entitlements)
+// ============================================================
+function applyEntitlements(entitlements) {
+  const { isPro, credits } = entitlements;
+  
+  if (isPro) {
+    // Pro: remove blur + remove locks + enable PRO-only buttons
+    console.log("[GATING] Applying Pro entitlements - unlocking everything");
+    
+    const unlockAll = () => {
+      // HARD BLOCK if Graph Help is open
+      if (window.__graphHelpOpen) {
+        console.log("[applyEntitlements] blocked — graph help open");
+        return;
+      }
+      
+      // Remove blur from all locked elements
+      const elements = document.querySelectorAll(
+        "[data-pro='true'], .blurred, .pro-locked, .cb-card, .cb-gauge, .cb-report, .cb-result, " +
+        ".gauge-box.pro-locked, .pro-locked-results, .apexcharts-canvas, .apexcharts-inner, " +
+        ".apexcharts-svg, .apexcharts-radialbar, .apexcharts-radialbar path, .apexcharts-text"
+      );
+      
+      elements.forEach(el => {
+        // Protect graph help modal
+        if (el?.getAttribute?.('data-protected-modal') === 'graph-help' || 
+            el?.closest?.('[data-protected-modal="graph-help"]')) {
+          return;
+        }
+        // Remove blur/brightness/opacity filters
+        el.classList.remove("blurred", "pro-locked");
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+        el.style.transition = "none";
+        el.style.willChange = "auto";
+      });
+      
+      // Hide locked overlays
+      document.querySelectorAll(".locked-overlay").forEach(overlay => {
+        overlay.style.display = "none";
+        overlay.style.visibility = "hidden";
+      });
+      
+      // Remove upgrade buttons
+      document.querySelectorAll(".btn-upgrade").forEach(btn => btn.remove());
+      
+      // Remove blur from result content
+      document.querySelectorAll(".result-content").forEach(content => {
+        content.style.filter = "none";
+        content.style.opacity = "1";
+        content.style.pointerEvents = "auto";
+      });
+    };
+    
+    // Run unlock immediately and on delayed DOM loads
+    unlockAll();
+    setTimeout(unlockAll, 100);
+    setTimeout(unlockAll, 500);
+    setTimeout(unlockAll, 1000);
+    setTimeout(unlockAll, 2000);
+    
+    // Add pro-active class
+    document.body.classList.add("pro-active");
+    
+    console.log("[GATING] Pro unlock applied");
+    
+  } else {
+    // Not Pro: apply blur/locks + keep upgrade modal working
+    console.log("[GATING] Applying Free entitlements - keeping locks/blurs");
+    
+    document.body.classList.remove("pro-active");
+    
+    // Blur will be applied by scheduleBlurForFreeUsers if needed
+  }
+}
 
-// Legacy isPro variable (for backward compatibility with existing code)
-const isPro = urlParams.get("success") === "1" || isProUser;
+// Get entitlements once at load
+const entitlements = getEntitlements();
+console.log("[GATING] entitlements =", entitlements);
 
-console.log("[DEV] devMode:", devMode, "devForcePro:", devForcePro, "isPro:", localStorage.getItem("isPro"));
+// Apply entitlements immediately
+applyEntitlements(entitlements);
+
+// Legacy variables for backward compatibility
+const isProUser = entitlements.isPro;
+const isPro = params.get("success") === "1" || isProUser;
 
 const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 
@@ -30,7 +150,7 @@ window.cbCanAnalyze = function() {
     return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
   }
   
-  const isProActive = devForcePro || localStorage.getItem('isPro') === 'true';
+  const { isPro: isProActive } = getEntitlements();
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   const hasCredits = credits > 0;
   const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
@@ -50,18 +170,15 @@ window.cbCanAnalyze = function() {
   return { allowed: false, reason: 'No credits, free upload used, not Pro' };
 };
 
-console.log("🔍 Gating detection:", {
-  successParam: urlParams.get("success"),
-  localStorageIsPro: localStorage.getItem("isPro"),
-  devMode: devMode,
-  devForcePro: devForcePro
-});
-
-// DEV helper for manual toggling in console
-window.setDevPro = (on) => {
-  localStorage.setItem("isPro", on ? "true" : "false");
-  console.log("isPro now:", localStorage.getItem("isPro"));
-  console.log("⚠️ Reload page for changes to take effect");
+// Global debug helper
+window.__VB = {
+  getEntitlements,
+  applyEntitlements,
+  refresh: () => {
+    const e = getEntitlements();
+    applyEntitlements(e);
+    console.log("[GATING] Refreshed entitlements:", e);
+  }
 };
 
 const stripeLinks = {
@@ -73,7 +190,7 @@ const stripeLinks = {
 const BLUR_TARGET_SELECTOR = "#viralGaugeCard, #captionGaugeCard, #engagementGaugeCard, #ideaGaugeCard, #viral-card, #caption-card, #engagementforecast-card, #viralstrength-card";
 
 function scheduleBlurForFreeUsers(delay = 1500, logMessage = false) {
-  const proActive = urlParams.get("success") === "1" || isProUser;
+  const { isPro: proActive } = getEntitlements();
   if (proActive) return;
 
   document.body.style.overflow = "auto";
@@ -177,7 +294,11 @@ if (!isPro) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ Gate logic initialized");
 
-  const proActive = urlParams.get("success") === "1" || isProUser;
+  // Re-apply entitlements on DOMContentLoaded to ensure locks/unlocks are correct
+  const e = getEntitlements();
+  applyEntitlements(e);
+
+  const { isPro: proActive } = e;
   const proElements = document.querySelectorAll("[data-pro='true']");
 
   // 🧠 For non-Pro users - apply blur to locked elements
