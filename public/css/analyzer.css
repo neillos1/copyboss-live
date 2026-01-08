@@ -393,6 +393,11 @@ body.pro-active .pro-blur {
   height: auto !important;
 }
 
+/* Remove margin-top from main content wrapper to prevent gap under navbar */
+.content {
+  margin-top: 0 !important;
+}
+
 /* Fix analyzer wrapper gap - use CSS variable for nav height */
 .analyzer-wrapper {
   padding-top: var(--nav-h, 64px) !important;
