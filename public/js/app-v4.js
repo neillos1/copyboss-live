@@ -1044,9 +1044,22 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ Removed duplicate main-wrapper containers.");
   }
 
-  // 🌑 Remove any dark overlay layers
+  // 🌑 Remove any dark overlay layers (but NOT upgrade modals)
   const overlays = document.querySelectorAll("div[style*='background-color: rgba'], .apexcharts-css, .dark-overlay, .overlay");
   overlays.forEach(el => {
+    // Skip upgrade modals - never remove active upgrade modals
+    if (el.id === 'proUnlockPopup' || el.id === 'proPopup' || 
+        el.classList.contains('pro-upgrade-popup') || 
+        el.classList.contains('pro-upgrade-modal') ||
+        el.classList.contains('cb-upgrade-modal')) {
+      // Only remove if hidden/legacy
+      const computed = getComputedStyle(el);
+      if (computed.display === 'none' || computed.visibility === 'hidden') {
+        el.remove();
+        console.log("✅ Removed hidden legacy upgrade modal:", el.id || el.className);
+      }
+      return; // Skip active modals
+    }
     el.remove();
   });
 
@@ -2308,11 +2321,28 @@ setTimeout(() => {
 setTimeout(() => {
   console.log("🚀 Forcing full analyzer render for production build...");
 
-  // Remove only bad global blockers (NOT gating overlays)
-  const overlays = document.querySelectorAll(
-    ".pro-upgrade-popup, .global-lock-overlay"
+  // Remove only true blocking overlays (NOT upgrade modals or gating overlays)
+  // Only remove hidden legacy elements and blocking overlays
+  const blockingOverlays = document.querySelectorAll(
+    ".global-lock-overlay, .locked-overlay, .cb-analyzing-overlay"
   );
-  overlays.forEach(el => el.remove());
+  blockingOverlays.forEach(el => {
+    // Only remove if it's actually blocking (not an active modal)
+    const computed = getComputedStyle(el);
+    if (computed.display === 'none' || computed.visibility === 'hidden') {
+      el.remove();
+    }
+  });
+  
+  // Remove hidden legacy proUnlockPopup (only if it's hidden/legacy)
+  const legacyPopup = document.getElementById('proUnlockPopup');
+  if (legacyPopup) {
+    const computed = getComputedStyle(legacyPopup);
+    if (computed.display === 'none' || computed.visibility === 'hidden') {
+      legacyPopup.remove();
+      console.log("✅ Removed hidden legacy proUnlockPopup");
+    }
+  }
 
   // Force all ApexCharts to display (keep chart visibility forcing intact)
   document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {
