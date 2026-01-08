@@ -715,3 +715,7 @@ body .swal2-popup {
   margin-top: 0 !important;
   transform: none !important;
 }
+
+.content {
+  margin-top: 0 !important;
+}
