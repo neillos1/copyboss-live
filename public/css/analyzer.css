@@ -232,9 +232,9 @@ html, body {
 }
 
 /* 2️⃣ Center and restore analyzer container layout */
+/* NOTE: .analyzer-wrapper padding-top is handled by final rule at end of file */
 .cb-container,
 .cb-main,
-.analyzer-wrapper,
 .content-wrapper {
   width: 100% !important;
   max-width: 100% !important;
@@ -242,6 +242,19 @@ html, body {
   margin-right: auto !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+.analyzer-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  /* padding-top is set by final rule at end of file */
   height: auto !important;
   min-height: 100vh !important;
   overflow: visible !important;
@@ -370,15 +383,22 @@ body.pro-active .pro-blur {
 }
 
 /* 5️⃣ Ensure containers have visible overflow and auto height for full scroll */
+/* NOTE: .analyzer-wrapper padding-top is handled by final rule at end of file */
 .cb-container,
 .cb-main,
-.analyzer-wrapper,
 .cb-results-grid,
 .cb-gauges,
 .cb-reports {
   overflow: visible !important;
   height: auto !important;
   min-height: auto !important;
+}
+
+.analyzer-wrapper {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+  /* padding-top is set by final rule at end of file */
 }
 
 /* ============================================================
@@ -398,13 +418,6 @@ body.pro-active .pro-blur {
   margin-top: 0 !important;
 }
 
-/* Fix analyzer wrapper gap - use CSS variable for nav height */
-.analyzer-wrapper {
-  padding-top: var(--nav-h, 64px) !important;
-  margin-top: 0 !important;
-  transform: none !important;
-}
-
 /* Ensure no extra spacing from hidden elements */
 .analyzer-wrapper > [style*="display: none"],
 .analyzer-wrapper > [style*="visibility: hidden"] {
@@ -415,7 +428,8 @@ body.pro-active .pro-blur {
 }
 
 /* 1️⃣ Force all wrappers/containers to allow full scroll when Pro active */
-body.pro-active [class*="wrapper"],
+/* NOTE: .analyzer-wrapper padding-top is handled by final rule at end of file */
+body.pro-active [class*="wrapper"]:not(.analyzer-wrapper),
 body.pro-active [class*="container"],
 body.pro-active .cb-main,
 body.pro-active .cb-container,
@@ -689,4 +703,15 @@ body .swal2-popup {
   filter: blur(6px) !important;
   opacity: 0.6 !important;
   pointer-events: none !important;
+}
+
+/* ============================================================
+   CRITICAL: Analyzer wrapper padding-top fix (must be LAST)
+   ============================================================
+   This rule MUST be at the very end to win CSS cascade
+   ============================================================ */
+.analyzer-wrapper {
+  padding-top: var(--nav-h, 64px) !important;
+  margin-top: 0 !important;
+  transform: none !important;
 }
