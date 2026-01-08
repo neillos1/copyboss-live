@@ -2922,8 +2922,8 @@ html, body {
       </button>
     <div id="dropdownMenu" style="display: none; position: absolute; right: 0; top: 44px; background: #2e3b5e; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); min-width: 180px; max-width: 200px; z-index: 1000;">
   <a href="#" id="compareBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">Compare With Past Videos</a>
-  <a href="#" id="resetChartBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">🔁 Reset Chart</a>
-  <a href="#" id="graphHelpBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">📘 Graph Help</a>
+<a href="#" id="resetChartBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">🔁 Reset Chart</a>
+<a href="#" id="graphHelpBtn" style="display: block; padding: 10px 14px; color: #fff; text-decoration: none;">📘 Graph Help</a>
 
 
 </div>
@@ -3036,7 +3036,7 @@ function buildCopyBossChart(labels, scores) {
   const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight || 300);
   gradient.addColorStop(0, "rgba(30,136,229,0.4)");
   gradient.addColorStop(1, "rgba(30,136,229,0)");
-  
+
   // Destroy any existing chart instance first
   const existingChart = Chart.getChart(canvas) || Chart.getChart("copyBossChart");
   if (existingChart) {
@@ -3088,7 +3088,7 @@ function buildCopyBossChart(labels, scores) {
       }
     }
   });
-  
+
   // Resize chart after creation to ensure proper rendering
   requestAnimationFrame(() => {
     try {
@@ -3163,7 +3163,7 @@ document.addEventListener("click", function (e) {
       if (window.copyBossChart) {
         console.log('[RESET_CHART] chart reset to demo data', demoLabels, demoScores);
         console.log("[RESET_CHART] created new demo chart", window.copyBossChart.id);
-      } else {
+    } else {
         console.error('[RESET_CHART] Failed to rebuild chart');
       }
     }
@@ -7450,10 +7450,43 @@ a:hover {
 
 
 <script>
-</script>
-
-
-<script>
+// ============================================================
+// PROTECT UPGRADE MODAL: Override Swal.close() to prevent external closes
+// ============================================================
+(function protectUpgradeModal() {
+  // Wait for Swal to be available
+  function setupSwalProtection() {
+    if (typeof Swal === 'undefined' || !Swal || typeof Swal.close !== 'function') {
+      // Swal not loaded yet, retry
+      setTimeout(setupSwalProtection, 100);
+      return;
+    }
+    
+    // Store original Swal.close function
+    const originalSwalClose = Swal.close.bind(Swal);
+    
+    // Override Swal.close to check for upgrade modal flag
+    Swal.close = function(...args) {
+      // If upgrade modal is open, block external closes
+      if (window.__upgradeModalOpen === true) {
+        console.warn('[UPGRADE MODAL] Swal.close() blocked - upgrade modal is open');
+        return; // NO-OP: Do nothing
+      }
+      
+      // Otherwise, call original close function
+      return originalSwalClose(...args);
+    };
+    
+    console.log('[UPGRADE MODAL] Swal.close() protection enabled');
+  }
+  
+  // Start protection setup
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSwalProtection);
+    } else {
+    setupSwalProtection();
+    }
+})();
 </script>
 
 
@@ -9065,13 +9098,19 @@ function showUpgradeModalSwal() {
       popup: 'swal2-popup-custom'
     },
     didClose: () => {
-      // Clear global flag when explicitly closed by user
+      // Clear global flag when explicitly closed by user (X button or "Maybe Later")
       window.__upgradeModalOpen = false;
       console.log('[UPGRADE MODAL] closed (Swal) - setting __upgradeModalOpen = false');
+    },
+    didOpen: () => {
+      // Ensure flag is set when modal opens
+      window.__upgradeModalOpen = true;
+      console.log('[UPGRADE MODAL] opened (Swal) - setting __upgradeModalOpen = true');
     }
   }).then((result) => {
-    // Clear flag when modal closes
+    // Clear flag when modal closes (user clicked "Maybe Later" or X)
     window.__upgradeModalOpen = false;
+    console.log('[UPGRADE MODAL] promise resolved - setting __upgradeModalOpen = false');
     if (result.isConfirmed) {
       // Use the proper Stripe checkout function with success URLs
       redirectToStripeCheckout('pro');
@@ -9102,7 +9141,7 @@ function downloadGraphImage() {
     link.click();
     // Guard: Do not close if upgrade modal is open
     if (!window.__upgradeModalOpen) {
-      Swal.close();
+    Swal.close();
     }
     Toastify({
       text: "Graph image downloaded!",
@@ -9676,7 +9715,7 @@ function updateSidebarRank(average) {
     console.log('[CHART] update skipped due to forceDemoChart', 'fn=syncViralChartFromGemini');
     return;
   }
-  
+
   // Validate score
   if (typeof score !== "number" || !Number.isFinite(score)) {
     console.warn("⚠️ Invalid score provided:", score);
@@ -9691,9 +9730,9 @@ function updateSidebarRank(average) {
 
   // Use provided label or generate default
   if (!label) {
-    const now = new Date();
-    const day = now.toLocaleDateString("en-GB", { weekday: "short" });
-    const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const now = new Date();
+  const day = now.toLocaleDateString("en-GB", { weekday: "short" });
+  const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
     label = `${day} ${time}`;
   }
 
@@ -9712,8 +9751,8 @@ function updateSidebarRank(average) {
     data[data.length - 1] = score;
   } else {
     // New timestamp, push new point
-    labels.push(label);
-    data.push(score);
+  labels.push(label);
+  data.push(score);
   }
 
   // Keep only last 7 points
@@ -9726,11 +9765,11 @@ function updateSidebarRank(average) {
 
   // Only save to localStorage if forceDemoChart is NOT enabled
   if (!window.__forceDemoChart && localStorage.getItem('forceDemoChart') !== 'true') {
-    try {
-      localStorage.setItem("copyBossLabels", JSON.stringify(labels));
-      localStorage.setItem("copyBossScores", JSON.stringify(data));
-    } catch (err) {
-      console.warn("⚠️ Failed to save chart data", err);
+  try {
+    localStorage.setItem("copyBossLabels", JSON.stringify(labels));
+    localStorage.setItem("copyBossScores", JSON.stringify(data));
+  } catch (err) {
+    console.warn("⚠️ Failed to save chart data", err);
     }
   }
 
