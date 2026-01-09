@@ -740,3 +740,13 @@ div.wrapper,
 .results-grid {
   margin-top: 12px !important;
 }
+
+/* Remove top margin from first analyzer card to eliminate navbar gap */
+.analyzer-wrapper > :first-child {
+  margin-top: 0 !important;
+}
+
+/* Specifically target chart-card as first element */
+.analyzer-wrapper > .chart-card:first-child {
+  margin-top: 0 !important;
+}
