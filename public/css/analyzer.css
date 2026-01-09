@@ -750,3 +750,37 @@ div.wrapper,
 .analyzer-wrapper > .chart-card:first-child {
   margin-top: 0 !important;
 }
+
+/* 🔧 HARD FIX: stop analyzer content being vertically pushed down */
+#main-wrapper,
+.wrapper,
+.analyzer-wrapper {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+.wrapper,
+.analyzer-wrapper {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Force top alignment in case flex is applied anywhere */
+#main-wrapper,
+.wrapper,
+.analyzer-wrapper {
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+
+/* Kill flex layouts if they exist */
+.wrapper,
+.analyzer-wrapper {
+  display: block !important;
+}
+
+/* Remove top margin from first visible analyzer card */
+.analyzer-wrapper > *:first-child {
+  margin-top: 0 !important;
+}
