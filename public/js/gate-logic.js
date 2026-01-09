@@ -113,6 +113,12 @@ if (!window.__isProActive()) {
   // DO NOT set localStorage.isPro (entitlements are source of truth)
 
   const unlockAll = () => {
+    // HARD BLOCK if Upgrade Modal is open
+    if (window.__upgradeModalOpen) {
+      console.warn('[GUARD] Cleanup skipped — upgrade modal open');
+      return;
+    }
+    
     // HARD BLOCK if Graph Help is open
     if (window.__graphHelpOpen) {
       console.log("[unlockAll] blocked — graph help open");
@@ -281,6 +287,12 @@ window.addEventListener("load", () => {
 
 (function forceScrollUnlock() {
   function unlockAll() {
+    // HARD BLOCK if Upgrade Modal is open
+    if (window.__upgradeModalOpen) {
+      console.warn('[GUARD] Cleanup skipped — upgrade modal open');
+      return;
+    }
+    
     // HARD BLOCK if Graph Help is open
     if (window.__graphHelpOpen) {
       console.log("[unlockAll] blocked — graph help open");

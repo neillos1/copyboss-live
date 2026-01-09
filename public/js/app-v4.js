@@ -651,6 +651,12 @@ window.addEventListener("DOMContentLoaded", ()=>{
     
     // Enhanced cleanup routine - removes blur and restores scroll
     const cleanupProUnlock = () => {
+      // HARD BLOCK if Upgrade Modal is open
+      if (window.__upgradeModalOpen) {
+        console.warn('[GUARD] Cleanup skipped — upgrade modal open');
+        return;
+      }
+      
       // STOP if already pro-active (prevents re-running)
       if (document.body.classList.contains("pro-active")) {
         // Still ensure overflow is set
@@ -1400,6 +1406,12 @@ try {
       
         // Define safe unlock function with error handling
         function removeAllLocks() {
+          // HARD BLOCK if Upgrade Modal is open
+          if (window.__upgradeModalOpen) {
+            console.warn('[GUARD] Cleanup skipped — upgrade modal open');
+            return;
+          }
+          
           // Prevent multiple unlock attempts
           if (window.__unlockCompleted) {
             return;
@@ -2126,6 +2138,12 @@ setTimeout(() => {
 
 // 🚀 PRODUCTION-SAFE RENDER RESET
 setTimeout(() => {
+  // HARD BLOCK if Upgrade Modal is open
+  if (window.__upgradeModalOpen) {
+    console.warn('[GUARD] Cleanup skipped — upgrade modal open');
+    return;
+  }
+  
   console.log("🚀 Forcing full analyzer render for production build...");
 
   // Remove only true blocking overlays (NOT upgrade modals or gating overlays)
@@ -2142,10 +2160,13 @@ setTimeout(() => {
   });
   
   // Remove any legacy proUnlockPopup elements (deprecated - using SweetAlert only)
-  document.querySelectorAll('#proUnlockPopup, .pro-upgrade-popup').forEach(el => {
-    el.remove();
-    console.log("✅ Removed legacy upgrade popup:", el.id || el.className);
-  });
+  // Only remove if upgrade modal is not open
+  if (!window.__upgradeModalOpen) {
+    document.querySelectorAll('#proUnlockPopup, .pro-upgrade-popup').forEach(el => {
+      el.remove();
+      console.log("✅ Removed legacy upgrade popup:", el.id || el.className);
+    });
+  }
 
   // Force all ApexCharts to display (keep chart visibility forcing intact)
   document.querySelectorAll(".apexcharts-canvas, .apexcharts-svg").forEach(el => {

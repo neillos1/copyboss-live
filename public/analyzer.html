@@ -9106,6 +9106,7 @@ function showUpgradeModalSwal() {
       // Ensure flag is set when modal opens
       window.__upgradeModalOpen = true;
       console.log('[UPGRADE MODAL] opened (Swal) - setting __upgradeModalOpen = true');
+      console.log('[UPGRADE MODAL] modal locked — global cleanup disabled');
     }
   }).then((result) => {
     // Clear flag when modal closes (user clicked "Maybe Later" or X)

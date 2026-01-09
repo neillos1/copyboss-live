@@ -408,6 +408,7 @@ body.pro-active .pro-blur {
    ============================================================ */
 
 /* Fix wrapper height to prevent huge blank gap under navbar */
+/* NOTE: padding-top is set by final rule at end of file */
 .wrapper {
   min-height: 100vh !important;
   height: auto !important;
@@ -706,14 +707,17 @@ body .swal2-popup {
 }
 
 /* ============================================================
-   CRITICAL: Analyzer wrapper padding-top fix (must be LAST)
+   CRITICAL: Navbar offset fix (must be LAST)
    ============================================================
    This rule MUST be at the very end to win CSS cascade
    ============================================================ */
-.analyzer-wrapper {
+.wrapper {
   padding-top: var(--nav-h, 64px) !important;
   margin-top: 0 !important;
-  transform: none !important;
+}
+
+.analyzer-wrapper {
+  padding-top: 0 !important;
 }
 
 .content {
