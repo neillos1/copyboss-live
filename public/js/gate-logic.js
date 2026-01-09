@@ -10,16 +10,24 @@ if (window.__gatingInitialized) {
 // ============================================================
 // SINGLE SOURCE OF TRUTH: getUserTier()
 // ============================================================
-// Returns 'pro' if: URL has pro=1 OR localStorage tier indicates pro OR window.isProUser() exists and returns true
+// Returns 'pro' if: URL has pro=1 OR localStorage tier indicates pro OR localStorage.isPro OR window.isProUser() exists and returns true
 window.getUserTier = function() {
   const params = new URLSearchParams(window.location.search);
   const urlPro = params.get("pro") === "1";
   const storedTier = localStorage.getItem("userTier");
+  const isProLS = localStorage.getItem("isPro") === "true";
   const isProUser = window.isProUser && typeof window.isProUser === "function" && window.isProUser();
   
-  // Check all sources
-  if (urlPro || storedTier === "pro" || isProUser) {
+  // Check all sources (URL param pro=1 takes precedence)
+  if (urlPro || storedTier === "pro" || isProLS || isProUser) {
+    if (params.get("dev") === "1") {
+      console.log(`[GATING] urlPro=${urlPro} tier=pro (from URL=${urlPro}, storedTier=${storedTier}, isProLS=${isProLS}, isProUser=${isProUser})`);
+    }
     return "pro";
+  }
+  
+  if (params.get("dev") === "1") {
+    console.log(`[GATING] urlPro=${urlPro} tier=free (no Pro indicators found)`);
   }
   
   return storedTier || "free";

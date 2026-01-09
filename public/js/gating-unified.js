@@ -96,26 +96,42 @@
     
     lockedCards.forEach(card => {
       if (isPro) {
-        // Pro mode: remove blur and locks
+        // Pro mode: remove ALL blur layers and locks
         // Remove blur layer
-        const blurLayer = card.querySelector('.cb-blur-layer');
-        if (blurLayer) {
-          blurLayer.remove();
-        }
+        const blurLayers = card.querySelectorAll('.cb-blur-layer');
+        blurLayers.forEach(layer => layer.remove());
         
-        // Remove/hide lock overlays
-        const lockOverlay = card.querySelector('.locked-overlay, .cb-lock-overlay');
-        if (lockOverlay) {
-          lockOverlay.style.display = 'none';
-        }
+        // Remove/hide ALL lock overlays (multiple selectors)
+        const lockOverlays = card.querySelectorAll('.locked-overlay, .cb-lock-overlay, .pro-locked-overlay');
+        lockOverlays.forEach(overlay => {
+          overlay.style.display = 'none';
+          overlay.remove(); // Remove from DOM entirely
+        });
         
-        // Remove gated class
-        card.classList.remove('gated');
+        // Remove padlock images
+        const padlocks = card.querySelectorAll('img[alt*="lock" i], img[src*="lock" i], img[alt*="padlock" i], .padlock-icon, .m-lock');
+        padlocks.forEach(img => {
+          img.style.display = 'none';
+          if (img.parentElement?.classList.contains('padlock-icon')) {
+            img.parentElement.remove();
+          }
+        });
         
-        // Clear any inline filter/opacity styles
+        // Remove upgrade buttons
+        const upgradeBtns = card.querySelectorAll('.btn-upgrade, .upgrade-btn, [class*="upgrade"]');
+        upgradeBtns.forEach(btn => btn.remove());
+        
+        // Remove pro-locked classes
+        card.classList.remove('gated', 'pro-locked', 'locked', 'pro-locked-results', 'locked-report');
+        
+        // Clear any inline filter/opacity/pointer-events styles
         card.style.filter = 'none';
         card.style.opacity = '1';
         card.style.pointerEvents = 'auto';
+        card.style.backdropFilter = 'none';
+        
+        // Remove data-locked attribute if present
+        card.removeAttribute('data-locked');
       } else {
         // Free mode: add blur and locks
         // Add gated class
@@ -166,9 +182,12 @@
     window.refreshGatingUI();
   }
   
-  // Re-run after a delay to catch late-rendered elements
+  // Re-run after a delay to catch late-rendered elements (but only if not Pro, to prevent re-locking)
   setTimeout(() => {
-    window.refreshGatingUI();
+    const currentTier = window.getUserTier ? window.getUserTier() : 'free';
+    if (currentTier !== 'pro') {
+      window.refreshGatingUI();
+    }
   }, 1000);
 })();
 

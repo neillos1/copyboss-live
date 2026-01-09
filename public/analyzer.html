@@ -84,23 +84,25 @@
       console.log('Current URL:', window.location.href);
       console.log('Document ready state:', document.readyState);
       
-      // Immediate Pro status check and unlock
+      // Immediate Pro status check and unlock (using unified getUserTier)
       (function immediateProUnlock() {
         console.log('⚡ IMMEDIATE PRO UNLOCK CHECK STARTING');
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const plan = urlParams.get('plan');
-        const upgraded = urlParams.get('upgraded');
+        // Use unified getUserTier() as single source of truth
+        const tier = window.getUserTier?.() || 'free';
+        console.log('[GATING] immediateProUnlock - tier:', tier);
         
-        console.log('URL parameters - plan:', plan, 'upgraded:', upgraded);
-        console.log('Full URL search:', window.location.search);
-        
-        if (plan === 'pro' || upgraded === 'true') {
-          console.log('🎉 IMMEDIATE PRO STATUS DETECTED - UNLOCKING NOW!');
+        if (tier === 'pro') {
+          console.log('🎉 PRO STATUS DETECTED - UNLOCKING NOW!');
           
-          // Set Pro status immediately
+          // Set Pro status if from URL (for persistence)
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlPro = urlParams.get('pro') === '1';
+          if (urlPro) {
           localStorage.setItem('isPro', 'true');
-          console.log('✅ localStorage isPro set to true');
+            localStorage.setItem('userTier', 'pro');
+            console.log('✅ localStorage updated for Pro');
+          }
           
           // Define comprehensive unlock function
           function removeAllLocks() {
@@ -246,8 +248,12 @@
           // Make unlock function globally available
           window.forceUnlockPro = removeAllLocks;
           console.log('✅ Global forceUnlockPro function available');
+          
+          // Use unified gating refresh
+          document.body.classList.add('pro-active');
+          window.refreshGatingUI?.();
         } else {
-          console.log('ℹ️ No Pro status detected in URL parameters');
+          console.log('ℹ️ No Pro status detected - tier:', tier);
         }
       })();
     </script>
@@ -5842,7 +5848,7 @@ function displayGeminiResultsSafe() {
   gap: 16px;
   color: #fff;
   font-size: 15px;
-  margin-top: 30px;
+  margin-top: 12px;
 }
 
 .grid-header {
@@ -8467,7 +8473,7 @@ window.cbPdf.generate = function(snapshot) {
       line-height: 1;
     }
     .section {
-      margin-top: 30px;
+      margin-top: 12px;
     }
     .section h2 {
       font-size: 18px;
@@ -10193,25 +10199,30 @@ document.addEventListener('DOMContentLoaded', async function() {
   console.log('Current localStorage isPro:', localStorage.getItem('isPro'));
   console.log('Document ready state:', document.readyState);
   
-  // Check for Pro status from URL parameters FIRST (immediate unlock)
-  const urlParams = new URLSearchParams(window.location.search);
-  const plan = urlParams.get('plan');
-  const upgraded = urlParams.get('upgraded');
+  // Use unified getUserTier() as single source of truth
+  const tier = window.getUserTier?.() || 'free';
+  console.log('[GATING] DOMContentLoaded - tier:', tier);
   
-  console.log('URL parameters - plan:', plan, 'upgraded:', upgraded);
-  console.log('Full URL search:', window.location.search);
-  
-  if (plan === 'pro' || upgraded === 'true') {
-    console.log('🎉 Pro status detected from URL - immediate unlock');
-    console.log('Setting localStorage isPro to true');
-    localStorage.setItem('isPro', 'true');
-    console.log('localStorage isPro after setting:', localStorage.getItem('isPro'));
+  if (tier === 'pro') {
+    console.log('🎉 Pro status detected - unlocking');
+    // Ensure localStorage is set if from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('pro') === '1') {
+      localStorage.setItem('isPro', 'true');
+      localStorage.setItem('userTier', 'pro');
+    }
     
-    console.log('Calling unlockPro()...');
-    unlockPro();
+    // Use unified gating refresh
+    document.body.classList.add('pro-active');
+    window.refreshGatingUI?.();
     
-    console.log('Calling updatePlanStatus()...');
-    updatePlanStatus();
+    // Keep legacy unlock functions for backward compatibility (if they exist)
+    if (typeof unlockPro === 'function') {
+      unlockPro();
+    }
+    if (typeof updatePlanStatus === 'function') {
+      updatePlanStatus();
+    }
     
     // Retry unlock after a short delay to ensure all elements are loaded
     setTimeout(() => {
