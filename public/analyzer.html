@@ -3125,6 +3125,15 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('[CHART] initial load using demo data (forceDemoChart enabled)');
   }
 
+  // Always initialize chart with demo data on first load (even if saved data exists, show demo first)
+  const chartEl = document.getElementById('copyBossChart');
+  console.log("[CHART] initWeeklyChart called", {
+    containerFound: !!chartEl,
+    dataPoints: savedScores.length,
+    labels: savedLabels,
+    scores: savedScores
+  });
+  
   window.copyBossChart = buildCopyBossChart(savedLabels, savedScores);
   copyBossChart = window.copyBossChart; // Legacy reference for backward compatibility
 
@@ -6539,13 +6548,26 @@ a:hover {
     button.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      console.log("[CLICK] locked card clicked", {
+        id: button.id || button.className,
+        hasSwal: !!window.Swal,
+        hasShowUpgradeModal: typeof showUpgradeModal === 'function'
+      });
       const lock = button.parentElement.querySelector(".padlock-icon");
       if (lock) {
         lock.classList.add("shake");
         setTimeout(() => lock.classList.remove("shake"), 400);
       }
-      // Show upgrade modal
-      showUpgradeModal();
+      // Show upgrade modal (always works - uses custom HTML modal)
+      if (typeof showUpgradeModal === 'function') {
+        showUpgradeModal();
+      } else {
+        console.error("[CLICK] showUpgradeModal not available - this should not happen");
+        // Fallback: redirect to pricing
+        if (window.redirectToStripeCheckout) {
+          window.redirectToStripeCheckout('pro');
+        }
+      }
     });
   });
 </script>
@@ -7450,6 +7472,12 @@ a:hover {
 
 <!-- SweetAlert2 - loaded from local file for reliability -->
 <script src="/js/sweetalert2.local.min.js"></script>
+<script>
+  // Debug: Check if SweetAlert2 loaded
+  window.addEventListener('load', () => {
+    console.log("[BOOT] Swal available?", !!window.Swal, typeof window.Swal?.fire);
+  });
+</script>
 
 
 
