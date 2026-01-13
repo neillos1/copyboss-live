@@ -1,4 +1,6 @@
 // --- TEMP: disable popups so unlock flow can complete without errors ---
+// Prevent Safari TDZ crashes (userTier referenced before init)
+var userTier = 'free';
 window.__DISABLE_POPUPS__ = true;
 
 // ===== ANALYZING OVERLAY CONTROLLER =====
@@ -705,7 +707,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
       cleanupProUnlock();
       console.log("💎 Pro unlock visuals refreshed (post-render)");
     },2500);
-    if(window.Swal){
+    if (window.Swal && typeof window.Swal.fire === 'function') {
       Swal.fire({
         icon:"success",
         title:"Pro Unlocked!",
@@ -1214,7 +1216,7 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
 console.log("🔥 APP.JS IS LOADED");
 
 // User tier management system
-let userTier = 'free'; // Default tier: free, reports2, reports15, pro
+userTier = userTier || 'free'; // Default tier: free, reports2, reports15, pro
 
 // Initialize user tier from localStorage
 function initializeUserTier() {
@@ -1241,7 +1243,21 @@ function initializeUserTier() {
 
 // Check if user has Pro access
 function isProUser() {
-  return userTier === 'pro' || localStorage.getItem('isPro') === 'true';
+  try {
+    // Single source of truth: URL pro=1 OR stored tier OR legacy isPro flag
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pro') === '1') return true;
+
+    const storedTier = localStorage.getItem('userTier');
+    if (storedTier === 'pro') return true;
+
+    if (localStorage.getItem('isPro') === 'true') return true;
+
+    // fallback to in-memory var (safe because it's var-initialized at top)
+    return userTier === 'pro';
+  } catch (e) {
+    return false;
+  }
 }
 
 // Update user tier and localStorage
@@ -2712,10 +2728,10 @@ function enforceRuntimeUIOverrides() {
   document.head.appendChild(styleTag);
   
   // 3️⃣ Popup sizing — enforce after SweetAlert renders
-  if (window.Swal) {
-    const originalFire = window.Swal.fire;
+  if (window.Swal && typeof window.Swal.fire === 'function') {
+    const originalFire = window.Swal.fire.bind(window.Swal);
     window.Swal.fire = function(...args) {
-      const result = originalFire.apply(this, args);
+      const result = originalFire(...args);
       
       setTimeout(() => {
         const popup = document.querySelector(".swal2-popup");

@@ -8149,8 +8149,9 @@ else if (modalContentMap[target]) {
     // Handle upgrade to Pro based on system status
     if (UPGRADE_SYSTEM_ACTIVE) {
       // Show existing upgrade modal with benefits
-      Swal.fire({
-        title: "Upgrade to Pro 💎",
+      if (window.Swal && typeof window.Swal.fire === 'function') {
+        Swal.fire({
+          title: "Upgrade to Pro 💎",
         html: `
           <div style="text-align: center;">
             <div style="font-size: 48px; margin-bottom: 16px;">💎</div>
@@ -8191,10 +8192,14 @@ else if (modalContentMap[target]) {
           redirectToStripeCheckout('pro');
         }
       });
+      } else {
+        console.warn("Swal not available", { title: "Upgrade to Pro 💎" });
+      }
     } else {
       // Show "coming soon" modal
-      Swal.fire({
-        title: "Upgrade Coming Soon!",
+      if (window.Swal && typeof window.Swal.fire === 'function') {
+        Swal.fire({
+          title: "Upgrade Coming Soon!",
         html: `
           <div style="text-align: center;">
             <div style="font-size: 48px; margin-bottom: 16px;">🚀</div>
@@ -8233,16 +8238,20 @@ else if (modalContentMap[target]) {
     toggleAiTipsPanel();
     return;
   } else if (target === "refer-section" || target === "compare-videos") {
-    Swal.fire({
-      title: content.title,
-      html: content.html,
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: 500,
-      customClass: {
-        popup: 'swal2-popup-custom'
-      }
-    });
+    if (window.Swal && typeof window.Swal.fire === 'function') {
+      Swal.fire({
+        title: content.title,
+        html: content.html,
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: 500,
+        customClass: {
+          popup: 'swal2-popup-custom'
+        }
+      });
+    } else {
+      console.warn("Swal not available", { title: content.title });
+    }
     
     // Initialize modals after they are shown (not when closed)
     if (target === "compare-videos") {
@@ -8285,7 +8294,7 @@ window.cbPdf.generate = function(snapshot) {
   if (typeof html2pdf === 'undefined') {
     console.error('[PDF] html2pdf library not available');
     const errorMsg = "PDF library not loaded. Please refresh the page.";
-    if (typeof Swal !== 'undefined') {
+    if (window.Swal && typeof window.Swal.fire === 'function') {
       Swal.fire({
         icon: "error",
         title: "PDF Library Missing",
@@ -8293,6 +8302,7 @@ window.cbPdf.generate = function(snapshot) {
         confirmButtonText: "OK"
       });
     } else {
+      console.warn("Swal not available", { icon: "error", title: "PDF Library Missing", text: errorMsg });
       alert(errorMsg);
     }
     return;
@@ -11868,9 +11878,9 @@ footer .social-link .fa-brands {
     }
 
     // 6) Stop the "Pro Unlocked" alert from looping
-    if (window.Swal && !window.__proSwalGuard) {
+    if (window.Swal && typeof window.Swal.fire === 'function' && !window.__proSwalGuard) {
       window.__proSwalGuard = true;
-      const orig = Swal.fire;
+      const orig = Swal.fire.bind(Swal);
       Swal.fire = (...args) => {
         if (window.__proSwalShown) return Promise.resolve();
         window.__proSwalShown = true;

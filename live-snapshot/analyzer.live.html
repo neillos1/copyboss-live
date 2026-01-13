@@ -11012,9 +11012,9 @@ footer .social-link {
     }
 
     // 6) Stop the "Pro Unlocked" alert from looping
-    if (window.Swal && !window.__proSwalGuard) {
+    if (window.Swal && typeof window.Swal.fire === 'function' && !window.__proSwalGuard) {
       window.__proSwalGuard = true;
-      const orig = Swal.fire;
+      const orig = Swal.fire.bind(Swal);
       Swal.fire = (...args) => {
         if (window.__proSwalShown) return Promise.resolve();
         window.__proSwalShown = true;
