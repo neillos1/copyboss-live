@@ -1214,7 +1214,8 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
 console.log("🔥 APP.JS IS LOADED");
 
 // User tier management system
-let userTier = 'free'; // Default tier: free, reports2, reports15, pro
+let userTier = 'free';
+globalThserTier = userTier; // Default tier: free, reports2, reports15, pro
 
 // Initialize user tier from localStorage
 function initializeUserTier() {
@@ -1241,13 +1242,17 @@ function initializeUserTier() {
 
 // Check if user has Pro access
 function isProUser() {
-  return userTier === 'pro' || localStorage.getItem('isPro') === 'true';
+  try {
+    if (localStorage.getItem('isPro') === 'true') return true;
+  } catch (e) {}
+  return globalThis.userTier === 'pro';
 }
 
 // Update user tier and localStorage
 function updateUserTier(newTier) {
   try {
     userTier = newTier;
+    globalThis.userTier = userTier;
     localStorage.setItem('userTier', newTier);
     
     // DO NOT set localStorage.isPro (entitlements are source of truth)
