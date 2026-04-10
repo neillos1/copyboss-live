@@ -474,6 +474,8 @@ window.__DISABLE_POPUPS__ = true;
     }
   };
 
+  console.log('[CB OVERLAY LIVE AFTER SYNTAX FIX]', !!window.cbOverlay, typeof window.cbOverlay?.show);
+
   // Add spinner animation if not already present
   if (!document.getElementById('cb-overlay-styles')) {
     const style = document.createElement('style');
@@ -1214,7 +1216,7 @@ window.addEventListener("beforeunload", () => { try { window.VB_GAUGES_INIT = fa
 console.log("🔥 APP.JS IS LOADED");
 
 // User tier management system
-let userTier = 'free'; // Default tier: free, reports2, reports15, pro
+; // Default tier: free, reports2, reports15, pro
 
 // Initialize user tier from localStorage
 function initializeUserTier() {
@@ -1223,37 +1225,75 @@ function initializeUserTier() {
     const isPro = window.__isProActive ? window.__isProActive() : false;
     
     if (isPro) {
-      userTier = 'pro';
+      const tier = 'pro';
+      window.userTier = tier;
+      globalThis.userTier = tier;
+      localStorage.setItem('cb_userTier', tier);
+      localStorage.setItem('userTier', tier);
     } else if (storedTier) {
-      userTier = storedTier;
+      const tier = storedTier;
+      window.userTier = tier;
+      globalThis.userTier = tier;
+      localStorage.setItem('cb_userTier', tier);
+      localStorage.setItem('userTier', tier);
     } else {
-      userTier = 'free';
+      const tier = 'free';
+      window.userTier = tier;
+      globalThis.userTier = tier;
+      localStorage.setItem('cb_userTier', tier);
+      localStorage.setItem('userTier', tier);
     }
     
-    console.log("User Tier Active:", userTier);
-    return userTier;
+    const tier =
+      window.userTier ||
+      globalThis.userTier ||
+      localStorage.getItem('cb_userTier') ||
+      localStorage.getItem('userTier') ||
+      (localStorage.getItem('isPro') === 'true' ? 'pro' : 'free') ||
+      'free';
+    console.log("User Tier Active:", tier);
+    return tier;
   } catch (error) {
     console.warn('⚠️ Error initializing user tier:', error);
-    userTier = 'free';
-    return userTier;
+    const tier =
+      window.userTier ||
+      globalThis.userTier ||
+      localStorage.getItem('cb_userTier') ||
+      localStorage.getItem('userTier') ||
+      (localStorage.getItem('isPro') === 'true' ? 'pro' : 'free') ||
+      'free';
+    window.userTier = tier;
+    globalThis.userTier = tier;
+    return tier;
   }
 }
 
 // Check if user has Pro access
 function isProUser() {
-  return userTier === 'pro' || localStorage.getItem('isPro') === 'true';
+  const tier =
+    window.userTier ||
+    globalThis.userTier ||
+    localStorage.getItem('cb_userTier') ||
+    localStorage.getItem('userTier') ||
+    (localStorage.getItem('isPro') === 'true' ? 'pro' : 'free') ||
+    'free';
+  console.log('[FIXED USERTIER READ]', { tier });
+  return tier === 'pro' || localStorage.getItem('isPro') === 'true';
 }
 
 // Update user tier and localStorage
 function updateUserTier(newTier) {
   try {
-    userTier = newTier;
+    const tier = newTier;
+    window.userTier = tier;
+    globalThis.userTier = tier;
+    localStorage.setItem('cb_userTier', tier);
     localStorage.setItem('userTier', newTier);
     
     // DO NOT set localStorage.isPro (entitlements are source of truth)
     // Entitlements are managed by gate-logic.js
     
-    console.log("User Tier Updated:", userTier);
+    console.log("User Tier Updated:", tier);
     
     // Trigger UI updates
     updateUIForTier();
@@ -1316,7 +1356,14 @@ function updateUIForTier() {
 
     // }, 2000); // 2-second delay ensures ApexCharts CSS loads first
     
-    console.log("UI updated for tier:", userTier);
+    const tier =
+      window.userTier ||
+      globalThis.userTier ||
+      localStorage.getItem('cb_userTier') ||
+      localStorage.getItem('userTier') ||
+      (localStorage.getItem('isPro') === 'true' ? 'pro' : 'free') ||
+      'free';
+    console.log("UI updated for tier:", tier);
   } catch (error) {
     console.warn('⚠️ Error updating UI for tier:', error);
   }

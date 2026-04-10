@@ -61,11 +61,6 @@ const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 
 // Gate check function for analysis
 window.cbCanAnalyze = function() {
-  // DEV ONLY: Localhost override for testing (does not affect production)
-  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
-  }
-  
   const isProActive = window.__isProActive();
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   const hasCredits = credits > 0;
