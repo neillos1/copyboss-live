@@ -9874,8 +9874,10 @@ function useReportCredit() {
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   if (credits > 0) {
     localStorage.setItem('reportCredits', (credits - 1).toString());
+    // Persist: once a paid credit is used, keep UI viewable across refreshes
+    localStorage.setItem('hasUnlockedUI', 'true');
     if (credits - 1 === 0) {
-      applyLocks(); // Re-lock when credits run out
+      console.log('[CREDITS] reached 0 — not re-locking UI (next Analyze will be blocked)');
     }
     return true;
   }
