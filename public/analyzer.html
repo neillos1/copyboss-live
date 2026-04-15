@@ -4300,10 +4300,7 @@ async function runAnalysis() {
     return;
   }
 
-  // Mark free upload as used if this is their first analysis
-  if (!isProActive() && !hasCredits() && !hasUsedFreeUpload()) {
-    markFreeUploadUsed();
-  }
+  // NOTE: free upload is consumed only after a genuinely successful render.
 
   // Use a credit if not Pro and not using free upload
   if (!isProActive() && hasCredits() && !useReportCredit()) {
@@ -4517,6 +4514,12 @@ async function runAnalysis() {
       document.querySelectorAll(".result-content").forEach(el => el.style.opacity = 1);
       document.querySelectorAll(".analyzing").forEach(el => el.style.display = "none");
       console.log("✅ Analysis complete - results shown after overlay finished");
+
+      // Consume the free upload only after a successful analysis render
+      if (!isProActive() && !hasCredits() && !hasUsedFreeUpload()) {
+        console.log('[runAnalysis] consuming free upload after successful analysis');
+        markFreeUploadUsed();
+      }
     }
   }
 }
@@ -9871,8 +9874,10 @@ function useReportCredit() {
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   if (credits > 0) {
     localStorage.setItem('reportCredits', (credits - 1).toString());
+    // Persist: once a paid credit is used, keep UI viewable across refreshes
+    localStorage.setItem('hasUnlockedUI', 'true');
     if (credits - 1 === 0) {
-      applyLocks(); // Re-lock when credits run out
+      console.log('[CREDITS] reached 0 — not re-locking UI (next Analyze will be blocked)');
     }
     return true;
   }
