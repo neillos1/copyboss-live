@@ -61,12 +61,15 @@ const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 
 // Gate check function for analysis
 window.cbCanAnalyze = function() {
-  // DEV ONLY: Localhost override for testing (does not affect production)
-  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    return { allowed: true, reason: "DEV_LOCALHOST_OVERRIDE" };
+  let isProActive = false;
+  if (typeof window.__isProActive === "function") {
+    try {
+      isProActive = window.__isProActive();
+    } catch (e) {
+      console.warn("[GATING] __isProActive() threw inside cbCanAnalyze; treating as free", e);
+      isProActive = false;
+    }
   }
-  
-  const isProActive = window.__isProActive();
   const credits = parseInt(localStorage.getItem('reportCredits') || '0');
   const hasCredits = credits > 0;
   const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
