@@ -4155,6 +4155,11 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
 
 
 </div>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 
 
@@ -5944,7 +5949,7 @@ function displayGeminiResultsSafe() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 40px;
+  margin-top: 0;
 }
 
 .analyzer-row {
@@ -6039,8 +6044,8 @@ function displayGeminiResultsSafe() {
   display: flex;
   flex-direction: column;
   align-items: center; /* keeps them stacked & centered with each other */
-  margin-top: 40px;
-  transform: translateX(95px); /* ⬅️ nudge them right together */
+  margin-top: 0;
+  transform: none;
 }
 .return-home-wrapper {
   position: fixed;
@@ -6583,168 +6588,7 @@ a:hover {
 
   <!-- 🌍 Full-Width Footer -->
  </div> <!-- 🌍 Full-Width Footer -->
-</div> <!-- End of wrapper -->
 
-<!-- START OF FILE -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>CopyBoss</title>
-
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-    }
-
-    .main-wrapper {
-      flex: 1;
-      padding-bottom: 0 !important; /* Removed - was causing overscroll */
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-    
-    /* Mobile-specific footer clearance - Analyzer page only */
-    @media (max-width: 768px) {
-      body.page-analyzer {
-        padding-bottom: 120px; /* More padding on mobile for sticky header */
-      }
-      
-      .page-analyzer .main-wrapper {
-        padding-bottom: 120px; /* Extra mobile padding */
-      }
-    }
-
-
-
-    .footer-line {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 40px;
-    }
-
-    .footer-line div {
-      width: 20%;
-      max-width: 500px;
-      border-top: 1px solid white;
-    }
-
-    .footer-icons {
-      margin-bottom: 10px;
-    }
-
-    .footer-icons a {
-      color: #ccc;
-      margin-right: 15px;
-      font-size: 18px;
-    }
- 
- #viralScoreFeedback::before,
-#captionClarityFeedback::before,
-#soundMatchFeedback::before,
-#viewerUnderstandingFeedback::before,
-#engagementForecastFeedback::before,
-#viralStrengthFeedback::before {
-  content: none !important;
-}
-
-
-.footer-pre-container {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;
-  width: 100%;
-  margin-top: 70px; /* adjust spacing as needed */
-}
-
-.footer-pre-bar {
-  background-color: #0a0f3a;
-  color: white;
-  padding: 10px 20px;
-  font-weight: 600;
-  border-radius: 10px;
-  display: inline-block;
-  text-align: center;
-  margin: 0;
-}
-
-.footer-pre-bar span {
-  font-size: 16px;
-}
-
-.footer-pre-bar a {
-  color: #3ea6ff;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.footer-pre-bar a:hover {
-  text-decoration: underline;
-}
-
-
- footer {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-  border-top: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-
-
-
-.result-content p::before {
-  content: none !important;
-}
-
-#detailed-gemini-feedback::before {
-  content: none !important;
-}
-
-
-/* Label Text */
-.strength-text {
-  color: #fff !important;
-  font-weight: bold;
-}
-
-
-.chartjs-tooltip {
-  background: #fff !important;
-  color: #1a233a !important;
-  border: 1px solid #1E88E5 !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-
-.sidebar-link i {
-  margin-right: 10px;
-  width: 20px;
-  text-align: center;
-  transition: transform 0.4s ease;
-}
-
-.sidebar-link:hover i {
-  transform: rotate(360deg);
-}
-
-.sidebar ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-
-
- </style>
 
 <style>
   .btn-upgrade:hover {
@@ -9858,8 +9702,10 @@ function unlockPro() {
   removeAllLocks();
   
   console.log("✅ Forcing full page display override…");
-  document.documentElement.setAttribute("style", "display: block !important;");
-  document.body.setAttribute("style", "display: block !important;");
+  document.documentElement.style.display = 'block';
+  document.body.style.display = 'flex';
+  document.body.style.flexDirection = 'column';
+  document.body.style.margin = '0';
   
   console.log('✅ unlockPro() completed - all locks should be removed');
 }
@@ -11409,6 +11255,21 @@ body {
   overflow: hidden !important;
 }
 
+/* Keep sidebar + mobile drawer out of document flow: scroll-unlock patches may set
+   inline position:relative on previously fixed elements, which stacks them above
+   .analyzer-wrapper and pushes the main column down (~700–800px). */
+body.page-analyzer .wrapper > .sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 260px !important;
+  height: 100vh !important;
+}
+
+body.page-analyzer #cb-drawer {
+  position: fixed !important;
+}
+
 /* CRITICAL FIX: Sidebar scrollable wrapper - use flex: 1 for proper scrolling */
 .sidebar .sidebar-wrapper,
 .sidebar-wrapper,
@@ -11433,6 +11294,40 @@ body {
 .analyzer-wrapper {
   padding-left: 260px !important; /* Sidebar width */
   box-sizing: border-box !important;
+}
+
+/* Kill legacy nudge/margins and any inline top padding — keeps column flush under headers */
+body.page-analyzer .analyzer-wrapper {
+  transform: none !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+body.page-analyzer .analyzer-wrapper > .chart-card:first-of-type {
+  margin-top: 12px !important;
+}
+
+/* Footer sits after #main-wrapper; keep it in the main column (not under fixed sidebar) */
+body.page-analyzer footer.new-footer {
+  margin-left: 260px !important;
+  margin-right: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 1200px) {
+  body.page-analyzer footer.new-footer {
+    margin-left: 307px !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body.page-analyzer footer.new-footer {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }
 
 /* Also ensure no child elements add extra space */
@@ -11587,7 +11482,7 @@ footer .social-link .fa-brands {
     padding-left: 307px !important;   /* was 299px, now +8px */
     padding-right: 50px !important;
 
-    padding-top: 10px;
+    padding-top: 0 !important;
     box-sizing: border-box;
   }
 
