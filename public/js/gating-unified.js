@@ -73,7 +73,16 @@
   // Unified gating refresh function
   window.refreshGatingUI = function() {
     const tier = window.getUserTier ? window.getUserTier() : 'free';
-    const isPro = tier === 'pro';
+    let isPro = tier === 'pro';
+
+    if (typeof window.__isProActive === 'function') {
+      try {
+        isPro = window.__isProActive();
+      } catch (e) {
+        console.warn('[GATING-UNIFIED] __isProActive failed, falling back to getUserTier()', e);
+        isPro = tier === 'pro';
+      }
+    }
     
     // Set body class for CSS targeting
     if (isPro) {
@@ -184,8 +193,16 @@
   
   // Re-run after a delay to catch late-rendered elements (but only if not Pro, to prevent re-locking)
   setTimeout(() => {
+    let proActive = false;
+    if (typeof window.__isProActive === 'function') {
+      try {
+        proActive = window.__isProActive();
+      } catch (e) {
+        console.warn('[GATING-UNIFIED] __isProActive failed in delayed refresh', e);
+      }
+    }
     const currentTier = window.getUserTier ? window.getUserTier() : 'free';
-    if (currentTier !== 'pro') {
+    if (!proActive && currentTier !== 'pro') {
       window.refreshGatingUI();
     }
   }, 1000);

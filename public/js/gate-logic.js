@@ -10,7 +10,7 @@ if (window.__gatingInitialized) {
 // ============================================================
 // SINGLE SOURCE OF TRUTH: getUserTier()
 // ============================================================
-// Returns 'pro' if: URL has pro=1 OR localStorage tier indicates pro OR localStorage.isPro OR window.isProUser() exists and returns true
+// Returns 'pro' if: URL has pro=1 OR localStorage tier indicates pro OR localStorage.isPro OR window.isProUser() exists and returns true (cb_userTier is handled in __isProActive only)
 window.getUserTier = function() {
   const params = new URLSearchParams(window.location.search);
   const urlPro = params.get("pro") === "1";
@@ -37,6 +37,7 @@ window.getUserTier = function() {
 // BACKWARD COMPATIBILITY: window.__isProActive()
 // ============================================================
 window.__isProActive = function() {
+  if (localStorage.getItem("cb_userTier") === "pro") return true;
   return window.getUserTier() === "pro";
 };
 

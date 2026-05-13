@@ -9893,6 +9893,14 @@ function useReportCredit() {
 }
 
 function isProActive() {
+  if (typeof window.__isProActive === 'function') {
+    try {
+      return window.__isProActive();
+    } catch (e) {
+      console.warn('[analyzer] __isProActive failed, falling back to legacy isPro', e);
+    }
+  }
+
   return localStorage.getItem('isPro') === 'true';
 }
 
