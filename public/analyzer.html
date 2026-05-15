@@ -11313,8 +11313,12 @@ body.page-analyzer .main-content {
   overflow: hidden !important;
 }
 
+body.page-analyzer .wrapper {
+  padding-top: 0px !important;
+}
+
 body.page-analyzer .analyzer-wrapper > .chart-card:first-of-type {
-  margin-top: 8px !important;
+  margin-top: 2px !important;
 }
 
 /* Footer sits after #main-wrapper; keep it in the main column (not under fixed sidebar) */
@@ -11328,10 +11332,20 @@ body.page-analyzer footer.new-footer {
   box-sizing: border-box !important;
 }
 
+body.page-analyzer footer.new-footer .footer-container {
+  max-width: 1500px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
 @media (min-width: 1200px) {
   body.page-analyzer footer.new-footer {
-    margin-left: 307px !important;
-    width: calc(100% - 307px) !important;
+    margin-left: 260px !important;
+    width: calc(100% - 260px) !important;
+    padding-left: 47px !important;
+    padding-right: 50px !important;
   }
 }
 
