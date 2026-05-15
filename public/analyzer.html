@@ -2473,12 +2473,6 @@ html, body {
 </div>
   </div>
 </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
   // Check if user is logged in and update UI accordingly
   async function checkUserStatus() {
@@ -11303,15 +11297,33 @@ body.page-analyzer .analyzer-wrapper {
   padding-top: 0 !important;
 }
 
+/* Stronger than inline gap-fix padding-top; scoped under #main-wrapper (nav already above .wrapper) */
+body.page-analyzer #main-wrapper .analyzer-wrapper {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Stray flex sibling above #main-wrapper — can reserve vertical space in column flex layout */
+body.page-analyzer .main-content {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+  overflow: hidden !important;
+}
+
 body.page-analyzer .analyzer-wrapper > .chart-card:first-of-type {
-  margin-top: 12px !important;
+  margin-top: 8px !important;
 }
 
 /* Footer sits after #main-wrapper; keep it in the main column (not under fixed sidebar) */
 body.page-analyzer footer.new-footer {
   margin-left: 260px !important;
   margin-right: 0 !important;
-  width: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: calc(100% - 260px) !important;
   max-width: none !important;
   box-sizing: border-box !important;
 }
@@ -11319,7 +11331,7 @@ body.page-analyzer footer.new-footer {
 @media (min-width: 1200px) {
   body.page-analyzer footer.new-footer {
     margin-left: 307px !important;
-    width: auto !important;
+    width: calc(100% - 307px) !important;
   }
 }
 
