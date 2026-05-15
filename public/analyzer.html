@@ -11258,6 +11258,42 @@ body.page-analyzer .wrapper > .sidebar {
   left: 0 !important;
   width: 260px !important;
   height: 100vh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  contain: layout size !important;
+}
+
+/* Sidebar widgets scroll inside the fixed column — must not extend document height */
+body.page-analyzer .sidebar .sidebar-wrapper,
+body.page-analyzer .sidebar #sidebar-wrapper {
+  max-height: calc(100dvh - 75px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+body.page-analyzer .sidebar #leaderboard,
+body.page-analyzer .sidebar #sidebar-countdown,
+body.page-analyzer .sidebar .sidebar-social-container {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Orphaned sidebar widgets outside .sidebar must not reserve page flow height */
+body.page-analyzer .wrapper > .leaderboard-panel,
+body.page-analyzer .wrapper > #leaderboard,
+body.page-analyzer .wrapper > #sidebar-countdown,
+body.page-analyzer .wrapper > .sidebar-social-container,
+body.page-analyzer .wrapper > .social-label,
+body.page-analyzer .wrapper > .sidebar-social-icons {
+  display: none !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 body.page-analyzer #cb-drawer {
@@ -11330,6 +11366,46 @@ body.page-analyzer footer.new-footer {
   width: calc(100% - 260px) !important;
   max-width: none !important;
   box-sizing: border-box !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+body.page-analyzer #main-wrapper {
+  flex: none !important;
+  flex-grow: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: auto !important;
+}
+
+html,
+body.page-analyzer {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  overflow-x: hidden !important;
+  min-height: auto !important;
+}
+
+body.page-analyzer .wrapper {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: auto !important;
+}
+
+/* Stripe v3 injects hidden controller iframes after footer; stop them adding page height */
+body.page-analyzer > iframe[name^="__privateStripe"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 body.page-analyzer footer.new-footer .footer-container {
