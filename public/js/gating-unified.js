@@ -6,7 +6,9 @@
 
 (function initUnifiedGating() {
   'use strict';
-  
+
+  window.__lastVisualUnlockState = window.__lastVisualUnlockState ?? null;
+
   // Inject CSS for blur layer system (once)
   if (!document.getElementById('cb-gating-styles')) {
     const style = document.createElement('style');
@@ -69,9 +71,14 @@
     `;
     document.head.appendChild(style);
   }
-  
-  // Unified gating refresh function
-  window.refreshGatingUI = function() {
+
+  const LOCKED_CARD_SELECTORS = [
+    '#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard',
+    '#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card',
+    '.report-card[data-locked]', '.gauge-container[data-locked]'
+  ].join(', ');
+
+  function computeVisualState() {
     const tier = window.getUserTier ? window.getUserTier() : 'free';
     let isPro = tier === 'pro';
 
@@ -83,128 +90,188 @@
         isPro = tier === 'pro';
       }
     }
-    
-    // Set body class for CSS targeting
-    if (isPro) {
-      document.body.classList.add('pro-active');
-    } else {
-      document.body.classList.remove('pro-active');
+
+    const reportCredits = Number(localStorage.getItem('reportCredits') || 0);
+    const hasReportCredits = reportCredits > 0;
+    const isVisuallyUnlocked = isPro || hasReportCredits;
+    const stateKey = isVisuallyUnlocked
+      ? `unlock:${tier}:c${reportCredits}`
+      : 'lock:free';
+
+    return { tier, isPro, reportCredits, hasReportCredits, isVisuallyUnlocked, stateKey };
+  }
+
+  function cardNeedsUnlockWork(card) {
+    if (
+      card.classList.contains('gated') ||
+      card.classList.contains('pro-locked') ||
+      card.classList.contains('locked') ||
+      card.classList.contains('pro-locked-results') ||
+      card.classList.contains('locked-report') ||
+      card.hasAttribute('data-locked')
+    ) {
+      return true;
     }
-    
-    // Locked card selectors
-    const lockedCardSelectors = [
-      '#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard',
-      '#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card',
-      '.report-card[data-locked]', '.gauge-container[data-locked]'
-    ];
-    
-    const lockedCards = document.querySelectorAll(lockedCardSelectors.join(', '));
-    
-    let blurredCards = 0;
-    let lockOverlays = 0;
-    
-    lockedCards.forEach(card => {
-      if (isPro) {
-        // Pro mode: remove ALL blur layers and locks
-        // Remove blur layer
-        const blurLayers = card.querySelectorAll('.cb-blur-layer');
-        blurLayers.forEach(layer => layer.remove());
-        
-        // Remove/hide ALL lock overlays (multiple selectors)
-        const lockOverlays = card.querySelectorAll('.locked-overlay, .cb-lock-overlay, .pro-locked-overlay');
-        lockOverlays.forEach(overlay => {
-          overlay.style.display = 'none';
-          overlay.remove(); // Remove from DOM entirely
-        });
-        
-        // Remove padlock images
-        const padlocks = card.querySelectorAll('img[alt*="lock" i], img[src*="lock" i], img[alt*="padlock" i], .padlock-icon, .m-lock');
-        padlocks.forEach(img => {
-          img.style.display = 'none';
-          if (img.parentElement?.classList.contains('padlock-icon')) {
-            img.parentElement.remove();
-          }
-        });
-        
-        // Remove upgrade buttons
-        const upgradeBtns = card.querySelectorAll('.btn-upgrade, .upgrade-btn, [class*="upgrade"]');
-        upgradeBtns.forEach(btn => btn.remove());
-        
-        // Remove pro-locked classes
-        card.classList.remove('gated', 'pro-locked', 'locked', 'pro-locked-results', 'locked-report');
-        
-        // Clear any inline filter/opacity/pointer-events styles
-        card.style.filter = 'none';
-        card.style.opacity = '1';
-        card.style.pointerEvents = 'auto';
-        card.style.backdropFilter = 'none';
-        
-        // Remove data-locked attribute if present
-        card.removeAttribute('data-locked');
-      } else {
-        // Free mode: add blur and locks
-        // Add gated class
-        card.classList.add('gated');
-        
-        // Create blur layer if missing
-        if (!card.querySelector('.cb-blur-layer')) {
-          const blurLayer = document.createElement('div');
-          blurLayer.className = 'cb-blur-layer';
-          card.insertBefore(blurLayer, card.firstChild);
-          blurredCards++;
-        }
-        
-        // Ensure lock overlay exists (create if missing)
-        if (!card.querySelector('.locked-overlay, .cb-lock-overlay')) {
-          const lockOverlay = document.createElement('div');
-          lockOverlay.className = 'cb-lock-overlay';
-          lockOverlay.innerHTML = `
+    if (card.querySelector('.cb-blur-layer, .locked-overlay, .cb-lock-overlay, .pro-locked-overlay')) {
+      return true;
+    }
+    if (card.querySelector('.btn-upgrade, .upgrade-btn, .padlock-icon, .m-lock')) {
+      return true;
+    }
+    return false;
+  }
+
+  function cardNeedsLockWork(card) {
+    if (!card.classList.contains('gated')) return true;
+    if (!card.querySelector('.cb-blur-layer')) return true;
+    if (!card.querySelector('.locked-overlay, .cb-lock-overlay')) return true;
+    const overlay = card.querySelector('.locked-overlay, .cb-lock-overlay');
+    if (overlay && overlay.style.display === 'none') return true;
+    return false;
+  }
+
+  function countPendingCardWork(lockedCards, isVisuallyUnlocked) {
+    let pending = 0;
+    lockedCards.forEach((card) => {
+      if (isVisuallyUnlocked) {
+        if (cardNeedsUnlockWork(card)) pending += 1;
+      } else if (cardNeedsLockWork(card)) {
+        pending += 1;
+      }
+    });
+    return pending;
+  }
+
+  function unlockCard(card) {
+    card.querySelectorAll('.cb-blur-layer').forEach((layer) => layer.remove());
+    card.querySelectorAll('.locked-overlay, .cb-lock-overlay, .pro-locked-overlay').forEach((overlay) => {
+      overlay.remove();
+    });
+    card.querySelectorAll('img[alt*="lock" i], img[src*="lock" i], img[alt*="padlock" i], .padlock-icon, .m-lock').forEach((img) => {
+      img.style.display = 'none';
+      if (img.parentElement?.classList.contains('padlock-icon')) {
+        img.parentElement.remove();
+      }
+    });
+    card.querySelectorAll('.btn-upgrade, .upgrade-btn, [class*="upgrade"]').forEach((btn) => btn.remove());
+    card.classList.remove('gated', 'pro-locked', 'locked', 'pro-locked-results', 'locked-report');
+    card.style.filter = 'none';
+    card.style.opacity = '1';
+    card.style.pointerEvents = 'auto';
+    card.style.backdropFilter = 'none';
+    card.removeAttribute('data-locked');
+  }
+
+  function lockCard(card) {
+    card.classList.add('gated');
+    if (!card.querySelector('.cb-blur-layer')) {
+      const blurLayer = document.createElement('div');
+      blurLayer.className = 'cb-blur-layer';
+      card.insertBefore(blurLayer, card.firstChild);
+    }
+    if (!card.querySelector('.locked-overlay, .cb-lock-overlay')) {
+      const lockOverlay = document.createElement('div');
+      lockOverlay.className = 'cb-lock-overlay';
+      lockOverlay.innerHTML = `
             <div style="text-align: center; color: white; padding: 20px;">
               <div style="font-size: 48px; margin-bottom: 12px;">🔒</div>
               <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Unlock with Pro</div>
               <div style="font-size: 14px; opacity: 0.9;">Upgrade to view full analysis</div>
             </div>
           `;
-          card.appendChild(lockOverlay);
-          lockOverlays++;
-        } else {
-          lockOverlays++;
-        }
-        
-        // Ensure lock overlay is visible
-        const lockOverlay = card.querySelector('.locked-overlay, .cb-lock-overlay');
-        if (lockOverlay) {
-          lockOverlay.style.display = 'flex';
-          lockOverlay.style.zIndex = '5';
-        }
+      card.appendChild(lockOverlay);
+    }
+    const lockOverlay = card.querySelector('.locked-overlay, .cb-lock-overlay');
+    if (lockOverlay) {
+      lockOverlay.style.display = 'flex';
+      lockOverlay.style.zIndex = '5';
+    }
+  }
+
+  function applyGatingUI(options) {
+    if (window.__gatingRefreshRunning) return false;
+
+    const state = computeVisualState();
+    const { tier, reportCredits, isVisuallyUnlocked, stateKey } = state;
+    const lockedCards = document.querySelectorAll(LOCKED_CARD_SELECTORS);
+    const bodyHasProActive = document.body.classList.contains('pro-active');
+    const bodyClassMatches = bodyHasProActive === isVisuallyUnlocked;
+    const pending = countPendingCardWork(lockedCards, isVisuallyUnlocked);
+    const sameState = window.__lastVisualUnlockState === stateKey;
+    const force = Boolean(options && options.force);
+
+    if (!force && sameState && bodyClassMatches && pending === 0) {
+      return false;
+    }
+
+    window.__gatingRefreshRunning = true;
+    window.__cbGatingMutating = true;
+
+    try {
+      if (isVisuallyUnlocked && !bodyHasProActive) {
+        document.body.classList.add('pro-active');
+      } else if (!isVisuallyUnlocked && bodyHasProActive) {
+        document.body.classList.remove('pro-active');
       }
-    });
-    
-    // Debug log
-    console.log(`[GATING] tier=${tier}, blurredCards=${blurredCards}, lockOverlays=${lockOverlays}`);
+
+      let blurredCards = 0;
+      let lockOverlays = 0;
+
+      lockedCards.forEach((card) => {
+        if (isVisuallyUnlocked) {
+          if (!cardNeedsUnlockWork(card)) return;
+          unlockCard(card);
+        } else {
+          if (!cardNeedsLockWork(card)) return;
+          const hadBlur = !card.querySelector('.cb-blur-layer');
+          const hadOverlay = !card.querySelector('.locked-overlay, .cb-lock-overlay');
+          lockCard(card);
+          if (hadBlur) blurredCards += 1;
+          if (hadOverlay) lockOverlays += 1;
+          else lockOverlays += 1;
+        }
+      });
+
+      window.__lastVisualUnlockState = stateKey;
+
+      console.log(
+        `[GATING] tier=${tier}, reportCredits=${reportCredits}, visuallyUnlocked=${isVisuallyUnlocked}, pending=${pending}, blurredCards=${blurredCards}, lockOverlays=${lockOverlays}`
+      );
+      return true;
+    } finally {
+      window.__gatingRefreshRunning = false;
+      requestAnimationFrame(() => {
+        window.__cbGatingMutating = false;
+      });
+    }
+  }
+
+  let debounceTimer = null;
+  window.refreshGatingUI = function refreshGatingUI(options) {
+    if (window.__gatingRefreshRunning) return;
+
+    const immediate = Boolean(options && options.immediate);
+    if (immediate) {
+      applyGatingUI(options);
+      return;
+    }
+
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null;
+      applyGatingUI(options);
+    }, 32);
   };
-  
+
   // Run on DOMContentLoaded
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.refreshGatingUI);
+    document.addEventListener('DOMContentLoaded', () => window.refreshGatingUI({ immediate: true }));
   } else {
-    window.refreshGatingUI();
+    window.refreshGatingUI({ immediate: true });
   }
-  
-  // Re-run after a delay to catch late-rendered elements (but only if not Pro, to prevent re-locking)
+
+  // Late pass: only applies work if new cards still need gating/unlock
   setTimeout(() => {
-    let proActive = false;
-    if (typeof window.__isProActive === 'function') {
-      try {
-        proActive = window.__isProActive();
-      } catch (e) {
-        console.warn('[GATING-UNIFIED] __isProActive failed in delayed refresh', e);
-      }
-    }
-    const currentTier = window.getUserTier ? window.getUserTier() : 'free';
-    if (!proActive && currentTier !== 'pro') {
-      window.refreshGatingUI();
-    }
+    window.refreshGatingUI({ latePass: true, immediate: true });
   }, 1000);
 })();
-

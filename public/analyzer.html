@@ -4299,13 +4299,7 @@ async function runAnalysis() {
     return;
   }
 
-  // NOTE: free upload is consumed only after a genuinely successful render.
-
-  // Use a credit if not Pro and not using free upload
-  if (!isProActive() && hasCredits() && !useReportCredit()) {
-    alert("No report credits remaining. Please purchase more credits or upgrade to Pro.");
-    return;
-  }
+  // NOTE: report credits and free upload are consumed only after a genuinely successful render.
 
   const fileInputEl = document.getElementById("file-upload");
 
@@ -4514,7 +4508,7 @@ async function runAnalysis() {
       document.querySelectorAll(".analyzing").forEach(el => el.style.display = "none");
       console.log("✅ Analysis complete - results shown after overlay finished");
 
-      // Consume the free upload only after a successful analysis render
+      // Consume entitlement only after successful analysis render
       let safeIsPro = false;
       try {
         safeIsPro = typeof isProActive === 'function' ? isProActive() : false;
@@ -4523,9 +4517,18 @@ async function runAnalysis() {
         safeIsPro = false;
       }
 
-      if (!safeIsPro && !hasCredits() && !hasUsedFreeUpload()) {
-        console.log('[runAnalysis] consuming free upload after successful analysis');
-        markFreeUploadUsed();
+      if (safeIsPro) {
+        // Pro: unlimited — consume nothing
+      } else {
+        const reportCredits = Number(localStorage.getItem('reportCredits') || 0);
+        if (reportCredits > 0) {
+          localStorage.setItem('reportCredits', String(reportCredits - 1));
+          localStorage.setItem('hasUnlockedUI', 'true');
+          console.log('[runAnalysis] consumed 1 report credit after successful analysis, remaining:', reportCredits - 1);
+        } else if (!hasUsedFreeUpload()) {
+          console.log('[runAnalysis] consuming free upload after successful analysis');
+          markFreeUploadUsed();
+        }
       }
     }
   }
@@ -9754,37 +9757,84 @@ function shouldUnlock() {
 
 // Lock/Unlock Functions
 function removeLocks() {
+  const lockClassEls = document.querySelectorAll('.pro-locked, .pro-locked-results, .locked-report');
+  const overlayEls = document.querySelectorAll('.locked-overlay, .cb-lock-overlay, .pro-locked-overlay');
+  const blurLayerEls = document.querySelectorAll('.cb-blur-layer');
+  const upgradeBtnEls = document.querySelectorAll('.btn-upgrade, .upgrade-btn');
+  const gatedEls = document.querySelectorAll('.gated, .locked');
+  const analyzingEls = Array.from(document.querySelectorAll('.analyzing')).filter(function (el) {
+    return getComputedStyle(el).display !== 'none';
+  });
+  const reportCardsNeedUnlock = Array.from(document.querySelectorAll('.report-card')).some(function (card) {
+    return (
+      card.style.maxHeight !== 'none' && card.style.maxHeight !== '' ||
+      card.style.overflow === 'hidden' ||
+      (card.style.paddingBottom && card.style.paddingBottom !== '0' && card.style.paddingBottom !== '0px')
+    );
+  });
+
+  if (
+    lockClassEls.length === 0 &&
+    overlayEls.length === 0 &&
+    blurLayerEls.length === 0 &&
+    upgradeBtnEls.length === 0 &&
+    gatedEls.length === 0 &&
+    analyzingEls.length === 0 &&
+    !reportCardsNeedUnlock
+  ) {
+    return;
+  }
+
   console.log('🧹 FORCE UNLOCK RUNNING');
 
   // 1. Remove ALL locking classes globally
-  document.querySelectorAll('.pro-locked, .pro-locked-results, .locked-report').forEach(el => {
+  lockClassEls.forEach(function (el) {
     el.classList.remove('pro-locked', 'pro-locked-results', 'locked-report');
   });
 
   // 2. Remove ALL overlays
-  document.querySelectorAll('.locked-overlay, .cb-lock-overlay').forEach(el => {
+  overlayEls.forEach(function (el) {
     el.remove();
   });
 
-  // 3. Kill ALL blur styles everywhere
-  document.querySelectorAll('*').forEach(el => {
-    el.style.filter = 'none';
-    el.style.backdropFilter = 'none';
-    el.style.opacity = '1';
+  blurLayerEls.forEach(function (el) {
+    el.remove();
+  });
+
+  gatedEls.forEach(function (el) {
+    el.classList.remove('gated', 'locked');
+  });
+
+  // 3. Clear blur styles on lock-related targets only (never querySelectorAll('*'))
+  document.querySelectorAll(
+    '.pro-locked, .pro-locked-results, .locked-report, .report-card, .gauge-container, .gated, .cb-gauge, .cb-card, [data-locked]'
+  ).forEach(function (el) {
+    if (el.style.filter) el.style.filter = 'none';
+    if (el.style.backdropFilter) el.style.backdropFilter = 'none';
+    if (el.style.opacity && el.style.opacity !== '1') el.style.opacity = '1';
   });
 
   // 4. Fix result cards layout
-  document.querySelectorAll('.report-card').forEach(card => {
+  document.querySelectorAll('.report-card').forEach(function (card) {
+    if (
+      card.style.maxHeight === 'none' &&
+      card.style.overflow === 'visible' &&
+      (!card.style.paddingBottom || card.style.paddingBottom === '0' || card.style.paddingBottom === '0px')
+    ) {
+      return;
+    }
     card.style.maxHeight = 'none';
     card.style.overflow = 'visible';
     card.style.paddingBottom = '0';
   });
 
   // 5. Remove upgrade buttons
-  document.querySelectorAll('.btn-upgrade').forEach(btn => btn.remove());
+  upgradeBtnEls.forEach(function (btn) {
+    btn.remove();
+  });
 
   // 6. Hide analyzing placeholders
-  document.querySelectorAll('.analyzing').forEach(el => {
+  analyzingEls.forEach(function (el) {
     el.style.display = 'none';
   });
 

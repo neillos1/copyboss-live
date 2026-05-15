@@ -1239,9 +1239,17 @@ function initializeUserTier() {
   }
 }
 
-// Check if user has Pro access
+// Check if user has Pro access (localStorage only — never read module-level userTier; Safari TDZ-safe)
 function isProUser() {
-  return userTier === 'pro' || localStorage.getItem('isPro') === 'true';
+  try {
+    return (
+      localStorage.getItem('cb_userTier') === 'pro' ||
+      localStorage.getItem('userTier') === 'pro' ||
+      localStorage.getItem('isPro') === 'true'
+    );
+  } catch (e) {
+    return false;
+  }
 }
 
 // Update user tier and localStorage
