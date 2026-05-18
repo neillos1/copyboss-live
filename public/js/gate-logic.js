@@ -60,6 +60,14 @@ const __GT_DISABLE_BLUR_UNLOCK = true;
 
 const hasUsedFree = localStorage.getItem("hasUsedFreeAnalysis") === "true";
 
+function parseReportCredits() {
+  return Number(localStorage.getItem("reportCredits") || 0);
+}
+
+window.hasCredits = function() {
+  return parseReportCredits() > 0;
+};
+
 // Gate check function for analysis
 window.cbCanAnalyze = function() {
   let isProActive = false;
@@ -71,23 +79,25 @@ window.cbCanAnalyze = function() {
       isProActive = false;
     }
   }
-  const credits = parseInt(localStorage.getItem('reportCredits') || '0');
-  const hasCredits = credits > 0;
-  const freeUploadUsed = localStorage.getItem('freeUploadUsed') === 'true';
-  
+  const parsedCredits = parseReportCredits();
+  const userHasCredits = parsedCredits > 0;
+  const freeUploadUsed = localStorage.getItem("freeUploadUsed") === "true";
+
+  let result;
   if (isProActive) {
-    return { allowed: true, reason: 'Pro user' };
+    result = { allowed: true, reason: "Pro user" };
+  } else if (userHasCredits) {
+    result = { allowed: true, reason: "Has " + parsedCredits + " credits" };
+  } else if (!freeUploadUsed) {
+    result = { allowed: true, reason: "Free upload available" };
+  } else {
+    result = { allowed: false, reason: "No credits, free upload used, not Pro" };
   }
-  
-  if (hasCredits) {
-    return { allowed: true, reason: `Has ${credits} credits` };
-  }
-  
-  if (!freeUploadUsed) {
-    return { allowed: true, reason: 'Free upload available' };
-  }
-  
-  return { allowed: false, reason: 'No credits, free upload used, not Pro' };
+
+  console.log("[GATE] parsedCredits:", parsedCredits);
+  console.log("[GATE] allowed:", result.allowed);
+  console.log("[GATE] reason:", result.reason);
+  return result;
 };
 
 // Gating detection log (dev-only)
