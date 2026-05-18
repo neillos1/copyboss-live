@@ -9660,8 +9660,36 @@ function updateSidebarRank(average) {
 // Stripe Checkout and Unlock Logic
 const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
 
+function logPaymentFlowDiagnostics(phase, details) {
+  try {
+    var info = details || {};
+    console.groupCollapsed('[PAYMENT FLOW] ' + phase);
+    console.log('source:', info.source || 'unknown');
+    if (info.plan !== undefined) console.log('plan:', info.plan);
+    if (info.urlParams) console.log('urlParams:', info.urlParams);
+    if (info.successUrl) console.log('successUrl:', info.successUrl);
+    if (info.cancelUrl) console.log('cancelUrl:', info.cancelUrl);
+    if (info.branch) console.log('branch:', info.branch);
+    if (info.persistence) console.log('persistence:', info.persistence);
+    console.log('localStorage:', {
+      isPro: localStorage.getItem('isPro'),
+      userTier: localStorage.getItem('userTier'),
+      cb_userTier: localStorage.getItem('cb_userTier'),
+      reportCredits: localStorage.getItem('reportCredits')
+    });
+    console.groupEnd();
+  } catch (e) {
+    console.warn('[PAYMENT FLOW] diagnostic log failed', e);
+  }
+}
+
 // Stripe Checkout Functions
 async function redirectToStripeCheckout(plan) {
+  logPaymentFlowDiagnostics('checkout-start', {
+    source: 'redirectToStripeCheckout',
+    plan: plan,
+    persistence: 'Stripe Payment Link only; success_url -> success.html?plan=&upgraded=true'
+  });
   // Direct Stripe URLs with success/cancel redirects
   const baseUrls = {
     'pro': 'https://buy.stripe.com/3cI00idzK9vD8oacqo5os02', // Creator+ Plan
@@ -9677,6 +9705,13 @@ async function redirectToStripeCheckout(plan) {
     
     const url = `${baseUrl}?success_url=${successUrl}&cancel_url=${cancelUrl}`;
     
+    logPaymentFlowDiagnostics('checkout-redirect', {
+      source: 'redirectToStripeCheckout',
+      plan: plan,
+      successUrl: decodeURIComponent(successUrl),
+      cancelUrl: decodeURIComponent(cancelUrl),
+      persistence: 'no session_id on analyzer; success.html may use session_id + /api/session-details'
+    });
     console.log('🔄 Redirecting to Stripe:', url);
     // Open in same tab to maintain session context and allow success redirect
     window.location.href = url;
@@ -10006,18 +10041,137 @@ function checkPaymentSuccess() {
   const plan = urlParams.get('plan');
   const credits = urlParams.get('credits');
   const upgraded = urlParams.get('upgraded');
-  
-  if (plan === 'pro' || upgraded === 'true') {
-    unlockPro();
+
+  function stripPaymentUrlParams() {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  function logUnifiedTierWrite(branch, tier) {
+    console.log('[PAYMENT FLOW] unified tier write', {
+      branch: branch,
+      cb_userTier: localStorage.getItem('cb_userTier'),
+      userTier: localStorage.getItem('userTier'),
+      isPro: localStorage.getItem('isPro'),
+      reportCredits: localStorage.getItem('reportCredits'),
+      tier: tier
+    });
+  }
+
+  logPaymentFlowDiagnostics('checkPaymentSuccess-start', {
+    source: 'checkPaymentSuccess',
+    urlParams: { plan: plan, credits: credits, upgraded: upgraded },
+    persistence: 'localStorage + cb_userTier/userTier unified gating'
+  });
+
+  if (plan === '2reports') {
+    logPaymentFlowDiagnostics('checkPaymentSuccess-branch', {
+      source: 'checkPaymentSuccess',
+      branch: '2reports',
+      plan: plan,
+      persistence: 'cb_userTier/userTier=2reports, reportCredits=2'
+    });
+    if (localStorage.getItem('cb_userTier') !== 'pro') {
+      localStorage.removeItem('isPro');
+    }
+    localStorage.setItem('cb_userTier', '2reports');
+    localStorage.setItem('userTier', '2reports');
+    localStorage.setItem('reportCredits', '2');
+    logUnifiedTierWrite('2reports', '2reports');
+    if (typeof window.refreshGatingUI === 'function') {
+      window.refreshGatingUI({ immediate: true });
+    }
+    if (typeof removeLocks === 'function') {
+      removeLocks();
+    }
+    stripPaymentUrlParams();
+    logPaymentFlowDiagnostics('checkPaymentSuccess-done', {
+      source: 'checkPaymentSuccess',
+      branch: '2reports',
+      persistence: 'unified tier + refreshGatingUI + removeLocks'
+    });
+  } else if (plan === '15reports') {
+    logPaymentFlowDiagnostics('checkPaymentSuccess-branch', {
+      source: 'checkPaymentSuccess',
+      branch: '15reports',
+      plan: plan,
+      persistence: 'cb_userTier/userTier=15reports, reportCredits=15'
+    });
+    if (localStorage.getItem('cb_userTier') !== 'pro') {
+      localStorage.removeItem('isPro');
+    }
+    localStorage.setItem('cb_userTier', '15reports');
+    localStorage.setItem('userTier', '15reports');
+    localStorage.setItem('reportCredits', '15');
+    logUnifiedTierWrite('15reports', '15reports');
+    if (typeof window.refreshGatingUI === 'function') {
+      window.refreshGatingUI({ immediate: true });
+    }
+    if (typeof removeLocks === 'function') {
+      removeLocks();
+    }
+    stripPaymentUrlParams();
+    logPaymentFlowDiagnostics('checkPaymentSuccess-done', {
+      source: 'checkPaymentSuccess',
+      branch: '15reports',
+      persistence: 'unified tier + refreshGatingUI + removeLocks'
+    });
+  } else if (plan === 'pro' || upgraded === 'true') {
+    logPaymentFlowDiagnostics('checkPaymentSuccess-branch', {
+      source: 'checkPaymentSuccess',
+      branch: 'pro|upgraded',
+      plan: plan,
+      persistence: 'cb_userTier/userTier=pro, isPro=true, clear reportCredits'
+    });
+    localStorage.setItem('cb_userTier', 'pro');
+    localStorage.setItem('userTier', 'pro');
+    localStorage.setItem('isPro', 'true');
+    localStorage.removeItem('reportCredits');
+    logUnifiedTierWrite('pro|upgraded', 'pro');
+    if (typeof window.refreshGatingUI === 'function') {
+      window.refreshGatingUI();
+    }
+    if (typeof unlockPro === 'function') {
+      unlockPro();
+    }
     showSuccessMessage('Pro subscription activated! 🎉');
-    
-    // Clean up URL parameters after processing
-    const newUrl = window.location.pathname;
-    window.history.replaceState({}, document.title, newUrl);
+    stripPaymentUrlParams();
+    logPaymentFlowDiagnostics('checkPaymentSuccess-done', {
+      source: 'checkPaymentSuccess',
+      branch: 'pro|upgraded',
+      persistence: 'unified tier + refreshGatingUI + unlockPro; URL stripped'
+    });
   } else if (credits) {
-    const creditAmount = parseInt(credits);
+    const creditAmount = parseInt(credits, 10);
+    logPaymentFlowDiagnostics('checkPaymentSuccess-branch', {
+      source: 'checkPaymentSuccess',
+      branch: 'credits',
+      plan: 'credits=' + creditAmount,
+      persistence: 'addReportCredits then tier from total credits'
+    });
     addReportCredits(creditAmount);
+    const totalCredits = parseInt(localStorage.getItem('reportCredits') || '0', 10);
+    const tier = totalCredits >= 15 ? '15reports' : '2reports';
+    localStorage.setItem('cb_userTier', tier);
+    localStorage.setItem('userTier', tier);
+    logUnifiedTierWrite('credits', tier);
+    if (typeof window.refreshGatingUI === 'function') {
+      window.refreshGatingUI({ immediate: true });
+    }
+    if (typeof removeLocks === 'function') {
+      removeLocks();
+    }
     showSuccessMessage(`${creditAmount} report credits added! 📊`);
+    logPaymentFlowDiagnostics('checkPaymentSuccess-done', {
+      source: 'checkPaymentSuccess',
+      branch: 'credits',
+      persistence: 'reportCredits=' + totalCredits + ', tier=' + tier
+    });
+  } else {
+    logPaymentFlowDiagnostics('checkPaymentSuccess-noop', {
+      source: 'checkPaymentSuccess',
+      branch: 'none',
+      urlParams: { plan: plan, credits: credits, upgraded: upgraded }
+    });
   }
 }
 
@@ -10294,6 +10448,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   const userId = localStorage.getItem('videobossUserId') || '123'; // Default user ID
     await verifyUserStatusFromBackend(userId);
   
+  logPaymentFlowDiagnostics('dom-ready-post-verify', {
+    source: 'DOMContentLoaded',
+    urlParams: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
+    persistence: 'order: verifyUserStatusFromBackend -> checkPaymentSuccess -> updatePlanStatus'
+  });
   checkPaymentSuccess();
   updatePlanStatus();
   
@@ -10366,17 +10525,25 @@ function ensureFreeGaugesUnlocked() {
 function updatePlanStatus() {
   const planElement = document.getElementById('userPlan');
   if (planElement) {
+    var displayLabel = 'Free';
     if (isProActive()) {
       planElement.textContent = 'Pro';
       planElement.style.color = '#8e7cff';
+      displayLabel = 'Pro';
     } else if (hasCredits()) {
       const credits = localStorage.getItem('reportCredits');
       planElement.textContent = `Free (${credits} credits)`;
       planElement.style.color = '#4CAF50';
+      displayLabel = 'Free (' + credits + ' credits)';
     } else {
       planElement.textContent = 'Free';
       planElement.style.color = '#ccc';
     }
+    logPaymentFlowDiagnostics('updatePlanStatus', {
+      source: 'updatePlanStatus',
+      branch: displayLabel,
+      persistence: 'UI label only; reads isPro/reportCredits via isProActive/hasCredits'
+    });
   }
 }
 
