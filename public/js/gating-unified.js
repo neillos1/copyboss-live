@@ -73,32 +73,56 @@
   }
 
   const LOCKED_CARD_SELECTORS = [
-    '#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard',
+    '#cb-gauges .gauge-box:not(#soundGaugeCard):not(#viewerGaugeCard)',
     '#viral-card', '#caption-card', '#engagementforecast-card', '#viralstrength-card',
+    '#viralGaugeCard', '#captionGaugeCard', '#engagementGaugeCard', '#ideaGaugeCard',
     '.report-card[data-locked]', '.gauge-container[data-locked]'
   ].join(', ');
 
   function computeVisualState() {
     const tier = window.getUserTier ? window.getUserTier() : 'free';
-    let isPro = tier === 'pro';
+    let cbUserTier = '';
+    let storedUserTier = '';
+    let isProFlag = false;
+    let reportCredits = 0;
 
-    if (typeof window.__isProActive === 'function') {
-      try {
-        isPro = window.__isProActive();
-      } catch (e) {
-        console.warn('[GATING-UNIFIED] __isProActive failed, falling back to getUserTier()', e);
-        isPro = tier === 'pro';
-      }
+    try {
+      cbUserTier = localStorage.getItem('cb_userTier') || '';
+      storedUserTier = localStorage.getItem('userTier') || '';
+      isProFlag = localStorage.getItem('isPro') === 'true';
+      reportCredits = Number(localStorage.getItem('reportCredits') || 0);
+    } catch (e) {
+      cbUserTier = '';
+      storedUserTier = '';
+      isProFlag = false;
+      reportCredits = 0;
     }
 
-    const reportCredits = Number(localStorage.getItem('reportCredits') || 0);
-    const hasReportCredits = reportCredits > 0;
-    const isVisuallyUnlocked = isPro || hasReportCredits;
+    const isProVisual =
+      cbUserTier === 'pro' ||
+      storedUserTier === 'pro' ||
+      isProFlag;
+
+    const isPaidReportVisual =
+      reportCredits > 0 ||
+      cbUserTier === '2reports' ||
+      cbUserTier === '15reports' ||
+      storedUserTier === '2reports' ||
+      storedUserTier === '15reports';
+
+    const isVisuallyUnlocked = isProVisual || isPaidReportVisual;
     const stateKey = isVisuallyUnlocked
-      ? `unlock:${tier}:c${reportCredits}`
+      ? `unlock:${cbUserTier || storedUserTier || tier}:c${reportCredits}`
       : 'lock:free';
 
-    return { tier, isPro, reportCredits, hasReportCredits, isVisuallyUnlocked, stateKey };
+    return {
+      tier,
+      isPro: isProVisual,
+      reportCredits,
+      hasReportCredits: reportCredits > 0,
+      isVisuallyUnlocked,
+      stateKey
+    };
   }
 
   function cardNeedsUnlockWork(card) {
@@ -122,10 +146,30 @@
   }
 
   function cardNeedsLockWork(card) {
-    if (!card.classList.contains('gated')) return true;
+    const isPremiumGauge = card.classList.contains('gauge-box');
+    const isReportCard = card.classList.contains('report-card');
+
+    if (isPremiumGauge && !card.classList.contains('pro-locked')) return true;
+    if (isReportCard && (!card.classList.contains('pro-locked-results') || !card.classList.contains('locked-report'))) {
+      return true;
+    }
+    if (!card.classList.contains('gated') && !card.classList.contains('pro-locked') && !isPremiumGauge) return true;
+
+    const nativeOverlay = card.querySelector('.locked-overlay');
+    if (nativeOverlay) {
+      const overlayDisplay = nativeOverlay.style.display || getComputedStyle(nativeOverlay).display;
+      if (overlayDisplay === 'none') return true;
+      const padlock = nativeOverlay.querySelector('.padlock-icon, .m-lock, .lock-image');
+      if (padlock) {
+        const padlockDisplay = padlock.style.display || getComputedStyle(padlock).display;
+        if (padlockDisplay === 'none') return true;
+      }
+      return false;
+    }
+
     if (!card.querySelector('.cb-blur-layer')) return true;
-    if (!card.querySelector('.locked-overlay, .cb-lock-overlay')) return true;
-    const overlay = card.querySelector('.locked-overlay, .cb-lock-overlay');
+    if (!card.querySelector('.cb-lock-overlay')) return true;
+    const overlay = card.querySelector('.cb-lock-overlay');
     if (overlay && overlay.style.display === 'none') return true;
     return false;
   }
@@ -163,13 +207,32 @@
   }
 
   function lockCard(card) {
-    card.classList.add('gated');
+    const isReportCard = card.classList.contains('report-card');
+
+    card.classList.add('gated', 'pro-locked');
+    if (isReportCard) {
+      card.classList.add('pro-locked-results', 'locked-report');
+    }
+
+    const nativeOverlay = card.querySelector('.locked-overlay');
+    if (nativeOverlay) {
+      nativeOverlay.style.display = '';
+      nativeOverlay.style.visibility = 'visible';
+      nativeOverlay.style.opacity = '1';
+      nativeOverlay.querySelectorAll('.padlock-icon, .m-lock, .lock-image, .btn-upgrade').forEach(function (el) {
+        el.style.display = '';
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+      });
+      return;
+    }
+
     if (!card.querySelector('.cb-blur-layer')) {
       const blurLayer = document.createElement('div');
       blurLayer.className = 'cb-blur-layer';
       card.insertBefore(blurLayer, card.firstChild);
     }
-    if (!card.querySelector('.locked-overlay, .cb-lock-overlay')) {
+    if (!card.querySelector('.cb-lock-overlay')) {
       const lockOverlay = document.createElement('div');
       lockOverlay.className = 'cb-lock-overlay';
       lockOverlay.innerHTML = `
@@ -181,7 +244,7 @@
           `;
       card.appendChild(lockOverlay);
     }
-    const lockOverlay = card.querySelector('.locked-overlay, .cb-lock-overlay');
+    const lockOverlay = card.querySelector('.cb-lock-overlay');
     if (lockOverlay) {
       lockOverlay.style.display = 'flex';
       lockOverlay.style.zIndex = '5';
