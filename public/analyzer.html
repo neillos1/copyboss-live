@@ -10045,7 +10045,38 @@ function showSuccessMessage(message) {
 }
 
 // Verify user status from backend
+function logVerifyStatusDiagnostics(phase, details) {
+  try {
+    var info = details || {};
+    console.groupCollapsed('[VERIFY STATUS] ' + phase);
+    console.log('source:', info.source || 'unknown');
+    if (info.userId !== undefined) console.log('userId:', info.userId);
+    if (info.endpoint) console.log('endpoint:', info.endpoint);
+    if (info.success !== undefined) console.log('success:', info.success);
+    if (info.error) console.log('error:', info.error);
+    if (info.status) console.log('response:', info.status);
+    console.log('localStorage snapshot:', {
+      isPro: localStorage.getItem('isPro'),
+      reportCredits: localStorage.getItem('reportCredits'),
+      userTier: localStorage.getItem('userTier'),
+      cb_userTier: localStorage.getItem('cb_userTier'),
+      freeUploadUsed: localStorage.getItem('freeUploadUsed'),
+      videobossUserId: localStorage.getItem('videobossUserId')
+    });
+    if (info.actions) console.log('actions:', info.actions);
+    console.log('visual refresh:', info.visualRefresh || 'none from verifyUserStatusFromBackend directly');
+    console.groupEnd();
+  } catch (e) {
+    console.warn('[VERIFY STATUS] diagnostic log failed', e);
+  }
+}
+
 async function verifyUserStatusFromBackend(userId) {
+  logVerifyStatusDiagnostics('start', {
+    source: 'verifyUserStatusFromBackend',
+    userId: userId,
+    visualRefresh: 'pending'
+  });
   try {
     // Check URL parameters first for immediate Pro status
     const urlParams = new URLSearchParams(window.location.search);
@@ -10054,34 +10085,123 @@ async function verifyUserStatusFromBackend(userId) {
     
     if (plan === 'pro' || upgraded === 'true') {
       console.log('🎉 Pro status detected from URL parameters');
+      localStorage.setItem('cb_userTier', 'pro');
+      localStorage.setItem('userTier', 'pro');
       localStorage.setItem('isPro', 'true');
-      unlockPro();
+      if (typeof window.refreshGatingUI === 'function') {
+        window.refreshGatingUI();
+      }
+      if (typeof unlockPro === 'function') {
+        unlockPro();
+      }
+      logVerifyStatusDiagnostics('success', {
+        source: 'verifyUserStatusFromBackend:url-params',
+        userId: userId,
+        success: true,
+        actions: ['set cb_userTier=pro', 'set userTier=pro', 'set isPro', 'refreshGatingUI()', 'unlockPro()'],
+        visualRefresh: 'refreshGatingUI then unlockPro'
+      });
       return;
     }
     
-    const response = await fetch(`/api/user/status/${userId}?plan=${plan || ''}&upgraded=${upgraded || ''}`);
+    var endpoint = '/api/user/status/' + userId + '?plan=' + (plan || '') + '&upgraded=' + (upgraded || '');
+    const response = await fetch(endpoint);
     if (!response.ok) throw new Error('Failed to fetch user status');
     const status = await response.json();
 
     console.log('🔍 Backend user status:', status);
+    logVerifyStatusDiagnostics('response', {
+      source: 'verifyUserStatusFromBackend',
+      userId: userId,
+      endpoint: endpoint,
+      success: true,
+      status: status
+    });
 
     // Update localStorage from backend
     if (status.user && status.user.plan === 'pro' && 
         (!status.user.subscription_expires || new Date(status.user.subscription_expires) > new Date())) {
+      localStorage.setItem('cb_userTier', 'pro');
+      localStorage.setItem('userTier', 'pro');
       localStorage.setItem('isPro', 'true');
-      unlockPro();
+      if (typeof window.refreshGatingUI === 'function') {
+        window.refreshGatingUI();
+      }
+      if (typeof unlockPro === 'function') {
+        unlockPro();
+      }
       console.log('✅ Pro status confirmed from backend');
+      logVerifyStatusDiagnostics('success', {
+        source: 'verifyUserStatusFromBackend:pro-plan',
+        userId: userId,
+        success: true,
+        actions: ['set cb_userTier=pro', 'set userTier=pro', 'set isPro', 'refreshGatingUI()', 'unlockPro()'],
+        visualRefresh: 'refreshGatingUI then unlockPro'
+      });
     } else {
-      localStorage.removeItem('isPro');
+      if (localStorage.getItem('cb_userTier') !== 'pro') {
+        localStorage.removeItem('isPro');
+      }
       console.log('ℹ️ User status: Free');
+      logVerifyStatusDiagnostics('success', {
+        source: 'verifyUserStatusFromBackend:free-plan',
+        userId: userId,
+        success: true,
+        actions: localStorage.getItem('cb_userTier') === 'pro'
+          ? ['kept isPro because cb_userTier=pro']
+          : ['remove isPro (cb_userTier not pro)'],
+        visualRefresh: 'none unless credits branch runs'
+      });
     }
 
-    if (status.user && status.user.report_credits && status.user.report_credits > 0) {
-      localStorage.setItem('reportCredits', status.user.report_credits);
-      removeLocks();
+    var reportCredits = status.user ? Number(status.user.report_credits) || 0 : 0;
+    if (reportCredits > 0) {
+      console.log('[VERIFY STATUS] reportCredits detected:', reportCredits);
+      localStorage.setItem('reportCredits', String(reportCredits));
+      var reportTierActions = ['set reportCredits=' + reportCredits];
+      if (localStorage.getItem('cb_userTier') !== 'pro') {
+        var reportTier = reportCredits >= 15 ? '15reports' : '2reports';
+        localStorage.setItem('cb_userTier', reportTier);
+        localStorage.setItem('userTier', reportTier);
+        reportTierActions.push('set cb_userTier=' + reportTier, 'set userTier=' + reportTier);
+        console.log('[VERIFY STATUS] cb_userTier written:', reportTier);
+      }
+      if (typeof window.refreshGatingUI === 'function') {
+        window.refreshGatingUI({ immediate: true });
+        reportTierActions.push('refreshGatingUI()');
+        console.log('[VERIFY STATUS] refreshGatingUI called');
+      }
+      if (localStorage.getItem('cb_userTier') !== 'pro' && typeof removeLocks === 'function') {
+        removeLocks();
+        reportTierActions.push('removeLocks()');
+        console.log('[VERIFY STATUS] removeLocks called');
+      }
+      setTimeout(function () {
+        if (typeof window.refreshGatingUI === 'function') {
+          window.refreshGatingUI({ immediate: true });
+        }
+        if (localStorage.getItem('cb_userTier') !== 'pro' && typeof removeLocks === 'function') {
+          removeLocks();
+        }
+      }, 250);
+      reportTierActions.push('delayed refreshGatingUI()+removeLocks() @250ms');
+      logVerifyStatusDiagnostics('success', {
+        source: 'verifyUserStatusFromBackend:report-credits',
+        userId: userId,
+        success: true,
+        actions: reportTierActions,
+        visualRefresh: 'refreshGatingUI, removeLocks, delayed @250ms'
+      });
     }
   } catch (err) {
     console.error('Backend verification failed, falling back to localStorage:', err);
+    logVerifyStatusDiagnostics('failure', {
+      source: 'verifyUserStatusFromBackend',
+      userId: userId,
+      success: false,
+      error: err && err.message ? err.message : String(err),
+      visualRefresh: 'fallback unlockPro/removeLocks from existing localStorage'
+    });
     // fallback: keep using whatever localStorage has
     if (localStorage.getItem('isPro') === 'true') {
       unlockPro();

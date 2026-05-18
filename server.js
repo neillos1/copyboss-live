@@ -130,32 +130,43 @@ app.get('/debug/where-am-i', (_req, res) => {
 
 // --- Additional API endpoints for analyzer functionality ---
 app.get('/api/user/status/:userId', (req, res) => {
-  // Enhanced user status endpoint with Pro plan support
   const userId = req.params.userId;
-  
-  // Check if user has Pro status - check multiple sources
-  const isPro = req.headers['x-user-pro'] === 'true' || 
-                req.query.pro === 'true' ||
-                req.query.plan === 'pro' ||
-                req.query.upgraded === 'true';
-  
-  console.log(`🔍 User status check for ${userId}:`, { isPro, query: req.query });
-  
-  // If Pro status detected, immediately set localStorage flag
-  if (isPro) {
-    console.log('✅ Pro status confirmed - user should be unlocked');
+  const requestedPlan = String(req.query.plan || '').toLowerCase();
+  const upgraded = req.query.upgraded === 'true';
+
+  let plan = 'free';
+  let report_credits = 0;
+  let subscription_expires = null;
+
+  if (requestedPlan === 'pro' || upgraded || req.query.pro === 'true') {
+    plan = 'pro';
+    report_credits = 0;
+    subscription_expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (requestedPlan === '2reports') {
+    plan = 'free';
+    report_credits = 2;
+  } else if (requestedPlan === '15reports') {
+    plan = 'free';
+    report_credits = 15;
   }
-    
-    res.json({ 
-    ok: true, 
-    user: { 
-      id: userId, 
+
+  console.log(`[DEV] /api/user/status/${userId}`, {
+    requestedPlan: requestedPlan || '(none)',
+    upgraded,
+    returnedPlan: plan,
+    returnedReportCredits: report_credits
+  });
+
+  res.json({
+    ok: true,
+    user: {
+      id: userId,
       status: 'active',
-      plan: isPro ? 'pro' : 'free',
-      subscription_expires: isPro ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null,
-      report_credits: isPro ? 999 : 0,
-      avatar_url: null 
-    } 
+      plan,
+      subscription_expires,
+      report_credits,
+      avatar_url: null
+    }
   });
 });
 

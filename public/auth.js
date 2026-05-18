@@ -1,5 +1,36 @@
 // auth.js - Unified authentication system for CopyBoss with Avatar Support
 
+function logAuthRestoreDiagnostics(phase, details) {
+  try {
+    var info = details || {};
+    console.groupCollapsed('[AUTH RESTORE] ' + phase);
+    console.log('source:', info.source || 'unknown');
+    if (info.success !== undefined) console.log('success:', info.success);
+    if (info.error) console.log('error:', info.error);
+    console.log('localStorage:', {
+      videobossToken: !!localStorage.getItem('videobossToken'),
+      videobossUser: !!localStorage.getItem('videobossUser'),
+      cb_userTier: localStorage.getItem('cb_userTier'),
+      userTier: localStorage.getItem('userTier'),
+      isPro: localStorage.getItem('isPro'),
+      reportCredits: localStorage.getItem('reportCredits')
+    });
+    if (info.user) {
+      console.log('restored user fields:', {
+        id: info.user.id,
+        username: info.user.username,
+        plan: info.user.plan,
+        report_credits: info.user.report_credits,
+        subscription_expires: info.user.subscription_expires
+      });
+    }
+    console.log('source of truth:', info.sourceOfTruth || 'auth.js uses videobossToken + GET /api/me; tier/credits/pro keys are read-only here');
+    console.groupEnd();
+  } catch (e) {
+    console.warn('[AUTH RESTORE] diagnostic log failed', e);
+  }
+}
+
 // Loading overlay functions
 const overlay = document.getElementById("loadingOverlay");
 function showOverlay() { if (overlay) overlay.classList.remove("hidden"); }
@@ -7,10 +38,19 @@ function hideOverlay() { if (overlay) overlay.classList.add("hidden"); }
 
 // Check if user is logged in (session-based with localStorage fallback)
 async function isLoggedIn() {
+  logAuthRestoreDiagnostics('start', {
+    source: 'isLoggedIn',
+    sourceOfTruth: 'videobossToken localStorage + GET /api/me (Bearer + credentials:include)'
+  });
   try {
     // First check if we have a token in localStorage
     const token = localStorage.getItem('videobossToken');
     if (!token) {
+      logAuthRestoreDiagnostics('failure', {
+        source: 'isLoggedIn',
+        success: false,
+        error: 'no videobossToken in localStorage'
+      });
       return false;
     }
 
@@ -24,11 +64,21 @@ async function isLoggedIn() {
     });
     
     if (response.ok) {
+      logAuthRestoreDiagnostics('success', {
+        source: 'isLoggedIn:/api/me',
+        success: true,
+        sourceOfTruth: '/api/me session verify (200)'
+      });
       return true;
     } else {
       // Token is invalid, clear localStorage
       localStorage.removeItem('videobossUser');
       localStorage.removeItem('videobossToken');
+      logAuthRestoreDiagnostics('failure', {
+        source: 'isLoggedIn:/api/me',
+        success: false,
+        error: 'token rejected, cleared videobossUser/videobossToken'
+      });
       return false;
     }
   } catch (error) {
@@ -36,15 +86,31 @@ async function isLoggedIn() {
     // On network error, check localStorage as fallback
     const user = localStorage.getItem('videobossUser');
     const token = localStorage.getItem('videobossToken');
-    return !!(user && token);
+    var fallbackOk = !!(user && token);
+    logAuthRestoreDiagnostics(fallbackOk ? 'success' : 'failure', {
+      source: 'isLoggedIn:network-fallback',
+      success: fallbackOk,
+      error: fallbackOk ? undefined : 'network error and no local videobossUser+token',
+      sourceOfTruth: fallbackOk ? 'localStorage videobossUser+videobossToken fallback' : 'none'
+    });
+    return fallbackOk;
   }
 }
 
 // Get current user data
 async function getCurrentUser() {
+  logAuthRestoreDiagnostics('start', {
+    source: 'getCurrentUser',
+    sourceOfTruth: 'GET /api/me then refresh videobossUser localStorage'
+  });
   try {
     const token = localStorage.getItem('videobossToken');
     if (!token) {
+      logAuthRestoreDiagnostics('failure', {
+        source: 'getCurrentUser',
+        success: false,
+        error: 'no videobossToken'
+      });
       return null;
     }
 
@@ -60,23 +126,53 @@ async function getCurrentUser() {
       const data = await response.json();
       // Update localStorage with fresh user data
       localStorage.setItem('videobossUser', JSON.stringify(data.user));
+      logAuthRestoreDiagnostics('success', {
+        source: 'getCurrentUser:/api/me',
+        success: true,
+        user: data.user,
+        sourceOfTruth: '/api/me response -> videobossUser localStorage'
+      });
       return data.user;
     }
     
     // If server request fails, try localStorage
     const userData = localStorage.getItem('videobossUser');
     if (userData) {
-      return JSON.parse(userData);
+      var cachedUser = JSON.parse(userData);
+      logAuthRestoreDiagnostics('success', {
+        source: 'getCurrentUser:localStorage-fallback',
+        success: true,
+        user: cachedUser,
+        sourceOfTruth: 'cached videobossUser localStorage (api non-200)'
+      });
+      return cachedUser;
     }
     
+    logAuthRestoreDiagnostics('failure', {
+      source: 'getCurrentUser',
+      success: false,
+      error: 'api non-200 and no cached videobossUser'
+    });
     return null;
   } catch (error) {
     console.error('Get user error:', error);
     // Fallback to localStorage
     const userData = localStorage.getItem('videobossUser');
     if (userData) {
-      return JSON.parse(userData);
+      var fallbackUser = JSON.parse(userData);
+      logAuthRestoreDiagnostics('success', {
+        source: 'getCurrentUser:network-fallback',
+        success: true,
+        user: fallbackUser,
+        sourceOfTruth: 'cached videobossUser localStorage (network error)'
+      });
+      return fallbackUser;
     }
+    logAuthRestoreDiagnostics('failure', {
+      source: 'getCurrentUser',
+      success: false,
+      error: 'network error and no cached videobossUser'
+    });
     return null;
   }
 }
@@ -288,6 +384,11 @@ async function requireAuth() {
 
 // Initialize authentication on page load
 document.addEventListener('DOMContentLoaded', function() {
+  logAuthRestoreDiagnostics('init', {
+    source: 'DOMContentLoaded',
+    sourceOfTruth: 'auth.js init reads tier/credits/pro from localStorage only; does not restore them from backend'
+  });
+
   // Update navbar
   updateNavbar();
   
