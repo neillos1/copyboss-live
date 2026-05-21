@@ -1821,43 +1821,48 @@ window.addEventListener("DOMContentLoaded", async () => {
     window.isRendering = true;
 
     const chartIds = [
-      "apexchartviralGauge",
-      "apexchartcaptionGauge",
-      "apexchartsoundGauge",
-      "apexchartviewerGauge",
-      "apexchartengagementGauge",
-      "apexchartHookGauge"
+      "viralGauge",
+      "captionGauge",
+      "soundGauge",
+      "viewerGauge",
+      "engagementGauge",
+      "hookGauge"
     ];
+
+    let validMountCount = 0;
 
     const chartPromises = chartIds.map(id => {
       const el = document.getElementById(id);
       if (!el) {
-        console.warn(`⚠️ Missing element: ${id}`);
+        console.warn(`⚠️ Missing mount element: ${id}`);
         return Promise.resolve();
       }
 
-      // Remove duplicate rendered canvases if any
-      const dup = el.querySelector('.apexcharts-canvas');
-      if (dup) {
-        dup.remove();
-        console.log(`🧹 Removed duplicate gauge for ${id}`);
+      validMountCount++;
+
+      if (el.querySelector('.apexcharts-canvas')) {
+        console.log(`⏭️ Gauge already rendered in mount: ${id}`);
+        return Promise.resolve();
       }
 
-      // Destroy existing chart instance if any
+      if (typeof ApexCharts !== 'undefined' && typeof ApexCharts.getChartByID === 'function') {
+        const existing = ApexCharts.getChartByID(id);
+        if (existing) {
+          console.log(`⏭️ Chart instance already exists: ${id}`);
+          return Promise.resolve();
+        }
+      }
+
       if (el._chart) {
         try {
           el._chart.destroy();
         } catch (err) {}
       }
 
-      // Remove any existing charts to prevent duplication
-      document.querySelectorAll(".apexcharts-canvas").forEach(e => e.remove());
-      
-      // Create a new chart every time
       const chart = new ApexCharts(el, {
-        chart: { type: "radialBar", sparkline: { enabled: true } },
+        chart: { id: id, type: "radialBar", sparkline: { enabled: true } },
         series: [Math.floor(Math.random() * 100)],
-        labels: [id.replace("apexchart", "")],
+        labels: [id],
         colors: ["#10b981"],
         plotOptions: {
           radialBar: {
@@ -1896,6 +1901,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     await Promise.allSettled(chartPromises);
+    console.log("Gauge mount check complete", validMountCount);
     console.log("🎯 All charts finished rendering.");
     console.log("💡 Charts forced to render even with Stripe CORS block");
 
