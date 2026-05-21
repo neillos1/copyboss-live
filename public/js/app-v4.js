@@ -1831,79 +1831,30 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     let validMountCount = 0;
 
-    const chartPromises = chartIds.map(id => {
+    chartIds.forEach(id => {
       const el = document.getElementById(id);
       if (!el) {
         console.warn(`⚠️ Missing mount element: ${id}`);
-        return Promise.resolve();
+        return;
       }
 
       validMountCount++;
 
       if (el.querySelector('.apexcharts-canvas')) {
         console.log(`⏭️ Gauge already rendered in mount: ${id}`);
-        return Promise.resolve();
+        return;
       }
 
       if (typeof ApexCharts !== 'undefined' && typeof ApexCharts.getChartByID === 'function') {
         const existing = ApexCharts.getChartByID(id);
         if (existing) {
           console.log(`⏭️ Chart instance already exists: ${id}`);
-          return Promise.resolve();
         }
       }
-
-      if (el._chart) {
-        try {
-          el._chart.destroy();
-        } catch (err) {}
-      }
-
-      const chart = new ApexCharts(el, {
-        chart: { id: id, type: "radialBar", sparkline: { enabled: true } },
-        series: [Math.floor(Math.random() * 100)],
-        labels: [id],
-        colors: ["#10b981"],
-        plotOptions: {
-          radialBar: {
-            startAngle: -150,
-            endAngle: 150,
-            hollow: {
-              size: "70%",
-              background: "transparent",
-              image: undefined,
-              dropShadow: { enabled: false }
-            },
-            track: {
-              background: "rgba(255,255,255,0.08)",
-              strokeWidth: "100%",
-              margin: 0,
-              dropShadow: { enabled: false }
-            },
-            dataLabels: {
-              show: true,
-              name: { offsetY: 30, fontSize: "15px" },
-              value: {
-                offsetY: 10,
-                fontSize: "22px",
-                formatter: v => Math.round(v) + "%"
-              }
-            }
-          }
-        },
-        stroke: { lineCap: "round" }
-      });
-
-      el._chart = chart;
-      return chart.render().then(() => {
-        console.log(`✅ Rendered chart: ${id}`);
-      });
     });
 
-    await Promise.allSettled(chartPromises);
+    console.log("app-v4 duplicate gauge render disabled; analyzer.html owns gauge creation");
     console.log("Gauge mount check complete", validMountCount);
-    console.log("🎯 All charts finished rendering.");
-    console.log("💡 Charts forced to render even with Stripe CORS block");
 
     // ✅ Fallback force-render patch for ApexCharts
     setTimeout(() => {
