@@ -226,7 +226,6 @@ async function updateNavbar() {
     navbar.innerHTML = `
       <a href="/index.html" class="text-gray-300 hover:text-white transition-colors duration-200">Home</a>
       <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
-      <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
       <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
       <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
       <div class="avatar-dropdown relative ml-auto">
@@ -273,7 +272,6 @@ async function updateNavbar() {
     navbar.innerHTML = `
       <a href="/index.html" class="text-gray-300 hover:text-white transition-colors duration-200">Home</a>
       <a href="/analyzer.html" class="text-gray-300 hover:text-white transition-colors duration-200">Analyzer</a>
-      <a href="/generator.html" class="text-gray-300 hover:text-white transition-colors duration-200">Generator</a>
       <a href="/pricing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Pricing</a>
       <a href="https://community.copy-boss.com/" class="text-gray-300 hover:text-white transition-colors duration-200">Community Hub</a>
       <a href="/login.html" class="text-gray-300 hover:text-white transition-colors duration-200 ml-auto">Login</a>
