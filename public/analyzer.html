@@ -14656,6 +14656,40 @@ window.addEventListener('DOMContentLoaded', function () {
     overflow-wrap: anywhere !important;
   }
 
+  /* Mobile-only: normalize Sound Match + Viewer Understanding gauge rendering */
+  body.page-analyzer #cb-gauges #soundGauge,
+  body.page-analyzer #cb-gauges #viewerGauge {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 300px !important; /* match chart height option */
+    height: 300px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGauge .apexcharts-canvas,
+  body.page-analyzer #cb-gauges #viewerGauge .apexcharts-canvas,
+  body.page-analyzer #cb-gauges #soundGauge .apexcharts-svg,
+  body.page-analyzer #cb-gauges #viewerGauge .apexcharts-svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 300px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Force the same empty arc / hollow colors as the other gauges */
+  body.page-analyzer #cb-gauges #soundGauge .apexcharts-radialbar-track path,
+  body.page-analyzer #cb-gauges #viewerGauge .apexcharts-radialbar-track path {
+    stroke: #222 !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGauge .apexcharts-radialbar-hollow,
+  body.page-analyzer #cb-gauges #viewerGauge .apexcharts-radialbar-hollow {
+    fill: #111 !important;
+  }
+
   body.page-analyzer .report-card,
   body.page-analyzer .pro-locked-results,
   body.page-analyzer .locked-report,
