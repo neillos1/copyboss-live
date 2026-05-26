@@ -14851,6 +14851,72 @@ window.addEventListener('DOMContentLoaded', function () {
     max-height: 100% !important;
     pointer-events: none !important;
   }
+
+  /* --- Final mobile polish: center lock visuals + improve free readability --- */
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay {
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .lock-image {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(280px, 86%) !important;
+    max-width: 92% !important;
+    max-height: 70% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .padlock-icon {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(110px, 28vw) !important;
+    max-width: 120px !important;
+    max-height: 120px !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .btn-upgrade,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .btn-upgrade,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .btn-upgrade {
+    left: 50% !important;
+    right: auto !important;
+    bottom: 12px !important;
+    transform: translateX(-50%) !important;
+    z-index: 10000 !important;
+  }
+
+  /* Free/unlocked readability (do NOT affect locked cards) */
+  body.page-analyzer #cb-gauges .gauge-box:not(.pro-locked) {
+    filter: none !important;
+    opacity: 1 !important;
+    background: #062c85 !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box:not(.pro-locked) .gauge-title,
+  body.page-analyzer #cb-gauges .gauge-box:not(.pro-locked) .gauge-feedback {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card:not(.locked-report):not(.pro-locked-results) .result-content {
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card:not(.locked-report):not(.pro-locked-results) .result-content p,
+  body.page-analyzer #cb-reports .report-card:not(.locked-report):not(.pro-locked-results) .result-content .result-desc,
+  body.page-analyzer #cb-reports .report-card:not(.locked-report):not(.pro-locked-results) .strength-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
 }
 </style>
 
