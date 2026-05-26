@@ -423,6 +423,131 @@
             box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), 0 0 50px rgba(168, 85, 247, 0.6), 0 0 70px rgba(168, 85, 247, 0.4);
         }
 
+        .how-step-card {
+            min-height: auto;
+            padding: 2rem;
+        }
+
+        /* FAQ accordion */
+        .faq-accordion {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .faq-accordion .faq-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .faq-accordion .faq-item:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.45), 0 0 28px rgba(139, 92, 246, 0.2);
+        }
+
+        .faq-accordion .faq-item[open] {
+            border-color: rgba(139, 92, 246, 0.55);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 32px rgba(139, 92, 246, 0.25);
+        }
+
+        .faq-accordion summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            user-select: none;
+        }
+
+        .faq-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq-accordion summary::after {
+            content: '';
+            flex-shrink: 0;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-right: 2px solid #93c5fd;
+            border-bottom: 2px solid #93c5fd;
+            transform: rotate(45deg);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .faq-accordion .faq-item[open] summary::after {
+            transform: rotate(-135deg);
+            border-color: #c4b5fd;
+        }
+
+        .faq-accordion .faq-answer {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            padding: 0 1.25rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.35s ease;
+        }
+
+        .faq-accordion .faq-item[open] .faq-answer {
+            max-height: 160px;
+            opacity: 1;
+            padding: 0 1.25rem 1rem;
+        }
+
+        .home-section-compact {
+            padding-top: 3.5rem;
+            padding-bottom: 3.5rem;
+        }
+
+        .promo-card-compact {
+            padding: 2rem 2rem !important;
+        }
+
+        .promo-card-compact .promo-icon-lg {
+            font-size: 3rem;
+            margin-bottom: 1rem !important;
+        }
+
+        .promo-card-compact .promo-title {
+            font-size: 2rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .promo-card-compact .promo-text {
+            margin-bottom: 1.25rem !important;
+        }
+
+        .demo-video-heading {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 2rem;
+            padding: 0 1rem;
+        }
+
+        .demo-video-heading h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-video-heading p {
+            font-size: 1.125rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
         /* Enhanced button gradients */
         .btn-gradient-blue {
             background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
@@ -526,18 +651,18 @@
 
         /* Affiliate Promotional Section with Neon Glow */
         .affiliate-promo {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 25%, rgba(5, 150, 105, 0.1) 50%, rgba(4, 120, 87, 0.1) 75%, rgba(6, 95, 70, 0.1) 100%);
-            border: 2px solid rgba(34, 197, 94, 0.2);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(139, 92, 246, 0.08) 100%);
+            border: 2px solid rgba(59, 130, 246, 0.25);
             backdrop-filter: blur(15px);
             position: relative;
             transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), 0 0 40px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.65), 0 0 40px rgba(139, 92, 246, 0.4), 0 0 60px rgba(59, 130, 246, 0.2);
         }
 
         .affiliate-promo:hover {
-            transform: translateY(-5px);
-            border-color: rgba(34, 197, 94, 0.4);
-            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8), 0 0 50px rgba(34, 197, 94, 0.6), 0 0 70px rgba(34, 197, 94, 0.4);
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.45);
+            box-shadow: 0 0 28px rgba(59, 130, 246, 0.75), 0 0 48px rgba(139, 92, 246, 0.5), 0 0 64px rgba(59, 130, 246, 0.3);
         }
 
         .affiliate-bg-overlay {
@@ -546,29 +671,29 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
             pointer-events: none;
         }
 
         .affiliate-icon {
-            filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.5));
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.55));
             animation: affiliateIconPulse 3s ease-in-out infinite;
         }
 
         @keyframes affiliateIconPulse {
             0%, 100% { 
                 transform: scale(1);
-                filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.5));
+                filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.55));
             }
             50% { 
                 transform: scale(1.05);
-                filter: drop-shadow(0 0 30px rgba(34, 197, 94, 0.7));
+                filter: drop-shadow(0 0 28px rgba(139, 92, 246, 0.65));
             }
         }
 
         .btn-gradient-affiliate {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 25%, #15803d 50%, #166534 75%, #14532d 100%);
+            background: linear-gradient(135deg, #3B82F6 0%, #6366f1 45%, #8B5CF6 100%);
             background-size: 200% 200%;
             animation: gradientShift 4s ease-in-out infinite;
             transition: all 0.3s ease;
@@ -576,7 +701,7 @@
 
         .btn-gradient-affiliate:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.45), 0 0 20px rgba(139, 92, 246, 0.35);
             background-position: 100% 100%;
         }
 
@@ -1322,28 +1447,24 @@
         <section class="hero-gradient py-24 px-4">
             <div class="max-w-6xl mx-auto text-center">
                 <h1 class="text-5xl md:text-7xl font-bold mb-6">
-                    CopyBoss – <span class="animated-gradient-text">Smarter Content Starts Here</span>
+                    Stop Posting Videos That <span class="animated-gradient-text">Flop</span>
                 </h1>
-                <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto fade-up">
-                    AI-powered video analyzer built for creators.
+                <p class="text-xl md:text-2xl text-gray-300 mb-6 max-w-3xl mx-auto fade-up">
+                    AI-powered creator feedback before you publish.
                 </p>
-                <p class="text-lg md:text-xl text-white mb-8 max-w-3xl mx-auto font-semibold">
-                    Try CopyBoss FREE — your first analyzer report is on us.
+                <p class="text-lg md:text-xl text-white mb-10 max-w-3xl mx-auto leading-relaxed">
+                    Upload your TikTok, Reel, or YouTube Short and get instant analysis on hooks, engagement, retention, viewer understanding, and viral potential.
                 </p>
                 
                 <!-- Call to Action Buttons -->
                 <div id="hero-ctas" class="hero-ctas flex flex-col sm:flex-row gap-6 justify-center mb-16">
                     <a href="/analyzer.html" class="cb-cta cb-cta--blue">
                         <i class="fas fa-chart-line"></i>
-                        Try Video Analyzer
+                        Analyze My Video
                     </a>
                     <a href="/pricing.html" class="cb-cta cb-cta--purple">
                         <i class="fas fa-tags"></i>
                         See Pricing
-                    </a>
-                    <a href="/analyzer.html" class="cb-cta cb-cta--red">
-                        <i class="fas fa-gift"></i>
-                        Try Free Now
                     </a>
                 </div>
 </div>
@@ -1351,6 +1472,10 @@
 
         <!-- Demo Video Section -->
         <section class="demo-video">
+            <div class="demo-video-heading">
+                <h2>See CopyBoss Analyze Real Videos</h2>
+                <p>Watch how creators use CopyBoss to improve hooks, retention, and viral performance in seconds.</p>
+            </div>
             <div class="video-wrapper">
                 <iframe width="100%" height="450" 
                     src="https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1" 
@@ -1360,7 +1485,6 @@
                     allowfullscreen>
                 </iframe>
   </div>
-            <p class="video-caption">🎥 Watch how CopyBoss helps creators go viral in seconds</p>
         </section>
 
         <!-- Features Section -->
@@ -1368,10 +1492,10 @@
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
                     <h2 class="text-4xl md:text-5xl font-bold mb-6">
-                        Everything you need to <span class="gradient-text">create better content</span>
+                        Everything you need to <span class="gradient-text">publish with confidence</span>
                     </h2>
                     <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                        Professional tools designed for content creators who want to optimize their videos and improve performance with AI-powered insights.
+                        Professional AI tools for creators who want sharper hooks, stronger retention, and clearer viral potential before they hit publish.
                     </p>
 </div>
 
@@ -1385,12 +1509,12 @@
 </div>
                             <h3 class="text-2xl font-bold mb-4 text-white">Video Analyzer</h3>
                             <p class="text-gray-300 mb-6">
-                                Analyze your videos with AI-powered insights. Get detailed metrics on viral potential, engagement, and optimization opportunities. First report free — test before you upgrade.
+                                Upload once. Get instant scores on hooks, retention, clarity, and viral potential — before you post. First report free.
                             </p>
   </div>
                         <div class="button-container">
                             <a href="/analyzer.html" class="btn-gradient-blue text-white font-semibold py-3 px-6 rounded-lg inline-block">
-                                Try Analyzer
+                                Analyze My Video
                             </a>
 </div>
 </div>
@@ -1401,14 +1525,14 @@
                             <div class="text-5xl mb-6 text-purple-400 feature-icon">
                                 <i class="fas fa-tags"></i>
 </div>
-                            <h3 class="text-2xl font-bold mb-4 text-white">Affordable Pricing</h3>
+                            <h3 class="text-2xl font-bold mb-4 text-white">Flexible Creator Pricing</h3>
                             <p class="text-gray-300 mb-6">
-                                Flexible plans for every creator. Start free, then choose the perfect plan for your needs and budget.
+                                Start free. Upgrade when you want deeper AI breakdowns, premium metrics, and more reports — built for creators who post consistently.
                             </p>
   </div>
                         <div class="button-container">
                             <a href="/pricing.html" class="btn-gradient-purple text-white font-semibold py-3 px-6 rounded-lg inline-block">
-                                View Pricing
+                                See Pricing
                             </a>
 </div>
 </div>
@@ -1416,19 +1540,56 @@
 </div>
         </section>
 
-        <!-- Community Hub Promotional Section -->
+        <!-- How It Works -->
         <section class="py-20 px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                        How It <span class="gradient-text">Works</span>
+                    </h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        Three simple steps from upload to better content.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="feature-card blue-card how-step-card rounded-xl text-center">
+                        <div class="content">
+                            <div class="text-4xl mb-4 text-blue-400 feature-icon"><i class="fas fa-upload"></i></div>
+                            <h3 class="text-xl font-bold mb-3 text-white">Upload Your Video</h3>
+                            <p class="text-gray-300">Drop in a TikTok, Reel, or YouTube Short and let CopyBoss take a first pass before you publish.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card green-card how-step-card rounded-xl text-center">
+                        <div class="content">
+                            <div class="text-4xl mb-4 text-green-400 feature-icon"><i class="fas fa-brain"></i></div>
+                            <h3 class="text-xl font-bold mb-3 text-white">Get AI Analysis</h3>
+                            <p class="text-gray-300">See scores and feedback on hooks, engagement, retention, sound match, and viewer understanding in seconds.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card purple-card how-step-card rounded-xl text-center">
+                        <div class="content">
+                            <div class="text-4xl mb-4 text-purple-400 feature-icon"><i class="fas fa-rocket"></i></div>
+                            <h3 class="text-xl font-bold mb-3 text-white">Improve Before Posting</h3>
+                            <p class="text-gray-300">Use actionable insights to tighten your hook, boost clarity, and publish with more confidence.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Hub Promotional Section -->
+        <section class="home-section-compact px-4">
             <div class="max-w-4xl mx-auto">
-                <div class="community-hub-promo rounded-2xl text-center p-12 relative overflow-hidden">
+                <div class="community-hub-promo promo-card-compact rounded-2xl text-center relative overflow-hidden">
                     <div class="community-bg-overlay"></div>
                     <div class="relative z-10">
-                        <div class="text-6xl mb-6 text-white community-icon">
+                        <div class="text-6xl promo-icon-lg text-white community-icon">
                             <i class="fas fa-users"></i>
 </div>
-                        <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+                        <h2 class="text-4xl md:text-5xl font-bold promo-title text-white">
                             Join the CopyBoss Community Hub
                         </h2>
-                        <p class="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
+                        <p class="text-xl text-gray-200 max-w-2xl mx-auto promo-text">
                             Connect with creators, share strategies, and get support from fellow CopyBoss users.
                         </p>
                         <a href="https://community.copy-boss.com/" class="btn-gradient-community text-white font-semibold py-4 px-8 rounded-lg inline-block text-lg">
@@ -1440,18 +1601,18 @@
         </section>
 
         <!-- Become an Affiliate Promotional Section -->
-        <section class="py-20 px-4">
+        <section class="home-section-compact px-4">
             <div class="max-w-4xl mx-auto">
-                <div class="affiliate-promo rounded-2xl text-center p-12 relative overflow-hidden">
+                <div class="affiliate-promo promo-card-compact rounded-2xl text-center relative overflow-hidden">
                     <div class="affiliate-bg-overlay"></div>
                     <div class="relative z-10">
-                        <div class="text-6xl mb-6 text-white affiliate-icon">
+                        <div class="text-6xl promo-icon-lg text-white affiliate-icon">
                             💸
                         </div>
-                        <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+                        <h2 class="text-4xl md:text-5xl font-bold promo-title text-white">
                             Become a CopyBoss Affiliate
                         </h2>
-                        <p class="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
+                        <p class="text-xl text-gray-200 max-w-2xl mx-auto promo-text">
                             Earn 40% commission for 3 months on every sale you refer.
                         </p>
                         <a href="/login.html?redirect=/affiliate" class="btn-gradient-affiliate text-white font-semibold py-4 px-8 rounded-lg inline-block text-lg">
@@ -1460,6 +1621,42 @@
   </div>
 </div>
   </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="home-section-compact px-4">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                        Frequently Asked <span class="gradient-text">Questions</span>
+                    </h2>
+                    <p class="text-lg text-gray-300 max-w-xl mx-auto">
+                        Quick answers before you analyze your first video.
+                    </p>
+                </div>
+                <div class="faq-accordion">
+                    <details class="faq-item">
+                        <summary>Is the first analysis really free?</summary>
+                        <p class="faq-answer">Yes — every user can test CopyBoss with a free report before upgrading.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>What platforms does CopyBoss support?</summary>
+                        <p class="faq-answer">CopyBoss is optimized for TikTok, Instagram Reels, and YouTube Shorts.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>How fast is the analysis?</summary>
+                        <p class="faq-answer">Most reports generate in seconds.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Do I need editing experience?</summary>
+                        <p class="faq-answer">No — CopyBoss is designed for creators of all levels.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>What do paid reports unlock?</summary>
+                        <p class="faq-answer">Advanced AI insights, premium scoring metrics, and deeper optimization feedback.</p>
+                    </details>
+                </div>
+            </div>
         </section>
 
 
