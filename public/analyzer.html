@@ -14699,6 +14699,118 @@ window.addEventListener('DOMContentLoaded', function () {
     pointer-events: none !important;
     z-index: 2 !important;
   }
+
+  /* --- Mobile locked visual parity (match desktop blur/chains/padlocks) --- */
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card,
+  body.page-analyzer #cb-reports .report-card.locked-report {
+    position: relative !important;
+    overflow: hidden !important;
+    contain: layout style !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked::before,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card::before,
+  body.page-analyzer #cb-reports .report-card.locked-report::before {
+    content: '' !important;
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+    background: linear-gradient(135deg, rgba(2,  8, 32, 0.88), rgba(4, 18, 64, 0.92)) !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) inset !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked > *:not(.locked-overlay),
+  body.page-analyzer #cb-reports .pro-locked-results.report-card > *:not(.locked-overlay),
+  body.page-analyzer #cb-reports .report-card.locked-report > *:not(.locked-overlay) {
+    position: relative !important;
+    z-index: 1 !important;
+    filter: blur(6px) !important;
+    -webkit-filter: blur(6px) !important;
+    pointer-events: none !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    background: rgba(2, 8, 32, 0.85) !important;
+    pointer-events: auto !important;
+    border-radius: inherit !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .locked-overlay .lock-image {
+    display: block !important;
+    visibility: visible !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(300px, 88%) !important;
+    max-width: 100% !important;
+    max-height: 72% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    opacity: 0.7 !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .locked-overlay .padlock-icon {
+    display: block !important;
+    visibility: visible !important;
+    position: absolute !important;
+    z-index: 11 !important;
+    pointer-events: none !important;
+    width: min(110px, 30vw) !important;
+    max-width: 120px !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon img,
+  body.page-analyzer #cb-reports .locked-overlay .padlock-icon img,
+  body.page-analyzer #cb-gauges .locked-overlay img.padlock-ctrl,
+  body.page-analyzer #cb-reports .locked-overlay img.m-lock {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    transform: none !important;
+    pointer-events: none !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .btn-upgrade,
+  body.page-analyzer #cb-reports .locked-overlay .btn-upgrade {
+    position: absolute !important;
+    z-index: 12 !important;
+    pointer-events: auto !important;
+  }
+
+  body.page-analyzer #cb-reports .pro-locked-results.report-card > .result-content,
+  body.page-analyzer #cb-reports .report-card.locked-report > .result-content {
+    z-index: 1 !important;
+  }
 }
 </style>
 
