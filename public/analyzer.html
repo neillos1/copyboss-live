@@ -2339,7 +2339,7 @@ html, body {
         </header>
 
         <!-- fallback mobile-only file input (used only if we can't find the desktop one) -->
-        <input id="cb-upload-input" type="file" accept="video/*" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px;" onchange="handleFileUpload(event)" />
+        <input id="cb-upload-input" type="file" accept="video/*" disabled aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px;pointer-events:none;" />
 
         <!-- Mobile drawer -->
         <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
@@ -7363,36 +7363,43 @@ a:hover {
     if (window.cbSelectedVideoFile) return window.cbSelectedVideoFile;
     var primary = document.getElementById('file-upload');
     if (primary && primary.files && primary.files[0]) return primary.files[0];
-    var mobile = document.getElementById('cb-upload-input');
-    if (mobile && mobile.files && mobile.files[0]) return mobile.files[0];
     return null;
   }
 
   async function handleFileUpload(event) {
-    console.log('[UPLOAD] file input change', { inputId: event.target && event.target.id });
-    var file = event.target.files && event.target.files[0];
+    var target = event.target;
+    if (!target || target.id !== 'file-upload') return;
+    console.log('[UPLOAD] file input change', { inputId: target.id });
+    var file = target.files && target.files[0];
     if (!file) return;
-    storeSelectedVideoFile(file, event.target.id || 'file-upload');
-    if (event.target.id === 'file-upload') {
-      runAnalysis(file);
-    }
+    storeSelectedVideoFile(file, 'file-upload');
+    runAnalysis(file);
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     var canonicalInput = document.getElementById('file-upload');
     if (canonicalInput) {
       canonicalInput.setAttribute('accept', 'video/*');
+      canonicalInput.dataset.cbHooked = '1';
+    }
+    var fallbackInput = document.getElementById('cb-upload-input');
+    if (fallbackInput) {
+      fallbackInput.dataset.cbHooked = '1';
+      fallbackInput.setAttribute('disabled', 'disabled');
+      fallbackInput.setAttribute('aria-hidden', 'true');
+      fallbackInput.setAttribute('tabindex', '-1');
     }
     var uploadBtn = document.getElementById('cb-upload-btn');
     if (uploadBtn) {
       uploadBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
         console.log('[UPLOAD] upload button clicked', { buttonId: 'cb-upload-btn' });
         var input = document.getElementById('file-upload');
         if (input && typeof input.click === 'function') {
-          e.preventDefault();
           input.click();
         }
-      });
+      }, true);
     }
     var legacyUploadBtn = document.getElementById('uploadBtn');
     if (legacyUploadBtn) {
