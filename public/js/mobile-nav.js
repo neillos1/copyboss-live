@@ -185,8 +185,7 @@
           title: 'Pages',
           items: [
             { label:'Home',      icon:'🏠', href:'/' },
-            { label:'Analyzer',  icon:'📊', href:'/analyzer' },
-            { label:'Generator', icon:'⚡', href:'/generator' }
+            { label:'Analyzer',  icon:'📊', href:'/analyzer' }
           ]
         },
         {
@@ -215,7 +214,6 @@
           items: [
             { label:'Home',      icon:'🏠', href:'/' },
             { label:'Analyzer',  icon:'📊', href:'/analyzer' },
-            { label:'Generator', icon:'⚡', href:'/generator' },
             { label:'Pricing',   icon:'💳', href:'/pricing' },
             { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/' }
           ]
@@ -246,7 +244,6 @@
           items: [
             { label:'Home',      icon:'🏠', href:'/' },
             { label:'Analyzer',  icon:'📊', href:'/analyzer' },
-            { label:'Generator', icon:'⚡', href:'/generator' },
             { label:'Pricing',   icon:'💳', href:'/pricing' },
             { label:'Community Hub', icon:'👥', href:'https://community.copy-boss.com/' }
           ]
@@ -277,7 +274,6 @@
           items: [
             { label:'Home',      icon:'🏠', href:'/' },
             { label:'Analyzer',  icon:'📊', href:'/analyzer' },
-            { label:'Generator', icon:'⚡', href:'/generator' },
             { label:'Pricing',   icon:'💳', href:'/pricing' }
           ]
         },
@@ -647,7 +643,7 @@
         return;
       }
 
-      // Fallback navigation for normal pages (Home/Analyzer/Generator/etc.)
+      // Fallback navigation for normal pages (Home/Analyzer/etc.)
       if (href && href !== '#'){
         e.preventDefault();
         closeDrawerNow();

@@ -14811,6 +14811,46 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #cb-reports .report-card.locked-report > .result-content {
     z-index: 1 !important;
   }
+
+  /* Final mobile-only locked overlay stacking override */
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card,
+  body.page-analyzer #cb-reports .report-card.locked-report {
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    overflow: hidden !important;
+    z-index: 9999 !important;
+  }
+
+  body.page-analyzer #cb-reports .pro-locked-results.report-card > .result-content,
+  body.page-analyzer #cb-reports .report-card.locked-report > .result-content {
+    z-index: 1 !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .lock-image,
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .padlock-icon {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    pointer-events: none !important;
+  }
 }
 </style>
 

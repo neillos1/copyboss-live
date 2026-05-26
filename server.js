@@ -54,6 +54,11 @@ app.get('/boss/analyzer.html', (req, res) => {
   res.redirect(302, '/analyzer.html');
 });
 
+// --- Generator page disabled: redirect to analyzer ---
+app.get(['/generator', '/generator.html'], (req, res) => {
+  res.redirect(302, '/analyzer.html');
+});
+
 // --- Static public dir ---
 const publicDir = path.join(__dirname, 'public');
 app.use(express.static(publicDir, { fallthrough: true }));
@@ -442,7 +447,7 @@ try {
 
 // === Simple SPA fallback route ===
 // Specific routes for HTML pages
-app.get(["/analyzer", "/generator", "/pricing", "/leaderboard"], (req, res) => {
+app.get(["/analyzer", "/pricing", "/leaderboard"], (req, res) => {
   const fs = require("fs");
   const path = require("path");
   const publicDir = path.join(__dirname, "public");
