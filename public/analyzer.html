@@ -4278,6 +4278,79 @@ function previewVideo() {
   }
 }
 
+function logBodyOverflowState(phase) {
+  console.log('[SCROLL UNLOCK] body overflow state', phase, {
+    bodyOverflow: document.body.style.overflow || '(css)',
+    bodyOverflowY: document.body.style.overflowY || '(css)',
+    htmlOverflow: document.documentElement.style.overflow || '(css)',
+    htmlOverflowY: document.documentElement.style.overflowY || '(css)',
+    bodyPosition: document.body.style.position || '(css)',
+    bodyTouchAction: document.body.style.touchAction || '(css)'
+  });
+}
+
+function restoreMobileScrollUnlock(source) {
+  logBodyOverflowState('before restore (' + (source || 'unknown') + ')');
+
+  document.querySelectorAll(
+    '#cb-analyzing-overlay, .cb-analyzing-overlay-v4, .cb-analyzing-overlay, .analysis-overlay, #analysis-overlay, [data-overlay="analyzing"]'
+  ).forEach(function (el) {
+    if (!el || el.id === 'loadingIndicator') return;
+    el.style.setProperty('display', 'none', 'important');
+    el.style.setProperty('visibility', 'hidden', 'important');
+    el.style.setProperty('pointer-events', 'none', 'important');
+    el.style.setProperty('opacity', '0', 'important');
+  });
+
+  var drawer = document.getElementById('cb-drawer');
+  var drawerOpen = drawer && drawer.getAttribute('aria-hidden') === 'false';
+  var backdrop = document.getElementById('cb-backdrop');
+  if (backdrop && !drawerOpen) {
+    backdrop.hidden = true;
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.style.setProperty('pointer-events', 'none', 'important');
+  }
+
+  document.body.style.overflow = '';
+  document.body.style.overflowY = 'auto';
+  document.body.style.overflowX = '';
+  document.body.style.position = '';
+  document.body.style.height = '';
+  document.body.style.width = '';
+  document.body.style.touchAction = '';
+  document.body.style.pointerEvents = '';
+  document.documentElement.style.overflow = '';
+  document.documentElement.style.overflowY = 'auto';
+  document.documentElement.style.overflowX = '';
+  document.documentElement.style.position = '';
+  document.documentElement.style.touchAction = '';
+
+  var mainWrapper = document.getElementById('main-wrapper');
+  if (mainWrapper) {
+    mainWrapper.style.overflow = '';
+    mainWrapper.style.overflowY = 'visible';
+    mainWrapper.style.touchAction = 'auto';
+    mainWrapper.style.pointerEvents = 'auto';
+  }
+
+  var analyzerWrapper = document.querySelector('.analyzer-wrapper');
+  if (analyzerWrapper) {
+    analyzerWrapper.style.overflow = '';
+    analyzerWrapper.style.overflowY = 'visible';
+    analyzerWrapper.style.touchAction = 'auto';
+    analyzerWrapper.style.pointerEvents = 'auto';
+  }
+
+  var cbGauges = document.getElementById('cb-gauges');
+  if (cbGauges) {
+    cbGauges.style.pointerEvents = 'auto';
+    cbGauges.style.touchAction = 'auto';
+  }
+
+  logBodyOverflowState('after restore (' + (source || 'unknown') + ')');
+  console.log('[SCROLL UNLOCK] scroll unlock restoration complete', source || 'unknown');
+}
+
 // Analyze video using Gemini backend
 async function runAnalysis(passedFile) {
   console.log('[runAnalysis] start');
@@ -4329,8 +4402,11 @@ async function runAnalysis(passedFile) {
   });
   
   if (typeof window.cbOverlay !== 'undefined' && window.cbOverlay.show) {
+    console.log('[OVERLAY] open — calling cbOverlay.show(26000)');
+    logBodyOverflowState('overlay open (before show)');
     window.cbOverlay.show(26000);
     console.log('[runAnalysis] cbOverlay.show(26000) called');
+    logBodyOverflowState('overlay open (after show)');
   } else {
     console.error('[runAnalysis] ERROR: cbOverlay or show() not available!');
   }
@@ -4484,12 +4560,19 @@ async function runAnalysis(passedFile) {
     });
     
     if (typeof window.cbOverlay !== 'undefined' && window.cbOverlay.finish) {
-      console.log('[runAnalysis] Calling cbOverlay.finish()');
+      console.log('[OVERLAY] close — calling cbOverlay.finish()');
+      logBodyOverflowState('overlay close (before finish)');
       await window.cbOverlay.finish();
       console.log('[runAnalysis] cbOverlay.finish() completed');
+      logBodyOverflowState('overlay close (after finish)');
     } else {
       console.warn('[runAnalysis] cbOverlay or finish() not available in finally block');
     }
+
+    restoreMobileScrollUnlock('runAnalysis-finally');
+    setTimeout(function () {
+      restoreMobileScrollUnlock('runAnalysis-finally-delayed');
+    }, 400);
     
     // ✅ NOW render results after overlay has finished (26s minimum)
     if (typeof analysisResult !== 'undefined' && analysisResult !== null) {
