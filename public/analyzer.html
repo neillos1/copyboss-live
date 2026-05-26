@@ -14531,13 +14531,22 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 </style>
 
-<style id="cb-mobile-gauge-grid-fix">
+<style id="cb-mobile-layout-fix">
 @media (max-width: 768px) {
+  /* --- Gauge grid: one card per row, full width (max 420px) --- */
   body.page-analyzer #cb-gauges,
+  body.page-analyzer .gauge-container,
+  body.page-analyzer .gauge-grid,
+  body.page-analyzer .metrics-grid,
+  body.page-analyzer .analysis-grid,
   body.page-analyzer .gauge-container#cb-gauges {
     display: grid !important;
     grid-template-columns: 1fr !important;
     grid-auto-flow: row !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-items: center !important;
     column-gap: 20px !important;
     row-gap: 20px !important;
     max-width: 100% !important;
@@ -14548,12 +14557,96 @@ window.addEventListener('DOMContentLoaded', function () {
     box-sizing: border-box !important;
   }
 
-  body.page-analyzer #cb-gauges > .gauge-box {
+  body.page-analyzer #cb-gauges > .gauge-box,
+  body.page-analyzer .gauge-container > .gauge-box,
+  body.page-analyzer .gauge-grid > .gauge-box,
+  body.page-analyzer .metrics-grid > .gauge-box,
+  body.page-analyzer .analysis-grid > .gauge-box {
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 420px !important;
     min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     grid-column: 1 / -1 !important;
     box-sizing: border-box !important;
+  }
+
+  /* --- Result/report cards: auto-expand, no clipping --- */
+  body.page-analyzer #cb-reports,
+  body.page-analyzer .results-container,
+  body.page-analyzer .results-section-wrapper,
+  body.page-analyzer #reportContainer {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card,
+  body.page-analyzer #cb-reports .pro-locked-results,
+  body.page-analyzer #cb-reports .locked-report,
+  body.page-analyzer #viral-card,
+  body.page-analyzer #caption-card,
+  body.page-analyzer #soundmatch-card,
+  body.page-analyzer #viewerunderstanding-card,
+  body.page-analyzer #engagementforecast-card,
+  body.page-analyzer #viralstrength-card {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card > .result-content,
+  body.page-analyzer #cb-reports .pro-locked-results > .result-content,
+  body.page-analyzer .report-card .result-content {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: fit-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card .result-content *,
+  body.page-analyzer #cb-reports .pro-locked-results .result-content * {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body.page-analyzer #cb-reports .result-content h4,
+  body.page-analyzer #cb-reports .result-content p,
+  body.page-analyzer #cb-reports .strength-text,
+  body.page-analyzer #cb-reports .result-desc,
+  body.page-analyzer #cb-reports [id$="Feedback"],
+  body.page-analyzer #cb-reports [id$="Label"],
+  body.page-analyzer #cb-reports [id$="DetailedGemini"],
+  body.page-analyzer #reportContainer .feedback-note,
+  body.page-analyzer #reportContainer .results-header {
+    height: auto !important;
+    min-height: fit-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card .analyzing,
+  body.page-analyzer #cb-reports .pro-locked-results .analyzing {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    transform: translate(-50%, -50%) !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
   }
 }
 </style>
