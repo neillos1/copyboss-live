@@ -14612,5 +14612,87 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 </style>
 
+<style id="cb-mobile-result-cards-fix">
+@media (max-width: 768px) {
+  body.page-analyzer #cb-gauges,
+  body.page-analyzer .gauge-container,
+  body.page-analyzer .results-section-wrapper,
+  body.page-analyzer #cb-reports,
+  body.page-analyzer .results-container {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.page-analyzer #cb-gauges {
+    grid-template-columns: 1fr !important;
+    row-gap: 20px !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box,
+  body.page-analyzer #cb-gauges #soundGaugeCard,
+  body.page-analyzer #cb-gauges #viewerGaugeCard {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked {
+    overflow: visible !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-title,
+  body.page-analyzer #cb-gauges .gauge-feedback {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.page-analyzer .report-card,
+  body.page-analyzer .pro-locked-results,
+  body.page-analyzer .locked-report,
+  body.page-analyzer #viral-card,
+  body.page-analyzer #caption-card,
+  body.page-analyzer #soundmatch-card,
+  body.page-analyzer #viewerunderstanding-card,
+  body.page-analyzer #engagementforecast-card,
+  body.page-analyzer #viralstrength-card {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-bottom: 24px !important;
+  }
+
+  body.page-analyzer .report-card .result-content,
+  body.page-analyzer .pro-locked-results .result-content {
+    position: relative !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  body.page-analyzer .report-card .result-content h4,
+  body.page-analyzer .report-card .result-content p,
+  body.page-analyzer .report-card .strength-text {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+</style>
+
 </body>
 </html>
