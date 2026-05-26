@@ -3761,10 +3761,8 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
     <h4 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #fff;">
       Caption Score 
       <span style="margin-left: 10px; font-weight: normal;">
-       <span id="captionClarityEmoji">🔴</span>
-
-        <span id="captionClarityScore">--</span>
-
+        <span id="captionClarityEmoji">🔴</span> | 
+        <span id="captionClarityScore">--</span> |
       </span>
     </h4>
 
@@ -14619,7 +14617,7 @@ window.addEventListener('DOMContentLoaded', function () {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.70), 0 0 40px rgba(59, 130, 246, 0.50), 0 0 60px rgba(59, 130, 246, 0.30) !important;
     height: auto !important;
     max-height: none !important;
-    min-height: fit-content !important;
+    min-height: 300px !important;
     overflow: visible !important;
     box-sizing: border-box !important;
     contain: none !important;
@@ -14641,7 +14639,7 @@ window.addEventListener('DOMContentLoaded', function () {
     display: block !important;
     width: 100% !important;
     height: auto !important;
-    min-height: fit-content !important;
+    min-height: 140px !important;
     max-height: none !important;
     overflow: visible !important;
     box-sizing: border-box !important;
@@ -14649,6 +14647,11 @@ window.addEventListener('DOMContentLoaded', function () {
     border-radius: inherit !important;
     padding: 20px !important;
     z-index: 3 !important;
+  }
+
+  body.page-analyzer #cb-reports .result-content h4 {
+    min-height: 28px !important;
+    line-height: 1.35 !important;
   }
 
   body.page-analyzer #cb-reports .report-card > *:not(.locked-overlay):not(.analyzing),
