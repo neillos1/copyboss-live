@@ -14691,6 +14691,96 @@ window.addEventListener('DOMContentLoaded', function () {
     word-wrap: break-word !important;
     overflow-wrap: anywhere !important;
   }
+
+  /* In-card analyzing placeholder (override global .analyzing fullscreen rule) */
+  body.page-analyzer #cb-reports .analyzing,
+  body.page-analyzer .report-card .analyzing,
+  body.page-analyzer .pro-locked-results .analyzing {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    transform: translate(-50%, -50%) !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+  }
+
+  /* Inner blue content panel + all wrappers inside report cards */
+  body.page-analyzer #cb-reports .report-card > .result-content,
+  body.page-analyzer #cb-reports .pro-locked-results > .result-content,
+  body.page-analyzer #cb-reports .report-card > *:not(.locked-overlay),
+  body.page-analyzer #cb-reports .pro-locked-results.report-card > *:not(.locked-overlay) {
+    position: relative !important;
+    z-index: 3 !important;
+    width: 100% !important;
+    min-height: fit-content !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: auto !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card > .result-content,
+  body.page-analyzer #cb-reports .pro-locked-results > .result-content {
+    display: block !important;
+    padding: 20px !important;
+    background: transparent !important;
+  }
+
+  body.page-analyzer #cb-reports .report-card .result-content *,
+  body.page-analyzer #cb-reports .pro-locked-results .result-content * {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body.page-analyzer #cb-reports .feedback-block,
+  body.page-analyzer #cb-reports .feedback-text,
+  body.page-analyzer #cb-reports .feedback-title,
+  body.page-analyzer #reportContainer,
+  body.page-analyzer #reportContainer .results-header,
+  body.page-analyzer #reportContainer .feedback-note {
+    height: auto !important;
+    min-height: fit-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.page-analyzer #cb-reports [id$="Feedback"],
+  body.page-analyzer #cb-reports [id$="Label"],
+  body.page-analyzer #cb-reports [id$="DetailedGemini"],
+  body.page-analyzer #cb-reports .result-desc,
+  body.page-analyzer #cb-reports .strength-text {
+    display: block !important;
+    height: auto !important;
+    min-height: fit-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Let text sit inside the blue card background (parent .report-card) */
+  body.page-analyzer #cb-reports .pro-locked-results.report-card::before {
+    height: auto !important;
+    min-height: 100% !important;
+    bottom: 0 !important;
+  }
+
+  body.page-analyzer #cb-reports .locked-overlay {
+    max-height: none !important;
+  }
 }
 </style>
 
