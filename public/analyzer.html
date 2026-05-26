@@ -2259,7 +2259,7 @@ html, body {
                     <!-- Upload and Analyze Buttons -->
                     <div class="hidden md:flex items-center space-x-4">
                         <!-- Upload Button -->
-                        <input type="file" id="file-upload" style="display: none;" onchange="handleFileUpload(event)">
+                        <input type="file" id="file-upload" accept="video/*" style="display: none;" onchange="handleFileUpload(event)">
                         <label for="file-upload" id="uploadBtn" class="upload-label new-upload-btn" style="
                             display: inline-flex;
                             align-items: center;
@@ -2341,7 +2341,21 @@ html, body {
         </header>
 
         <!-- fallback mobile-only file input (used only if we can't find the desktop one) -->
-        <input id="cb-upload-input" type="file" accept="video/*" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px;" />
+        <input id="cb-upload-input" type="file" accept="video/*" disabled tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px;pointer-events:none;" />
+        <script>
+        (function () {
+          var fileUpload = document.getElementById('file-upload');
+          var cbUploadInput = document.getElementById('cb-upload-input');
+          if (fileUpload) {
+            fileUpload.setAttribute('accept', 'video/*');
+            fileUpload.dataset.cbHooked = '1';
+          }
+          if (cbUploadInput) {
+            cbUploadInput.disabled = true;
+            cbUploadInput.dataset.cbHooked = '1';
+          }
+        })();
+        </script>
 
         <!-- Mobile drawer -->
         <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
@@ -4280,8 +4294,20 @@ function previewVideo() {
   }
 }
 
+let __cbSelectedVideoFile = null;
+
+function storeSelectedVideoFile(file) {
+  __cbSelectedVideoFile = file || null;
+}
+
+function getSelectedVideoFile() {
+  if (__cbSelectedVideoFile) return __cbSelectedVideoFile;
+  const el = document.getElementById('file-upload');
+  return el && el.files && el.files[0] ? el.files[0] : null;
+}
+
 // Analyze video using Gemini backend
-async function runAnalysis() {
+async function runAnalysis(passedFile) {
   console.log('[runAnalysis] start');
   
   // Clear forceDemoChart flag so real charts can update again
@@ -4308,7 +4334,7 @@ async function runAnalysis() {
     return;
   }
 
-  const file = fileInputEl.files[0];
+  const file = passedFile || getSelectedVideoFile();
   if (!file) {
     alert("Please upload a video to analyze.");
     return;
@@ -7349,15 +7375,18 @@ a:hover {
 
 <script>
   async function handleFileUpload(event) {
+  if (!event || !event.target || event.target.id !== 'file-upload') return;
+
   const file = event.target.files[0];
   if (!file) return;
-  
+
+  storeSelectedVideoFile(file);
+
   // Store filename for PDF generation
   window.cbLastUploadedFilename = file?.name || null;
   console.log('[PDF] Stored filename:', window.cbLastUploadedFilename);
-  
-  // Trigger the analysis process
-  runAnalysis();
+
+  runAnalysis(file);
 }
 </script>
 
@@ -11244,6 +11273,28 @@ async function saveAnalysisResult(score) {
 
 <script src="/_prod/js/mobile-gap-guard.js" defer></script>
 <script src="/_prod/js/mobile-nav.js?v=navfix2"></script>
+<script>
+(function () {
+  function wireCbUploadBtn() {
+    var uploadBtn = document.getElementById('cb-upload-btn');
+    var fileUpload = document.getElementById('file-upload');
+    if (!uploadBtn || !fileUpload) return;
+    if (uploadBtn.dataset.cbUploadWired === '1') return;
+    uploadBtn.dataset.cbUploadWired = '1';
+    uploadBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      document.getElementById('file-upload').click();
+    }, true);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireCbUploadBtn);
+  } else {
+    wireCbUploadBtn();
+  }
+})();
+</script>
 <script src="/_prod/js/avatar-helper.js?v=1"></script>
 
 <!-- Test Analyzer History functionality -->
