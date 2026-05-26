@@ -14531,5 +14531,32 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 </style>
 
+<style id="cb-mobile-gauge-grid-fix">
+@media (max-width: 768px) {
+  body.page-analyzer #cb-gauges,
+  body.page-analyzer .gauge-container#cb-gauges {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-auto-flow: row !important;
+    column-gap: 20px !important;
+    row-gap: 20px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-inline: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  body.page-analyzer #cb-gauges > .gauge-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-column: 1 / -1 !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+
 </body>
 </html>
