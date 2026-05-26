@@ -14967,6 +14967,120 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #cb-gauges #viewerGaugeCard .gauge-feedback {
     color: rgba(255, 255, 255, 0.92) !important;
   }
+
+  /* --- Final override: gauge/report lock alignment + free gauge brightness --- */
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .lock-image,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .lock-image {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(260px, 84%) !important;
+    max-width: 88% !important;
+    max-height: 68% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    opacity: 0.75 !important;
+    z-index: 5 !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .padlock-icon,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .padlock-icon {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(100px, 26vw) !important;
+    max-width: 110px !important;
+    max-height: 110px !important;
+    height: auto !important;
+    margin: 0 !important;
+    z-index: 10001 !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon img,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .padlock-icon img,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .padlock-icon img,
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay img.padlock-ctrl,
+  body.page-analyzer #cb-reports .locked-overlay img.m-lock {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .btn-upgrade,
+  body.page-analyzer #cb-reports .pro-locked-results.report-card .locked-overlay .btn-upgrade,
+  body.page-analyzer #cb-reports .report-card.locked-report .locked-overlay .btn-upgrade {
+    position: absolute !important;
+    top: calc(50% + 64px) !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    min-width: 168px !important;
+    max-width: 220px !important;
+    height: 36px !important;
+    line-height: 32px !important;
+    padding: 2px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    z-index: 10000 !important;
+  }
+
+  /* Free gauges: desktop-like brightness at start and after upload */
+  body.page-analyzer #cb-gauges #soundGaugeCard,
+  body.page-analyzer #cb-gauges #viewerGaugeCard {
+    background: #124582 !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGaugeCard::before,
+  body.page-analyzer #cb-gauges #soundGaugeCard::after,
+  body.page-analyzer #cb-gauges #viewerGaugeCard::before,
+  body.page-analyzer #cb-gauges #viewerGaugeCard::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGaugeCard *,
+  body.page-analyzer #cb-gauges #viewerGaugeCard * {
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGaugeCard .gauge-title,
+  body.page-analyzer #cb-gauges #viewerGaugeCard .gauge-title,
+  body.page-analyzer #cb-gauges #soundGaugeCard .gauge-feedback,
+  body.page-analyzer #cb-gauges #viewerGaugeCard .gauge-feedback {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGaugeCard .apexcharts-canvas,
+  body.page-analyzer #cb-gauges #viewerGaugeCard .apexcharts-canvas,
+  body.page-analyzer #cb-gauges #soundGaugeCard .apexcharts-svg,
+  body.page-analyzer #cb-gauges #viewerGaugeCard .apexcharts-svg {
+    opacity: 1 !important;
+  }
 }
 </style>
 
