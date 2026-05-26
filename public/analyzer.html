@@ -2258,7 +2258,7 @@ html, body {
                     <!-- Upload and Analyze Buttons -->
                     <div class="hidden md:flex items-center space-x-4">
                         <!-- Upload Button -->
-                        <input type="file" id="file-upload" style="display: none;" onchange="handleFileUpload(event)">
+                        <input type="file" id="file-upload" accept="video/*" style="display: none;" onchange="handleFileUpload(event)">
                         <label for="file-upload" id="uploadBtn" class="upload-label new-upload-btn" style="
                             display: inline-flex;
                             align-items: center;
@@ -2339,7 +2339,7 @@ html, body {
         </header>
 
         <!-- fallback mobile-only file input (used only if we can't find the desktop one) -->
-        <input id="cb-upload-input" type="file" accept="video/*" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px;" />
+        <input id="cb-upload-input" type="file" accept="video/*" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px;" onchange="handleFileUpload(event)" />
 
         <!-- Mobile drawer -->
         <aside id="cb-drawer" class="cb-drawer" aria-hidden="true">
@@ -4279,7 +4279,7 @@ function previewVideo() {
 }
 
 // Analyze video using Gemini backend
-async function runAnalysis() {
+async function runAnalysis(passedFile) {
   console.log('[runAnalysis] start');
   
   // Clear forceDemoChart flag so real charts can update again
@@ -4299,14 +4299,13 @@ async function runAnalysis() {
 
   // NOTE: report credits and free upload are consumed only after a genuinely successful render.
 
-  const fileInputEl = document.getElementById("file-upload");
-
-  if (!fileInputEl) {
-    alert("⚠️ Missing file input element.");
-    return;
-  }
-
-  const file = fileInputEl.files[0];
+  const file = (typeof getSelectedVideoFile === 'function' ? getSelectedVideoFile() : null) || (passedFile || null);
+  console.log('[runAnalysis] selected file check', {
+    hasFile: !!file,
+    name: file ? file.name : null,
+    size: file ? file.size : null,
+    type: file ? file.type : null
+  });
   if (!file) {
     alert("Please upload a video to analyze.");
     return;
@@ -7346,17 +7345,62 @@ a:hover {
 
 
 <script>
+  window.cbSelectedVideoFile = null;
+
+  function storeSelectedVideoFile(file, source) {
+    if (!file) return;
+    window.cbSelectedVideoFile = file;
+    window.cbLastUploadedFilename = file.name || null;
+    console.log('[UPLOAD] file selected', {
+      source: source || 'unknown',
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
+  }
+
+  function getSelectedVideoFile() {
+    if (window.cbSelectedVideoFile) return window.cbSelectedVideoFile;
+    var primary = document.getElementById('file-upload');
+    if (primary && primary.files && primary.files[0]) return primary.files[0];
+    var mobile = document.getElementById('cb-upload-input');
+    if (mobile && mobile.files && mobile.files[0]) return mobile.files[0];
+    return null;
+  }
+
   async function handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  // Store filename for PDF generation
-  window.cbLastUploadedFilename = file?.name || null;
-  console.log('[PDF] Stored filename:', window.cbLastUploadedFilename);
-  
-  // Trigger the analysis process
-  runAnalysis();
-}
+    console.log('[UPLOAD] file input change', { inputId: event.target && event.target.id });
+    var file = event.target.files && event.target.files[0];
+    if (!file) return;
+    storeSelectedVideoFile(file, event.target.id || 'file-upload');
+    if (event.target.id === 'file-upload') {
+      runAnalysis(file);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var canonicalInput = document.getElementById('file-upload');
+    if (canonicalInput) {
+      canonicalInput.setAttribute('accept', 'video/*');
+    }
+    var uploadBtn = document.getElementById('cb-upload-btn');
+    if (uploadBtn) {
+      uploadBtn.addEventListener('click', function (e) {
+        console.log('[UPLOAD] upload button clicked', { buttonId: 'cb-upload-btn' });
+        var input = document.getElementById('file-upload');
+        if (input && typeof input.click === 'function') {
+          e.preventDefault();
+          input.click();
+        }
+      });
+    }
+    var legacyUploadBtn = document.getElementById('uploadBtn');
+    if (legacyUploadBtn) {
+      legacyUploadBtn.addEventListener('click', function () {
+        console.log('[UPLOAD] upload button clicked', { buttonId: 'uploadBtn' });
+      });
+    }
+  });
 </script>
 
 
