@@ -534,6 +534,219 @@
             border-radius: 0.5rem;
         }
 
+        /* Analysis metrics — compact glowing cards */
+        .analysis-metrics-section {
+            padding: 1rem 1rem 3.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .analysis-metrics-section .metrics-section-intro {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 2rem;
+        }
+
+        .analysis-metrics-section .metrics-section-intro h2 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .analysis-metrics-section .metrics-section-intro p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .analysis-metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .analysis-metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.1rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .analysis-metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.25rem 1.35rem;
+            min-height: 0;
+            height: auto;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card.blue-metric {
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.55), 0 0 28px rgba(59, 130, 246, 0.3);
+        }
+
+        .metric-card.purple-metric {
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.55), 0 0 28px rgba(139, 92, 246, 0.3);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-card.blue-metric:hover {
+            border-color: rgba(59, 130, 246, 0.45);
+            box-shadow: 0 0 22px rgba(59, 130, 246, 0.75), 0 0 38px rgba(59, 130, 246, 0.4);
+        }
+
+        .metric-card.purple-metric:hover {
+            border-color: rgba(139, 92, 246, 0.45);
+            box-shadow: 0 0 22px rgba(139, 92, 246, 0.75), 0 0 38px rgba(139, 92, 246, 0.4);
+        }
+
+        .metric-card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.65rem;
+            line-height: 1;
+        }
+
+        .metric-card.blue-metric .metric-card-icon {
+            color: #60a5fa;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+        }
+
+        .metric-card.purple-metric .metric-card-icon {
+            color: #c084fc;
+            filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+        }
+
+        .metric-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 0.45rem;
+        }
+
+        .metric-card p {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        /* Creator trust / social proof */
+        .creator-trust-section {
+            padding: 0 1rem 2.75rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .creator-trust-section .trust-section-intro {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 2rem;
+        }
+
+        .creator-trust-section .trust-section-intro h2 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .creator-trust-section .trust-section-intro p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .creator-trust-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.1rem;
+        }
+
+        @media (min-width: 768px) {
+            .creator-trust-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        .trust-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.35rem 1.4rem;
+            min-height: 0;
+            height: 100%;
+            transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .trust-card.blue-trust {
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.55), 0 0 28px rgba(59, 130, 246, 0.3);
+        }
+
+        .trust-card.purple-trust {
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.55), 0 0 28px rgba(139, 92, 246, 0.3);
+        }
+
+        .trust-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .trust-card.blue-trust:hover {
+            border-color: rgba(59, 130, 246, 0.45);
+            box-shadow: 0 0 22px rgba(59, 130, 246, 0.75), 0 0 38px rgba(59, 130, 246, 0.4);
+        }
+
+        .trust-card.purple-trust:hover {
+            border-color: rgba(139, 92, 246, 0.45);
+            box-shadow: 0 0 22px rgba(139, 92, 246, 0.75), 0 0 38px rgba(139, 92, 246, 0.4);
+        }
+
+        .trust-card-icon {
+            font-size: 1.45rem;
+            margin-bottom: 0.75rem;
+            line-height: 1;
+        }
+
+        .trust-card.blue-trust .trust-card-icon {
+            color: #60a5fa;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+        }
+
+        .trust-card.purple-trust .trust-card-icon {
+            color: #c084fc;
+            filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+        }
+
+        .trust-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 0.5rem;
+        }
+
+        .trust-card p {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.55;
+            margin: 0;
+        }
+
         .promo-card-compact {
             padding: 2rem 2rem !important;
         }
@@ -1509,6 +1722,79 @@
                     allowfullscreen>
                 </iframe>
   </div>
+        </section>
+
+        <!-- Analysis Metrics Section -->
+        <section class="analysis-metrics-section px-4" aria-labelledby="analysis-metrics-heading">
+            <div class="max-w-6xl mx-auto">
+                <div class="metrics-section-intro">
+                    <h2 id="analysis-metrics-heading" class="text-3xl md:text-4xl font-bold">
+                        What CopyBoss Checks <span class="gradient-text">Before You Post</span>
+                    </h2>
+                    <p>Your report breaks down the key signals that decide whether viewers keep watching, scroll away, or engage.</p>
+                </div>
+                <div class="analysis-metrics-grid">
+                    <article class="metric-card blue-metric">
+                        <div class="metric-card-icon" aria-hidden="true"><i class="fas fa-bolt"></i></div>
+                        <h3>Hook Strength</h3>
+                        <p>Checks whether your opening seconds are strong enough to stop the scroll.</p>
+                    </article>
+                    <article class="metric-card purple-metric">
+                        <div class="metric-card-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></div>
+                        <h3>Retention Risk</h3>
+                        <p>Highlights where viewers may lose interest or drop off.</p>
+                    </article>
+                    <article class="metric-card blue-metric">
+                        <div class="metric-card-icon" aria-hidden="true"><i class="fas fa-eye"></i></div>
+                        <h3>Viewer Understanding</h3>
+                        <p>Shows whether your message is clear enough for people to follow quickly.</p>
+                    </article>
+                    <article class="metric-card purple-metric">
+                        <div class="metric-card-icon" aria-hidden="true"><i class="fas fa-heart"></i></div>
+                        <h3>Engagement Potential</h3>
+                        <p>Looks for signals that could increase likes, comments, shares, and saves.</p>
+                    </article>
+                    <article class="metric-card blue-metric">
+                        <div class="metric-card-icon" aria-hidden="true"><i class="fas fa-music"></i></div>
+                        <h3>Sound Match</h3>
+                        <p>Reviews whether your audio supports the mood, pace, and style of the video.</p>
+                    </article>
+                    <article class="metric-card purple-metric">
+                        <div class="metric-card-icon" aria-hidden="true"><i class="fas fa-fire"></i></div>
+                        <h3>Viral Potential</h3>
+                        <p>Combines key signals into a simple score to help guide your next edit.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Creator Trust / Social Proof Section -->
+        <section class="creator-trust-section px-4" aria-labelledby="creator-trust-heading">
+            <div class="max-w-6xl mx-auto">
+                <div class="trust-section-intro">
+                    <h2 id="creator-trust-heading" class="text-3xl md:text-4xl font-bold">
+                        Built For <span class="gradient-text">Modern Content Creators</span>
+                    </h2>
+                    <p>Whether you're posting TikToks, Reels, or YouTube Shorts, CopyBoss helps creators improve videos before they go live.</p>
+                </div>
+                <div class="creator-trust-grid">
+                    <article class="trust-card blue-trust">
+                        <div class="trust-card-icon" aria-hidden="true"><i class="fas fa-video"></i></div>
+                        <h3>Creator-Focused Feedback</h3>
+                        <p>Built specifically for short-form creators who need fast, actionable feedback before posting.</p>
+                    </article>
+                    <article class="trust-card purple-trust">
+                        <div class="trust-card-icon" aria-hidden="true"><i class="fas fa-bolt"></i></div>
+                        <h3>Instant AI Analysis</h3>
+                        <p>Upload your video and receive retention, hook, clarity, and engagement insights in seconds.</p>
+                    </article>
+                    <article class="trust-card blue-trust">
+                        <div class="trust-card-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></div>
+                        <h3>Designed For Growth</h3>
+                        <p>Use CopyBoss to improve content quality, avoid weak uploads, and publish with more confidence.</p>
+                    </article>
+                </div>
+            </div>
         </section>
 
         <!-- Features Section -->
