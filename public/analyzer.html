@@ -14917,6 +14917,56 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #cb-reports .report-card:not(.locked-report):not(.pro-locked-results) .strength-text {
     color: rgba(255, 255, 255, 0.9) !important;
   }
+
+  /* --- Final override: locked GAUGE alignment + free GAUGE readability --- */
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .lock-image {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .padlock-icon {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10001 !important; /* keep padlock above tag/button */
+  }
+
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .locked-overlay .btn-upgrade {
+    left: 50% !important;
+    top: calc(50% + 74px) !important; /* below padlock */
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    min-width: 190px !important;
+    max-width: 240px !important;
+    height: 36px !important;
+    line-height: 32px !important;
+    padding: 2px 10px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    z-index: 10000 !important;
+  }
+
+  /* Free gauges: brighten only the two unlocked cards */
+  body.page-analyzer #cb-gauges #soundGaugeCard,
+  body.page-analyzer #cb-gauges #viewerGaugeCard {
+    background: linear-gradient(135deg, #083aa6, #062c85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGaugeCard > *,
+  body.page-analyzer #cb-gauges #viewerGaugeCard > * {
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  body.page-analyzer #cb-gauges #soundGaugeCard .gauge-feedback,
+  body.page-analyzer #cb-gauges #viewerGaugeCard .gauge-feedback {
+    color: rgba(255, 255, 255, 0.92) !important;
+  }
 }
 </style>
 
