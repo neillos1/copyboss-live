@@ -11437,7 +11437,10 @@ async function saveAnalysisResult(score) {
               endAngle: 90,
               hollow: { size: '60%', background: 'transparent' },
               track:  { background: 'rgba(255,255,255,.12)', strokeWidth: '100%' },
-              dataLabels: { value: { offsetY: 10 } }
+              dataLabels: {
+                name: { show: false },
+                value: { offsetY: 10 }
+              }
             }
           }
         }, false, true);
