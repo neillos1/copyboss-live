@@ -2140,6 +2140,51 @@ html, body {
             color: #ffffff !important;
         }
 
+        /* Mobile drawer close button (keep fully inside panel, top-right) */
+        #cb-drawer {
+            position: fixed !important;
+            overflow: hidden !important;
+        }
+
+        #cb-drawer .cb-close {
+            position: absolute !important;
+            top: 10px !important;
+            right: 10px !important;
+            left: auto !important;
+            bottom: auto !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 9999px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            color: #ffffff !important;
+            background: rgba(239, 68, 68, 0.92) !important;
+            border: 2px solid rgba(255, 255, 255, 0.22) !important;
+            cursor: pointer !important;
+            z-index: 1300 !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #cb-drawer .cb-close:active {
+            transform: scale(0.98) !important;
+        }
+
+        #cb-drawer .cb-drawer-scroll {
+            padding-top: 56px !important; /* ensure menu items don't sit under X */
+        }
+
+        /* Hide Generator in analyzer mobile drawer only */
+        #cb-drawer a[href*="generator"],
+        #cb-drawer a[href*="Generator"],
+        #cb-drawer a[href*="/_prod/generator.html"],
+        #cb-drawer a[href$="generator.html"] {
+            display: none !important;
+        }
+
         .cb-drawer * {
             font-family: 'Poppins', sans-serif !important;
         }
