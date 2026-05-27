@@ -2185,6 +2185,23 @@ html, body {
             display: none !important;
         }
 
+        /* Hide Generator in legacy mobile menu (analyzer page only) */
+        #mobile-menu a[href*="generator"],
+        #mobile-menu a[href*="/_prod/generator.html"],
+        #mobile-menu a[href$="generator.html"] {
+            display: none !important;
+        }
+
+        /* Ensure the legacy menu button doesn't fight the new drawer on mobile */
+        @media (max-width: 768px) {
+            #mobileMenuBtn,
+            #mobile-menu {
+                display: none !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+        }
+
         .cb-drawer * {
             font-family: 'Poppins', sans-serif !important;
         }
@@ -15125,6 +15142,33 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #cb-gauges #soundGaugeCard .apexcharts-svg,
   body.page-analyzer #cb-gauges #viewerGaugeCard .apexcharts-svg {
     opacity: 1 !important;
+  }
+
+  /* --- Mobile gauge title cleanup: Viewer Understanding duplicate --- */
+  /* Hide ApexCharts center name label (the stacked "Viewer / Under / Standing") */
+  body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-datalabel-label,
+  body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-text.apexcharts-datalabel-label,
+  body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-datalabels-group text:first-child {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* Keep only the card title and match Engagement Forecast styling */
+  body.page-analyzer #cb-gauges #viewerGaugeCard .gauge-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    margin-bottom: 12px !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Ensure Engagement Forecast baseline is the same reference on mobile */
+  body.page-analyzer #cb-gauges .gauge-box.pro-locked .gauge-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 12px !important;
   }
 }
 </style>
