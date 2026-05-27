@@ -780,44 +780,6 @@ nav, .navbar, header {
     height: auto !important;
     display: block;
   }
-
-  /* IMPORTANT: Reset any earlier broad text rules on the WHOLE card #4 */
-  #cb-gauges > *:nth-child(4){
-    white-space: normal !important;
-    overflow-wrap: normal !important;
-    word-break: normal !important;
-  }
-
-  /* Break the title into 4 lines: icon, Viewer, Under, Standing */
-  #cb-gauges > *:nth-child(4) .gauge-title{
-    text-align: center !important;
-    white-space: normal !important;
-    line-height: 1.1 !important;
-    font-size: clamp(11px, 2.5vw, 13px) !important;
-    max-width: 100% !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* Use CSS to replace the content with our 4-line version */
-  #cb-gauges > *:nth-child(4) .gauge-title{
-    color: transparent !important;
-  }
-
-  /* Create the 4 lines using pseudo-elements */
-  #cb-gauges > *:nth-child(4) .gauge-title::before{
-    content: "🧠\A\AViewer\AUnder\AStanding" !important;
-    white-space: pre-line !important;
-    color: #ffffff !important;
-    display: block !important;
-    text-align: center !important;
-    font-size: clamp(11px, 2.5vw, 13px) !important;
-    line-height: 1.1 !important;
-  }
-
-  /* Make the brain icon bigger */
-  #cb-gauges > *:nth-child(4) .gauge-title::before{
-    font-size: clamp(13px, 3.2vw, 16px) !important;
-  }
 }
 /* ===== end ===== */
 
