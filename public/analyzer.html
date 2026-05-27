@@ -15149,6 +15149,11 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-datalabel-label {
     display: none !important;
   }
+
+  /* Fallback: hide ApexCharts radialbar label container (mobile only) */
+  body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-radialbar-label {
+    display: none !important;
+  }
 }
 </style>
 
