@@ -15154,6 +15154,13 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-radialbar-label {
     display: none !important;
   }
+
+  /* Final fallback: hide any SVG text rendered inside Viewer Understanding chart (mobile only) */
+  body.page-analyzer #viewerGaugeCard #viewerGauge text {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
 }
 </style>
 
