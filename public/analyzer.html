@@ -5019,14 +5019,6 @@ function displayGeminiResultsSafe() {
     buildGauge("captionGauge", 0);
     buildGauge("soundGauge", 0);
     buildGauge("viewerGauge", 0);
-    // Viewer Understanding: hide ApexCharts name label only (keep % value)
-    setTimeout(() => {
-      const root = document.getElementById('viewerGauge');
-      if (!root) return;
-      // ApexCharts typically renders the center "name" as .apexcharts-datalabel-label
-      const nameLabel = root.querySelector('.apexcharts-datalabel-label');
-      if (nameLabel) nameLabel.style.display = 'none';
-    }, 0);
     buildGauge("engagementGauge", 0);
     buildGauge("hookGauge", 0);
   };
@@ -15153,12 +15145,6 @@ window.addEventListener('DOMContentLoaded', function () {
   body.page-analyzer #cb-gauges #soundGaugeCard .apexcharts-svg,
   body.page-analyzer #cb-gauges #viewerGaugeCard .apexcharts-svg {
     opacity: 1 !important;
-  }
-
-  /* --- Mobile gauge title cleanup: Viewer Understanding duplicate --- */
-  /* Hide ApexCharts center name label (the stacked "Viewer / Under / Standing") */
-  body.page-analyzer #viewerGaugeCard #viewerGauge .apexcharts-datalabel-label {
-    display: none !important;
   }
 
 }
