@@ -15404,6 +15404,55 @@ body.page-analyzer #cb-gauges .apexcharts-svg {
   max-width: 100% !important;
 }
 
+/* === Issue 1: footer/bottom gap after unlock ===
+   Locked report cards reserve large bottom space (inline padding-bottom:180px,
+   min-height:300px, collapsed max-height:60px) to fit the lock overlay/CTA.
+   In the credits path JS already zeroes this; the Pro (pro-active) path does not,
+   leaving dead space that pushes a gap above the footer. Neutralize the reserved
+   space ONLY for unlocked cards so locked (free) layout is untouched. */
+body.page-analyzer.pro-active #cb-reports .report-card,
+body.page-analyzer #cb-reports .report-card:not(.locked-report):not(.pro-locked-results) {
+  max-height: none !important;
+  padding-bottom: 0 !important;
+}
+/* Collapse any trailing wrappers so the footer hugs the content after unlock */
+body.page-analyzer.pro-active .results-section-wrapper,
+body.page-analyzer.pro-active #cb-reports.results-container {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+/* Stripe-injected controller iframes must never reserve page height (defensive,
+   covers both direct-body and wrapper placements after returning from checkout) */
+body.page-analyzer iframe[name^="__privateStripe"],
+body.page-analyzer iframe[src*="js.stripe.com"] {
+  position: fixed !important;
+  width: 0 !important;
+  height: 0 !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* === Issue 2: snappier upgrade-modal button clicks ===
+   Inline buttons use `transition: all 0.3s ease` which makes taps feel laggy and
+   can delay the active-state paint. Limit the transition to cheap properties and
+   remove the mobile tap delay. No payment/checkout logic or URLs are touched. */
+body.page-analyzer #cb-upgrade-modal button,
+body.page-analyzer .cb-upgrade-modal button,
+body.page-analyzer .swal2-popup button,
+body.page-analyzer .swal2-actions button {
+  touch-action: manipulation !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+body.page-analyzer #cb-upgrade-modal button:active,
+body.page-analyzer .cb-upgrade-modal button:active {
+  transform: translateY(0) scale(0.99) !important;
+}
+
 </style>
 
 </body>
