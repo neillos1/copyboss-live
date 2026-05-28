@@ -493,6 +493,9 @@
       if (!email || !password) {
         console.log('VALIDATION FAILED: Missing email or password');
         alert('Please fill in email and password');
+        // Re-enable button so it does not stay stuck on "Signing In..."
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign In';
         return;
       }
       
@@ -540,16 +543,18 @@
           }
         }
         
-        let data;
+        // Read the response body ONCE as text, then parse safely.
+        // Reading the same body twice (json() then text()) triggers
+        // Safari's "Body is disturbed or locked" error.
+        const rawText = await response.text();
+        let data = {};
         try {
-          data = await response.json();
-          console.log('Response JSON:', data);
-        } catch (jsonError) {
-          console.log('Failed to parse JSON response:', jsonError);
-          const textResponse = await response.text();
-          console.log('Response text:', textResponse);
-          throw new Error(`Invalid JSON response: ${textResponse}`);
+          data = rawText ? JSON.parse(rawText) : {};
+        } catch (parseError) {
+          console.log('Failed to parse JSON response:', parseError);
+          data = { error: rawText || 'Login failed' };
         }
+        console.log('Response data:', data);
         
         // DEV vs PROD BEHAVIOR
         const isDevEnvironment = window.location.hostname === 'localhost' || 

@@ -223,6 +223,48 @@ app.post('/api/save-analysis', express.json(), (req, res) => {
   });
 });
 
+// --- Minimal signup stub (JSON only; no DB/session/JWT yet) ---
+app.post('/api/signup', express.json(), (req, res) => {
+  const { email, username, password } = req.body || {};
+
+  if (!email || !username || !password) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  console.log(`[AUTH] Stub signup successful for: ${email}`);
+
+  return res.status(200).json({
+    success: true,
+    user: {
+      id: 'local-' + Date.now(),
+      email,
+      username
+    },
+    token: 'dev-token-' + Date.now()
+  });
+});
+
+// --- Minimal login stub (JSON only; no DB/session/JWT yet) ---
+app.post('/api/login', express.json(), (req, res) => {
+  const { email, password } = req.body || {};
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  console.log(`[AUTH] Stub login successful for: ${email}`);
+
+  return res.status(200).json({
+    success: true,
+    user: {
+      id: 'local-login-' + Date.now(),
+      email,
+      username: email.split('@')[0]
+    },
+    token: 'dev-login-token-' + Date.now()
+  });
+});
+
 // --- Import API routes (with error handling) ---
 try {
   const uploadRoute = require('./routes/upload');
