@@ -339,6 +339,7 @@
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://js.stripe.com/v3"></script>
     <script src="js/countdown.js"></script>
     <link rel="stylesheet" href="/_prod/css/style.css?v=navfix2" />
@@ -7925,13 +7926,25 @@ a:hover {
         toggleHistoryPanel();
         return;
   } else if (target === "download-results") {
-    // Check Pro access for download
-    if (!isProActive()) {
+    console.log('[PDF][dl] handler start');
+    // Access check for download: allow Pro + paid report tiers + existing credits (does NOT consume credits)
+    const tierA = (localStorage.getItem('cb_userTier') || '').toLowerCase();
+    const tierB = (localStorage.getItem('userTier') || '').toLowerCase();
+    const isPro = localStorage.getItem('isPro') === 'true';
+    const credits = Number(localStorage.getItem('reportCredits') || 0);
+    const canDownload =
+      isPro ||
+      tierA === 'pro' || tierB === 'pro' ||
+      tierA === '2reports' || tierB === '2reports' ||
+      tierA === '15reports' || tierB === '15reports' ||
+      credits > 0;
+
+    if (!canDownload) {
       // Free user - show upgrade modal
       checkProAccess('download-results');
       return;
     }
-    // Pro user - proceed with download
+    // Paid user - proceed with download
     // ✅ PDF Generation - Standalone, no API calls
     (async () => {
       console.log('[PDF] download-results clicked');
@@ -8062,20 +8075,24 @@ a:hover {
     // Only generate PDF if confirmed
     if (confirmed) {
       console.log('[PDF] generate start', snapshot);
+      console.log('[PDF][dl] confirmed OK?', confirmed);
       
-      // Generate PDF from snapshot
-      if (typeof window.cbPdf !== 'undefined' && window.cbPdf.generate) {
-        try {
+      // Generate polished PDF using jsPDF only (no html2pdf/html2canvas/iframe)
+      try {
+        if (window.cbPdf && typeof window.cbPdf.generate === 'function') {
           window.cbPdf.generate(snapshot);
-          console.log('[PDF] generate complete');
-        } catch (err) {
-          console.error('[PDF] generate failed', err);
-          alert("PDF failed – check console");
+          console.log('[PDF] jsPDF export triggered');
+        } else {
+          console.error('[PDF] window.cbPdf.generate not available');
+          alert("PDF generator not available. Please refresh the page.");
         }
-      } else {
-        console.error('[PDF] window.cbPdf.generate not available');
-        alert("PDF generator not available. Please refresh the page.");
+      } catch (err) {
+        console.error('[PDF] jsPDF export failed', err);
+        console.error('[PDF][dl] error details', { name: err && err.name, message: err && err.message, stack: err && err.stack });
+        alert("PDF failed – check console");
       }
+    } else {
+      console.log('[PDF][dl] user did NOT confirm (cancelled)', { confirmed });
     }
   })();
 }
@@ -8217,26 +8234,34 @@ function get(obj, path, defaultValue = '') {
 // ✅ PDF Generator - Standalone, no fetch calls, uses only window.feedback snapshot
 window.cbPdf = window.cbPdf || {};
 window.cbPdf.generate = function(snapshot) {
-  console.log('[PDF] generating from snapshot');
-  
-  // Validate html2pdf is available
-  if (typeof html2pdf === 'undefined') {
-    console.error('[PDF] html2pdf library not available');
-    const errorMsg = "PDF library not loaded. Please refresh the page.";
+  console.log('[PDF] generating from snapshot (styled jsPDF, no canvas/iframe)');
+
+  // Resolve jsPDF constructor (jspdf.umd.min.js → window.jspdf.jsPDF)
+  let JsPdfCtor = null;
+  let jsPdfCtorPath = null;
+  if (window.jspdf && window.jspdf.jsPDF) {
+    JsPdfCtor = window.jspdf.jsPDF;
+    jsPdfCtorPath = 'window.jspdf.jsPDF';
+  } else if (window.jsPDF) {
+    JsPdfCtor = typeof window.jsPDF === 'function' ? window.jsPDF : window.jsPDF.jsPDF;
+    jsPdfCtorPath = typeof window.jsPDF === 'function' ? 'window.jsPDF' : 'window.jsPDF.jsPDF';
+  }
+  console.log('[PDF] jsPDF constructor path:', jsPdfCtorPath || 'not found', {
+    hasJspdf: !!(window.jspdf),
+    hasJsPDF: !!(window.jsPDF)
+  });
+
+  if (!JsPdfCtor) {
+    console.error('[PDF] jsPDF constructor not found on window');
+    const errorMsg = "PDF generator not available. Please refresh the page.";
     if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        icon: "error",
-        title: "PDF Library Missing",
-        text: errorMsg,
-        confirmButtonText: "OK"
-      });
+      Swal.fire({ icon: "error", title: "PDF Generator Missing", text: errorMsg, confirmButtonText: "OK" });
     } else {
       alert(errorMsg);
     }
     return;
   }
-  
-  // Helper to safely get nested properties
+
   const safeGet = (obj, path, def = '') => {
     if (!obj || typeof obj !== 'object') return def;
     const keys = path.split('.');
@@ -8251,367 +8276,317 @@ window.cbPdf.generate = function(snapshot) {
 
   const fb = snapshot || {};
   const feedback = safeGet(fb, 'feedback', {});
-  
-  // Get title and timestamp
-  let title = safeGet(fb, 'title', 'Video Analysis Report');
-  // Clean title: remove extension if present, limit length, replace hex strings
-  title = title.replace(/\.[^/.]+$/, ''); // Remove file extension
-  if (/^[0-9a-f]{32,}$/i.test(title)) {
-    // If title is a long hex string, use fallback
-    title = 'CopyBoss Report';
-  }
-  if (title.length > 50) {
-    title = title.substring(0, 47) + '...';
-  }
-  const timestamp = new Date().toLocaleString();
-  
-  // Load mascot as base64 data URI (inline, no external fetch)
-  // Clean CB logo mark - centered and optimized for PDF rendering
-  const mascotSVG = `<svg viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <rect width="120" height="120" fill="#1D4ED8" rx="14"/>
-    <text x="60" y="60" dy="18" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="white" text-anchor="middle" letter-spacing="1">CB</text>
-  </svg>`;
-  const mascotDataURI = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(mascotSVG)));
-  
-  // Check for fallback mode
-  const isFallback = safeGet(fb, 'fallback', false) === true;
-  const fallbackNotice = isFallback ? '<div style="background:#ffc107;color:#000;padding:12px;border-radius:8px;margin-bottom:20px;font-weight:bold;">⚠️ Limited Analysis Mode</div>' : '';
-  
-  // Get summary
-  const summary = safeGet(fb, 'summary', 'Analysis completed successfully.');
-  
-  // Get scores with defensive defaults
-  const viralScore = safeGet(feedback, 'viralScore.score', 0);
-  const hookScore = safeGet(feedback, 'hookStrength.score', 0);
-  const captionScore = safeGet(feedback, 'captionClarity.score', 0);
-  const soundScore = safeGet(feedback, 'soundMatch.score', 0);
-  const viewerScore = safeGet(feedback, 'viewerUnderstanding.score', 0);
-  const engagementScore = safeGet(feedback, 'engagementForecast.score', 0);
-  
-  // Get details with defensive defaults
-  const viralDetail = safeGet(feedback, 'viralScore.detail', 'No feedback available');
-  const hookDetail = safeGet(feedback, 'hookStrength.detail', 'No feedback available');
-  const captionDetail = safeGet(feedback, 'captionClarity.detail', 'No feedback available');
-  const soundDetail = safeGet(feedback, 'soundMatch.detail', 'No feedback available');
-  const viewerDetail = safeGet(feedback, 'viewerUnderstanding.detail', 'No feedback available');
-  const engagementDetail = safeGet(feedback, 'engagementForecast.detail', 'No feedback available');
-  
-  // Build score grid HTML
-  const scoreHTML = `
-    <div class="score-block ${getScoreQuality(viralScore)}">
-      <span class="label">🔥 Viral Score</span>
-      ${viralScore || "N/A"}
-    </div>
-    <div class="score-block ${getScoreQuality(hookScore)}">
-      <span class="label">⚡ Hook Strength</span>
-      ${hookScore || "N/A"}
-    </div>
-    <div class="score-block ${getScoreQuality(captionScore)}">
-      <span class="label">💬 Caption Clarity</span>
-      ${captionScore || "N/A"}
-    </div>
-    <div class="score-block ${getScoreQuality(soundScore)}">
-      <span class="label">🎵 Audio Match</span>
-      ${soundScore || "N/A"}
-    </div>
-    <div class="score-block ${getScoreQuality(viewerScore)}">
-      <span class="label">👁️ Viewer Understanding</span>
-      ${viewerScore || "N/A"}
-    </div>
-    <div class="score-block ${getScoreQuality(engagementScore)}">
-      <span class="label">📈 Engagement Forecast</span>
-      ${engagementScore || "N/A"}
-    </div>
-  `;
-  
-  // Build feedback grid HTML
-  const feedbackHTML = `
-    <div class="ai-feedback-block">
-      <strong>Viral Score:</strong>
-      ${viralDetail}
-    </div>
-    <div class="ai-feedback-block">
-      <strong>Hook Strength:</strong>
-      ${hookDetail}
-    </div>
-    <div class="ai-feedback-block">
-      <strong>Caption Clarity:</strong>
-      ${captionDetail}
-    </div>
-    <div class="ai-feedback-block">
-      <strong>Audio Match:</strong>
-      ${soundDetail}
-    </div>
-    <div class="ai-feedback-block">
-      <strong>Viewer Understanding:</strong>
-      ${viewerDetail}
-    </div>
-    <div class="ai-feedback-block">
-      <strong>Engagement Forecast:</strong>
-      ${engagementDetail}
-    </div>
-  `;
-  
-  // Generate full PDF HTML inline (no template fetch)
-  const pdfHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>VideoBoss Analyzer Report</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #fff;
-      color: #111;
-      margin: 40px;
-      padding: 0;
-      font-size: 15px;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid #000;
-      padding-bottom: 10px;
-    }
-    .report-title {
-      font-size: 24px;
-      font-weight: 800;
-      text-align: center;
-      flex-grow: 1;
-      margin: 0 20px;
-    }
-    .pro-badge {
-      font-size: 12px;
-      background: #222;
-      color: #fff;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      display: inline-block;
-    }
-    .timestamp {
-      font-size: 13px;
-      color: #555;
-    }
-    .pdf-logo {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      background: #1D4ED8;
-      color: #fff;
-      font-weight: 800;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: 1px;
-      line-height: 1;
-    }
-    .section {
-      margin-top: 12px;
-    }
-    .section h2 {
-      font-size: 18px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-      page-break-after: avoid;
-    }
-    h1, h2, h3 {
-      page-break-after: avoid;
-    }
-    .pdf-card, .pdf-block, .score-grid, .ai-feedback-grid {
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .score-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-    }
-    .score-block {
-      background: #fefefe;
-      border: 1px solid #ddd;
-      border-left: 6px solid #555;
-      border-radius: 10px;
-      padding: 14px 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .score-block.good { border-left-color: #28a745; }
-    .score-block.warn { border-left-color: #ffc107; }
-    .score-block.poor { border-left-color: #dc3545; }
-    .score-block .label {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 4px;
-      display: block;
-    }
-    .ai-feedback-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-      margin-top: 10px;
-    }
-    .ai-feedback-block {
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      font-size: 14px;
-      line-height: 1.5;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .ai-feedback-block strong {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 15px;
-    }
-    .pdf-page-break-before {
-      break-before: auto;
-      page-break-before: auto;
-    }
-    .tips-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .tip-card {
-      background: #fffefc;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 14px 16px;
-      font-size: 14px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .footer {
-      margin-top: 40px;
-      font-size: 12px;
-      color: #777;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div>
-      <div class="pdf-logo">CB</div>
-      <div class="timestamp">Created: ${timestamp}</div>
-    </div>
-    <div class="report-title">
-      ${title} <span class="pro-badge">PRO</span>
-    </div>
-    <div></div>
-  </header>
 
-  ${fallbackNotice}
+  let title = safeGet(fb, 'title', 'CopyBoss Report');
+  title = String(title).replace(/\.[^/.]+$/, '');
+  if (/^[0-9a-f]{32,}$/i.test(title)) title = 'CopyBoss Report';
+  if (title.length > 60) title = title.substring(0, 57) + '...';
 
-  <div class="section pdf-block">
-    <h2>🧠 AI Summary</h2>
-    <div class="score-block good pdf-card">${summary}</div>
-  </div>
+  const created = new Date().toLocaleString();
+  const summary = safeGet(fb, 'summary', safeGet(feedback, 'summary', 'Analysis completed successfully.'));
 
-  <div class="section pdf-block">
-    <h2>🔥 Score Breakdown</h2>
-    <div class="score-grid">${scoreHTML}</div>
-  </div>
+  const scoreItems = [
+    { key: 'viralScore', label: 'Viral Score' },
+    { key: 'hookStrength', label: 'Hook Strength' },
+    { key: 'captionClarity', label: 'Caption Clarity' },
+    { key: 'soundMatch', label: 'Audio Match' },
+    { key: 'viewerUnderstanding', label: 'Viewer Understanding' },
+    { key: 'engagementForecast', label: 'Engagement Forecast' }
+  ];
 
-  <div class="section pdf-block">
-    <h2>🧠 Full AI Feedback</h2>
-    <div class="ai-feedback-grid">${feedbackHTML}</div>
-  </div>
+  const tips = [
+    { title: 'Optimal Posting Time', text: 'Post between 6 PM – 9 PM for maximum visibility and engagement potential.' },
+    { title: 'Hashtag Strategy', text: 'Use trending hashtags: #FYP #ViralVideo #TikTokTips #ContentCreator' },
+    { title: 'Audio Selection', text: 'Choose trending upbeat audio with 80–120 BPM for optimal viewer retention.' },
+    { title: 'Thumbnail Optimization', text: 'Use freeze-frame of bold facial expression or product zoom-in for higher CTR.' },
+    { title: 'Boost Strategy', text: 'Pin a comment with CTA & share to IG Stories within 10 minutes of posting.' }
+  ];
 
-  <div class="section pdf-page-break-before">
-    <h2>🚀 Performance Tips</h2>
-    <div class="tips-grid">
-      <div class="tip-card">🕒 <strong>Optimal Posting Time:</strong><br> Post between 6 PM – 9 PM for max visibility.</div>
-      <div class="tip-card">🔖 <strong>Hashtag Suggestions:</strong><br> #FYP #ViralVideo #TikTokTips #ContentCreator</div>
-      <div class="tip-card">🎶 <strong>Sound Track Ideas:</strong><br> Use trending upbeat audio with 80–120 BPM.</div>
-      <div class="tip-card">🖼️ <strong>Thumbnail Concept:</strong><br> Freeze-frame of bold facial expression or product zoom-in.</div>
-      <div class="tip-card">🚀 <strong>Boost Strategy:</strong><br> Pin a comment with CTA & share to IG Stories within 10 mins.</div>
-    </div>
-  </div>
+  const doc = new JsPdfCtor({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const gutter = 6;
+  const colW = (pageW - margin * 2 - gutter) / 2;
 
-  <div class="footer">
-    Report generated by VideoBoss Analyzer – All insights powered by AI.
-  </div>
-</body>
-</html>
-  `;
-  
-  // Create temp div for PDF generation
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = pdfHTML;
-  document.body.appendChild(tempDiv);
-  
-  // Generate PDF
+  const colors = {
+    ink: [17, 24, 39],
+    muted: [75, 85, 99],
+    border: [226, 232, 240],
+    blue: [30, 64, 175],
+    green: [16, 185, 129],
+    amber: [245, 158, 11],
+    red: [239, 68, 68],
+    badge: [31, 41, 55]
+  };
+
+  const sanitizeText = (v) => {
+    if (v === null || v === undefined) return '';
+    return String(v)
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  const split = (text, w, fontSize) => {
+    doc.setFontSize(fontSize);
+    return doc.splitTextToSize(sanitizeText(text) || '—', w);
+  };
+
+  const ensure = (y, needed) => {
+    if (y + needed <= pageH - margin) return y;
+    doc.addPage();
+    return margin;
+  };
+
+  const drawHeader = (reportTitle) => {
+    let y = margin;
+    // Logo block
+    doc.setFillColor(...colors.blue);
+    doc.roundedRect(margin, y, 16, 16, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('CB', margin + 8, y + 10, { align: 'center' });
+
+    // Created date under logo
+    doc.setTextColor(...colors.muted);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`Created: ${created}`, margin, y + 22);
+
+    // Centered title (badge placed top-right to avoid overlap)
+    const headerTitle = reportTitle || 'CopyBoss Report';
+    doc.setTextColor(...colors.ink);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text(headerTitle, pageW / 2, y + 10, { align: 'center' });
+
+    const badgeText = 'PRO';
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    const badgeW = doc.getTextWidth(badgeText) + 8;
+    const badgeH = 6;
+    const badgeX = pageW - margin - badgeW;
+    const badgeY = y + 2;
+    doc.setFillColor(...colors.badge);
+    doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.text(badgeText, badgeX + badgeW / 2, badgeY + 4.3, { align: 'center' });
+
+    // Divider line
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.6);
+    doc.line(margin, y + 28, pageW - margin, y + 28);
+    return y + 34;
+  };
+
+  const drawSectionTitle = (text, y) => {
+    doc.setTextColor(...colors.ink);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text(text, margin, y);
+    return y + 6;
+  };
+
+  const qualityColor = (score) => {
+    const n = Number(score);
+    if (!Number.isFinite(n)) return colors.border;
+    if (n >= 70) return colors.green;
+    if (n >= 50) return colors.amber;
+    return colors.red;
+  };
+
+  const drawCard = ({ x, y, w, accent, title, bodyLines, titleSize = 11, bodySize = 9, minH = 24 }) => {
+    const pad = 6;
+    const innerW = w - pad * 2 - 4;
+    const hasTitle = !!(title && sanitizeText(title));
+    const titleLines = hasTitle ? split(title, innerW, titleSize) : [];
+    const lineH = 4.2;
+    const bodyH = (bodyLines.length || 1) * lineH;
+    const titleBlockH = hasTitle ? titleLines.length * (lineH + 0.2) + 4 : 0;
+    const h = Math.max(minH, 10 + titleBlockH + bodyH + 8);
+
+    // Card background + border
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(...colors.border);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(x, y, w, h, 3, 3, 'FD');
+
+    // Accent bar
+    doc.setFillColor(...accent);
+    doc.roundedRect(x, y, 2.2, h, 3, 3, 'F');
+
+    let ty = y + 8;
+    if (hasTitle) {
+      doc.setTextColor(...colors.ink);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(titleSize);
+      doc.text(titleLines, x + pad + 3, ty);
+      ty += titleLines.length * (lineH + 0.2) + 2;
+    }
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(bodySize);
+    doc.setTextColor(...colors.muted);
+    doc.text(bodyLines.length ? bodyLines : ['—'], x + pad + 3, ty);
+
+    return h;
+  };
+
+  // -------- Page 1 --------
+  let y = drawHeader('CopyBoss Report');
+
+  y = drawSectionTitle('AI Summary', y);
+  y += 2;
+  y = ensure(y, 34);
+  const summaryLines = split(summary, pageW - margin * 2 - 20, 10);
+  const sumH = drawCard({
+    x: margin,
+    y,
+    w: pageW - margin * 2,
+    accent: colors.green,
+    title: null,
+    bodyLines: summaryLines,
+    bodySize: 10,
+    minH: 26
+  });
+  y += sumH + 10;
+
+  y = ensure(y, 16);
+  y = drawSectionTitle('Score Breakdown', y);
+  y += 2;
+
+  let rowY = y;
+  let rowMaxH = 0;
+  scoreItems.forEach((item, idx) => {
+    const section = feedback[item.key] || {};
+    const score = section.score ?? 'N/A';
+    const label = section.label || '—';
+    const short = section.short || '';
+    const accent = qualityColor(score);
+    const titleText = `${item.label} - ${sanitizeText(score)}`;
+    const bodyText = [`Label: ${sanitizeText(label)}`].concat(short ? [sanitizeText(short)] : []);
+    const bodyLines = bodyText.flatMap(t => split(t, colW - 18, 9));
+
+    const colX = idx % 2 === 0 ? margin : margin + colW + gutter;
+    if (idx % 2 === 0 && idx !== 0) {
+      rowY += rowMaxH + 6;
+      rowMaxH = 0;
+    }
+    rowY = ensure(rowY, 30);
+    const h = drawCard({
+      x: colX,
+      y: rowY,
+      w: colW,
+      accent,
+      title: titleText,
+      bodyLines,
+      titleSize: 10,
+      bodySize: 9,
+      minH: 26
+    });
+    rowMaxH = Math.max(rowMaxH, h);
+  });
+
+  // -------- Page 2 --------
+  doc.addPage();
+  y = drawHeader('CopyBoss Report');
+  y = drawSectionTitle('Full AI Feedback', y);
+  y += 2;
+
+  const feedbackItems = scoreItems.map(item => {
+    const section = feedback[item.key] || {};
+    return {
+      title: item.label,
+      detail: section.detail || 'No feedback available.',
+      accent: qualityColor(section.score)
+    };
+  });
+
+  let fy = y;
+  let fRowMaxH = 0;
+  feedbackItems.forEach((it, idx) => {
+    const colX = idx % 2 === 0 ? margin : margin + colW + gutter;
+    if (idx % 2 === 0 && idx !== 0) {
+      fy += fRowMaxH + 6;
+      fRowMaxH = 0;
+    }
+    fy = ensure(fy, 36);
+    const lines = split(it.detail, colW - 18, 9);
+    const h = drawCard({
+      x: colX,
+      y: fy,
+      w: colW,
+      accent: it.accent,
+      title: it.title,
+      bodyLines: lines,
+      titleSize: 11,
+      bodySize: 9,
+      minH: 34
+    });
+    fRowMaxH = Math.max(fRowMaxH, h);
+  });
+
+  // -------- Page 3 --------
+  doc.addPage();
+  y = drawHeader('CopyBoss Report');
+  y = drawSectionTitle('Performance Tips', y);
+  y += 2;
+
+  // Tips: prefer 2 columns for readability
+  let ty = y;
+  let tRowMaxH = 0;
+  tips.forEach((tip, idx) => {
+    const colX = idx % 2 === 0 ? margin : margin + colW + gutter;
+    if (idx % 2 === 0 && idx !== 0) {
+      ty += tRowMaxH + 6;
+      tRowMaxH = 0;
+    }
+    ty = ensure(ty, 28);
+    const lines = split(tip.text, colW - 18, 9);
+    const h = drawCard({
+      x: colX,
+      y: ty,
+      w: colW,
+      accent: [6, 182, 212], // teal accent
+      title: tip.title,
+      bodyLines: lines,
+      titleSize: 10,
+      bodySize: 9,
+      minH: 28
+    });
+    tRowMaxH = Math.max(tRowMaxH, h);
+  });
+
+  // Footer on page 3
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...colors.muted);
+  doc.text(
+    'Report generated by VideoBoss Analyzer — All insights powered by AI.',
+    pageW / 2,
+    pageH - 12,
+    { align: 'center' }
+  );
+
+  // Save (does NOT consume credits)
   try {
-    html2pdf()
-      .from(tempDiv)
-      .set({ 
-        filename: `${title || 'VideoBoss_Report'}.pdf`,
-        margin: [12, 12, 14, 12],
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-        pagebreak: { mode: ['css', 'legacy'] },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      })
-      .save()
-      .then(() => {
-        console.log('[PDF] generate complete');
-        if (tempDiv.parentNode) {
-          document.body.removeChild(tempDiv);
-        }
-        if (typeof Swal !== 'undefined') {
-          Swal.fire({
-            icon: "success",
-            title: "PDF Downloaded! 🎉",
-            text: "Your report has been saved successfully.",
-            confirmButtonText: "Done"
-          });
-        }
-      })
-      .catch(err => {
-        console.error('[PDF] generate failed', err);
-        if (tempDiv.parentNode) {
-          document.body.removeChild(tempDiv);
-        }
-        const errorMsg = "PDF failed – check console";
-        if (typeof Swal !== 'undefined') {
-          Swal.fire({
-            icon: "error",
-            title: "PDF Generation Failed",
-            text: errorMsg,
-            confirmButtonText: "OK"
-          });
-        } else {
-          alert(errorMsg);
-        }
-      });
-  } catch (err) {
-    console.error('[PDF] generate failed', err);
-    if (tempDiv.parentNode) {
-      document.body.removeChild(tempDiv);
-    }
-    const errorMsg = "PDF failed – check console";
+    doc.save(`${title || 'CopyBoss_Report'}.pdf`);
+    console.log('[PDF] styled jsPDF export complete');
     if (typeof Swal !== 'undefined') {
       Swal.fire({
-        icon: "error",
-        title: "PDF Generation Failed",
-        text: errorMsg,
-        confirmButtonText: "OK"
+        icon: "success",
+        title: "PDF Downloaded! 🎉",
+        text: "Your report has been saved successfully.",
+        confirmButtonText: "Done"
       });
+    }
+  } catch (err) {
+    console.error('[PDF] jsPDF save failed', err);
+    const errorMsg = "PDF failed – check console";
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: "error", title: "PDF Generation Failed", text: errorMsg, confirmButtonText: "OK" });
     } else {
       alert(errorMsg);
     }
@@ -9443,19 +9418,33 @@ function fallbackShare() {
 // ✅ PDF generator function goes outside all conditionals
 // Old generatePDF function is now unused for the main download button, but can be kept for other uses if needed.
 function generatePDF(feedback, latest) {
+  // TEMP DEBUG LOGS (polished template export)
+  try {
+    console.log('[PDF][tpl] generatePDF() called', {
+      latest,
+      feedbackType: typeof feedback,
+      feedbackKeys: feedback && typeof feedback === 'object' ? Object.keys(feedback) : null
+    });
+  } catch (e) {
+    console.error('[PDF][tpl] debug log failed (generatePDF entry)', e);
+  }
+
+  console.log('[PDF][tpl] fetch("pdf-template.html") start');
   fetch("pdf-template.html")
-    .then(res => res.text())
+    .then(res => {
+      console.log('[PDF][tpl] fetch response', { ok: res.ok, status: res.status, statusText: res.statusText, url: res.url });
+      return res.text();
+    })
     .then(template => {
+      try {
+        console.log('[PDF][tpl] template text length', template ? template.length : 0);
+      } catch (e) {
+        console.error('[PDF][tpl] debug log failed (template length)', e);
+      }
       let filled = template;
 
       filled = filled.replace("14 July 2025, 11:47am", new Date().toLocaleString());
 filled = filled.replace("Video Analysis Report", `Video Analysis Report – ${latest.title}`);
-filled = filled.replace("[summary-text]", feedback?.summary || "No summary.");
-filled = filled.replace("[score-blocks]", scoreBlocks);
-filled = filled.replace("[feedback-blocks]", feedbackBlocks);
-
-      
-
       const scoreBlocks = Object.entries(feedback).map(([key, section]) => {
         const score = section?.score ?? "--";
         const label = section?.label || "–";
@@ -9481,11 +9470,6 @@ filled = filled.replace("[feedback-blocks]", feedbackBlocks);
         `;
       }).join("");
 
-      filled = filled.replace("[score-blocks]", scoreBlocks);
-filled = filled.replace("[feedback-blocks]", feedbackBlocks);
-filled = filled.replace("[summary-text]", feedback?.summary || "No summary.");
-
-
       const feedbackBlocks = Object.entries(feedback).map(([key, section]) => {
         const detail = section?.detail || "No detail.";
         return `
@@ -9496,33 +9480,119 @@ filled = filled.replace("[summary-text]", feedback?.summary || "No summary.");
         `;
       }).join("");
 
+      filled = filled.replace("[summary-text]", feedback?.summary || "No summary.");
+      filled = filled.replace("[score-blocks]", scoreBlocks);
+      filled = filled.replace("[feedback-blocks]", feedbackBlocks);
       filled = filled.replace(/<div class="ai-feedback-grid">([\s\S]*?)<\/div>/, `<div class="ai-feedback-grid">${feedbackBlocks}</div>`);
+
+      // Sanitize template CSS for html2canvas/html2pdf stability (Safari can choke on gradients/filters)
+      try {
+        const beforeLen = filled.length;
+        filled = filled
+          // Replace CSS gradients with solid colors
+          .replace(/linear-gradient\([^)]*\)/g, '#ffffff')
+          .replace(/radial-gradient\([^)]*\)/g, '#ffffff')
+          // Remove unsupported/fragile effects
+          .replace(/backdrop-filter\s*:\s*[^;]+;/gi, '')
+          .replace(/-webkit-backdrop-filter\s*:\s*[^;]+;/gi, '')
+          .replace(/filter\s*:\s*[^;]+;/gi, '')
+          // Soften heavy shadows that can trigger renderer edge cases
+          .replace(/box-shadow\s*:\s*[^;]+;/gi, 'box-shadow: none;')
+          .replace(/text-shadow\s*:\s*[^;]+;/gi, 'text-shadow: none;');
+
+        // Force solid backgrounds + disable background images via an override style tag
+        filled = filled.replace(
+          /<\/head>/i,
+          `<style>
+            html, body { background: #ffffff !important; background-image: none !important; }
+            * { background-image: none !important; }
+            header, .page-container, .main-content, .card, .score-block, .ai-feedback-block, .tip-card, .footer {
+              filter: none !important;
+              backdrop-filter: none !important;
+              box-shadow: none !important;
+              text-shadow: none !important;
+            }
+            .page-container { background: #ffffff !important; }
+            header { background: #1e40af !important; }
+          </style></head>`
+        );
+        console.log('[PDF][tpl] sanitize complete', { beforeLen, afterLen: filled.length });
+      } catch (e) {
+        console.error('[PDF][tpl] sanitize failed (continuing unsanitized)', e);
+      }
+
+      try {
+        console.log('[PDF][tpl] placeholders filled', {
+          filledLength: filled ? filled.length : 0,
+          hasSummary: filled ? filled.includes('[summary-text]') === false : null,
+          hasScoreBlocks: filled ? filled.includes('[score-blocks]') === false : null,
+          hasFeedbackBlocks: filled ? filled.includes('[feedback-blocks]') === false : null
+        });
+      } catch (e) {
+        console.error('[PDF][tpl] debug log failed (placeholders filled)', e);
+      }
 
       // Create iframe
       const iframe = document.createElement("iframe");
-      iframe.style.width = "800px";
-      iframe.style.height = "1000px";
-      iframe.style.position = "absolute";
-      iframe.style.top = "-9999px";
+      // Ensure iframe has real layout size (avoid 0x0 capture)
+      iframe.style.width = "794px";     // ~A4 @ 96dpi
+      iframe.style.height = "1123px";   // ~A4 @ 96dpi
+      iframe.style.position = "fixed";
+      iframe.style.left = "-10000px";
+      iframe.style.top = "0";
+      iframe.style.opacity = "1";
+      iframe.style.visibility = "visible";
+      iframe.style.pointerEvents = "none";
       document.body.appendChild(iframe);
+      console.log('[PDF][tpl] iframe appended', { inDom: document.body.contains(iframe) });
 
       const doc = iframe.contentWindow.document;
       doc.open();
       doc.write(filled);
       doc.close();
+      console.log('[PDF][tpl] iframe document written');
 
       // Wait before generating PDF
       setTimeout(() => {
-        html2pdf().from(iframe).set({
+        const captureTarget =
+          (iframe.contentDocument && (iframe.contentDocument.body || iframe.contentDocument.documentElement)) ||
+          (iframe.contentWindow && iframe.contentWindow.document && (iframe.contentWindow.document.body || iframe.contentWindow.document.documentElement)) ||
+          iframe;
+
+        const w = captureTarget && captureTarget.offsetWidth;
+        const h = captureTarget && captureTarget.offsetHeight;
+        console.log('[PDF][tpl] capture target metrics', {
+          tag: captureTarget && captureTarget.tagName,
+          offsetWidth: w,
+          offsetHeight: h
+        });
+
+        if (!w || !h) {
+          console.error('[PDF][tpl] aborting export: capture target has zero size', { offsetWidth: w, offsetHeight: h, captureTarget });
+          try { document.body.removeChild(iframe); } catch (_) {}
+          return;
+        }
+
+        console.log('[PDF][tpl] before html2pdf call');
+        html2pdf().from(captureTarget).set({
           margin: 10,
           filename: `${latest.title || "report"}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
+          html2canvas: { scale: 1, backgroundColor: "#ffffff", useCORS: true },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         }).save().then(() => {
+          console.log('[PDF][tpl] html2pdf save success');
           document.body.removeChild(iframe);
+        }).catch(err => {
+          console.error('[PDF][tpl] html2pdf save failed', err);
+          console.error('[PDF][tpl] error details', { name: err && err.name, message: err && err.message, stack: err && err.stack });
+          try { document.body.removeChild(iframe); } catch (_) {}
         });
-      }, 800);
+      }, 250);
+    })
+    .catch(err => {
+      console.error('[PDF][tpl] fetch/template pipeline failed', err);
+      console.error('[PDF][tpl] error details', { name: err && err.name, message: err && err.message, stack: err && err.stack });
     });
 }
 
