@@ -813,3 +813,15 @@ div.wrapper,
 .analyzer-wrapper > *:first-child {
   margin-top: 0 !important;
 }
+
+/* === Footer spacing parity (UNLOCKED only) ===
+   When unlocked, the Now UI Dashboard layout can leave a full-viewport shell
+   (e.g. 100vh wrappers/panels) that pushes the footer far below the last card.
+   Keep locked layout untouched; normalize only after unlock (body.pro-active). */
+body.pro-active .wrapper,
+body.pro-active .main-panel,
+body.pro-active .main-panel > .content,
+body.pro-active .content-wrapper {
+  height: auto !important;
+  min-height: 0 !important;
+}
