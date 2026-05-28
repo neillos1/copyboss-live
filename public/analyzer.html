@@ -4334,6 +4334,47 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
   new ApexCharts(document.querySelector(`#${id}`), options).render();
 };
 
+  var CB_FREE_GAUGE_IDS = ['soundGauge', 'viewerGauge'];
+
+  function cbFreeGaugeHostReady(id) {
+    var el = document.getElementById(id);
+    if (!el) return false;
+    var rect = el.getBoundingClientRect();
+    return rect.width > 8 && rect.height > 8;
+  }
+
+  function cbRepaintFreeGauges() {
+    if (typeof ApexCharts === 'undefined' || typeof buildGauge !== 'function') return;
+    CB_FREE_GAUGE_IDS.forEach(function(id) {
+      if (!cbFreeGaugeHostReady(id)) return;
+      try {
+        var prev = ApexCharts.getChartByID(id);
+        if (prev && typeof prev.destroy === 'function') prev.destroy();
+        var host = document.getElementById(id);
+        if (host) host.innerHTML = '';
+        buildGauge(id, 0);
+        var chart = ApexCharts.getChartByID(id);
+        if (chart && typeof chart.updateSeries === 'function') chart.updateSeries([0]);
+      } catch (e) { /* ignore */ }
+    });
+  }
+
+  function cbScheduleFreeGaugeRepaint() {
+    var attempts = 0;
+    function rafTry() {
+      attempts++;
+      var ready = CB_FREE_GAUGE_IDS.every(cbFreeGaugeHostReady);
+      if (ready) cbRepaintFreeGauges();
+      if (!ready && attempts < 24) requestAnimationFrame(rafTry);
+      else if (!ready) cbRepaintFreeGauges();
+    }
+    requestAnimationFrame(function() {
+      requestAnimationFrame(rafTry);
+    });
+    setTimeout(cbRepaintFreeGauges, 150);
+    setTimeout(cbRepaintFreeGauges, 400);
+  }
+
     // Placeholder values (replace with API response)
    
  
@@ -5015,14 +5056,15 @@ function displayGeminiResultsSafe() {
 
 
 <script>
-  window.onload = () => {
+  window.addEventListener('load', function() {
     buildGauge("viralGauge", 0);
     buildGauge("captionGauge", 0);
     buildGauge("soundGauge", 0);
     buildGauge("viewerGauge", 0);
     buildGauge("engagementGauge", 0);
     buildGauge("hookGauge", 0);
-  };
+    if (typeof cbScheduleFreeGaugeRepaint === 'function') cbScheduleFreeGaugeRepaint();
+  });
 </script>
 
 
@@ -15332,6 +15374,22 @@ body.page-analyzer #cb-gauges [id$="Gauge"] {
   min-height: 200px !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+/* Free gauges: explicit box size before ApexCharts first paint */
+body.page-analyzer #cb-gauges #soundGauge,
+body.page-analyzer #cb-gauges #viewerGauge {
+  display: block !important;
+  width: 100% !important;
+  min-width: 180px !important;
+  min-height: 200px !important;
+  height: 200px !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+body.page-analyzer #cb-gauges #soundGaugeCard,
+body.page-analyzer #cb-gauges #viewerGaugeCard {
+  overflow: visible !important;
 }
 body.page-analyzer #cb-gauges .gauge-box:not(.pro-locked) > *:not(.locked-overlay) {
   filter: none !important;
