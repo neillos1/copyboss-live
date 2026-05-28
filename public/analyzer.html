@@ -10159,9 +10159,7 @@ function checkPaymentSuccess() {
       plan: plan,
       persistence: 'cb_userTier/userTier=2reports, reportCredits=2'
     });
-    if (localStorage.getItem('cb_userTier') !== 'pro') {
-      localStorage.removeItem('isPro');
-    }
+    localStorage.removeItem('isPro');
     localStorage.setItem('cb_userTier', '2reports');
     localStorage.setItem('userTier', '2reports');
     localStorage.setItem('reportCredits', '2');
@@ -10185,9 +10183,7 @@ function checkPaymentSuccess() {
       plan: plan,
       persistence: 'cb_userTier/userTier=15reports, reportCredits=15'
     });
-    if (localStorage.getItem('cb_userTier') !== 'pro') {
-      localStorage.removeItem('isPro');
-    }
+    localStorage.removeItem('isPro');
     localStorage.setItem('cb_userTier', '15reports');
     localStorage.setItem('userTier', '15reports');
     localStorage.setItem('reportCredits', '15');
@@ -10325,7 +10321,51 @@ async function verifyUserStatusFromBackend(userId) {
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plan');
     const upgraded = urlParams.get('upgraded');
-    
+
+    if (plan === '2reports') {
+      console.log('📊 Report plan detected from URL: 2reports');
+      localStorage.removeItem('isPro');
+      localStorage.setItem('cb_userTier', '2reports');
+      localStorage.setItem('userTier', '2reports');
+      localStorage.setItem('reportCredits', '2');
+      if (typeof window.refreshGatingUI === 'function') {
+        window.refreshGatingUI({ immediate: true });
+      }
+      if (typeof removeLocks === 'function') {
+        removeLocks();
+      }
+      logVerifyStatusDiagnostics('success', {
+        source: 'verifyUserStatusFromBackend:url-params-2reports',
+        userId: userId,
+        success: true,
+        actions: ['remove isPro', 'set cb_userTier=2reports', 'set userTier=2reports', 'set reportCredits=2', 'refreshGatingUI()', 'removeLocks()'],
+        visualRefresh: 'refreshGatingUI then removeLocks'
+      });
+      return;
+    }
+
+    if (plan === '15reports') {
+      console.log('📊 Report plan detected from URL: 15reports');
+      localStorage.removeItem('isPro');
+      localStorage.setItem('cb_userTier', '15reports');
+      localStorage.setItem('userTier', '15reports');
+      localStorage.setItem('reportCredits', '15');
+      if (typeof window.refreshGatingUI === 'function') {
+        window.refreshGatingUI({ immediate: true });
+      }
+      if (typeof removeLocks === 'function') {
+        removeLocks();
+      }
+      logVerifyStatusDiagnostics('success', {
+        source: 'verifyUserStatusFromBackend:url-params-15reports',
+        userId: userId,
+        success: true,
+        actions: ['remove isPro', 'set cb_userTier=15reports', 'set userTier=15reports', 'set reportCredits=15', 'refreshGatingUI()', 'removeLocks()'],
+        visualRefresh: 'refreshGatingUI then removeLocks'
+      });
+      return;
+    }
+
     if (plan === 'pro' || upgraded === 'true') {
       console.log('🎉 Pro status detected from URL parameters');
       localStorage.setItem('cb_userTier', 'pro');
@@ -10461,8 +10501,10 @@ async function verifyUserStatusFromBackend(userId) {
   const upgraded = urlParams.get('upgraded');
   
   console.log('⚡ Immediate Pro check - plan:', plan, 'upgraded:', upgraded);
-  
-  if (plan === 'pro' || upgraded === 'true') {
+
+  const isReportPlan = plan === '2reports' || plan === '15reports';
+
+  if (plan === 'pro' || (upgraded === 'true' && !isReportPlan)) {
     console.log('⚡ IMMEDIATE Pro unlock triggered');
     localStorage.setItem('isPro', 'true');
     
@@ -10493,11 +10535,14 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Use unified getUserTier() as single source of truth
   const tier = window.getUserTier?.() || 'free';
   console.log('[GATING] DOMContentLoaded - tier:', tier);
-  
-  if (tier === 'pro') {
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlPlan = urlParams.get('plan');
+  const isReportPlanUrl = urlPlan === '2reports' || urlPlan === '15reports';
+
+  if (tier === 'pro' && !isReportPlanUrl) {
     console.log('🎉 Pro status detected - unlocking');
     // Ensure localStorage is set if from URL
-    const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('pro') === '1') {
       localStorage.setItem('isPro', 'true');
       localStorage.setItem('userTier', 'pro');

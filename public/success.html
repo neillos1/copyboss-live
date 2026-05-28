@@ -61,7 +61,7 @@
         
         <!-- Action Buttons -->
         <div class="space-y-4">
-            <a href="/analyzer.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+            <a id="goToAnalyzer" href="/analyzer.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
                 <i class="fas fa-chart-line mr-2"></i>
                 Go to Analyzer
             </a>
@@ -103,12 +103,92 @@
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
-        
+        const plan = urlParams.get('plan');
+        const upgraded = urlParams.get('upgraded');
+        const PAID_PLANS = ['2reports', '15reports', 'pro'];
+
+        function getAnalyzerRedirectUrl(planParam) {
+            const effectivePlan = PAID_PLANS.includes(planParam)
+                ? planParam
+                : (upgraded === 'true' ? 'pro' : null);
+            if (!effectivePlan) return '/analyzer.html';
+            return '/analyzer.html?plan=' + encodeURIComponent(effectivePlan) + '&upgraded=true';
+        }
+
+        function persistPlanToLocalStorage(planParam) {
+            console.log('[success][persistPlanToLocalStorage] START', { planParam });
+            try {
+                localStorage.setItem('cb_userTier', planParam);
+                localStorage.setItem('userTier', planParam);
+                if (planParam === '2reports') {
+                    localStorage.setItem('reportCredits', '2');
+                    localStorage.removeItem('isPro');
+                } else if (planParam === '15reports') {
+                    localStorage.setItem('reportCredits', '15');
+                    localStorage.removeItem('isPro');
+                } else if (planParam === 'pro') {
+                    localStorage.setItem('isPro', 'true');
+                    localStorage.removeItem('reportCredits');
+                }
+                const snapshot = {
+                    cb_userTier: localStorage.getItem('cb_userTier'),
+                    userTier: localStorage.getItem('userTier'),
+                    reportCredits: localStorage.getItem('reportCredits'),
+                    isPro: localStorage.getItem('isPro')
+                };
+                console.log('[success][persistPlanToLocalStorage] DONE', snapshot);
+                return snapshot;
+            } catch (err) {
+                console.error('[success][persistPlanToLocalStorage] FAILED', err);
+                return null;
+            }
+        }
+
+        function preparePaidPlanNavigation(planParam) {
+            console.log('[success][preparePaidPlanNavigation] START', { planParam });
+            const redirectUrl = getAnalyzerRedirectUrl(planParam);
+            const goToAnalyzerBtn = document.getElementById('goToAnalyzer');
+            if (goToAnalyzerBtn) {
+                goToAnalyzerBtn.href = redirectUrl;
+            }
+            console.log('[success][preparePaidPlanNavigation] href set', { redirectUrl });
+            return redirectUrl;
+        }
+
+        function wireGoToAnalyzerButton(planParam) {
+            const redirectUrl = getAnalyzerRedirectUrl(planParam);
+            preparePaidPlanNavigation(planParam);
+            const goToAnalyzerBtn = document.getElementById('goToAnalyzer');
+            if (!goToAnalyzerBtn) return redirectUrl;
+            goToAnalyzerBtn.onclick = function (e) {
+                e.preventDefault();
+                console.log('[success][button] Go to Analyzer clicked', { planParam });
+                persistPlanToLocalStorage(planParam);
+                console.log('[success][button] navigating AFTER persist', { redirectUrl });
+                window.location.href = redirectUrl;
+                return false;
+            };
+            console.log('[success][wireGoToAnalyzerButton] click handler wired', { planParam, redirectUrl });
+            return redirectUrl;
+        }
+
+        function syncRedirectToAnalyzer(planParam) {
+            console.log('[success][syncRedirectToAnalyzer] START', { planParam });
+            const redirectUrl = getAnalyzerRedirectUrl(planParam);
+            const snapshot = persistPlanToLocalStorage(planParam);
+            console.log('[success][syncRedirectToAnalyzer] navigating AFTER persist', { redirectUrl, snapshot });
+            window.location.href = redirectUrl;
+        }
+
         // Update success message and localStorage based on session
         const successMessage = document.getElementById('successMessage');
         const accountStatus = document.getElementById('accountStatus');
         
         async function handlePaymentSuccess() {
+            if (plan === '2reports' || plan === '15reports' || plan === 'pro' || upgraded === 'true') {
+                console.log('[success][handlePaymentSuccess] skipped — sync persist/redirect handles this URL');
+                return;
+            }
             if (sessionId) {
                 try {
                     // Fetch session details from backend
@@ -186,60 +266,52 @@
             }
         }
         
-        // Handle payment success
-        handlePaymentSuccess();
-        
-        // Check for Pro upgrade and redirect immediately
-        const urlParams = new URLSearchParams(window.location.search);
-        const plan = urlParams.get('plan');
-        const upgraded = urlParams.get('upgraded');
-        
-        console.log('🎯 Success page loaded with URL:', window.location.href);
-        console.log('🎯 Success page parameters - plan:', plan, 'upgraded:', upgraded);
-        
-        if (plan === 'pro' || upgraded === 'true') {
-            // Immediate redirect for Pro users
-            console.log('🎉 Pro upgrade detected - redirecting immediately');
-            const redirectUrl = '/analyzer.html?plan=pro&upgraded=true';
-            console.log('🎉 Redirecting to:', redirectUrl);
-            window.location.href = redirectUrl;
-            return;
+        console.log('[success] page loaded', { href: window.location.href, plan, upgraded, sessionId });
+
+        if (plan === '2reports' || plan === '15reports' || plan === 'pro') {
+            console.log('[success][immediate] paid plan auto-redirect', { plan, upgraded });
+            wireGoToAnalyzerButton(plan);
+            syncRedirectToAnalyzer(plan);
+        } else if (upgraded === 'true') {
+            console.log('[success][immediate] upgraded=true auto-redirect → pro', { plan, upgraded });
+            wireGoToAnalyzerButton('pro');
+            syncRedirectToAnalyzer('pro');
+        } else {
+            // Non-redirect path: optional session UI only (must not run before paid redirect)
+            handlePaymentSuccess();
+
+            let countdown = 3;
+            const countdownElement = document.getElementById('countdown');
+
+            const redirectInterval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(redirectInterval);
+
+                    const redirectTo = urlParams.get('redirect');
+                    const intent = urlParams.get('intent');
+                    let redirectUrl = '/analyzer.html';
+
+                    if (redirectTo && redirectTo.startsWith('/') && !redirectTo.includes('..')) {
+                        redirectUrl = redirectTo;
+                    } else if (intent === 'affiliate') {
+                        redirectUrl = '/affiliate-dashboard.html';
+                    }
+
+                    if (redirectUrl.includes('analyzer')) {
+                        console.log('[success][countdown] analyzer redirect', { redirectUrl, plan, upgraded });
+                        redirectUrl = getAnalyzerRedirectUrl(plan);
+                        preparePaidPlanNavigation(plan || 'pro');
+                        persistPlanToLocalStorage(plan || 'pro');
+                        console.log('[success][countdown] navigating AFTER persist', { redirectUrl });
+                    }
+
+                    window.location.href = redirectUrl;
+                }
+            }, 1000);
         }
-        
-        // Auto-redirect countdown (faster for other users)
-        let countdown = 3;
-        const countdownElement = document.getElementById('countdown');
-        
-        const redirectInterval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
-            
-            if (countdown <= 0) {
-                clearInterval(redirectInterval);
-                
-                // Check for affiliate intent or redirect parameter
-                const redirectTo = urlParams.get('redirect');
-                const intent = urlParams.get('intent');
-                
-                // Determine redirect destination
-                let redirectUrl = '/analyzer.html'; // Default fallback
-                
-                if (redirectTo && redirectTo.startsWith('/') && !redirectTo.includes('..')) {
-                    // Valid same-origin redirect - use it directly
-                    redirectUrl = redirectTo;
-                } else if (intent === 'affiliate') {
-                    // Affiliate intent flow (fallback if no redirect)
-                    redirectUrl = '/affiliate-dashboard.html';
-                }
-                
-                // Add Pro status parameter to ensure analyzer unlocks
-                if (redirectUrl.includes('analyzer')) {
-                    redirectUrl += '?plan=pro&upgraded=true';
-                }
-                
-                window.location.href = redirectUrl;
-            }
-        }, 1000);
     </script>
 </body>
 </html>
