@@ -10898,6 +10898,7 @@ function canAnalyze() {
   
   // Append to body (not inside any container)
   document.body.appendChild(modal);
+  document.body.classList.add('cb-upgrade-modal-open');
   
     console.log('[UPGRADE MODAL] opened (persistent, no auto-close)');
   };
@@ -10912,6 +10913,7 @@ function canAnalyze() {
       modal.remove();
       console.log('[UPGRADE MODAL] closed by user');
     }
+    document.body.classList.remove('cb-upgrade-modal-open');
   };
 })();
 
@@ -11732,6 +11734,18 @@ body.pro-active .cb-gauge, body.pro-active .cb-gauge * {
   transform:translateY(-50%)!important;
 }
 
+/* SweetAlert above analyzer overlays; keep buttons clickable */
+body.page-analyzer .swal2-container {
+  z-index: 200000 !important;
+}
+body.page-analyzer .swal2-container.swal2-shown {
+  pointer-events: auto !important;
+}
+body.page-analyzer .swal2-popup,
+body.page-analyzer .swal2-popup button {
+  pointer-events: auto !important;
+}
+
 /* Footer */
 footer {padding:8px 16px!important;min-height:auto!important;height:auto!important;gap:6px!important;}
 footer a, footer svg {pointer-events:auto!important;z-index:500!important;cursor:pointer!important;}
@@ -12172,8 +12186,15 @@ footer .social-link .fa-brands {
     const OFF = el => el && (el.style.pointerEvents = 'none', el.style.zIndex = '0');
     OFF(document.querySelector('#particles'));
     // OFF(document.querySelector('.cb-analyzing-overlay')); // DISABLED - this is the active analyzer overlay
-    // SweetAlert container can exist but shouldn't block footer/socials
-    document.querySelectorAll('.swal2-container').forEach(c => { c.style.pointerEvents = 'none'; c.style.zIndex = '0'; });
+    // SweetAlert: only demote hidden containers; never disable active modals (breaks upgrade buttons)
+    document.querySelectorAll('.swal2-container').forEach(c => {
+      const popup = c.querySelector('.swal2-popup');
+      const isOpen = popup && window.getComputedStyle(popup).display !== 'none' && window.getComputedStyle(popup).visibility !== 'hidden';
+      if (!isOpen) {
+        c.style.pointerEvents = 'none';
+        c.style.zIndex = '0';
+      }
+    });
 
     // 🔒 LOCKED SECTION - Sidebar & Footer Structure Protection
     // DO NOT MODIFY OR DELETE - This section is protected to prevent accidental deletion
@@ -15263,6 +15284,68 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 
 }
+
+/* === Modal / overlay click safety + gauge render stability (production) === */
+body.page-analyzer .swal2-container.swal2-shown,
+body.page-analyzer .swal2-container.swal2-backdrop-show {
+  z-index: 200000 !important;
+  pointer-events: auto !important;
+}
+body.page-analyzer .swal2-container .swal2-popup,
+body.page-analyzer .swal2-container .swal2-popup *,
+body.page-analyzer .swal2-container .swal2-actions,
+body.page-analyzer .swal2-container .swal2-actions button,
+body.page-analyzer .swal2-container .swal2-confirm,
+body.page-analyzer .swal2-container .swal2-cancel,
+body.page-analyzer .swal2-container .swal2-close {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+body.page-analyzer #cb-upgrade-modal,
+body.page-analyzer .cb-upgrade-modal {
+  z-index: 200001 !important;
+  pointer-events: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.page-analyzer #cb-upgrade-modal > div,
+body.page-analyzer #cb-upgrade-modal button,
+body.page-analyzer #cb-upgrade-modal a {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body.page-analyzer.cb-upgrade-modal-open .particles,
+body.page-analyzer.cb-upgrade-modal-open .analyzing,
+body.page-analyzer:has(#cb-upgrade-modal) .particles,
+body.page-analyzer:has(#cb-upgrade-modal) .analyzing {
+  pointer-events: none !important;
+}
+
+/* Gauge mount points: stable dimensions so ApexCharts renders on first load (Safari) */
+body.page-analyzer #cb-gauges [id$="Gauge"] {
+  display: block !important;
+  width: 100% !important;
+  min-height: 200px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+body.page-analyzer #cb-gauges .gauge-box:not(.pro-locked) > *:not(.locked-overlay) {
+  filter: none !important;
+  -webkit-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+body.page-analyzer #cb-gauges .apexcharts-canvas,
+body.page-analyzer #cb-gauges .apexcharts-svg {
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-width: 100% !important;
+}
+
 </style>
 
 </body>
