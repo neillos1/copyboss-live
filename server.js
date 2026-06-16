@@ -314,6 +314,10 @@ app.get('/', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
+app.get('/affiliate', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'affiliate-dashboard.html'));
+});
+
 // --- Error handler for static failures ---
 app.use((err, _req, res, _next) => {
     if (err) {
