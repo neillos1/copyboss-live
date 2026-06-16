@@ -969,7 +969,8 @@
             try {
                 // Check if user is logged in first
                 const isLoggedIn = await window.auth?.isLoggedIn();
-                if (!isLoggedIn) {
+                const hasLocalLoginState = !!(localStorage.getItem('videobossToken') && localStorage.getItem('videobossUser'));
+                if (!isLoggedIn && !hasLocalLoginState) {
                     // Check for affiliate intent
                     const urlParams = new URLSearchParams(window.location.search);
                     const intent = urlParams.get('intent');
