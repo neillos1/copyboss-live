@@ -991,8 +991,13 @@
                 }
 
                 // Get current user to verify they have access
-                const currentUser = await window.auth?.getCurrentUser()
-                    || JSON.parse(localStorage.getItem('videobossUser') || 'null');
+                let cachedUser = null;
+                try {
+                    cachedUser = JSON.parse(localStorage.getItem('videobossUser') || 'null');
+                } catch (error) {
+                    console.warn('Affiliate Dashboard: Invalid cached user data ignored', error);
+                }
+                const currentUser = await window.auth?.getCurrentUser() || cachedUser;
                 if (!currentUser) {
                     throw new Error('Unable to get user information');
                 }
