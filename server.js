@@ -4,6 +4,7 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+const sgMail = require('@sendgrid/mail');
 
 const app = express();
 // Stripe setup
@@ -78,7 +79,7 @@ app.post('/__client_error', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/report-issue', (req, res) => {
+app.post('/api/report-issue', async (req, res) => {
   try {
     const { name, email, message, page, userAgent } = req.body || {};
 
@@ -89,14 +90,44 @@ app.post('/api/report-issue', (req, res) => {
       });
     }
 
-    console.log('📣 CopyBoss Report Issue received:', {
+    const receivedAt = new Date().toISOString();
+    const report = {
       name,
       email: email || null,
       message,
       page: page || null,
       userAgent: userAgent || null,
-      receivedAt: new Date().toISOString()
-    });
+      receivedAt
+    };
+
+    console.log('📣 CopyBoss Report Issue received:', report);
+
+    if (!process.env.SENDGRID_API_KEY) {
+      console.warn('⚠️ SENDGRID_API_KEY not set. Report issue email not sent.');
+      return res.json({ success: true, message: 'Report received' });
+    }
+
+    try {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      await sgMail.send({
+        to: 'hello@copy-boss.com',
+        from: process.env.REPORT_FROM_EMAIL || 'hello@copy-boss.com',
+        subject: 'CopyBoss Report Issue',
+        text: [
+          'CopyBoss Report Issue',
+          '',
+          `Name: ${report.name}`,
+          `Email: ${report.email || 'Not provided'}`,
+          `Message: ${report.message}`,
+          `Page: ${report.page || 'Not provided'}`,
+          `User Agent: ${report.userAgent || 'Not provided'}`,
+          `Received At: ${report.receivedAt}`
+        ].join('\n')
+      });
+      console.log('✅ SendGrid report issue email sent');
+    } catch (emailError) {
+      console.error('❌ SendGrid report issue email failed:', emailError);
+    }
 
     return res.json({ success: true, message: 'Report received' });
   } catch (error) {
