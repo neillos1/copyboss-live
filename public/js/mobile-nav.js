@@ -198,7 +198,7 @@
           title: 'Account',
           items: isUserLoggedIn ? [
             { label:'Pricing', icon:'💳', href:'/pricing', proxy:['.btn-pricing','a[href*="pricing"]'] },
-            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Join Waitlist', icon:'👥', href:'mailto:hello@copy-boss.com?subject=CopyBoss Affiliate Waitlist' },
             { label:'Logout', icon:'🚪', href:'#', action:'logout' }
           ] : [
             { label:'Pricing', icon:'💳', href:'/pricing', proxy:['.btn-pricing','a[href*="pricing"]'] },
@@ -221,7 +221,7 @@
         {
           title: 'Account',
           items: isUserLoggedIn ? [
-            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Join Waitlist', icon:'👥', href:'mailto:hello@copy-boss.com?subject=CopyBoss Affiliate Waitlist' },
             { label:'Logout', icon:'🚪', href:'#', action:'logout' }
           ] : [
             { label:'Login', icon:'🔑', href:'login.html' },
@@ -232,7 +232,7 @@
           title: 'Support',
           items: [
             { label:'Report Issue', icon:'🐛', href:'#', proxy:['#reportIssueBtn'] },
-            { label:'Become Affiliate', icon:'💸', href:'/login.html?redirect=/affiliate' }
+            { label:'Join Waitlist', icon:'💸', href:'mailto:hello@copy-boss.com?subject=CopyBoss Affiliate Waitlist' }
           ]
         }
       ];
@@ -251,7 +251,7 @@
         {
           title: 'Account',
           items: isUserLoggedIn ? [
-            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Join Waitlist', icon:'👥', href:'mailto:hello@copy-boss.com?subject=CopyBoss Affiliate Waitlist' },
             { label:'Logout', icon:'🚪', href:'#', action:'logout' }
           ] : [
             { label:'Login', icon:'🔑', href:'login.html' },
@@ -262,7 +262,7 @@
           title: 'Support',
           items: [
             { label:'Report Issue', icon:'🐛', href:'#', proxy:['#reportIssueBtn'] },
-            { label:'Become Affiliate', icon:'💸', href:'/login.html?redirect=/affiliate' }
+            { label:'Join Waitlist', icon:'💸', href:'mailto:hello@copy-boss.com?subject=CopyBoss Affiliate Waitlist' }
           ]
         }
       ];
@@ -312,7 +312,7 @@
         {
           title: 'Account',
           items: isUserLoggedIn ? [
-            { label:'Affiliate Program', icon:'👥', href:'/affiliate-dashboard.html' },
+            { label:'Join Waitlist', icon:'👥', href:'mailto:hello@copy-boss.com?subject=CopyBoss Affiliate Waitlist' },
             { label:'Logout', icon:'🚪', href:'#', action:'logout' }
           ] : [
             { label:'Login / Sign Up', icon:'🔑', href:'/login', proxy:['.btn-auth','a[href*="login"]','a[href*="signup"]'] }
