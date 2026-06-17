@@ -4343,16 +4343,23 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
     return rect.width > 8 && rect.height > 8;
   }
 
+  function cbFreeGaugeHasApexOutput(id) {
+    var host = document.getElementById(id);
+    return !!(host && host.querySelector('.apexcharts-canvas, .apexcharts-svg'));
+  }
+
   function cbRepaintFreeGauges() {
     if (typeof ApexCharts === 'undefined' || typeof buildGauge !== 'function') return;
     CB_FREE_GAUGE_IDS.forEach(function(id) {
       if (!cbFreeGaugeHostReady(id)) return;
+      if (cbFreeGaugeHasApexOutput(id)) return;
       try {
         var prev = ApexCharts.getChartByID(id);
         if (prev && typeof prev.destroy === 'function') prev.destroy();
         var host = document.getElementById(id);
         if (host) host.innerHTML = '';
         buildGauge(id, 0);
+        console.log('[Safari Gauge Fix] rebuilt missing free gauge:', id);
         var chart = ApexCharts.getChartByID(id);
         if (chart && typeof chart.updateSeries === 'function') chart.updateSeries([0]);
       } catch (e) { /* ignore */ }
@@ -4373,6 +4380,9 @@ document.getElementById("dropdownToggleBtn")?.addEventListener("click", () => {
     });
     setTimeout(cbRepaintFreeGauges, 150);
     setTimeout(cbRepaintFreeGauges, 400);
+    setTimeout(cbRepaintFreeGauges, 900);
+    setTimeout(cbRepaintFreeGauges, 1500);
+    setTimeout(cbRepaintFreeGauges, 2500);
   }
 
     // Placeholder values (replace with API response)
