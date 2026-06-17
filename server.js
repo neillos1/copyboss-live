@@ -78,6 +78,36 @@ app.post('/__client_error', (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/report-issue', (req, res) => {
+  try {
+    const { name, email, message, page, userAgent } = req.body || {};
+
+    if (!name || !message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Name and message are required'
+      });
+    }
+
+    console.log('📣 CopyBoss Report Issue received:', {
+      name,
+      email: email || null,
+      message,
+      page: page || null,
+      userAgent: userAgent || null,
+      receivedAt: new Date().toISOString()
+    });
+
+    return res.json({ success: true, message: 'Report received' });
+  } catch (error) {
+    console.error('❌ /api/report-issue error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to receive report'
+    });
+  }
+});
+
 // --- Stripe session verification ---
 app.post('/api/verify-session', express.json(), async (req, res) => {
   try {
