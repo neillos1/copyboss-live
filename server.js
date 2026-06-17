@@ -108,6 +108,12 @@ app.post('/api/report-issue', async (req, res) => {
     }
 
     try {
+      console.log('SendGrid API key debug:', {
+        exists: !!process.env.SENDGRID_API_KEY,
+        first3: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.slice(0, 3) : null,
+        last4: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.slice(-4) : null,
+        length: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.length : 0
+      });
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       await sgMail.send({
         to: 'hello@copy-boss.com',
@@ -126,7 +132,15 @@ app.post('/api/report-issue', async (req, res) => {
       });
       console.log('✅ SendGrid report issue email sent');
     } catch (emailError) {
-      console.error('❌ SendGrid report issue email failed:', emailError);
+      console.error('❌ SendGrid report issue email failed:', {
+        error: emailError,
+        code: emailError.code,
+        message: emailError.message
+      });
+      console.error(
+        '❌ SendGrid response body:',
+        JSON.stringify(emailError.response?.body, null, 2)
+      );
     }
 
     return res.json({ success: true, message: 'Report received' });
