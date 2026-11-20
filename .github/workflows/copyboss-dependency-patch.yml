@@ -1,0 +1,67 @@
+name: CopyBoss isolated dependency lockfile patch
+on:
+  push:
+    branches:
+      - alex-security/copyboss-nonbreaking-20261120
+    paths:
+      - .github/workflows/copyboss-dependency-patch.yml
+permissions:
+  contents: write
+jobs:
+  patch:
+    name: Compatible npm security patch on separate branch only
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Patch lockfile and test isolated runtime
+        shell: bash
+        run: |
+          echo "SECURITY_ISOLATED_BRANCH $GITHUB_REF_NAME"
+          test "$GITHUB_REF_NAME" = "alex-security/copyboss-nonbreaking-20261120"
+          git rev-parse HEAD
+          npm audit --json --package-lock-only > /tmp/cb-audit-before.json || true
+          npm audit fix --package-lock-only --ignore-scripts --no-progress --no-fund > /tmp/cb-audit-fix.log 2>&1 || true
+          tail -30 /tmp/cb-audit-fix.log
+          git diff --check
+          echo "CHANGED_FILES"; git diff --name-only
+          if git diff --name-only | grep -v '^package-lock.json$' | grep .; then
+            echo "ERROR: npm modified files outside package-lock.json"
+            exit 1
+          fi
+          npm audit --json --package-lock-only > /tmp/cb-audit-after.json || true
+          npm audit --json --package-lock-only --omit=dev > /tmp/cb-audit-after-prod.json || true
+          node - <<'NODE'
+          const fs=require('fs'),cp=require('child_process');
+          for(const scope of ['before','after','after-prod']){
+            const x=JSON.parse(fs.readFileSync('/tmp/cb-audit-'+scope+'.json','utf8'));
+            console.log('SECURITY_COUNTS '+JSON.stringify({scope,counts:x.metadata?.vulnerabilities||null,error:x.error?.message||null}));
+          }
+          const old=JSON.parse(cp.execFileSync('git',['show','HEAD:package-lock.json'],{encoding:'utf8'}));
+          const cur=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          const changes=[];
+          for(const [k,v] of Object.entries(cur.packages||{})){
+            const oldv=old.packages?.[k];
+            if(oldv?.version && v.version!==oldv.version){
+              changes.push({name:k,from:oldv.version,to:v.version});
+            }
+          }
+          console.log('PATCH_SUMMARY '+JSON.stringify({changedPackageVersions:changes.length,changes:changes.slice(0,100)}));
+          NODE
+          if git diff --quiet -- package-lock.json; then
+            echo "NO_COMPATIBLE_LOCKFILE_CHANGE"
+            exit 0
+          fi
+          npm ci --ignore-scripts --no-audit --no-progress --no-fund
+          node -e "require('express');require('body-parser');require('multer');require('sqlite3');console.log('NODE_REQUIRE_CHECK_PASSED')" || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore(security): apply compatible npm lockfile fixes (review only)"
+          git push origin HEAD:refs/heads/alex-security/copyboss-nonbreaking-20261120
