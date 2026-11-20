@@ -1,0 +1,73 @@
+name: CopyBoss read-only external network audit
+on:
+  push:
+    branches:
+      - alex-audit/copyboss-network-20261120
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: DNS / TLS / HTTP response check (read only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run public network checks, without deployment
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, ssl, socket, urllib.request, urllib.error, json, datetime
+          hosts = ["www.copy-boss.com","copy-boss.com","copyboss-live.onrender.com"]
+          urls = [
+           "https://www.copy-boss.com/",
+           "https://www.copy-boss.com/analyzer.html",
+           "https://www.copy-boss.com/_prod/analyzer.html",
+           "https://www.copy-boss.com/login.html",
+           "https://www.copy-boss.com/pricing.html",
+           "https://www.copy-boss.com/support.html",
+           "https://www.copy-boss.com/sitemap.xml",
+           "https://www.copy-boss.com/robots.txt",
+           "https://www.copy-boss.com/assets/img/mascot.png",
+           "https://copy-boss.com/",
+           "http://copy-boss.com/",
+           "https://copyboss-live.onrender.com/"
+          ]
+          results = []
+          def record(kind, target, **data):
+              entry = {"kind":kind, "target":target, **data}
+              results.append(entry)
+              print(json.dumps(entry, ensure_ascii=False), flush=True)
+          for host in hosts:
+              try:
+                  ips = sorted({x[4][0] for x in socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)})
+                  record("dns", host, addresses=ips[:8])
+              except Exception as e:
+                  record("dns", host, error=repr(e))
+              try:
+                  with socket.create_connection((host, 443), timeout=8) as raw:
+                      with ssl.create_default_context().wrap_socket(raw, server_hostname=host) as s:
+                          cert=s.getpeercert()
+                          record("tls",host,protocol=s.version(),expires=cert.get("notAfter"),subject=str(cert.get("subject", ""))[:200])
+              except Exception as e:
+                  record("tls", host, error=repr(e))
+          for url in urls:
+              try:
+                  req=urllib.request.Request(url,headers={"User-Agent":"CopyBoss-ReadOnly-SEO-Audit/1.0"})
+                  with urllib.request.urlopen(req,timeout=12) as resp:
+                      resp.read(16)
+                      record("http",url,status=resp.status,final_url=resp.url,content_type=resp.headers.get("content-type"),content_length=resp.headers.get("content-length"))
+              except urllib.error.HTTPError as e:
+                  record("http",url,status=e.code,error=str(e.reason),final_url=e.url)
+              except Exception as e:
+                  record("http",url,error=repr(e))
+          summary=os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              with open(summary,"a") as f:
+                  f.write("# CopyBoss external read-only DNS / TLS / HTTP audit\\n\\n")
+                  f.write("This diagnostic did not deploy code, submit forms, access accounts or modify websites.\\n\\n")
+                  f.write("| Probe | Target | Result |\\n|---|---|---|\\n")
+                  for r in results:
+                      data= ("HTTP " + str(r.get("status")) + " to " + r.get("final_url","")) if "status" in r else ("TLS " + str(r.get("protocol")) + " until " + str(r.get("expires",""))) if r["kind"]=="tls" and "error" not in r else "ERROR: "+str(r.get("error","")) if "error" in r else ", ".join(r.get("addresses",[]))
+                      f.write("| "+r["kind"]+" | "+r["target"]+" | "+data.replace("|","/")+" |\\n")
+          print("Audit finished; this read-only diagnostic intentionally does not fail the workflow.",flush=True)
+          PY
