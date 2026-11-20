@@ -65,3 +65,32 @@ jobs:
           git add package-lock.json
           git commit -m "chore(security): apply compatible npm lockfile fixes (review only)"
           git push origin HEAD:refs/heads/alex-security/copyboss-nonbreaking-20261120
+      - name: Verify non-breaking lockfile patch with real install and local server
+        shell: bash
+        run: |
+          echo "TESTING_LOCKFILE_REVISION $(git rev-parse HEAD)"
+          npm ci --no-audit --no-fund --no-progress
+          node -e "require('express');require('body-parser');require('multer');require('sqlite3');console.log('REQUIRE_SMOKE_PASS')"
+          export NODE_ENV=production
+          export PORT=3038
+          node server.js >/tmp/copyboss-security-server.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          sleep 3
+          for route in / /__health /analyzer.html /_prod/analyzer.html /login.html /pricing.html /support.html /robots.txt /sitemap.xml /assets/img/mascot.png; do
+            code=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 "http://127.0.0.1:3038$route")
+            echo "SECURITY_LOCAL_SMOKE $route $code"
+            test "$code" = "200"
+          done
+          npm audit --json --package-lock-only --omit=dev > /tmp/cb-audit-remaining-prod.json || true
+          node - <<'NODE'
+          const fs=require('fs');
+          const a=JSON.parse(fs.readFileSync('/tmp/cb-audit-remaining-prod.json','utf8'));
+          const v=a.vulnerabilities||{};
+          console.log('SECURITY_REMAINING_COUNTS '+JSON.stringify(a.metadata?.vulnerabilities||{}));
+          for(const [name,item] of Object.entries(v)){
+            if(['high','critical'].includes(item.severity)){
+              console.log('SECURITY_REMAINING_PACKAGE '+JSON.stringify({name,severity:item.severity,isDirect:item.isDirect,fixAvailable:item.fixAvailable,range:item.range,via:(item.via||[]).filter(x=>typeof x==='object').map(x=>({title:x.title,url:x.url})).slice(0,3)}));
+            }
+          }
+          NODE
