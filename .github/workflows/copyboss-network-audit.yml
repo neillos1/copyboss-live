@@ -71,3 +71,64 @@ jobs:
                       f.write("| "+r["kind"]+" | "+r["target"]+" | "+data.replace("|","/")+" |\\n")
           print("Audit finished; this read-only diagnostic intentionally does not fail the workflow.",flush=True)
           PY
+      - name: Install isolated browser test dependencies
+        shell: bash
+        run: |
+          mkdir -p /tmp/copyboss-browser-audit
+          npm install --prefix /tmp/copyboss-browser-audit --no-audit --no-fund --silent playwright
+          if command -v google-chrome >/dev/null; then
+            echo "CHROME_EXECUTABLE=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          elif command -v chromium >/dev/null; then
+            echo "CHROME_EXECUTABLE=$(command -v chromium)" >> "$GITHUB_ENV"
+          else
+            /tmp/copyboss-browser-audit/node_modules/.bin/playwright install chromium
+          fi
+      - name: Read-only browser smoke test of current production
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const { chromium } = require('/tmp/copyboss-browser-audit/node_modules/playwright');
+          (async () => {
+            const opt = {headless: true, args:['--no-sandbox']};
+            if(process.env.CHROME_EXECUTABLE) opt.executablePath=process.env.CHROME_EXECUTABLE;
+            const browser = await chromium.launch(opt);
+            const context = await browser.newContext({viewport:{width:1365,height:768}});
+            const routes = [
+              ['/', 'CopyBoss - AI Video Analyzer for Creators'],
+              ['/analyzer.html', 'VideoBoss Analyzer - AI Video Analysis Tool'],
+              ['/_prod/analyzer.html', 'VideoBoss Analyzer - AI Video Analysis Tool'],
+              ['/login.html', 'Login - CopyBoss'],
+              ['/pricing.html', 'CopyBoss Pricing - Choose Your Plan'],
+              ['/support.html', 'Support - CopyBoss']
+            ];
+            let failed=0;
+            for(const [path,title] of routes){
+              const page=await context.newPage();
+              const pageErrors=[];
+              page.on('pageerror', err => pageErrors.push(err.message.slice(0,180)));
+              try{
+                const response = await page.goto('https://www.copy-boss.com'+path,{waitUntil:'domcontentloaded',timeout:45000});
+                const actual = await page.title();
+                const body = await page.locator('body').count();
+                const status = response?.status();
+                const result = {path,status,title:actual,bodyPresent:!!body,finalUrl:page.url(),runtimeErrors:pageErrors.slice(0,4)};
+                const passed=status===200&&actual===title&&body>0;
+                result.pass=passed;
+                if(!passed)failed++;
+                console.log('BROWSER_CHECK '+JSON.stringify(result));
+              }catch(e){
+                failed++;
+                console.log('BROWSER_CHECK '+JSON.stringify({path,pass:false,error:String(e).slice(0,220)}));
+              }finally{await page.close();}
+            }
+            const affiliate=await context.newPage();
+            try{
+              const res=await affiliate.goto('https://www.copy-boss.com/affiliate-dashboard.html',{waitUntil:'domcontentloaded',timeout:45000});
+              await affiliate.waitForTimeout(2500);
+              console.log('AFFILIATE_REDIRECT '+JSON.stringify({initialStatus:res?.status(),finalUrl:affiliate.url()}));
+            }catch(e){console.log('AFFILIATE_REDIRECT '+JSON.stringify({error:String(e).slice(0,200)}));}
+            await browser.close();
+            console.log('BROWSER_SUMMARY '+JSON.stringify({passed:routes.length-failed,total:routes.length,failed,modifiesProduction:false}));
+            if(failed>0)process.exitCode=1;
+          })().catch(err => {console.error('BROWSER_FATAL',String(err));process.exitCode=1});
+          NODE
