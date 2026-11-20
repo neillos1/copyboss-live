@@ -263,3 +263,30 @@ jobs:
             if(failed)process.exitCode=1;
           })().catch(e=>{console.error('RELEASE_FATAL',String(e));process.exitCode=1});
           NODE
+      - name: CopyBoss npm dependency audit (read-only, pinned release)
+        shell: bash
+        run: |
+          cd candidate
+          echo "Audit only: no install, no fixes, no deployment"
+          echo "Audited release: 17f8ec46a93e2f9388e13d3264b30af815790f14"
+          npm audit --json --package-lock-only > /tmp/copyboss-audit-all.json || true
+          npm audit --json --package-lock-only --omit=dev > /tmp/copyboss-audit-prod.json || true
+          node - <<'NODE'
+          const fs=require('fs');
+          for(const [label,file] of [['all','/tmp/copyboss-audit-all.json'],['production','/tmp/copyboss-audit-prod.json']]){
+            let data;
+            try { data=JSON.parse(fs.readFileSync(file,'utf8')); }
+            catch(e){ console.error('AUDIT_PARSE_ERROR '+JSON.stringify({scope:label,error:String(e)}));process.exitCode=1;continue; }
+            if(!data.metadata?.vulnerabilities){ console.error('AUDIT_NO_METADATA '+JSON.stringify({scope:label,error:data.error?.message}));process.exitCode=1;continue; }
+            const counts=data.metadata.vulnerabilities;
+            const names=Object.entries(data.vulnerabilities||{}).map(([name,v])=>({
+              name,severity:v.severity,isDirect:v.isDirect,range:v.range,
+              fixAvailable:v.fixAvailable,
+              nodes:(v.nodes||[]).length,
+              via:(v.via||[]).filter(x=>typeof x==='object').map(x=>({title:x.title,url:x.url,severity:x.severity})).slice(0,3)
+            }));
+            names.sort((a,b)=>['critical','high','moderate','low'].indexOf(a.severity)-['critical','high','moderate','low'].indexOf(b.severity) || a.name.localeCompare(b.name));
+            console.log('AUDIT_COUNTS '+JSON.stringify({scope:label,counts}));
+            for(const item of names)console.log('AUDIT_PACKAGE '+JSON.stringify({scope:label,...item}));
+          }
+          NODE
