@@ -1,0 +1,71 @@
+name: CopyBoss Terms live canary independent verification
+on:
+  push:
+    branches:
+      - alex-audit/copyboss-network-20261120
+    paths:
+      - .github/workflows/copyboss-terms-live-canary.yml
+permissions:
+  contents: read
+jobs:
+  check:
+    name: Public live Terms canonical and protected route check
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Independently fetch production public pages (read-only)
+        env:
+          EXPECTED_CANONICAL: "absent"
+          PHASE: "baseline"
+        run: |
+          python3 - <<'PY'
+          import os,re,urllib.request,hashlib,json,time
+          phase=os.getenv('PHASE','unknown')
+          expected=os.getenv('EXPECTED_CANONICAL','')
+          targets=[
+            "https://www.copy-boss.com",
+            "https://copyboss-live.onrender.com",
+          ]
+          def read(url):
+            req=urllib.request.Request(url, headers={
+              'User-Agent':'CopyBoss-Canary-ReadOnly/1.0',
+              'Cache-Control':'no-cache',
+              'Pragma':'no-cache',
+            })
+            with urllib.request.urlopen(req,timeout=22) as response:
+              return response.status,response.geturl(),response.read(500000).decode('utf-8','replace')
+          failures=[]
+          for domain in targets:
+            query=f"?audit_phase={phase}_20261121"
+            try:
+              status,final,html=read(domain+"/terms.html"+query)
+              tags=re.findall(r'<link\b[^>]*\brel=["\']canonical["\'][^>]*>',html,re.I)
+              expected_tag='<link rel="canonical" href="https://www.copy-boss.com/terms.html">'
+              canonical_ok=(len(tags)==0) if expected=='absent' else (len(tags)==1 and tags[0].strip()==expected_tag)
+              title_ok='<title>Terms of Service - CopyBoss</title>' in html
+              good=status==200 and canonical_ok and title_ok
+              if not good:failures.append(domain+"/terms")
+              print("TERMS_CANARY "+json.dumps({
+                "phase":phase,"domain":domain,"status":status,"final_url":final,
+                "canonical_count":len(tags),"canonical_tags":tags,
+                "html_sha256":hashlib.sha256(html.encode()).hexdigest(),
+                "title_ok":title_ok,"expected":expected,"pass":good
+              }),flush=True)
+            except Exception as e:
+              failures.append(domain+"/terms")
+              print("TERMS_CANARY "+json.dumps({"phase":phase,"domain":domain,"pass":False,"error":repr(e)[:200]}),flush=True)
+          for path,expected_title in [
+            ('/','CopyBoss - AI Video Analyzer for Creators'),
+            ('/analyzer.html','VideoBoss Analyzer - AI Video Analysis Tool'),
+          ]:
+            try:
+              status,final,html=read("https://www.copy-boss.com"+path+"?audit_phase="+phase+"_20261121")
+              good=status==200 and '<title>'+expected_title+'</title>' in html
+              if not good:failures.append(path)
+              print("PROTECTED_ROUTE "+json.dumps({"phase":phase,"path":path,"status":status,"title_ok":good,"pass":good}),flush=True)
+            except Exception as e:
+              failures.append(path)
+              print("PROTECTED_ROUTE "+json.dumps({"phase":phase,"path":path,"pass":False,"error":repr(e)[:200]}),flush=True)
+          print("CANARY_SUMMARY "+json.dumps({"phase":phase,"expected":expected,"pass":len(failures)==0,"failed":failures}),flush=True)
+          if failures:raise SystemExit(1)
+          PY
