@@ -15,8 +15,8 @@ jobs:
     steps:
       - name: Independently fetch production public pages (read-only)
         env:
-          EXPECTED_CANONICAL: "present"
-          PHASE: "candidate"
+          EXPECTED_CANONICAL: "absent"
+          PHASE: "restored"
         run: |
           python3 - <<'PY'
           import os,re,urllib.request,hashlib,json,time
